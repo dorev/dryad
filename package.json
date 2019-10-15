@@ -1,0 +1,24 @@
+{
+  "name": "dryad",
+  "version": "1.0.0",
+  "description": "",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dorev/dryad.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dorev/dryad/issues"
+  },
+  "homepage": "https://github.com/dorev/dryad#readme",
+  "dependencies": {
+    "typescript": "^3.6.4",
+    "vexflow": "^1.2.89"
+  }
+}
