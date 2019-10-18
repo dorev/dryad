@@ -1,15 +1,5 @@
-import { Beat, Note } from "./BasicElements";
-
-export interface InstantAddress {
-  offset: Beat;
-  id: number;
-}
-
-export class Instant {
-  public readonly offset: Beat;
-  public events: MusicalEvent[];
-  public notesResonating: Note[];
-}
+import { InstantAddress } from "./Instant";
+import { Note } from "./Note";
 
 export class MusicalEvent {
   private static nextId: number = 0;

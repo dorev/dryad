@@ -1,6 +1,7 @@
 {
 	"extends": "tslint:recommended",
 	"rules": {
+		// rules : https://palantir.github.io/tslint/rules/
 			"max-line-length": {
 					"options": [120]
 			},
