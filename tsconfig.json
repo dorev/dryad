@@ -2,7 +2,9 @@
   "compilerOptions": {
       "module": "commonjs",
       "target": "ES5",
-      "outDir": "js",
+      "lib": ["es6"],
+      "outDir": "out",
+      "sourceMap" : true,
       "rootDir": "src",
       "noImplicitAny": true,
       "removeComments": true,     
@@ -18,9 +20,11 @@
         }
       ]
   },
+  "include": [
+      "src/**/*.ts"
+  ],
   "exclude": [
     "node_modules",
-    "dist",
-    "js"
+    "**/*.spec.ts"
   ]
 }
