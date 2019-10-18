@@ -54,8 +54,8 @@ export class Beat {
     } else {
 
       const beatFraction: Fraction = reduceFraction({
-          denom : this.denom === other.denom ? this.denom : this.denom * other.denom,
-          num   : this.denom === other.denom ? this.num + other.num : this.num * other.denom + other.num * this.denom,
+          denom : this.denom * other.denom,
+          num   : this.num * other.denom + other.num * this.denom,
       });
 
       beat = this.beat + other.beat + Math.floor(beatFraction.num / beatFraction.denom);
@@ -87,8 +87,8 @@ export class Beat {
 
       beat = this.beat - other.beat + Math.floor((this.num - other.num) / this.denom);
 
-      num = ((this.num - other.num) / this.denom) < 0
-            ? (this.num - other.num) % this.denom
+      num = (this.num - other.num) < 0
+            ? this.denom + ((this.num - other.num) % this.denom)
             : this.num - other.num;
 
       return new Beat(beat, num, this.denom);
@@ -96,13 +96,13 @@ export class Beat {
     } else {
 
       const beatFraction: Fraction = reduceFraction({
-          denom : this.denom === other.denom ? this.denom : this.denom * other.denom,
-          num   : this.denom === other.denom ? this.num - other.num : this.num * other.denom - other.num * this.denom,
+          denom : this.denom * other.denom,
+          num   : this.num * other.denom - other.num * this.denom,
       });
 
-      beat = this.beat - other.beat - Math.floor(beatFraction.num / beatFraction.denom);
-      num = Math.floor(beatFraction.num / beatFraction.denom) < 0
-            ? beatFraction.num % beatFraction.denom
+      beat = this.beat - other.beat + Math.floor(beatFraction.num / beatFraction.denom);
+      num = beatFraction.num < 0
+            ? beatFraction.denom + beatFraction.num % beatFraction.denom
             : beatFraction.num;
 
       return new Beat(beat, num, beatFraction.denom);
