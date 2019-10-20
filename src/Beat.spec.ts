@@ -1,5 +1,4 @@
 // npm install chai mocha ts-node @types/chai @types/mocha --save-dev
-
 import { expect } from "chai";
 import "mocha";
 import { Beat } from "./Beat";

@@ -2,6 +2,20 @@ import { Fraction, reduceFraction } from "./Utils";
 
 export class Beat {
 
+  public static compare(firstBeat: Beat, secondBeat: Beat): number {
+    if (firstBeat.beat < secondBeat.beat) {
+      return -1;
+    } else if (firstBeat.beat > secondBeat.beat) {
+      return 1;
+    } else if (firstBeat.num / firstBeat.denom < secondBeat.num / secondBeat.denom) {
+      return -1;
+    } else if (firstBeat.num / firstBeat.denom > secondBeat.num / secondBeat.denom) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+
   public beat: number = 0;
   public num: number = null;
   public denom: number = null;
@@ -24,6 +38,10 @@ export class Beat {
 
     this.num = num;
     this.denom = denom;
+  }
+
+  get stamp(): number {
+    return this.beat + (this.num / this.denom);
   }
 
   public add(other: Beat): Beat {

@@ -11,4 +11,8 @@ export class Instant {
   public readonly offset: Beat;
   public events: MusicalEvent[];
   public notesResonating: Note[];
+
+  constructor(...events: MusicalEvent[]) {
+    this.events = [...this.events, ...events];
+  }
 }
