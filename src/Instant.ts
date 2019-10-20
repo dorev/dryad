@@ -8,11 +8,12 @@ export interface InstantAddress {
 }
 
 export class Instant {
-  public readonly offset: Beat;
-  public events: MusicalEvent[];
-  public notesResonating: Note[];
+  public readonly beat: Beat;
+  public events: MusicalEvent[] = [];
+  public notesResonating: Note[] = [];
 
-  constructor(...events: MusicalEvent[]) {
-    this.events = [...this.events, ...events];
+  constructor(event: MusicalEvent, beat: Beat) {
+    this.events.push(event);
+    this.beat = beat;
   }
 }

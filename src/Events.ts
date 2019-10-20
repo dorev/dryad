@@ -1,3 +1,4 @@
+import { Beat } from "./Beat";
 import { InstantAddress } from "./Instant";
 import { Note } from "./Note";
 
@@ -26,4 +27,9 @@ export class NoteOff extends MusicalEvent {
     super();
     this.noteRef = noteRef;
   }
+}
+
+export interface EventData {
+  event: MusicalEvent;
+  beat: Beat;
 }

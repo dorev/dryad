@@ -3,6 +3,11 @@ import { Fraction, reduceFraction } from "./Utils";
 export class Beat {
 
   public static compare(firstBeat: Beat, secondBeat: Beat): number {
+
+    if (firstBeat === undefined || firstBeat === undefined) {
+      throw new Error("undefined Beat");
+    }
+
     if (firstBeat.beat < secondBeat.beat) {
       return -1;
     } else if (firstBeat.beat > secondBeat.beat) {
