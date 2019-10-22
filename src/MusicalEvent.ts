@@ -2,6 +2,8 @@ enum EventType {
   Empty,
   NoteOn,
   NoteOff,
+  TimeSignature,
+  Tempo,
 }
 
 export class MusicalEvent {

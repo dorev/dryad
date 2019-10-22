@@ -24,6 +24,7 @@ export class Score {
 
         if (this.score.length === 0) {
             this.score.push(new ScorePosition(scoreEvent));
+            return;
         }
 
         const searchResult: ScoreSearchResult = this.findBeat(scoreEvent.beat);
