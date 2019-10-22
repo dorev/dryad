@@ -1,4 +1,4 @@
-import { Fraction, reduceFraction } from "./Utils";
+import { Fraction } from "./Fraction";
 
 export class Beat {
 
@@ -76,7 +76,7 @@ export class Beat {
 
     } else {
 
-      const beatFraction: Fraction = reduceFraction({
+      const beatFraction: Fraction = Fraction.reduce({
           denom : this.denom * other.denom,
           num   : this.num * other.denom + other.num * this.denom,
       });
@@ -118,7 +118,7 @@ export class Beat {
 
     } else {
 
-      const beatFraction: Fraction = reduceFraction({
+      const beatFraction: Fraction = Fraction.reduce({
           denom : this.denom * other.denom,
           num   : this.num * other.denom - other.num * this.denom,
       });

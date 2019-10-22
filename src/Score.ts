@@ -1,28 +1,39 @@
 import { Beat } from "./Beat";
-import { EventData, MusicalEvent } from "./Events";
-import { Instant } from "./Instant";
+import { MusicalEvent } from "./MusicalEvent";
+import { ScorePosition } from "./ScorePosition";
+
+export interface ScoreSearchResult {
+    found: boolean;
+    index: number;
+}
+
+export interface ScoreEvent {
+    event: MusicalEvent;
+    beat: Beat;
+}
 
 export class Score {
 
-    public score: Instant[] = [];
+    public score: ScorePosition[] = [];
 
     constructor() {
         //
     }
 
-    public addEvent(eventData: EventData): void {
+    public addEvent(scoreEvent: ScoreEvent): void {
 
         if (this.score.length === 0) {
-            this.score.push(new Instant(eventData.event, eventData.beat));
+            this.score.push(new ScorePosition(scoreEvent));
         }
 
-        const searchResult: ScoreSearchResult = this.findBeat(eventData.beat);
+        const searchResult: ScoreSearchResult = this.findBeat(scoreEvent.beat);
+
         if (searchResult.found) {
-            // add the event to that instant
-            this.score[searchResult.index].events.push(eventData.event);
+            // add the event to that position
+            this.score[searchResult.index].events.push(scoreEvent.event);
         } else {
-            // insert instant with event in it
-            this.score.splice(searchResult.index, 0, new Instant(eventData.event, eventData.beat));
+            // insert new position with event in it
+            this.score.splice(searchResult.index, 0, new ScorePosition(scoreEvent));
         }
     }
 
@@ -41,9 +52,3 @@ export class Score {
         return {found : false, index: i};
     }
 }
-
-export interface ScoreSearchResult {
-    found: boolean;
-    index: number;
-}
-

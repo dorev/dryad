@@ -1,9 +1,9 @@
 // npm install chai mocha ts-node @types/chai @types/mocha --save-dev
 import { expect } from "chai";
 import "mocha";
-import { Beat } from "./Beat";
-import { MusicalEvent } from "./Events";
-import { Score, ScoreSearchResult } from "./Score";
+import { Beat } from "../src/Beat";
+import { MusicalEvent } from "../src/MusicalEvent";
+import { Score, ScoreSearchResult } from "../src/Score";
 
 describe("Score.addEvent(eventArray)",  () => {
 
