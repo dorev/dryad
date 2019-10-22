@@ -1,5 +1,5 @@
 enum EventType {
-  Invalid,
+  Empty,
   NoteOn,
   NoteOff,
 }
@@ -10,7 +10,7 @@ export class MusicalEvent {
   public readonly type: EventType;
   public readonly value: any;
 
-  constructor(eventType: EventType = EventType.Invalid, value?: any) {
+  constructor(eventType: EventType = EventType.Empty, value?: any) {
     this.id = MusicalEvent.nextId++;
     this.type = eventType;
     this.value = value;
