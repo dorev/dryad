@@ -1,3 +1,4 @@
+
 export class Fraction {
 
   public static reduce(fraction: Fraction, minimumDenom: number = 1): Fraction {

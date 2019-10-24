@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './out/main.js',
+  entry: './out/_main.js',
   output: {
     filename: 'dryad.js',
     path: path.resolve('dist')

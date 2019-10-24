@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "js\\main",
   "scripts": {
-    "test": "mocha -r ts-node/register ./**/*.spec.ts"
+    "test": "mocha -r ts-node/register ./**/*.spec.ts",
+    "build": "tsc && webpack --config webpack.config.js"
   },
   "repository": {
     "type": "git",
@@ -24,10 +25,11 @@
   },
   "description": "Harmonic analysis",
   "devDependencies": {
-    "@types/chai": "^4.2.3",
+    "@types/chai": "^4.2.4",
     "@types/mocha": "^5.2.7",
+    "@types/vexflow": "^1.2.33",
     "chai": "^4.2.0",
-    "mocha": "^6.2.1",
+    "mocha": "^6.2.2",
     "ts-node": "^8.4.1",
     "tslint": "^5.20.0",
     "webpack-cli": "^3.3.9"
