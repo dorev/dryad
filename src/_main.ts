@@ -1,19 +1,30 @@
 import * as Vex from "vexflow";
 
+
 const VF = Vex.Flow;
+
+const input = document.querySelector("#dryad-input-button") as HTMLElement;
+const text = document.querySelector("#dryad-input") as HTMLElement;
+input.addEventListener("click", crunchDryad);
+
+function crunchDryad(): void {
+  console.log(text.innerHTML);
+}
+
+
 
 // Create an SVG renderer and attach it to the DIV element named "boo".
 const div = document.querySelector("#vex") as HTMLElement;
 const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
 
 // Size our svg:
-renderer.resize(500, 500);
+renderer.resize(420, 200);
 
 // And get a drawing context:
 const context = renderer.getContext();
 
-// Create a stave at position 10, 40 of width 400 on the canvas.
-const stave = new VF.Stave(10, 40, 400);
+// Create a stave at position 10, 0 of width 400 on the canvas.
+const stave = new VF.Stave(10, 0, 400);
 
 // Add a clef and time signature.
 stave.addClef("treble").addTimeSignature("4/4");
