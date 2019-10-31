@@ -13,6 +13,17 @@ function crunchDryad(): void {
 
 
 
+
+
+
+
+
+
+
+//
+// VEX SETUP
+//
+
 // Create an SVG renderer and attach it to the DIV element named "boo".
 const div = document.querySelector("#vex") as HTMLElement;
 const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);

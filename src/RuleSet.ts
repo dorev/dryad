@@ -31,6 +31,7 @@ export class RuleSet {
 
   constructor() {
     // Append all static rule methods to rules member
+    // All rules are selected by default
     this.allRules = [
       new Rule(
         "Quintes parallèles",

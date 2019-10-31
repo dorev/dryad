@@ -11,12 +11,11 @@ export class RuleCheckResult {
 export class Rules {
 
   public static parallelFifth(score: Score, pos: ScorePosition): RuleCheckResult {
-    const res: RuleCheckResult = new RuleCheckResult();
-    return res;
+    return new RuleCheckResult();
   }
+
   public static parallelOctaves(score: Score, pos: ScorePosition): RuleCheckResult {
-    const res: RuleCheckResult = new RuleCheckResult();
-    return res;
+    return new RuleCheckResult();
   }
 
   constructor() {

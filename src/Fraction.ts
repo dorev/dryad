@@ -1,4 +1,3 @@
-
 export class Fraction {
 
   public static reduce(fraction: Fraction, minimumDenom: number = 1): Fraction {
@@ -8,7 +7,12 @@ export class Fraction {
                  ? fraction.denom
                  : minimumDenom;
 
-    for (let i = minimumDenom; i < fraction.denom; ++i) {
+    for (let i = 1; i < fraction.denom; ++i) {
+
+      if (fraction.denom / i < minimumDenom) {
+        continue;
+      }
+
       if (fraction.num % i === 0 && fraction.denom % i === 0) {
           divisor = i;
       }
