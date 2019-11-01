@@ -9,6 +9,7 @@
 			"interface-name" : false,
 			"max-classes-per-file" : [false, 1],
 			"no-arg": true,
+			"object-literal-sort-keys" : false,
 			"indent": [true, "spaces", 2],
 			"no-bitwise": true,
 			"no-conditional-assignment": true,
