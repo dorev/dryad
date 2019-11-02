@@ -1,11 +1,55 @@
 import * as Vex from "vexflow";
-import { VexScore } from "./VexProcessor";
+import { VexScore } from "./VexScore";
 
 
 
 const input = document.querySelector("#dryad-input-button") as HTMLElement;
 const text = document.querySelector("#dryad-input") as HTMLTextAreaElement;
-text.value = "{}";
+
+// Test JSON
+text.value = `{
+  "stavesConnections" : [
+    {
+      "connect": [0,1],
+      "type" : "braces"
+    }
+  ],
+  "staves" : [
+    {
+      "clef" : "treble",
+      "timesig" : "4/4",
+      "voices" : [
+        {
+          "tickables" : [
+            { "type": "note", "data" : ["treble", "c/4,e/4,g/4", "4"]},
+            { "type": "note", "data" : ["treble", "f/4,a/4,c/5", "2"]},
+            { "type": "note", "data" : ["treble", "c/4,e/4,g/4", "4"]}
+          ]
+        },
+        {
+          "tickables" : [
+            { "type": "note", "data" : ["treble", "e/4", "2", "patate"]},
+            { "type": "note", "data" : ["treble", "f/4", "2"]}
+          ]
+        }
+      ]
+    },
+    {
+      "clef" : "bass",
+      "timesig" : "4/4",
+      "voices" : [
+        {
+          "tickables" : [
+            { "type": "note", "data" : ["bass", "c/2", "2", "patate"]},
+            { "type": "note", "data" : ["bass", "f/2", "2"]}
+          ]
+        }
+      ]
+    }
+  ]
+}
+`;
+
 input.addEventListener("click", crunchDryad);
 
 function crunchDryad(): void {
@@ -15,14 +59,8 @@ function crunchDryad(): void {
 
   const vexScore = new VexScore(document.querySelector("#vex"), 420, 200, 400);
 
-  const result: string = vexScore.render(json);
-
-  if (result !== "all good") {
-    input.setAttribute("value", result);
-    setTimeout(() => {input.setAttribute("value", "crunch"); }, 1000);
-  }
-
-
+  input.setAttribute("value", vexScore.render(json));
+  setTimeout(() => {input.setAttribute("value", "crunch"); }, 1000);
 
 }
 
