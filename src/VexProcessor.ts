@@ -1,45 +1,92 @@
 import * as Vex from "vexflow";
 // tslint:disable: no-unused-expression
 
+
 export const VF = Vex.Flow;
 
 interface VexStaffConnectionJson { connect: number[]; type: string; }
-interface VexTickableJson { tickableType: string; data: string[]; }
-type VexVoiceJson = VexTickableJson[];
-type VexStaffJson = VexVoiceJson[];
+interface VexTickableJson { type: string; data: string[]; }
+interface VexVoiceJson { tickables: VexTickableJson[]; }
+interface VexStaffJson { clef: string; timesig: string; voices: VexVoiceJson[]; }
 
 export interface VexScoreJson {
   stavesConnections: VexStaffConnectionJson[];
   staves: VexStaffJson[];
 }
+/*
+{
+  "staveConnections" : [],
+  "staves" : [
+    {
+      "clef" : "treble",
+      "timesig" : "4/4",
+      "voices" : [
+        {
+          "tickables" : [
+            { "type": "note", "data" : ["treble", "c/4,e/4,g/4", "4"]},
+            { "type": "note", "data" : ["treble", "f/4,a/4,c/5", "2"]},
+            { "type": "note", "data" : ["treble", "c/4,e/4,g/4", "4"]}
+          ]
+        },
+        {
+          "tickables" : [
+            { "type": "note", "data" : ["treble", "c/2", "2"]},
+            { "type": "note", "data" : ["treble", "f/2", "2"]}
+          ]
+        }
+      ]
+    }
+  ]
+}
+*/
 
 export class VexScore {
 
+  public renderingWidth: number;
+  public renderingHeight: number;
+  public scoreWidth: number;
   private staves: VexStaff[];
+  private renderer: Vex.Flow.Renderer;
+  private context: Vex.IRenderContext;
 
   constructor(
     hostElement: HTMLElement,
     renderingWidth: number,
     renderingHeight: number,
     scoreWidth: number) {
-    //
-    /*
-    const div = document.querySelector("#vex") as HTMLElement;
-    const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
 
-    // Size our svg:
-    renderer.resize(420, 200);
+    this.renderingWidth = renderingWidth;
+    this.renderingHeight = renderingHeight;
+    this.scoreWidth = scoreWidth;
 
-    // And get a drawing context:
-    const context = renderer.getContext();
-    */
+    this.renderer = new VF.Renderer(hostElement, VF.Renderer.Backends.SVG);
+    this.renderer.resize(this.renderingWidth, this.renderingHeight);
+    const context = this.renderer.getContext();
   }
 
-  public render(scoreJson: VexScoreJson): void  {
+  public resizeRenderer(renderingWidth: number, renderingHeight: number): void {
+    this.renderer.resize(renderingWidth, renderingHeight);
+    this.renderingWidth = renderingWidth;
+    this.renderingHeight = renderingHeight;
+  }
+
+  public render(scoreJson: VexScoreJson): string  {
 
     // draw all staves
+    if (!scoreJson.hasOwnProperty("staves")) {
+      return "no staves";
+    }
+
+    scoreJson.staves.forEach((staff) => {
+
+    });
+
+
+
     // draw beams
     // draw all connections
+
+    return "all good";
 
   }
 

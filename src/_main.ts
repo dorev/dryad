@@ -1,30 +1,48 @@
 import * as Vex from "vexflow";
+import { VexScore } from "./VexProcessor";
 
 
-const VF = Vex.Flow;
 
 const input = document.querySelector("#dryad-input-button") as HTMLElement;
-const text = document.querySelector("#dryad-input") as HTMLElement;
+const text = document.querySelector("#dryad-input") as HTMLTextAreaElement;
+text.value = "{}";
 input.addEventListener("click", crunchDryad);
 
 function crunchDryad(): void {
-  console.log(text.innerHTML);
+
+  const json = JSON.parse(text.value);
+  console.log(json);
+
+  const vexScore = new VexScore(document.querySelector("#vex"), 420, 200, 400);
+
+  const result: string = vexScore.render(json);
+
+  if (result !== "all good") {
+    input.setAttribute("value", result);
+    setTimeout(() => {input.setAttribute("value", "crunch"); }, 1000);
+  }
+
+
+
 }
 
 
 
+// Fill a score according to the content of the text
+// Need a VexProcessor that can take a single object as input
+// and completely render the staff
 
 
 
 
 
-
-
+/*
 //
 // VEX SETUP
 //
 
 // Create an SVG renderer and attach it to the DIV element named "boo".
+const VF = Vex.Flow;
 const div = document.querySelector("#vex") as HTMLElement;
 const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
 
@@ -67,3 +85,4 @@ const formatter = new VF.Formatter().joinVoices([voice]).format([voice], 400);
 
 // Render voice
 voice.draw(context, stave);
+*/
