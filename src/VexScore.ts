@@ -49,18 +49,20 @@ export class VexScore {
     // Load JSON into objects
 
     for ( const jsonStaff of scoreJson.staves) {
-      const staff: VexStaff = new VexStaff(jsonStaff);
 
       for (const jsonVoice of jsonStaff.voices) {
-        const voice: VexVoice = new VexVoice(jsonVoice);
-        staff.voices.push(voice);
 
         for (const jsonTickable of jsonVoice.tickables) {
-          const tickable: VexTickable = new VexTickable(jsonTickable);
-          voice.tickables.push(tickable);
+          // Create  Vex.Flow.Note instances
         }
+        // Build Vex.Flow.Voice instance
       }
+      // Build Vex.Flow.Staff instance
     }
+
+    // Bind staves
+
+    // Finish score rendering
 
     // draw beams
     // draw all connections
