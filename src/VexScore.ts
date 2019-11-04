@@ -52,7 +52,7 @@ export class VexScore {
     for (const prop of ["staves", "stavesConnections"]) {
 
       if (!scoreJson.hasOwnProperty(prop)) {
-        return `missing ${prop} property`;
+        return `main object missing ${prop} property`;
       }
     }
 
@@ -61,7 +61,7 @@ export class VexScore {
 
       for (const prop of ["clef", "timesig", "voices"]) {
         if (!scoreJson.staves[staff].hasOwnProperty(prop)) {
-          return `staff ${staff} has no ${prop}`;
+          return `staff ${staff + 1} has no ${prop}`;
         }
       }
     }
@@ -71,7 +71,7 @@ export class VexScore {
 
       for (const prop of ["connect", "type"]) {
         if (!scoreJson.stavesConnections[connection].hasOwnProperty(prop)) {
-          return `connection ${connection} has no ${prop}`;
+          return `connection ${connection + 1} has no ${prop}`;
         }
       }
     }
@@ -87,7 +87,7 @@ export class VexScore {
           const currentVoice = currentStaff.voices[voice];
 
           if (!currentVoice.hasOwnProperty(prop)) {
-            return `voice ${voice} has no ${prop}`;
+            return `voice ${voice + 1} of staff ${staff + 1} has no ${prop}`;
           }
 
           // validate tickables
@@ -98,7 +98,7 @@ export class VexScore {
 
               for (const tickableProp of ["type", "data"]) {
                 if (!currentTickable.hasOwnProperty(tickableProp)) {
-                  return `tickable ${tickable} of voice ${voice} in staff ${staff} has no ${tickableProp}`;
+                  return `tickable ${tickable + 1} of voice ${voice + 1} in staff ${staff + 1} has no ${tickableProp + 1}`;
                 }
               }
             }
