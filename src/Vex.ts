@@ -21,10 +21,14 @@ export enum Tickable {
 export class VexTickable {
   public type: Tickable;
   public data: any[];
+
+  constructor(tickableJson: VexTickableJson) {
+    //
+  }
 }
 
 export class VexVoice {
-  public tickables: VexTickable[];
+  public tickables: Vex.Flow.Note[];
   constructor(voiceJson: VexVoiceJson) {
     //
   }

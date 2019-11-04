@@ -1,13 +1,11 @@
 import {
   VexScoreJson,
   VexStaff,
+  VexTickable,
+  VexVoice,
   VF,
 } from "./Vex";
 import { VexJsonValidator } from "./VexJsonValidator";
-
-// tslint:disable: no-unused-expression
-
-
 
 export class VexScore {
 
@@ -49,17 +47,20 @@ export class VexScore {
     }
 
     // Load JSON into objects
-    scoreJson.staves.forEach((staff) => {
 
-      staff.voices.forEach((voice) => {
+    for ( const jsonStaff of scoreJson.staves) {
+      const staff: VexStaff = new VexStaff(jsonStaff);
 
-        voice.tickables.forEach((tickable) => {
-          //
-        });
+      for (const jsonVoice of jsonStaff.voices) {
+        const voice: VexVoice = new VexVoice(jsonVoice);
+        staff.voices.push(voice);
 
-      });
-
-    });
+        for (const jsonTickable of jsonVoice.tickables) {
+          const tickable: VexTickable = new VexTickable(jsonTickable);
+          voice.tickables.push(tickable);
+        }
+      }
+    }
 
     // draw beams
     // draw all connections
