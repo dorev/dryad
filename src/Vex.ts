@@ -28,7 +28,8 @@ export class VexTickable {
 }
 
 export class VexVoice {
-  public tickables: Vex.Flow.Note[];
+  public tickables: VexTickable[];
+  // public tickables: Vex.Flow.Note[];
   constructor(voiceJson: VexVoiceJson) {
     //
   }
@@ -65,13 +66,14 @@ export class VexStaff {
   public timeSignature: string;
   public clef: string;
   public text: string;
-  public voices: Vex.Flow.Voice[];
+  public voices: VexVoice[];
+  // public voices: Vex.Flow.Voice[];
 
   constructor(staffJson: VexStaffJson) {
     //
   }
 
   public format(width: number) {
-    new VF.Formatter().joinVoices(this.voices).format(this.voices, width);
+    // new VF.Formatter().joinVoices(this.voices).format(this.voices, width);
   }
 }
