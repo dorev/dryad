@@ -8,6 +8,7 @@
 			"new-parens": true,
 			"interface-name" : false,
 			"max-classes-per-file" : [false, 1],
+			"radix" : false,
 			"no-arg": true,
 			"object-literal-sort-keys" : false,
 			"indent": [true, "spaces", 2],

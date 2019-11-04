@@ -1,7 +1,6 @@
 import * as Vex from "vexflow";
 
 export const VF = Vex.Flow;
-
 export interface VexStaffConnectionJson { connect: number[]; type: string; }
 export interface VexTickableJson { type: string; data: string[]; }
 export interface VexVoiceJson { tickables: VexTickableJson[]; }
@@ -13,6 +12,7 @@ export interface VexScoreJson {
 }
 
 
+/*
 export enum Tickable {
   StaveNote,
   TimeSigNote,
@@ -77,3 +77,5 @@ export class VexStaff {
     // new VF.Formatter().joinVoices(this.voices).format(this.voices, width);
   }
 }
+
+*/

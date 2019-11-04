@@ -1,10 +1,4 @@
-import {
-  VexScoreJson,
-  VexStaff,
-  VexTickable,
-  VexVoice,
-  VF,
-} from "./Vex";
+import { VexScoreJson, VF } from "./Vex";
 import { VexJsonValidator } from "./VexJsonValidator";
 
 export class VexScore {
@@ -12,7 +6,6 @@ export class VexScore {
   public renderingWidth: number;
   public renderingHeight: number;
   public scoreWidth: number;
-  private staves: VexStaff[];
   private renderer: Vex.Flow.Renderer;
   private context: Vex.IRenderContext;
 
@@ -28,7 +21,7 @@ export class VexScore {
 
     this.renderer = new VF.Renderer(hostElement, VF.Renderer.Backends.SVG);
     this.renderer.resize(this.renderingWidth, this.renderingHeight);
-    const context = this.renderer.getContext();
+    this.context = this.renderer.getContext();
   }
 
   public resizeRenderer(renderingWidth: number, renderingHeight: number): void {
@@ -47,17 +40,48 @@ export class VexScore {
     }
 
     // Load JSON into objects
+    const staves: Vex.Flow.Stave[] = [];
 
     for ( const jsonStaff of scoreJson.staves) {
+      const voices: Vex.Flow.Voice[] = [];
 
       for (const jsonVoice of jsonStaff.voices) {
+        const tickables: Vex.Flow.Note[] = [];
 
         for (const jsonTickable of jsonVoice.tickables) {
           // Create  Vex.Flow.Note instances
+          const data = jsonTickable.data;
+
+          switch (jsonTickable.type) {
+            case "StaveNote" :
+                tickables.push(new VF.StaveNote({
+                  clef: data[0],
+                  keys: data[1].split(",").map(Function.prototype.call, String.prototype.trim), // trim js black magic
+                  duration: data[2],
+                }));
+                break;
+
+            case "TimeSigNote" :
+              const customPadding: number = parseInt(data[1]) || 0;
+              tickables.push(new VF.TimeSigNote(data[0], customPadding));
+              break;
+          }
+          voices.push(new VF.Voice({}).addTickables(tickables));
         }
-        // Build Vex.Flow.Voice instance
+        const formatter = new VF.Formatter().joinVoices(voices).format(voices, this.scoreWidth);
       }
-      // Build Vex.Flow.Staff instance
+
+      // Render staff
+      const staff = new VF.Stave(0, 0, this.renderingWidth);
+      staff.addClef(jsonStaff.clef).addTimeSignature(jsonStaff.timesig);
+      staff.setContext(this.context).draw();
+
+      // Render voice
+      for (const voice of voices) {
+        voice.draw(this.context, staff);
+      }
+
+      staves.push(staff);
     }
 
     // Bind staves
@@ -68,14 +92,6 @@ export class VexScore {
     // draw all connections
 
     return "all good";
-  }
-
-  public addStave(stave: VexStaff): void {
-    this.staves.push(stave);
-  }
-
-  public connectStaves(firstStaveId: number, secondStaveId: number, connectionType: string): void {
-    //
   }
 
 }
