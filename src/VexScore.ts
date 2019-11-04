@@ -1,17 +1,12 @@
-import * as Vex from "vexflow";
+import {
+  VexScoreJson,
+  VexStaff,
+  VF,
+} from "./Vex";
+import { VexJsonValidator } from "./VexJsonValidator";
+
 // tslint:disable: no-unused-expression
 
-export const VF = Vex.Flow;
-
-interface VexStaffConnectionJson { connect: number[]; type: string; }
-interface VexTickableJson { type: string; data: string[]; }
-interface VexVoiceJson { tickables: VexTickableJson[]; }
-interface VexStaffJson { clef: string; timesig: string; voices: VexVoiceJson[]; }
-
-export interface VexScoreJson {
-  stavesConnections: VexStaffConnectionJson[];
-  staves: VexStaffJson[];
-}
 
 
 export class VexScore {
@@ -44,77 +39,9 @@ export class VexScore {
     this.renderingHeight = renderingHeight;
   }
 
-  // Returns "valid" or an indication
-  // of what is missing in the object
-  public validateJson(scoreJson: VexScoreJson): string {
-
-    // validate score json
-    for (const prop of ["staves", "stavesConnections"]) {
-
-      if (!scoreJson.hasOwnProperty(prop)) {
-        return `main object missing ${prop} property`;
-      }
-    }
-
-    // validate staff json
-    for (let staff = 0; staff < scoreJson.staves.length; ++staff) {
-
-      for (const prop of ["clef", "timesig", "voices"]) {
-        if (!scoreJson.staves[staff].hasOwnProperty(prop)) {
-          return `staff ${staff + 1} has no ${prop}`;
-        }
-      }
-    }
-
-    // validate staff connection json
-    for (let connection = 0; connection < scoreJson.stavesConnections.length; ++connection) {
-
-      for (const prop of ["connect", "type"]) {
-        if (!scoreJson.stavesConnections[connection].hasOwnProperty(prop)) {
-          return `connection ${connection + 1} has no ${prop}`;
-        }
-      }
-    }
-    // validate staff sub-objects
-    for (let staff = 0; staff < scoreJson.staves.length; ++staff) {
-
-      const currentStaff = scoreJson.staves[staff];
-
-      // validate voices
-      for (let voice = 0; voice < currentStaff.voices.length; ++voice) {
-
-        for ( const prop of ["tickables"]) {
-          const currentVoice = currentStaff.voices[voice];
-
-          if (!currentVoice.hasOwnProperty(prop)) {
-            return `voice ${voice + 1} of staff ${staff + 1} has no ${prop}`;
-          }
-
-          // validate tickables
-          if (prop === "tickables") {
-            for (let tickable = 0; tickable < currentVoice.tickables.length; ++tickable) {
-
-              const currentTickable = currentVoice.tickables[tickable];
-
-              for (const tickableProp of ["type", "data"]) {
-                if (!currentTickable.hasOwnProperty(tickableProp)) {
-                  return `tickable ${tickable + 1} of voice ${voice + 1} in staff ${staff + 1} has no ${tickableProp + 1}`;
-                }
-              }
-            }
-          } // end of tickable validation
-        } // end of for voice validation
-      } // end of voices and tickables validation
-    } // end of staves validation
-
-    return "valid";
-  }
-
-
-
   public render(scoreJson: VexScoreJson): string {
 
-    const validationResult: string = this.validateJson(scoreJson);
+    const validationResult: string = VexJsonValidator.validate(scoreJson);
     console.log(validationResult);
 
     if (validationResult.length !== 0) {
@@ -148,65 +75,6 @@ export class VexScore {
     //
   }
 
-}
-
-enum Tickable {
-  StaveNote,
-  TimeSigNote,
-}
-
-class VexTickable {
-  public type: Tickable;
-  public data: any[];
-}
-
-class VexVoice {
-  public tickables: VexTickable[];
-  constructor(voiceJson: VexVoiceJson) {
-    //
-  }
-
-  public getVoice() {
-
-    // ???? NEEDED ????
-    // Create a voice in 4/4 and add above notes
-    const voice = new VF.Voice({num_beats: 4,  beat_value: 4});
-    //
-    //
-    const vexTickables: Vex.Flow.Note[] = [];
-
-    for (const tickable of this.tickables) {
-      switch (tickable.type) {
-        case Tickable.StaveNote :
-          vexTickables.push(new VF.StaveNote({
-              clef: tickable.data[0],
-              keys: tickable.data[1],
-              duration: tickable.data[2],
-            }));
-          break;
-
-        case Tickable.TimeSigNote :
-          vexTickables.push(new VF.TimeSigNote(tickable.data[0], 0));
-          break;
-      }
-    }
-    return voice.addTickables(vexTickables);
-  }
-}
-
-class VexStaff {
-  public timeSignature: string;
-  public clef: string;
-  public text: string;
-  public voices: Vex.Flow.Voice[];
-
-  constructor(staffJson: VexStaffJson) {
-    //
-  }
-
-  public format(width: number) {
-    new VF.Formatter().joinVoices(this.voices).format(this.voices, width);
-  }
 }
 
 /* Test JSON
