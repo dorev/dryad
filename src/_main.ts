@@ -3,11 +3,8 @@ import { VexScore } from "./VexScore";
 
 
 
-const input = document.querySelector("#dryad-input-button") as HTMLElement;
-const text = document.querySelector("#dryad-input") as HTMLTextAreaElement;
-
 // Test JSON
-text.value = `{
+const testJson = `{
   "stavesConnections" : [
     {
       "connect": [0,1],
@@ -50,6 +47,11 @@ text.value = `{
 }
 `;
 
+const input = document.querySelector("#dryad-input-button") as HTMLInputElement;
+const text = document.querySelector("#dryad-input") as HTMLTextAreaElement;
+
+text.value = testJson;
+
 input.addEventListener("click", crunchDryad);
 
 function crunchDryad(): void {
@@ -57,7 +59,7 @@ function crunchDryad(): void {
   const json = JSON.parse(text.value);
   console.log(json);
 
-  const vexScore = new VexScore(document.querySelector("#vex"), 420, 200, 400);
+  const vexScore: VexScore = new VexScore(document.querySelector("#vex"), 420, 200, 400);
 
   input.setAttribute("value", vexScore.render(json));
   setTimeout(() => {input.setAttribute("value", "crunch"); }, 1000);
