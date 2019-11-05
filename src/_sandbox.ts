@@ -72,17 +72,17 @@ function validateJson(scoreJson: VexScoreJson): string {
       }
     }
 
-    // validate staff json
-    for (let staff = 0; staff < scoreJson.staves.length; ++staff) {
+    // validate stave json
+    for (let stave = 0; stave < scoreJson.staves.length; ++stave) {
 
       for (const prop of ["clef", "timesig", "voices"]) {
-        if (!scoreJson.staves[staff].hasOwnProperty(prop)) {
-          return `staff ${staff} has no ${prop}`;
+        if (!scoreJson.staves[stave].hasOwnProperty(prop)) {
+          return `stave ${stave} has no ${prop}`;
         }
       }
     }
 
-    // validate staff connection json
+    // validate stave connection json
     for (let connection = 0; connection < scoreJson.stavesConnections.length; ++connection) {
 
       for (const prop of ["connect", "type"]) { // properties to inspect
@@ -91,10 +91,10 @@ function validateJson(scoreJson: VexScoreJson): string {
         }
       }
     }
-    // validate staff sub-objects
-    for (let staff = 0; staff < scoreJson.staves.length; ++staff) {
+    // validate stave sub-objects
+    for (let stave = 0; stave < scoreJson.staves.length; ++stave) {
 
-      const currentStaff = scoreJson.staves[staff];
+      const currentStaff = scoreJson.staves[stave];
 
       // validate voices
       for (let voice = 0; voice < currentStaff.voices.length; ++voice) {
@@ -115,7 +115,7 @@ function validateJson(scoreJson: VexScoreJson): string {
 
               for (const tickableProp of ["type", "data"]) {
                 if (!currentTickable.hasOwnProperty(tickableProp)) {
-                  return `tickable ${tickable} of voice ${voice} in staff ${staff} has no ${tickableProp}`;
+                  return `tickable ${tickable} of voice ${voice} in stave ${stave} has no ${tickableProp}`;
                 }
               }
             }

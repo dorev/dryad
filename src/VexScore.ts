@@ -33,7 +33,6 @@ export class VexScore {
   public render(scoreJson: VexScoreJson): string {
 
     const validationResult: string = VexJsonValidator.validate(scoreJson);
-    console.log(validationResult);
 
     if (validationResult.length !== 0) {
       return validationResult;
@@ -42,17 +41,17 @@ export class VexScore {
     // Load JSON into objects
     const staves: Vex.Flow.Stave[] = [];
 
-    for ( const jsonStaff of scoreJson.staves) {
+    for ( const staveJson of scoreJson.staves) {
       const voices: Vex.Flow.Voice[] = [];
 
-      for (const jsonVoice of jsonStaff.voices) {
+      for (const voiceJson of staveJson.voices) {
         const tickables: Vex.Flow.Note[] = [];
 
-        for (const jsonTickable of jsonVoice.tickables) {
+        for (const tickableJson of voiceJson.tickables) {
           // Create  Vex.Flow.Note instances
-          const data = jsonTickable.data;
+          const data = tickableJson.data;
 
-          switch (jsonTickable.type) {
+          switch (tickableJson.type) {
             case "StaveNote" :
                 tickables.push(new VF.StaveNote({
                   clef: data[0],
@@ -65,31 +64,61 @@ export class VexScore {
               const customPadding: number = parseInt(data[1]) || 0;
               tickables.push(new VF.TimeSigNote(data[0], customPadding));
               break;
+            default :
+              throw new Error(`Not Implemented >>> tickable type : ${tickableJson.type} `);
           }
+
           voices.push(new VF.Voice({}).addTickables(tickables));
+
+          // Generate beams
+          const beams: Vex.Flow.Beam[] = VF.Beam.generateBeams(
+            tickables.filter((t) => t instanceof Vex.Flow.StemmableNote) as Vex.Flow.StemmableNote[]);
+
+          for (const beam of beams) {
+            beam.setContext(this.context).draw();
+          }
+
         }
         const formatter = new VF.Formatter().joinVoices(voices).format(voices, this.scoreWidth);
       }
 
-      // Render staff
-      const staff = new VF.Stave(0, 0, this.renderingWidth);
-      staff.addClef(jsonStaff.clef).addTimeSignature(jsonStaff.timesig);
-      staff.setContext(this.context).draw();
+      // Render stave
+      const stave = new VF.Stave(0, 0, this.renderingWidth);
+      stave.addClef(staveJson.clef).addTimeSignature(staveJson.timesig);
+      stave.setContext(this.context);
+      staves.push(stave);
+      stave.draw();
 
-      // Render voice
+      // Render voices
       for (const voice of voices) {
-        voice.draw(this.context, staff);
+        voice.draw(this.context, stave);
       }
-
-      staves.push(staff);
     }
 
-    // Bind staves
+    for (const connectionJson of scoreJson.stavesConnections) {
+      const connection = new VF.StaveConnector(
+        staves[connectionJson.connect[0]],
+        staves[connectionJson.connect[1]]);
+
+      let connectionType: Vex.Flow.StaveConnector.type = null;
+
+      switch (connectionJson.type) {
+        case "single"  : connectionType = VF.StaveConnector.type.SINGLE; break;
+        case "double"  : connectionType = VF.StaveConnector.type.DOUBLE; break;
+        case "bracket" : connectionType = VF.StaveConnector.type.BRACKET; break;
+        case "brace"   : connectionType = VF.StaveConnector.type.BRACE; break;
+        default :
+          throw new Error(`Not Implemented >>> stave connector type : ${connectionJson.type} `);
+      }
+
+      connection.setType(connectionType);
+      connection.draw();
+    }
+
 
     // Finish score rendering
 
     // draw beams
-    // draw all connections
 
     return "all good";
   }

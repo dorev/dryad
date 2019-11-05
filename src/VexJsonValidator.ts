@@ -14,17 +14,17 @@ export class VexJsonValidator {
       }
     }
 
-    // validate staff json
-    for (let staff = 0; staff < scoreJson.staves.length; ++staff) {
+    // validate stave json
+    for (let stave = 0; stave < scoreJson.staves.length; ++stave) {
 
       for (const prop of ["clef", "timesig", "voices"]) {
-        if (!scoreJson.staves[staff].hasOwnProperty(prop)) {
-          return `staff ${staff + 1} has no ${prop}`;
+        if (!scoreJson.staves[stave].hasOwnProperty(prop)) {
+          return `stave ${stave + 1} has no ${prop}`;
         }
       }
     }
 
-    // validate staff connection json
+    // validate stave connection json
     for (let connection = 0; connection < scoreJson.stavesConnections.length; ++connection) {
 
       for (const prop of ["connect", "type"]) {
@@ -33,10 +33,10 @@ export class VexJsonValidator {
         }
       }
     }
-    // validate staff sub-objects
-    for (let staff = 0; staff < scoreJson.staves.length; ++staff) {
+    // validate stave sub-objects
+    for (let stave = 0; stave < scoreJson.staves.length; ++stave) {
 
-      const currentStaff = scoreJson.staves[staff];
+      const currentStaff = scoreJson.staves[stave];
 
       // validate voices
       for (let voice = 0; voice < currentStaff.voices.length; ++voice) {
@@ -45,7 +45,7 @@ export class VexJsonValidator {
           const currentVoice = currentStaff.voices[voice];
 
           if (!currentVoice.hasOwnProperty(prop)) {
-            return `voice ${voice + 1} of staff ${staff + 1} has no ${prop}`;
+            return `voice ${voice + 1} of stave ${stave + 1} has no ${prop}`;
           }
 
           // validate tickables
@@ -56,7 +56,7 @@ export class VexJsonValidator {
 
               for (const tickableProp of ["type", "data"]) {
                 if (!currentTickable.hasOwnProperty(tickableProp)) {
-                  return `tickable ${tickable + 1} of voice ${voice + 1} in staff ${staff + 1} has no ${tickableProp + 1}`;
+                  return `tickable ${tickable + 1} of voice ${voice + 1} in stave ${stave + 1} has no ${tickableProp + 1}`;
                 }
               }
             }

@@ -69,7 +69,7 @@ export class VexStaff {
   public voices: VexVoice[];
   // public voices: Vex.Flow.Voice[];
 
-  constructor(staffJson: VexStaffJson) {
+  constructor(staveJson: VexStaffJson) {
     //
   }
 

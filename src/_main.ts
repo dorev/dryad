@@ -70,7 +70,7 @@ function crunchDryad(): void {
 
 // Fill a score according to the content of the text
 // Need a VexProcessor that can take a single object as input
-// and completely render the staff
+// and completely render the stave
 
 
 
