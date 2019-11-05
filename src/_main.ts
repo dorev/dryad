@@ -1,4 +1,3 @@
-import * as Vex from "vexflow";
 import { VexScore } from "./VexScore";
 
 
@@ -18,15 +17,15 @@ const testJson = `{
       "voices" : [
         {
           "tickables" : [
-            { "type": "note", "data" : ["treble", "c/4,e/4,g/4", "4"]},
-            { "type": "note", "data" : ["treble", "f/4,a/4,c/5", "2"]},
-            { "type": "note", "data" : ["treble", "c/4,e/4,g/4", "4"]}
+            { "type": "StaveNote", "data" : ["treble", "c/4,e/4,g/4", "4"]},
+            { "type": "StaveNote", "data" : ["treble", "f/4,a/4,c/5", "2"]},
+            { "type": "StaveNote", "data" : ["treble", "c/4,e/4,g/4", "4"]}
           ]
         },
         {
           "tickables" : [
-            { "type": "note", "data" : ["treble", "e/4", "2", "patate"]},
-            { "type": "note", "data" : ["treble", "f/4", "2"]}
+            { "type": "StaveNote", "data" : ["treble", "e/4", "2", "patate"]},
+            { "type": "StaveNote", "data" : ["treble", "f/4", "2"]}
           ]
         }
       ]
@@ -37,8 +36,8 @@ const testJson = `{
       "voices" : [
         {
           "tickables" : [
-            { "type": "note", "data" : ["bass", "c/2", "2", "patate"]},
-            { "type": "note", "data" : ["bass", "f/2", "2"]}
+            { "type": "StaveNote", "data" : ["bass", "c/2", "2", "patate"]},
+            { "type": "StaveNote", "data" : ["bass", "f/2", "2"]}
           ]
         }
       ]
@@ -51,6 +50,7 @@ const input = document.querySelector("#dryad-input-button") as HTMLInputElement;
 const text = document.querySelector("#dryad-input") as HTMLTextAreaElement;
 
 text.value = testJson;
+const vexScore: VexScore = new VexScore(document.querySelector("#vex"), 450, 300, 100);
 
 input.addEventListener("click", crunchDryad);
 
@@ -59,11 +59,8 @@ function crunchDryad(): void {
   const json = JSON.parse(text.value);
   console.log(json);
 
-  const vexScore: VexScore = new VexScore(document.querySelector("#vex"), 420, 200, 400);
-
   input.setAttribute("value", vexScore.render(json));
   setTimeout(() => {input.setAttribute("value", "crunch"); }, 1000);
-
 }
 
 

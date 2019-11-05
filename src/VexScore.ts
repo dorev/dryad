@@ -1,5 +1,17 @@
-import { VexScoreJson, VF } from "./Vex";
 import { VexJsonValidator } from "./VexJsonValidator";
+
+import * as Vex from "vexflow";
+
+export const VF = Vex.Flow;
+export interface VexStaffConnectionJson { connect: number[]; type: string; }
+export interface VexTickableJson { type: string; data: string[]; }
+export interface VexVoiceJson { tickables: VexTickableJson[]; }
+export interface VexStaffJson { clef: string; timesig: string; voices: VexVoiceJson[]; }
+
+export interface VexScoreJson {
+  stavesConnections: VexStaffConnectionJson[];
+  staves: VexStaffJson[];
+}
 
 export class VexScore {
 
@@ -8,6 +20,8 @@ export class VexScore {
   public scoreWidth: number;
   private renderer: Vex.Flow.Renderer;
   private context: Vex.IRenderContext;
+  private staveX: number = 20;
+  private staveY: number = 100;
 
   constructor(
     hostElement: HTMLElement,
@@ -34,12 +48,13 @@ export class VexScore {
 
     const validationResult: string = VexJsonValidator.validate(scoreJson);
 
-    if (validationResult.length !== 0) {
+    if (validationResult !== "valid") {
       return validationResult;
     }
 
     // Load JSON into objects
     const staves: Vex.Flow.Stave[] = [];
+    let staveCount = 0;
 
     for ( const staveJson of scoreJson.staves) {
       const voices: Vex.Flow.Voice[] = [];
@@ -55,7 +70,7 @@ export class VexScore {
             case "StaveNote" :
                 tickables.push(new VF.StaveNote({
                   clef: data[0],
-                  keys: data[1].split(",").map(Function.prototype.call, String.prototype.trim), // trim js black magic
+                  keys: data[1].split(","),
                   duration: data[2],
                 }));
                 break;
@@ -68,26 +83,25 @@ export class VexScore {
               throw new Error(`Not Implemented >>> tickable type : ${tickableJson.type} `);
           }
 
-          voices.push(new VF.Voice({}).addTickables(tickables));
-
+          voices.push(new VF.Voice({}).addTickables(tickables).setMode(Vex.Flow.Voice.Mode.FULL));
           // Generate beams
           const beams: Vex.Flow.Beam[] = VF.Beam.generateBeams(
-            tickables.filter((t) => t instanceof Vex.Flow.StemmableNote) as Vex.Flow.StemmableNote[]);
+            tickables.filter((t) => t.hasStem) as Vex.Flow.StemmableNote[]);
 
           for (const beam of beams) {
             beam.setContext(this.context).draw();
           }
-
         }
+
         const formatter = new VF.Formatter().joinVoices(voices).format(voices, this.scoreWidth);
+
       }
 
       // Render stave
-      const stave = new VF.Stave(0, 0, this.renderingWidth);
-      stave.addClef(staveJson.clef).addTimeSignature(staveJson.timesig);
-      stave.setContext(this.context);
+      const stave = new VF.Stave(this.staveX, this.staveY * staveCount++ , this.renderingWidth);
       staves.push(stave);
-      stave.draw();
+      stave.addClef(staveJson.clef).addTimeSignature(staveJson.timesig);
+      stave.setContext(this.context).draw();
 
       // Render voices
       for (const voice of voices) {
@@ -106,13 +120,18 @@ export class VexScore {
         case "single"  : connectionType = VF.StaveConnector.type.SINGLE; break;
         case "double"  : connectionType = VF.StaveConnector.type.DOUBLE; break;
         case "bracket" : connectionType = VF.StaveConnector.type.BRACKET; break;
-        case "brace"   : connectionType = VF.StaveConnector.type.BRACE; break;
+        case "braces"   : connectionType = VF.StaveConnector.type.BRACE; break;
         default :
           throw new Error(`Not Implemented >>> stave connector type : ${connectionJson.type} `);
       }
 
       connection.setType(connectionType);
-      connection.draw();
+
+      console.log(connection);
+
+      connection.setContext(this.context).draw();
+
+      console.log("Connection was drawn");
     }
 
 
@@ -140,15 +159,15 @@ export class VexScore {
       "voices" : [
         {
           "tickables" : [
-            { "type": "note", "data" : ["treble", "c/4,e/4,g/4", "4"]},
-            { "type": "note", "data" : ["treble", "f/4,a/4,c/5", "2"]},
-            { "type": "note", "data" : ["treble", "c/4,e/4,g/4", "4"]}
+            { "type": "StaveNote", "data" : ["treble", "c/4,e/4,g/4", "4"]},
+            { "type": "StaveNote", "data" : ["treble", "f/4,a/4,c/5", "2"]},
+            { "type": "StaveNote", "data" : ["treble", "c/4,e/4,g/4", "4"]}
           ]
         },
         {
           "tickables" : [
-            { "type": "note", "data" : ["treble", "e/4", "2", "patate"]},
-            { "type": "note", "data" : ["treble", "f/4", "2"]}
+            { "type": "StaveNote", "data" : ["treble", "e/4", "2", "patate"]},
+            { "type": "StaveNote", "data" : ["treble", "f/4", "2"]}
           ]
         }
       ]
@@ -159,8 +178,8 @@ export class VexScore {
       "voices" : [
         {
           "tickables" : [
-            { "type": "note", "data" : ["bass", "c/2", "2", "patate"]},
-            { "type": "note", "data" : ["bass", "f/2", "2"]}
+            { "type": "StaveNote", "data" : ["bass", "c/2", "2", "patate"]},
+            { "type": "StaveNote", "data" : ["bass", "f/2", "2"]}
           ]
         }
       ]

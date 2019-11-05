@@ -1,4 +1,4 @@
-import { VexScoreJson } from "./Vex";
+import { VexScoreJson } from "./VexScore";
 
 export class VexJsonValidator {
 
