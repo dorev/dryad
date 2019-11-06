@@ -1,125 +1,104 @@
-import { VexScore } from "./VexScore";
+// import { VexScore } from "./VexScore";
+import { j2xParser, parse } from "fast-xml-parser";
+import * as opensheetmusicdisplay from "opensheetmusicdisplay";
 
+const xmlFile: string = `<score-partwise version="3.1">
+<part-list>
+  <score-part id="P1">
+    <part-name>Music</part-name>
+  </score-part>
+</part-list>
+<part id="P1">
+  <measure number="1">
+    <attributes>
+      <divisions>1</divisions>
+      <key>
+        <fifths>0</fifths>
+      </key>
+      <time>
+        <beats>4</beats>
+        <beat-type>4</beat-type>
+      </time>
+      <clef>
+        <sign>G</sign>
+        <line>2</line>
+      </clef>
+    </attributes>
+    <note>
+      <pitch>
+        <step>C</step>
+        <octave>4</octave>
+      </pitch>
+      <duration>1</duration>
+      <type>quarter</type>
+    </note>
+    <note>
+      <pitch>
+        <step>C</step>
+        <octave>4</octave>
+      </pitch>
+      <duration>1</duration>
+      <type>quarter</type>
+    </note>
+  </measure>
+</part>
+</score-partwise>`;
 
+const optionsXmlToJson = {
+  attributeNamePrefix : "", // "@_",
+  attrNodeName: "attr", // default is 'false'
+  textNodeName : "#text",
+  ignoreAttributes : false,
+  allowBooleanAttributes : true,
+  parseNodeValue : true,
+  parseAttributeValue : true,
+  trimValues: true,
+  arrayMode: false, // "strict"
+};
 
-// Test JSON
-const testJson = `{
-  "stavesConnections" : [
-    {
-      "connect": [0,1],
-      "type" : "braces"
-    }
-  ],
-  "staves" : [
-    {
-      "clef" : "treble",
-      "timesig" : "4/4",
-      "voices" : [
-        {
-          "tickables" : [
-            { "type": "StaveNote", "data" : ["treble", "c/4,e/4,g/4", "4"]},
-            { "type": "StaveNote", "data" : ["treble", "f/4,a/4,c/5", "2"]},
-            { "type": "StaveNote", "data" : ["treble", "c/4,e/4,g/4", "4"]}
-          ]
-        },
-        {
-          "tickables" : [
-            { "type": "StaveNote", "data" : ["treble", "e/4", "2", "patate"]},
-            { "type": "StaveNote", "data" : ["treble", "f/4", "2"]}
-          ]
-        }
-      ]
-    },
-    {
-      "clef" : "bass",
-      "timesig" : "4/4",
-      "voices" : [
-        {
-          "tickables" : [
-            { "type": "StaveNote", "data" : ["bass", "c/2", "2", "patate"]},
-            { "type": "StaveNote", "data" : ["bass", "f/2", "2"]}
-          ]
-        }
-      ]
-    }
-  ]
-}
-`;
+const optionsJsonToXml = {
+  attributeNamePrefix : "", // "@_",
+  attrNodeName: "attr", // default is false
+  textNodeName : "#text",
+  ignoreAttributes : false,
+  cdataTagName: "__cdata", // default is false
+  cdataPositionChar: "\\c",
+  format: false,
+  indentBy: "  ",
+  supressEmptyNode: true,
+};
 
 const input = document.querySelector("#dryad-input-button") as HTMLInputElement;
 const text = document.querySelector("#dryad-input") as HTMLTextAreaElement;
+text.value = xmlFile;
 
-text.value = testJson;
-const vexScore: VexScore = new VexScore(document.querySelector("#vex"), 450, 300, 100);
+const osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay("vex");
+osmd.setOptions({
+  drawingParameters: "compact",
+});
 
 input.addEventListener("click", crunchDryad);
 
 function crunchDryad(): void {
 
-  const json = JSON.parse(text.value);
-  console.log(json);
+  console.log(text.value);
+  const obj = parse(text.value, optionsXmlToJson);
+  console.log(obj);
 
-  input.setAttribute("value", vexScore.render(json));
-  setTimeout(() => {input.setAttribute("value", "crunch"); }, 1000);
+  const parser = new j2xParser(optionsJsonToXml);
+  const xmlReborn: string = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+  <!DOCTYPE score-partwise PUBLIC
+  "-//Recordare//DTD MusicXML 3.1 Partwise//EN"
+  "http://www.musicxml.org/dtds/partwise.dtd">
+  ` + parser.parse(obj);
+
+  console.log(xmlReborn);
+
+  osmd.load(xmlReborn)
+  .then(() => osmd.render())
+  .catch((error) => {
+    throw error;
+  });
 }
 
-
-
-// Fill a score according to the content of the text
-// Need a VexProcessor that can take a single object as input
-// and completely render the stave
-
-
-
-
-
-/*
-//
-// VEX SETUP
-//
-
-// Create an SVG renderer and attach it to the DIV element named "boo".
-const VF = Vex.Flow;
-const div = document.querySelector("#vex") as HTMLElement;
-const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
-
-// Size our svg:
-renderer.resize(420, 200);
-
-// And get a drawing context:
-const context = renderer.getContext();
-
-// Create a stave at position 10, 0 of width 400 on the canvas.
-const stave = new VF.Stave(10, 0, 400);
-
-// Add a clef and time signature.
-stave.addClef("treble").addTimeSignature("4/4");
-
-// Connect it to the rendering context and draw!
-stave.setContext(context).draw();
-
-const notes = [
-  // A quarter-note C.
-  new VF.StaveNote({clef: "treble", keys: ["c/4"], duration: "q" }),
-
-  // A quarter-note D.
-  new VF.StaveNote({clef: "treble", keys: ["d/4"], duration: "q" }),
-
-  // A quarter-note rest. Note that the key (b/4) specifies the vertical
-  // position of the rest.
-  new VF.StaveNote({clef: "treble", keys: ["b/4"], duration: "qr" }),
-
-  // A C-Major chord.
-  new VF.StaveNote({clef: "treble", keys: ["c/4", "e/4", "g/4"], duration: "q" }),
-];
-
-// Create a voice in 4/4 and add above notes
-const voice = new VF.Voice({num_beats: 4,  beat_value: 4});
-voice.addTickables(notes);
-
-// Format and justify the notes to 400 pixels.
-const formatter = new VF.Formatter().joinVoices([voice]).format([voice], 400);
-
-// Render voice
-voice.draw(context, stave);
-*/
+input.click();
