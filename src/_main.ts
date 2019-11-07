@@ -83,6 +83,9 @@ function crunchDryad(): void {
 
   console.log(text.value);
   const obj = parse(text.value, optionsXmlToJson);
+
+  cleanObj(obj);
+
   console.log(obj);
 
   const parser = new j2xParser(optionsJsonToXml);
@@ -99,6 +102,24 @@ function crunchDryad(): void {
   .catch((error) => {
     throw error;
   });
+}
+
+function cleanObj(obj: object): void {
+
+  for (const item in obj) {
+
+    if (item === null || item === undefined) {
+      continue;
+    }
+
+    if (typeof((obj as any)[item]) === "object") {
+      cleanObj((obj as any)[item] as any);
+    }
+
+    if ((obj as any)[item] === "") {
+      delete (obj as any)[item];
+    }
+  }
 }
 
 input.click();
