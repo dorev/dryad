@@ -55,7 +55,7 @@ int main()
 
   xml_document xmlScore;
   xml_node xmlElement;
-  cstr filePath("..\\extern\\musicxml\\Chant.xml");
+  cstr filePath("./extern/musicxml/Chant.xml");
 
   xml_parse_result result = xmlScore.load_file(filePath);
 
@@ -70,7 +70,7 @@ int main()
     std::cout << "Error offset: " << result.offset << "\n\n";
   }
 
-  xmlScore.save(std::cout);
+  //xmlScore.save(std::cout);
   
   xpath_node_set nodes = xmlScore.select_nodes("//part");
 
@@ -83,6 +83,44 @@ int main()
     }
   }
 
-  getchar();
   return 0;
 }
+
+/*
+
+Challenges
+----------
+manage mxl compressed format
+combine voices (forward and backup)
+combine parts (variable quarter-note divisions)
+
+Ideas
+-----
+map of positions (absolute values) filled with notes (pitch + duration)
+convert tied notes to single note instance with combined duration
+(forbid slides on frontend)
+
+Scan for backup nodes
+Scan for division nodes
+Parse by parts
+Keep node ptr for indicative styling
+
+// scan everything for duration changes and normalize values across tree
+
+for(auto part : parts)
+  for(auto measure : part.measures)
+    for(auto child : measure.children)
+    {
+      if(back || forward)
+        movement += node.move
+        continue;
+      
+      analyze child node
+
+      score.insert(node, position)
+
+      
+    }
+
+
+*/
