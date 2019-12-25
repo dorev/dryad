@@ -1,3 +1,3 @@
-node_modules/
-dist/*.js
-out/
+tmp/
+**/*.o
+**/*.exe

@@ -1,10 +1,12 @@
 #include <functional>
 #include <iostream>
-#include <vector>
+#include <set>
 #include <string>
 #include <map>
 #include <memory>
+#include "algorithm"
 
+// Extern
 #include "pugixml.hpp"
 
 using namespace pugi;
@@ -14,21 +16,81 @@ using cstr = const char *;
 
 struct RuleCheckResult {};
 
+namespace 
+{
+  std::map<std::string, int> noteNumber(
+  {
+    {"C", 0},
+    {"C#", 1},
+    {"Db", 1},
+    {"D", 2},
+    {"D#", 3},
+    {"Eb", 3},
+    {"E", 4},
+    {"F", 5},
+    {"F#", 6},
+    {"Gb", 6},
+    {"G", 7},
+    {"G#", 8},
+    {"Ab", 8},
+    {"A", 9},
+    {"A#", 10},
+    {"Bb", 10},
+    {"B", 11}
+  });
+}
 
 struct Pitch 
 {
-  std::string step;
-  int alter;
-  int octave;
-  int duration;
+  std::string _step;
+  int _alter;
+  int _octave;
+  int _duration;
+  int _num;
+  NodePtr _nodePtr;
+
+  Pitch() 
+    : _step("C")
+    , _alter(0)
+    , _octave(0)
+    , _duration(0)
+    , _num(_octave * (::noteNumber[_step] + _alter))
+    , _nodePtr(nullptr)
+  {}
+
+  Pitch(std::string step, int alter, int octave, int duration, NodePtr nodePtr)
+    : _step(step)
+    , _alter(alter)
+    , _octave(octave)
+    , _duration(duration)
+    , _num(_octave * (::noteNumber[_step] + _alter))
+    , _nodePtr(nodePtr)
+  {}
+
+  bool operator==(const Pitch& other) const
+  {
+    return _duration == other._duration && _num == other._num;
+  }
+
+  bool operator<(const Pitch& other) const
+  {
+    return _num < other._num || _duration < other._duration;
+  }
+
 };
 
 
 
 struct ScorePosition 
-{
-  std::vector<Pitch> notes;
-  NodePtr node;
+{  
+  std::set<Pitch> _notes;
+  std::set<Pitch> _resonatingNotes;
+
+  bool insert(Pitch& pitch)
+  {    
+    return _notes.insert(pitch).second;
+  }
+
 };
 
 
@@ -37,13 +99,27 @@ using Rule = std::function<RuleCheckResult(ScorePosition)>;
 
 struct Score
 {
-  std::map<size_t, ScorePosition> _score;
+  std::map<int, ScorePosition> _score;
 
-  ScorePositionPtr operator[](size_t index)
+  ScorePositionPtr operator[](int index)
   {
     return (_score.find(index) == _score.end())
       ? nullptr
       : std::make_shared<ScorePosition>(_score[index]);
+  }
+
+  bool insert(Pitch& pitch, int pos)
+  {
+    return _score[pos].insert(pitch);
+  }
+
+  bool finalize()
+  {
+    // normalize divisions
+    // add resonating notes
+    // combine tied notes
+
+    return true;
   }
 
 };
@@ -52,6 +128,7 @@ struct Score
 
 int main()
 {
+  // ADD GTEST!!!
 
   xml_document xmlScore;
   xml_node xmlElement;
@@ -68,6 +145,7 @@ int main()
     std::cout << "XML file '" << filePath << "' parsed with errors!\n";
     std::cout << "Error description: " << result.description() << "\n";
     std::cout << "Error offset: " << result.offset << "\n\n";
+    return 0;
   }
 
   //xmlScore.save(std::cout);
@@ -117,9 +195,7 @@ for(auto part : parts)
       
       analyze child node
 
-      score.insert(node, position)
-
-      
+      score.insert(node, position)      
     }
 
 
