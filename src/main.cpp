@@ -2,9 +2,11 @@
 #include <iostream>
 #include <set>
 #include <string>
+#include <cstring>
 #include <map>
 #include <memory>
-#include "algorithm"
+#include <algorithm>
+#include <cassert>
 
 // Extern
 #include "pugixml.hpp"
@@ -126,77 +128,96 @@ struct Score
 
 
 
+void uniformizeDivisions(xml_document& xml)
+{
+  std::map<size_t, int> divisions = {};
+  std::map<size_t, int> divisionFactors = {};
+
+  // Find all division nodes
+  for(auto& division : xml.select_nodes("//divisions"))
+    divisions[division.node().offset_debug()] = std::stoi(division.node().child_value());
+
+  int maxDivision = std::max_element(divisions.begin(), divisions.end())->second;
+  
+  // Set all factors to normalize quarter-note durations
+  for(auto& division : divisions)
+    divisionFactors[division.first] = maxDivision / division.second;
+
+  // Set all division nodes to the same value
+  for(auto& division : xml.select_nodes("//divisions"))
+    division.node().text().set(std::to_string(maxDivision).c_str());
+
+  // Adjust all durations of the document
+  for(auto& duration : xml.select_nodes("//duration"))
+  {
+    size_t offset = duration.node().offset_debug();
+    int value = std::stoi(duration.node().child_value());
+
+    // Find modifier to apply
+    auto revItr = std::find_if
+    (
+      divisionFactors.rbegin(), 
+      divisionFactors.rend(), 
+      [&](auto& kv) { return kv.first < offset; }
+    );
+
+    // Iterator should never reach rend because a 'duration' node
+    // should never be before the first 'divisions' node
+    assert(revItr != divisionFactors.rend());
+
+    // Update duration value
+    duration.node().text().set(std::to_string(value * (*revItr).second).c_str());
+  }
+}
+
+
 int main()
 {
   // ADD GTEST!!!
 
   xml_document xmlScore;
-  xml_node xmlElement;
-  cstr filePath("./extern/musicxml/Chant.xml");
+  cstr filePath("./extern/musicxml/MozaChloSample.xml");
 
   xml_parse_result result = xmlScore.load_file(filePath);
 
   if (result)
   {
-    std::cout << "XML file '" << filePath << "' parsed without errors.\n\n";
+    std::cout << "XML file '" << filePath << "' successfully parsed.\n\n";
   }
   else
   {
     std::cout << "XML file '" << filePath << "' parsed with errors!\n";
     std::cout << "Error description: " << result.description() << "\n";
-    std::cout << "Error offset: " << result.offset << "\n\n";
     return 0;
   }
 
-  //xmlScore.save(std::cout);
-  
-  xpath_node_set nodes = xmlScore.select_nodes("//part");
+  uniformizeDivisions(xmlScore);
 
-  for (auto itr : nodes)
+  for (auto& part : xmlScore.select_nodes("//part"))
   {
-    std::cout << itr.node().name() << "\n";
-    for (auto child : itr.node().children())
+    for (auto& measure : part.node().children())
     {
-      std::cout << " " << child.name() << "\n";
-    }
-  }
+      for(auto& node : measure.children())
+      {
+        if
+        (
+          (!strcmp(node.name(),"backup") || !strcmp(node.name(),"forward"))
+          && node.child("duration")
+        )
+          true; //std::cout << "    " << node.name() << " : " << node.child("duration").child_value() << "\n";
+        
+      } // end of for nodes
+    } // end of for measures
+  } // end of for parts
 
   return 0;
 }
 
 /*
 
-Challenges
-----------
-manage mxl compressed format
-combine voices (forward and backup)
-combine parts (variable quarter-note divisions)
-
-Ideas
------
-map of positions (absolute values) filled with notes (pitch + duration)
-convert tied notes to single note instance with combined duration
-(forbid slides on frontend)
-
 Scan for backup nodes
 Scan for division nodes
 Parse by parts
 Keep node ptr for indicative styling
-
-// scan everything for duration changes and normalize values across tree
-
-for(auto part : parts)
-  for(auto measure : part.measures)
-    for(auto child : measure.children)
-    {
-      if(back || forward)
-        movement += node.move
-        continue;
-      
-      analyze child node
-
-      score.insert(node, position)      
-    }
-
 
 */
