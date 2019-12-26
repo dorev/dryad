@@ -25,11 +25,16 @@ int main()
   Score score(xmlScore);
   std::cout << score.serialize() << "\n\n";
 
-  std::set<Rule> ruleSet = 
+  std::vector<Rule> ruleSet = 
   {
     Rules::parallelFifths,
     Rules::parallelOctaves
   };
+
+
+  std::cout << "Analyzing with ruleset : \n";
+  for(auto& rule : ruleSet)
+    std::cout << "  - " << rule.name << "\n";
 
   std::vector<RuleCheckResult> errors;
 
@@ -37,7 +42,7 @@ int main()
   {
     for(auto& rule : ruleSet)
     {
-      auto result = rule(pos.second);
+      auto result = rule.func(pos.second);
       if(!result.rulePassed)
         errors.push_back(result);
     }    
@@ -45,7 +50,7 @@ int main()
 
   for(auto error : errors)
   {
-    std::cout << error.message << "\n";
+    std::cout << error.message << " at measure " << error.measure << "\n";
   }
 
   // add position/measure on ScorePosition

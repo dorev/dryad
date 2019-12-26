@@ -10,15 +10,18 @@ struct ScorePosition
   std::set<Pitch> _notes;
   std::shared_ptr<ScorePosition> _prev;
   std::shared_ptr<ScorePosition> _next;
+  int _measure;
 
   ScorePosition()
     : _notes({})
     , _prev(nullptr)
     , _next(nullptr)
+    , _measure(-1)
   {}
 
-  bool insert(Pitch& pitch)
-  {    
+  bool insert(Pitch& pitch, int measure)
+  {
+    _measure = measure;
     return _notes.emplace(pitch).second;
   }
 

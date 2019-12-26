@@ -61,9 +61,9 @@ struct Score
       : std::make_shared<ScorePosition>(_score[index]);
   }
 
-  bool writeToScore(Pitch& pitch, int pos)
+  bool writeToScore(Pitch& pitch, int pos, int measure)
   {
-    return _score[pos].insert(pitch);
+    return _score[pos].insert(pitch, measure);
   }
 
   void fillScore(xml_document& xmlScore)
@@ -104,13 +104,15 @@ struct Score
           if(duration == 0)
             continue;
 
+          int measureNum = measure.attribute("number").as_int();
+
           // Write rest
           if(node.child("rest"))
           {
             Pitch pitch;
             pitch._duration = duration;
             pitch._nodePtr = makeNodePtr(node);
-            writeToScore(pitch, pos);
+            writeToScore(pitch, pos, measureNum);
             pos += duration;
             continue;
           }
@@ -125,12 +127,12 @@ struct Score
           {
             // Write to last position and don't increment pos
             auto lastPosition = _score.rbegin()->second;
-            writeToScore(pitch, pos);
+            writeToScore(pitch, pos, measureNum);
             continue;
           }
 
           // Write normal note
-          writeToScore(pitch, pos);
+          writeToScore(pitch, pos, measureNum);
           pos += duration;
 
         } // end of for nodes
