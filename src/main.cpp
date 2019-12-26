@@ -22,10 +22,10 @@ int main()
   }
 
   Score score(xmlScore);
+  std::cout << score.serialize() << "\n\n";
 
   // run rules on score
   // return analysis in json
-  std::cout << score.serialize() << "\n\n";
 
   return 0;
 }

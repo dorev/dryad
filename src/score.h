@@ -3,10 +3,18 @@
 #include "definitions.h"
 #include "pitch.h"
 
+
 struct ScorePosition 
 {  
   std::set<Pitch> _notes;
-  std::set<Pitch> _resonatingNotes;
+  std::shared_ptr<ScorePosition> _prev;
+  std::shared_ptr<ScorePosition> _next;
+
+  ScorePosition()
+    : _notes({})
+    , _prev(nullptr)
+    , _next(nullptr)
+  {}
 
   bool insert(Pitch& pitch)
   {    
@@ -25,7 +33,6 @@ struct Score
   {
     uniformizeDivisions(xmlScore);
     fillScore(xmlScore);
-    updateResonatingNotes();
   }
 
   std::string serialize()
@@ -77,10 +84,6 @@ struct Score
   bool writeToScore(Pitch& pitch, int pos)
   {
     return _score[pos].insert(pitch);
-  }
-
-  void updateResonatingNotes()
-  {
   }
 
   void fillScore(xml_document& xmlScore)
@@ -153,6 +156,22 @@ struct Score
         } // end of for nodes
       } // end of for measures
     } // end of for parts
+
+    // Link position pointers
+    ScorePositionPtr prev = nullptr;
+    for(auto position : _score)
+    {
+      ScorePosition& currentPos = position.second;
+      ScorePositionPtr currentPtr = makeScorePosPtr(currentPos);
+      
+      if(prev)
+        prev->_next = currentPtr;
+      
+      currentPos._prev = prev;
+
+      // Prepare for next iteration
+      prev = currentPtr;
+    }
 
   }
 

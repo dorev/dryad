@@ -68,8 +68,6 @@ struct Pitch
     
     if(xml_node alter = noteNode.child("pitch").child("alter"))
       _alter = alter.text().as_int();
-    //else 
-    //  return false;
     
     if(xml_node octave = noteNode.child("pitch").child("octave"))
       _octave = octave.text().as_int();

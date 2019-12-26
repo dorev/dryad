@@ -23,3 +23,4 @@ using cstr = const char *;
 using namespace pugi;
 using NodePtr = std::shared_ptr<xml_node>;
 #define makeNodePtr(xmlNode) std::make_shared<xml_node>(xmlNode)
+#define makeScorePosPtr(scorePos) std::make_shared<ScorePosition>(scorePos)
