@@ -11,7 +11,12 @@
 #include <algorithm>
 
 // extern
-#include "pugixml.hpp"
+#include "pugixml/pugixml.hpp"
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/stringbuffer.h"
+
+using namespace rapidjson;
+using namespace std;
 
 // cheating
 using cstr = const char *;

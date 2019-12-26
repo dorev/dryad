@@ -2,7 +2,7 @@
 PROGRAM = dryad.exe
 COMPILER = g++
 OUTDIR = -o tmp/$@
-INCLUDES = -Iextern/pugixml
+INCLUDES = -Iextern
 
 $(PROGRAM):  main.o pugixml.o
 	$(COMPILER) -o $(PROGRAM) $(addprefix tmp/, $^)

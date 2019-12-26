@@ -3,7 +3,6 @@
 #include "definitions.h"
 #include "pitch.h"
 
-
 struct ScorePosition 
 {  
   std::set<Pitch> _notes;
@@ -13,7 +12,6 @@ struct ScorePosition
   {    
     return _notes.emplace(pitch).second;
   }
-
 };
 
 using ScorePositionPtr = std::shared_ptr<ScorePosition>;
@@ -21,12 +19,52 @@ using ScorePositionPtr = std::shared_ptr<ScorePosition>;
 struct Score
 {
   std::map<int, ScorePosition> _score;
-
+  
+  // Constructor
   Score(xml_document& xmlScore)
   {
     uniformizeDivisions(xmlScore);
     fillScore(xmlScore);
-    // updateResonatingNotes();
+    updateResonatingNotes();
+  }
+
+  std::string serialize()
+  {
+    StringBuffer stringBuffer;
+    PrettyWriter<StringBuffer> writer(stringBuffer);
+
+    writer.StartObject();
+    writer.Key("score");
+    writer.StartArray();
+    for(auto scorePos : _score)
+    {
+      writer.StartObject();
+        writer.Key("position");
+        writer.Int(scorePos.first);
+        writer.Key("notes");
+        writer.StartArray();
+        for(auto note : scorePos.second._notes)
+        {
+          writer.StartObject();
+          writer.Key("step");
+          writer.String(note._step.c_str());
+          writer.Key("alter");
+          writer.Int(note._alter);
+          writer.Key("octave");
+          writer.Int(note._octave);
+          writer.Key("duration");
+          writer.Int(note._duration);
+          writer.Key("num");
+          writer.Int(note._num);
+          writer.EndObject();        
+        }
+        writer.EndArray();
+      writer.EndObject();
+    }
+    writer.EndArray();
+    writer.EndObject();
+
+    return stringBuffer.GetString();
   }
 
   ScorePositionPtr operator[](int index)
@@ -41,11 +79,9 @@ struct Score
     return _score[pos].insert(pitch);
   }
 
-  //bool updateResonatingNotes()
-  //{
-  //  // add resonating notes
-  //  return true;
-  //}
+  void updateResonatingNotes()
+  {
+  }
 
   void fillScore(xml_document& xmlScore)
   {
@@ -62,12 +98,12 @@ struct Score
           // Check for position shift
           if(!strcmp(node.name(),"backup"))
           {
-            shift -= std::stoi(node.child_value());
+            shift -= node.text().as_int();
             continue;
           }
           if(!strcmp(node.name(),"forward"))
           {
-            shift += std::stoi(node.child_value());
+            shift += node.text().as_int();
             continue;
           }
           
@@ -81,8 +117,8 @@ struct Score
             continue;
           
           // Skip if not has no duration
-          int duration = 0;          
-          if(duration == node.child("duration").text().as_int())
+          int duration = node.child("duration").text().as_int();          
+          if(duration == 0)
             continue;
 
           // Write rest

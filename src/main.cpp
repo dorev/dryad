@@ -25,6 +25,7 @@ int main()
 
   // run rules on score
   // return analysis in json
+  std::cout << score.serialize() << "\n\n";
 
   return 0;
 }

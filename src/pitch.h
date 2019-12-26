@@ -50,7 +50,7 @@ struct Pitch
     , _alter(alter)
     , _octave(octave)
     , _duration(duration)
-    , _num(_octave * (::noteNumber[_step] + _alter))
+    , _num(_octave * 12 * (::noteNumber[_step] + _alter))
     , _nodePtr(nodePtr)
   {}
 
@@ -68,8 +68,8 @@ struct Pitch
     
     if(xml_node alter = noteNode.child("pitch").child("alter"))
       _alter = alter.text().as_int();
-    else 
-      return false;
+    //else 
+    //  return false;
     
     if(xml_node octave = noteNode.child("pitch").child("octave"))
       _octave = octave.text().as_int();
@@ -78,7 +78,7 @@ struct Pitch
 
     _duration = noteNode.child("duration").text().as_int();
     
-    _num = _octave * (::noteNumber[_step] + _alter);
+    _num = _octave * 12 * (::noteNumber[_step] + _alter);
 
     _nodePtr = makeNodePtr(noteNode);
 
@@ -90,7 +90,7 @@ struct Pitch
     return  ::noteNumber[_step] >= 0 
             && _octave >= 0
             && _duration > 0
-            && _num == _octave * (::noteNumber[_step] + _alter)
+            && _num == _octave * 12 * (::noteNumber[_step] + _alter)
             && _nodePtr != nullptr;
   }
   
