@@ -1,5 +1,6 @@
 #include "definitions.h"
 #include "score.h"
+#include "rules.h"
 
 int main()
 {
@@ -23,6 +24,32 @@ int main()
 
   Score score(xmlScore);
   std::cout << score.serialize() << "\n\n";
+
+  std::set<Rule> ruleSet = 
+  {
+    Rules::parallelFifths,
+    Rules::parallelOctaves
+  };
+
+  std::vector<RuleCheckResult> errors;
+
+  for(auto& pos : score._score)
+  {
+    for(auto& rule : ruleSet)
+    {
+      auto result = rule(pos.second);
+      if(!result.rulePassed)
+        errors.push_back(result);
+    }    
+  }
+
+  for(auto error : errors)
+  {
+    std::cout << error.message << "\n";
+  }
+
+  // add position/measure on ScorePosition
+
 
   // run rules on score
   // return analysis in json

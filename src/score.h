@@ -2,27 +2,7 @@
 
 #include "definitions.h"
 #include "pitch.h"
-
-
-struct ScorePosition 
-{  
-  std::set<Pitch> _notes;
-  std::shared_ptr<ScorePosition> _prev;
-  std::shared_ptr<ScorePosition> _next;
-
-  ScorePosition()
-    : _notes({})
-    , _prev(nullptr)
-    , _next(nullptr)
-  {}
-
-  bool insert(Pitch& pitch)
-  {    
-    return _notes.emplace(pitch).second;
-  }
-};
-
-using ScorePositionPtr = std::shared_ptr<ScorePosition>;
+#include "scorePosition.h"
 
 struct Score
 {

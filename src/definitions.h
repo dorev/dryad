@@ -4,8 +4,10 @@
 #include <functional>
 #include <iostream>
 #include <set>
+#include <vector>
 #include <string>
 #include <cstring>
+#include <cmath>
 #include <map>
 #include <memory>
 #include <algorithm>
@@ -23,4 +25,5 @@ using cstr = const char *;
 using namespace pugi;
 using NodePtr = std::shared_ptr<xml_node>;
 #define makeNodePtr(xmlNode) std::make_shared<xml_node>(xmlNode)
+#define makePitchPtr(pitch) std::make_shared<Pitch>(pitch)
 #define makeScorePosPtr(scorePos) std::make_shared<ScorePosition>(scorePos)

@@ -105,3 +105,5 @@ struct Pitch
   }
 
 };
+
+using PitchPtr = std::shared_ptr<Pitch>;
