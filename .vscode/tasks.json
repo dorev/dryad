@@ -10,6 +10,11 @@
             "label": "rebuild",
             "type": "shell",
             "command": "make clean && make"
+        },
+        {
+            "label": "build test",
+            "type": "shell",
+            "command": "make clean && make test"
         }
     ]
 }

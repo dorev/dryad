@@ -1,16 +1,15 @@
 # LEARN
 # https://www3.ntu.edu.sg/home/ehchua/programming/cpp/gcc_make.html
 
-# mute make print
-#.SILENT:
 
 PROGRAM = dryad
 COMPILER = g++
 OUTDIR = -o tmp/$@
-INCLUDES = -Iextern -Iextern/gtest -Iextern/gtest/include
+INCLUDES = -I. -Isrc -Iextern -Iextern/gtest -Iextern/gtest/include
+OBJECTS = main.o pugixml.o
 
 # MAIN PROGRAM ----------------------------------------------------------------
-$(PROGRAM):  main.o pugixml.o
+$(PROGRAM): $(OBJECTS) 
 	@echo Linking...
 	$(COMPILER) -o $@ $(addprefix tmp/, $^)
 	@echo Build success!
@@ -26,11 +25,11 @@ pugixml.o:
 # TESTS -----------------------------------------------------------------------
 GTESTLIBS = -L/usr/lib/x86_64-linux-gnu -pthread
 
-test : tests.o
+test : tests.o pugixml.o
 	@echo Linking tests...
-	$(COMPILER) -o $(PROGRAM)$@ tmp/tests.o $(GTESTLIBS) 
-	@echo Starting tests...
-	./$(PROGRAM)$@
+	$(COMPILER) -o $(PROGRAM)$@ $(addprefix tmp/, $^) $(GTESTLIBS) 
+	#@echo Starting tests...
+	#@./$(PROGRAM)$@
 
 tests.o :
 	@echo Compiling tests...

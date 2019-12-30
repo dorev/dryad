@@ -82,12 +82,12 @@ struct Score
           // Check for position shift
           if(!strcmp(node.name(),"backup"))
           {
-            shift -= node.text().as_int();
+            shift -= node.child("duration").text().as_int();
             continue;
           }
           if(!strcmp(node.name(),"forward"))
           {
-            shift += node.text().as_int();
+            shift += node.child("duration").text().as_int();
             continue;
           }
           

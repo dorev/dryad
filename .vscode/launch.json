@@ -24,6 +24,27 @@
             ],
             "preLaunchTask": "rebuild",
             "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "g++ build and debug tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/dryadtest",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build test",
+            "miDebuggerPath": "/usr/bin/gdb"
         }
     ]
 }
