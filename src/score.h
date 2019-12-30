@@ -13,6 +13,7 @@ struct Score
   {
     uniformizeDivisions(xmlScore);
     fillScore(xmlScore);
+    updateResonatingNotes();
   }
 
   std::string serialize()
@@ -61,9 +62,9 @@ struct Score
       : std::make_shared<ScorePosition>(_score[index]);
   }
 
-  bool writeToScore(Pitch& pitch, int pos, int measure)
+  bool writeToScore(Pitch& pitch, int pos)
   {
-    return _score[pos].insert(pitch, measure);
+    return pitch.isValid() && _score[pos].insert(pitch);
   }
 
   void fillScore(xml_document& xmlScore)
@@ -104,15 +105,13 @@ struct Score
           if(duration == 0)
             continue;
 
-          int measureNum = measure.attribute("number").as_int();
-
           // Write rest
           if(node.child("rest"))
           {
             Pitch pitch;
             pitch._duration = duration;
             pitch._nodePtr = makeNodePtr(node);
-            writeToScore(pitch, pos, measureNum);
+            writeToScore(pitch, pos);
             pos += duration;
             continue;
           }
@@ -127,12 +126,12 @@ struct Score
           {
             // Write to last position and don't increment pos
             auto lastPosition = _score.rbegin()->second;
-            writeToScore(pitch, pos, measureNum);
+            writeToScore(pitch, pos);
             continue;
           }
 
           // Write normal note
-          writeToScore(pitch, pos, measureNum);
+          writeToScore(pitch, pos);
           pos += duration;
 
         } // end of for nodes
@@ -141,10 +140,10 @@ struct Score
 
     // Link position pointers
     ScorePositionPtr prev = nullptr;
-    for(auto position : _score)
+    for(auto& position : _score)
     {
       ScorePosition& currentPos = position.second;
-      ScorePositionPtr currentPtr = makeScorePosPtr(currentPos);
+      ScorePositionPtr currentPtr = makeScorePosPtr(position.second);
       
       if(prev)
         prev->_next = currentPtr;
@@ -198,6 +197,30 @@ struct Score
       // Update duration value
       duration.node().text().set(std::to_string(value * (*revItr).second).c_str());
     }
+  }
+
+  void updateResonatingNotes()
+  {
+    for(auto scoreKV : _score)
+    {
+      int pos = scoreKV.first;
+      auto scorePos = scoreKV.second;
+
+      for(auto note : scorePos._notes)
+        for(auto resonatingPos : findPosInRange(pos+1, pos + note._duration))
+          resonatingPos->addResonating(makePitchPtr(note));
+    }
+  }
+
+  std::set<ScorePositionPtr> findPosInRange(int rangeBegin, int rangeEnd)
+  {
+    std::set<ScorePositionPtr> result;
+
+    for(int i = rangeBegin; i <= rangeEnd; ++i)
+      if(_score.find(i) != _score.end())
+        result.insert(makeScorePosPtr(_score[i]));
+
+    return result;
   }
 
 };

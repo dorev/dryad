@@ -8,39 +8,58 @@ using NotePairList = std::set<std::pair<PitchPtr,PitchPtr>> ;
 struct ScorePosition 
 {  
   std::set<Pitch> _notes;
+  std::set<PitchPtr> _resonatingNotes;
   std::shared_ptr<ScorePosition> _prev;
   std::shared_ptr<ScorePosition> _next;
-  int _measure;
 
   ScorePosition()
     : _notes({})
+    , _resonatingNotes({})
     , _prev(nullptr)
     , _next(nullptr)
-    , _measure(-1)
   {}
 
-  bool insert(Pitch& pitch, int measure)
+  bool insert(Pitch& pitch)
   {
-    _measure = measure;
     return _notes.emplace(pitch).second;
   }
 
-  NotePairList&& findInterval(int semitoneInterval)
+  bool addResonating(PitchPtr pitchPtr)
+  {
+    return _resonatingNotes.emplace(pitchPtr).second;
+  }
+
+  NotePairList findInterval(int semitoneInterval)
   {
     NotePairList output = {};
 
-    for(auto note1 : _notes)
+    std::set<PitchPtr> allSounds;
+    for(auto& note : _notes)
+      allSounds.insert(makePitchPtr(note));    
+
+    allSounds.insert(_resonatingNotes.begin(), _resonatingNotes.end());
+    
+    for(auto& note1 : allSounds)
     {
-      for(auto note2 : _notes)
+      for(auto& note2 : allSounds)
       {
         if(note1 == note2)
           continue;
 
-        if(note1._num - note2._num == semitoneInterval)
-          output.emplace(makePitchPtr(note1), makePitchPtr(note2));
+        if(note1->_num - note2->_num == semitoneInterval)
+          output.emplace(note1, note2);
       }
     }
-    return std::move(output);
+    return output;
+  }
+
+  int measure()
+  {
+    if(_notes.size() == 0)
+      return 0;
+    
+    // Return measure value of the first note of position
+    return _notes.begin()->_measure;
   }
 
 };

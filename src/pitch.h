@@ -34,6 +34,7 @@ struct Pitch
   int _octave;
   int _duration;
   int _num;
+  int _measure;
   NodePtr _nodePtr;
 
   Pitch() // default pitch like this might be a rest
@@ -42,6 +43,7 @@ struct Pitch
     , _octave(0)
     , _duration(-1)
     , _num(-1)
+    , _measure(-1)
     , _nodePtr(nullptr)
   {}
 
@@ -50,7 +52,8 @@ struct Pitch
     , _alter(alter)
     , _octave(octave)
     , _duration(duration)
-    , _num(_octave * 12 * (::noteNumber[_step] + _alter))
+    , _num(_octave * 12 + (::noteNumber[_step] + _alter))
+    , _measure(nodePtr->parent().attribute("number").as_int())
     , _nodePtr(nodePtr)
   {}
 
@@ -76,19 +79,25 @@ struct Pitch
 
     _duration = noteNode.child("duration").text().as_int();
     
-    _num = _octave * 12 * (::noteNumber[_step] + _alter);
+    _num = _octave * 12 + (::noteNumber[_step] + _alter);
+
 
     _nodePtr = makeNodePtr(noteNode);
+    _measure = _nodePtr->parent().attribute("number").as_int();
 
     return isValid();
   }
 
   bool isValid()
   {
+    if(_num > 144)
+      throw "Unexpected note value";
+      
     return  ::noteNumber[_step] >= 0 
             && _octave >= 0
             && _duration > 0
-            && _num == _octave * 12 * (::noteNumber[_step] + _alter)
+            && _measure >= 0
+            && _num == _octave * 12 + (::noteNumber[_step] + _alter)
             && _nodePtr != nullptr;
   }
   

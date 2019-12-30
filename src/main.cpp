@@ -23,7 +23,7 @@ int main()
   }
 
   Score score(xmlScore);
-  std::cout << score.serialize() << "\n\n";
+  //std::cout << score.serialize() << "\n\n";
 
   std::vector<Rule> ruleSet = 
   {

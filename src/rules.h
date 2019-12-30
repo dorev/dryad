@@ -19,6 +19,11 @@ struct Rule
 {
   std::string name;
   RuleFunc func;
+
+  bool operator<(Rule& other)
+  {
+    return name < other.name;
+  }
 };
 
 
@@ -47,7 +52,7 @@ namespace Rules
       return 
       {
         false,
-        pos._measure,
+        pos.measure(),
         { fifths.begin()->first->_nodePtr, fifths.begin()->second->_nodePtr },
         { prevFifths.begin()->first->_nodePtr, prevFifths.begin()->second->_nodePtr },
         "Consecutive fifths"
@@ -76,7 +81,7 @@ namespace Rules
       return 
       {
         false,
-        pos._measure,
+        pos.measure(),
         { octaves.begin()->first->_nodePtr, octaves.begin()->second->_nodePtr },
         { prevOctaves.begin()->first->_nodePtr, prevOctaves.begin()->second->_nodePtr },
         "Consecutive octaves"
