@@ -1,9 +1,6 @@
-#pragma once
-
 #include <string>
-#include "pugixml/pugixml.hpp"
 
-std::string base = R"(
+std::string mxlBeg = R"(
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE score-partwise PUBLIC
     "-//Recordare//DTD MusicXML 3.1 Partwise//EN"
@@ -11,7 +8,7 @@ std::string base = R"(
 <score-partwise version="3.1">
   <part-list>
     <score-part id="P1">
-      <part-name>Music</part-name>
+      <part-name>DryadTest</part-name>
     </score-part>
   </part-list>
   <part id="P1">
@@ -30,21 +27,31 @@ std::string base = R"(
           <line>2</line>
         </clef>
       </attributes>
-      <note>
-        <pitch>
-          <step>C</step>
-          <octave>4</octave>
-        </pitch>
-        <duration>4</duration>
-        <type>whole</type>
-      </note>
+      )";
+
+std::string mxlEnd = R"(
     </measure>
   </part>
 </score-partwise>)";
 
-/*
-createScore
-  addPart
-  addMeasure
-  addNotes
-*/
+auto genNote = [](std::string step, int oct, int dur) -> std::string
+{
+  std::string output = "\n<note>\n\t<pitch>\n\t\t<step>";
+  output += step;
+  output += "</step>\n\t\t<octave>";
+  output += std::to_string(oct);
+  output += "</octave>\n\t</pitch>\n\t<duration>";
+  output += std::to_string(dur);
+  output += "</duration>\n</note>";
+  return output;
+};
+
+auto genBackup = [](int dur) -> std::string
+{
+  std::string output = "\n<backup>\n\t<duration>";
+  output += std::to_string(dur);
+  output += "</duration>\n</backup>";
+  return output;
+};
+
+

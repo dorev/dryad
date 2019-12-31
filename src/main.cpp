@@ -23,7 +23,6 @@ int main()
   }
 
   Score score(xmlScore);
-  //std::cout << score.serialize() << "\n\n";
 
   std::vector<Rule> ruleSet = 
   {
@@ -53,10 +52,6 @@ int main()
     std::cout << error.message << " at measure " << error.measure << "\n";
   }
 
-  // add position/measure on ScorePosition
-
-
-  // run rules on score
   // return analysis in json
 
   return 0;

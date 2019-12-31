@@ -26,11 +26,13 @@ struct Rule
   }
 };
 
-
+// Constructing an empty RuleCheckResult with rulePassed = true;
 #define PASS { true, -1, {}, {}, "" }
 
 namespace Rules
 {
+  // --------------------------------------------------------------------------
+
   const Rule parallelFifths = 
   { 
     "parallel fifths", 
@@ -59,6 +61,8 @@ namespace Rules
       };
     }
   };
+
+  // --------------------------------------------------------------------------
 
   const Rule parallelOctaves = 
   {
