@@ -53,7 +53,7 @@ struct Pitch
     , _octave(octave)
     , _duration(duration)
     , _num(_octave * 12 + (::noteNumber[_step] + _alter))
-    , _measure(nodePtr->parent().attribute("number").as_int())
+    , _measure(nodePtr ? nodePtr->parent().attribute("number").as_int() : -1)
     , _nodePtr(nodePtr)
   {}
 

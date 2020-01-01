@@ -29,7 +29,7 @@ struct ScorePosition
     return _resonatingNotes.emplace(pitchPtr).second;
   }
 
-  NotePairList findInterval(int semitoneInterval)
+  NotePairList findInterval(int semitoneInterval) const
   {
     NotePairList output = {};
 
@@ -53,7 +53,7 @@ struct ScorePosition
     return output;
   }
 
-  int measure()
+  int measure() const
   {
     if(_notes.size() == 0)
       return 0;

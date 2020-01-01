@@ -3,13 +3,17 @@
 #include "definitions.h"
 #include "pitch.h"
 #include "scorePosition.h"
+#include <fstream>
 
 struct Score
 {
   std::map<int, ScorePosition> _score;
+  int _divisionsValue;
   
   // Constructor
   Score(xml_document& xmlScore)
+   : _score({})
+   , _divisionsValue(0)
   {
     uniformizeDivisions(xmlScore);
     fillScore(xmlScore);
@@ -64,6 +68,15 @@ struct Score
 
   bool writeToScore(Pitch& pitch, int pos)
   {
+    ofstream log("scoreLog.txt", std::ios::out | std::ios::app);
+    if(!pitch.isValid())
+    {
+      log << "!!! INVALID pitch " << pitch._num << "(" << pitch._step << "a" << pitch._alter << ") at measure " << pitch._measure << " pos " << pos << "\n";
+      return false; 
+    }
+
+    log << "INSERTING pitch " << pitch._num << "(" << pitch._step << "a" << pitch._alter << ") at measure " << pitch._measure << " pos " << pos << "\n";
+      
     return pitch.isValid() && _score[pos].insert(pitch);
   }
 
@@ -72,71 +85,16 @@ struct Score
     for (auto& part : xmlScore.select_nodes("//part"))
     {
       int pos = 0;
+      int prevPos = 0;
 
       for (auto& measure : part.node().children())
       {
         int shift = 0;
 
         for(auto& node : measure.children())
-        {
-          // Check for position shift
-          if(!strcmp(node.name(),"backup"))
-          {
-            shift -= node.child("duration").text().as_int();
-            continue;
-          }
-          if(!strcmp(node.name(),"forward"))
-          {
-            shift += node.child("duration").text().as_int();
-            continue;
-          }
-          
-          if(shift)
-          {
-            pos += shift;
-            shift = 0;
-          }
-
-          if(strcmp(node.name(),"note"))
-            continue;
-          
-          // Skip if not has no duration
-          int duration = node.child("duration").text().as_int();          
-          if(duration == 0)
-            continue;
-
-          // Write rest
-          if(node.child("rest"))
-          {
-            Pitch pitch;
-            pitch._duration = duration;
-            pitch._nodePtr = makeNodePtr(node);
-            writeToScore(pitch, pos);
-            pos += duration;
-            continue;
-          }
-
-          // Create new note
-          Pitch pitch; 
-          if(!pitch.fromNode(node))
-            throw "unable to parse Pitch from xml_node";
-
-          // Write note in chord
-          if(node.child("chord"))
-          {
-            // Write to last position and don't increment pos
-            auto lastPosition = _score.rbegin()->second;
-            writeToScore(pitch, pos);
-            continue;
-          }
-
-          // Write normal note
-          writeToScore(pitch, pos);
-          pos += duration;
-
-        } // end of for nodes
-      } // end of for measures
-    } // end of for parts
+          parseMeasureNode(node, pos, prevPos, shift); 
+      } 
+    } 
 
     // Link position pointers
     ScorePositionPtr prev = nullptr;
@@ -153,7 +111,64 @@ struct Score
       // Prepare for next iteration
       prev = currentPtr;
     }
+  }
 
+  void parseMeasureNode(xml_node& node, int& pos, int& prevPos, int& shift)
+  {
+    // Check for position shift
+    if(!strcmp(node.name(),"backup"))
+    {
+      shift -= node.child("duration").text().as_int();
+      return;
+    }
+    if(!strcmp(node.name(),"forward"))
+    {
+      shift += node.child("duration").text().as_int();
+      return;
+    }
+    
+    if(shift)
+    {
+      pos += shift;
+      shift = 0;
+    }
+
+    if(strcmp(node.name(),"note"))
+      return;
+    
+    // Skip if not has no duration
+    int duration = node.child("duration").text().as_int();          
+    if(duration == 0)
+      return;
+
+    // Write rest
+    if(node.child("rest"))
+    {
+      //Pitch pitch;
+      //pitch._duration = duration;
+      //pitch._nodePtr = makeNodePtr(node);
+      //writeToScore(pitch, pos);
+      pos += duration;
+      return;
+    }
+
+    // Create new note
+    Pitch pitch; 
+    if(!pitch.fromNode(node))
+      throw "unable to parse Pitch from xml_node";
+
+    // Write note in chord
+    if(node.child("chord"))
+    {
+      // Write to previous position and don't increment pos
+      writeToScore(pitch, prevPos);
+      return;
+    }
+
+    // Write normal note
+    writeToScore(pitch, pos);
+    prevPos = pos;
+    pos += duration;
   }
 
   void uniformizeDivisions(xml_document& xml)
@@ -166,7 +181,8 @@ struct Score
       divisions[division.node().offset_debug()] = division.node().text().as_int();
 
     int maxDivision = std::max_element(divisions.begin(), divisions.end())->second;
-    
+    _divisionsValue = maxDivision;
+
     // Set all factors to normalize quarter-note durations
     for(auto& division : divisions)
       divisionFactors[division.first] = maxDivision / division.second;

@@ -2,6 +2,7 @@
 
 // Tests
 #include "tests/RulesTest.h"
+#include "tests/ScorePositionTest.h"
 
 int main(int argc, char **argv) 
 {

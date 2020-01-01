@@ -13,7 +13,7 @@ struct RuleCheckResult
   std::string message;
 };
 
-using RuleFunc = std::function<RuleCheckResult(ScorePosition&)>;
+using RuleFunc = std::function<RuleCheckResult(const ScorePosition&)>;
 
 struct Rule
 {
@@ -36,7 +36,7 @@ namespace Rules
   const Rule parallelFifths = 
   { 
     "parallel fifths", 
-    [](ScorePosition& pos) -> RuleCheckResult
+    [](const ScorePosition& pos) -> RuleCheckResult
     {
       if(pos._prev == nullptr)
         return PASS;
@@ -47,6 +47,11 @@ namespace Rules
         return PASS;
       
       auto prevFifths = pos._prev->findInterval(7);
+
+      if(pos.measure() == 7)
+      {
+        std::cout << "Measure " << pos.measure() << std::endl;
+      }
 
       if(prevFifths.size() == 0)
         return PASS;
@@ -67,7 +72,7 @@ namespace Rules
   const Rule parallelOctaves = 
   {
     "parallel octaves",
-    [](ScorePosition& pos) -> RuleCheckResult
+    [](const ScorePosition& pos) -> RuleCheckResult
     {
       if(pos._prev == nullptr)
         return PASS;

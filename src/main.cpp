@@ -1,11 +1,10 @@
 #include "definitions.h"
 #include "score.h"
 #include "rules.h"
+#include "ruleChecker.h"
 
 int main()
 {
-  // ADD GTEST!!!
-
   xml_document xmlScore;
   cstr filePath("./extern/musicxml/MozaChloSample.xml");
 
@@ -30,27 +29,8 @@ int main()
     Rules::parallelOctaves
   };
 
-
-  std::cout << "Analyzing with ruleset : \n";
-  for(auto& rule : ruleSet)
-    std::cout << "  - " << rule.name << "\n";
-
-  std::vector<RuleCheckResult> errors;
-
-  for(auto& pos : score._score)
-  {
-    for(auto& rule : ruleSet)
-    {
-      auto result = rule.func(pos.second);
-      if(!result.rulePassed)
-        errors.push_back(result);
-    }    
-  }
-
-  for(auto error : errors)
-  {
+  for(auto error : checkRulesOnScore(ruleSet, score))
     std::cout << error.message << " at measure " << error.measure << "\n";
-  }
 
   // return analysis in json
 
