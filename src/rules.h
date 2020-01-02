@@ -48,11 +48,6 @@ namespace Rules
       
       auto prevFifths = pos._prev->findInterval(7);
 
-      if(pos.measure() == 7)
-      {
-        std::cout << "Measure " << pos.measure() << std::endl;
-      }
-
       if(prevFifths.size() == 0)
         return PASS;
 
@@ -81,6 +76,9 @@ namespace Rules
 
       if(octaves.size() == 0)
         return PASS;
+
+      if(pos._prev->_scoreIndex == 636)
+        std::cout << "!\n";
       
       auto prevOctaves = pos._prev->findInterval(12);
 

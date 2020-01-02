@@ -11,22 +11,24 @@ struct ScorePosition
   std::set<PitchPtr> _resonatingNotes;
   std::shared_ptr<ScorePosition> _prev;
   std::shared_ptr<ScorePosition> _next;
+  int _scoreIndex;
 
   ScorePosition()
     : _notes({})
     , _resonatingNotes({})
     , _prev(nullptr)
     , _next(nullptr)
+    , _scoreIndex(-1)
   {}
 
   bool insert(Pitch& pitch)
   {
-    return _notes.emplace(pitch).second;
+    return _notes.insert(pitch).second;
   }
 
   bool addResonating(PitchPtr pitchPtr)
   {
-    return _resonatingNotes.emplace(pitchPtr).second;
+    return _resonatingNotes.insert(pitchPtr).second;
   }
 
   NotePairList findInterval(int semitoneInterval) const

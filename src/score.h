@@ -68,16 +68,10 @@ struct Score
 
   bool writeToScore(Pitch& pitch, int pos)
   {
-    ofstream log("scoreLog.txt", std::ios::out | std::ios::app);
     if(!pitch.isValid())
-    {
-      log << "!!! INVALID pitch " << pitch._num << "(" << pitch._step << "a" << pitch._alter << ") at measure " << pitch._measure << " pos " << pos << "\n";
-      return false; 
-    }
+      return false;
 
-    log << "INSERTING pitch " << pitch._num << "(" << pitch._step << "a" << pitch._alter << ") at measure " << pitch._measure << " pos " << pos << "\n";
-      
-    return pitch.isValid() && _score[pos].insert(pitch);
+    return _score[pos].insert(pitch);
   }
 
   void fillScore(xml_document& xmlScore)
@@ -217,24 +211,27 @@ struct Score
 
   void updateResonatingNotes()
   {
-    for(auto scoreKV : _score)
+    ofstream log("scoreFill.txt", std::ios::out | std::ios::app);
+
+    for(auto& scoreKV : _score)
     {
       int pos = scoreKV.first;
-      auto scorePos = scoreKV.second;
+      auto& scorePos = scoreKV.second;
 
-      for(auto note : scorePos._notes)
-        for(auto resonatingPos : findPosInRange(pos+1, pos + note._duration))
-          resonatingPos->addResonating(makePitchPtr(note));
+
+      for(auto& note : scorePos._notes)
+        for(auto resonatingPos : findPosInRange(pos+1, pos + note._duration-1))
+          _score[resonatingPos].addResonating(makePitchPtr(note));
     }
   }
 
-  std::set<ScorePositionPtr> findPosInRange(int rangeBegin, int rangeEnd)
+  std::set<int> findPosInRange(int rangeBegin, int rangeEnd)
   {
-    std::set<ScorePositionPtr> result;
+    std::set<int> result;
 
-    for(int i = rangeBegin; i <= rangeEnd; ++i)
+    for(int i = rangeBegin; i < rangeEnd; ++i)
       if(_score.find(i) != _score.end())
-        result.insert(makeScorePosPtr(_score[i]));
+        result.insert(i);
 
     return result;
   }
