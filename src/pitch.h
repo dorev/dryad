@@ -2,31 +2,6 @@
 
 #include "definitions.h"
 
-namespace 
-{
-  std::map<std::string, int> noteNumber(
-  {
-    {"", -1},
-    {"C", 0},
-    {"C#", 1},
-    {"Db", 1},
-    {"D", 2},
-    {"D#", 3},
-    {"Eb", 3},
-    {"E", 4},
-    {"F", 5},
-    {"F#", 6},
-    {"Gb", 6},
-    {"G", 7},
-    {"G#", 8},
-    {"Ab", 8},
-    {"A", 9},
-    {"A#", 10},
-    {"Bb", 10},
-    {"B", 11}
-  });
-}
-
 struct Pitch 
 {
   std::string _step;
@@ -52,7 +27,7 @@ struct Pitch
     , _alter(alter)
     , _octave(octave)
     , _duration(duration)
-    , _num(_octave * 12 + (::noteNumber[_step] + _alter))
+    , _num(_octave * 12 + (noteNum(_step) + _alter))
     , _measure(nodePtr ? nodePtr->parent().attribute("number").as_int() : -1)
     , _nodePtr(nodePtr)
   {}
@@ -79,7 +54,7 @@ struct Pitch
 
     _duration = noteNode.child("duration").text().as_int();
     
-    _num = _octave * 12 + (::noteNumber[_step] + _alter);
+    _num = _octave * 12 + (noteNum(_step) + _alter);
 
 
     _nodePtr = makeNodePtr(noteNode);
@@ -97,7 +72,7 @@ struct Pitch
             && _octave >= 0
             && _duration > 0
             && _measure >= 0
-            && _num == _octave * 12 + (::noteNumber[_step] + _alter)
+            && _num == _octave * 12 + (noteNum(_step) + _alter)
             && _nodePtr != nullptr;
   }
   
