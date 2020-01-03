@@ -3,7 +3,6 @@
 #include "definitions.h"
 #include "pitch.h"
 #include "scorePosition.h"
-#include <fstream>
 
 struct Score
 {
@@ -26,34 +25,28 @@ struct Score
     PrettyWriter<StringBuffer> writer(stringBuffer);
 
     writer.StartObject();
-    writer.Key("score");
-    writer.StartArray();
-    for(auto scorePos : _score)
-    {
-      writer.StartObject();
-        writer.Key("position");
-        writer.Int(scorePos.first);
-        writer.Key("notes");
-        writer.StartArray();
-        for(auto note : scorePos.second._notes)
+      writer.Key("score");
+      writer.StartArray();
+        for(auto scorePos : _score)
         {
           writer.StartObject();
-          writer.Key("step");
-          writer.String(note._step.c_str());
-          writer.Key("alter");
-          writer.Int(note._alter);
-          writer.Key("octave");
-          writer.Int(note._octave);
-          writer.Key("duration");
-          writer.Int(note._duration);
-          writer.Key("num");
-          writer.Int(note._num);
-          writer.EndObject();        
+            writer.Key("position"); writer.Int(scorePos.first);
+            writer.Key("notes");
+            writer.StartArray();
+              for(auto note : scorePos.second._notes)
+              {
+                writer.StartObject();
+                  writer.Key("step");     writer.String(note._step.c_str());
+                  writer.Key("alter");    writer.Int(note._alter);
+                  writer.Key("octave");   writer.Int(note._octave);
+                  writer.Key("duration"); writer.Int(note._duration);
+                  writer.Key("num");      writer.Int(note._num);
+                writer.EndObject();        
+              }
+            writer.EndArray();
+          writer.EndObject();
         }
-        writer.EndArray();
-      writer.EndObject();
-    }
-    writer.EndArray();
+      writer.EndArray();
     writer.EndObject();
 
     return stringBuffer.GetString();
@@ -135,13 +128,9 @@ struct Score
     if(duration == 0)
       return;
 
-    // Write rest
+    // Rest
     if(node.child("rest"))
     {
-      //Pitch pitch;
-      //pitch._duration = duration;
-      //pitch._nodePtr = makeNodePtr(node);
-      //writeToScore(pitch, pos);
       pos += duration;
       return;
     }
@@ -151,7 +140,7 @@ struct Score
     if(!pitch.fromNode(node))
       throw "unable to parse Pitch from xml_node";
 
-    // Write note in chord
+    // Chord
     if(node.child("chord"))
     {
       // Write to previous position and don't increment pos
@@ -211,24 +200,44 @@ struct Score
 
   void updateResonatingNotes()
   {
-    ofstream log("scoreFill.txt", std::ios::out | std::ios::app);
-
     for(auto& scoreKV : _score)
     {
       int pos = scoreKV.first;
       auto& scorePos = scoreKV.second;
 
-
+      // For every note, add self as 'resonating' in
+      // existing positions within the range of their duration
       for(auto& note : scorePos._notes)
         for(auto resonatingPos : findPosInRange(pos+1, pos + note._duration-1))
           _score[resonatingPos].addResonating(makePitchPtr(note));
     }
   }
 
+  void updateLikelyScale()
+  {
+    // trouver les indications aux armateurs
+    // se considérer en do, qu'on soit en Do majeur, Do mineur melo asc, harmo, naturel, etc...
+    // regarder vers le futur? comment on explique les modulations?!?!
+
+    for(auto& scoreKV : _score)
+    {
+      int pos = scoreKV.first;
+      auto& scorePos = scoreKV.second;
+
+      // For every note, add self as 'resonating' in
+      // existing positions within the range of their duration
+      for(auto& note : scorePos._notes)
+        for(auto resonatingPos : findPosInRange(pos+1, pos + note._duration-1))
+          _score[resonatingPos].addResonating(makePitchPtr(note));
+    }
+
+  }
+
   std::set<int> findPosInRange(int rangeBegin, int rangeEnd)
   {
     std::set<int> result;
 
+    // Scan for existing key values among the requested range
     for(int i = rangeBegin; i < rangeEnd; ++i)
       if(_score.find(i) != _score.end())
         result.insert(i);

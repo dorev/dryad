@@ -2,20 +2,17 @@
 
 #include "score.h"
 
-
 using NotePairList = std::set<std::pair<PitchPtr,PitchPtr>> ;
 
-NotePairList findInterval(int semitoneInterval, ScorePositionPtr pos)
+NotePairList findInterval(int semitoneInterval, const ScorePosition& pos)
 {
   NotePairList output = {};
 
   std::set<PitchPtr> allSounds;
-  for(auto& note : pos->_notes)
+  for(auto& note : pos._notes)
     allSounds.insert(makePitchPtr(note));    
 
-  allSounds.insert(pos->_resonatingNotes.begin(), pos->_resonatingNotes.end());
-  // USING A SET HERE COULD ERASE SOME VALUES!!
-
+  allSounds.insert(pos._resonatingNotes.begin(), pos._resonatingNotes.end());
 
   for(auto& note1 : allSounds)
   {

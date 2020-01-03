@@ -2,6 +2,7 @@
 
 #include "definitions.h"
 #include "score.h"
+#include "analysis.h"
 
 
 struct RuleCheckResult 
@@ -41,12 +42,12 @@ namespace Rules
       if(pos._prev == nullptr)
         return PASS;
 
-      auto fifths = pos.findInterval(7);
+      auto fifths = findInterval(7, pos);
 
       if(fifths.size() == 0)
         return PASS;
       
-      auto prevFifths = pos._prev->findInterval(7);
+      auto prevFifths = findInterval(7, *pos._prev);
 
       if(prevFifths.size() == 0)
         return PASS;
@@ -72,7 +73,7 @@ namespace Rules
       if(pos._prev == nullptr)
         return PASS;
 
-      auto octaves = pos.findInterval(12);
+      auto octaves = findInterval(12, pos);
 
       if(octaves.size() == 0)
         return PASS;
@@ -80,7 +81,7 @@ namespace Rules
       if(pos._prev->_scoreIndex == 636)
         std::cout << "!\n";
       
-      auto prevOctaves = pos._prev->findInterval(12);
+      auto prevOctaves = findInterval(12, *pos._prev);
 
       if(prevOctaves.size() == 0)
         return PASS;
@@ -93,6 +94,28 @@ namespace Rules
         { prevOctaves.begin()->first->_nodePtr, prevOctaves.begin()->second->_nodePtr },
         "Consecutive octaves"
       };
+    }
+  };
+
+  // --------------------------------------------------------------------------
+
+  const Rule dasdasd = 
+  {
+    "template",
+    [](const ScorePosition& pos) -> RuleCheckResult
+    {
+      return PASS;
+    }
+  };
+
+  // --------------------------------------------------------------------------
+
+  const Rule templateRule = 
+  {
+    "template",
+    [](const ScorePosition& pos) -> RuleCheckResult
+    {
+      return PASS;
     }
   };
 

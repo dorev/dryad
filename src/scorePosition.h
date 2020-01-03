@@ -23,36 +23,12 @@ struct ScorePosition
 
   bool insert(Pitch& pitch)
   {
-    return _notes.insert(pitch).second;
+    return _notes.emplace(pitch).second;
   }
 
   bool addResonating(PitchPtr pitchPtr)
   {
-    return _resonatingNotes.insert(pitchPtr).second;
-  }
-
-  NotePairList findInterval(int semitoneInterval) const
-  {
-    NotePairList output = {};
-
-    std::set<PitchPtr> allSounds;
-    for(auto& note : _notes)
-      allSounds.insert(makePitchPtr(note));    
-
-    allSounds.insert(_resonatingNotes.begin(), _resonatingNotes.end());
-    
-    for(auto& note1 : allSounds)
-    {
-      for(auto& note2 : allSounds)
-      {
-        if(note1 == note2)
-          continue;
-
-        if(note1->_num - note2->_num == semitoneInterval)
-          output.emplace(note1, note2);
-      }
-    }
-    return output;
+    return _resonatingNotes.emplace(pitchPtr).second;
   }
 
   int measure() const
