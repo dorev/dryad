@@ -39,9 +39,14 @@ struct Scale
     : _rootName(rootName)
     , _type(type)
     , _rootNum(noteNum(rootName))
-  {
+    , _notes(notesOfScale(rootName, type))
+  {}
 
-    for(auto interval : scaleTypes[_type])
-      _notes.push_back((_rootNum + interval) % 12);
+  static std::vector<int> notesOfScale(std::string rootName, ScaleType type)
+  {
+    std::vector<int> result;
+    for(auto interval : scaleTypes[type])
+      result.push_back((noteNum(rootName) + interval) % 12);
+    return result;
   }
 };

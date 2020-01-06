@@ -3,25 +3,25 @@
 #include "rules.h"
 #include "ruleChecker.h"
 
-int main()
+std::string crunch(std::string musicXml)
 {
   xml_document xmlScore;
-  cstr filePath("./extern/musicxml/MozaChloSample.xml");
-
-  xml_parse_result result = xmlScore.load_file(filePath);
+  xml_parse_result result = xmlScore.load(musicXml.c_str());
 
   if (result)
   {
-    std::cout << "XML file '" << filePath << "' successfully parsed.\n\n";
+    std::cout << "XML document '" << musicXml << "' successfully parsed.\n\n";
   }
   else
   {
-    std::cout << "XML file '" << filePath << "' parsed with errors!\n";
+    std::cout << "XML document '" << musicXml << "' parsed with errors!\n";
     std::cout << "Error description: " << result.description() << "\n";
     return 0;
   }
 
   Score score(xmlScore);
+
+  // ruleset will be provided from an input json string 
 
   std::vector<Rule> ruleSet = 
   {
@@ -33,6 +33,15 @@ int main()
     std::cout << error.message << " at measure " << error.measure << "\n";
 
   // return analysis in json
+
+}
+
+int main()
+{
+  cstr filePath("./extern/musicxml/MozaChloSample.xml");
+
+  // open file as string
+  std::cout << crunch(filePath);
 
   return 0;
 }

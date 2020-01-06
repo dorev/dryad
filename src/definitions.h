@@ -60,6 +60,25 @@ int noteNum(std::string noteName)
   else
     return -1;  
 }
+std::string noteName(int noteNum, bool flat = false)
+{
+  switch(noteNum % 12)
+  {
+    case 0: return "C";
+    case 1: return flat ? "Db" : "C#";
+    case 2: return "D";
+    case 3: return flat ? "Eb" : "D#";
+    case 4: return "E";
+    case 5: return "F";
+    case 6: return flat ? "Gb" : "F#";
+    case 7: return "G";
+    case 8: return flat ? "Ab" : "G#";
+    case 9: return "A";
+    case 10: return flat ? "Bb" : "A#";
+    case 11:  return "B";
+    default: return "";
+  }
+}
 
 std::map<std::string, int> noteNumber(
 {
