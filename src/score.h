@@ -233,7 +233,7 @@ struct Score
 
   }
 
-  std::set<int> findPosInRange(int rangeBegin, int rangeEnd)
+  std::set<int> findPosInRange(int rangeBegin, int rangeEnd) const
   {
     std::set<int> result;
 

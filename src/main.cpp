@@ -1,9 +1,9 @@
+#include <sstream>
+
 #include "definitions.h"
 #include "score.h"
 #include "rules.h"
 #include "ruleCheck.h"
-
-#include <sstream>
 
 std::set<Rule> buildRuleSet(std::set<std::string>& rulesList)
 {
