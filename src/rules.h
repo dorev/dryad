@@ -3,7 +3,7 @@
 #include "definitions.h"
 #include "score.h"
 #include "analysis.h"
-
+#include "text.h"
 
 struct RuleCheckResult 
 {
@@ -16,14 +16,16 @@ struct RuleCheckResult
 
 using RuleFunc = std::function<RuleCheckResult(const ScorePosition&)>;
 
+
 struct Rule
 {
-  std::string name;
+  Text title;
+  Text description;
   RuleFunc func;
 
   bool operator<(const Rule& other) const
   {
-    return name < other.name;
+    return title[Lang::fr] < other.title[Lang::fr];
   }
 };
 
@@ -36,7 +38,14 @@ namespace
 
   const Rule parallelFifths = 
   { 
-    "parallel fifths", 
+    {{
+      {Lang::fr, "Quintes parallèles"},
+      {Lang::en, "Parallel fifths"}
+    }},
+    {{
+      {Lang::fr, "Tu devrais pas faire ça selon des vieux"},
+      {Lang::en, "Old people say you shouldn't do that"}
+    }}, 
     [](const ScorePosition& pos) -> RuleCheckResult
     {
       if(pos._prev == nullptr)
@@ -67,7 +76,14 @@ namespace
 
   const Rule parallelOctaves = 
   {
-    "parallel octaves",
+    {{
+      {Lang::fr, "Octaves parallèles"},
+      {Lang::en, "Parallel octaves"}
+    }},
+    {{
+      {Lang::fr, "Tu devrais pas faire ça selon des vieux"},
+      {Lang::en, "Old people say you shouldn't do that"}
+    }}, 
     [](const ScorePosition& pos) -> RuleCheckResult
     {
       if(pos._prev == nullptr)
@@ -101,7 +117,14 @@ namespace
 
   const Rule dasdasd = 
   {
-    "template",
+    {{
+      {Lang::fr, ""},
+      {Lang::en, ""}
+    }},
+    {{
+      {Lang::fr, ""},
+      {Lang::en, ""}
+    }}, 
     [](const ScorePosition& pos) -> RuleCheckResult
     {
       return PASS;
@@ -112,7 +135,14 @@ namespace
 
   const Rule templateRule = 
   {
-    "template",
+    {{
+      {Lang::fr, ""},
+      {Lang::en, ""}
+    }},
+    {{
+      {Lang::fr, ""},
+      {Lang::en, ""}
+    }}, 
     [](const ScorePosition& pos) -> RuleCheckResult
     {
       return PASS;
@@ -125,6 +155,6 @@ namespace
 
 std::map<std::string, const Rule> __rules =
 {
-  { "parallel fifths", ::parallelFifths },
-  { "parallel octaves", ::parallelOctaves }
+  { "parallelFifths", ::parallelFifths },
+  { "parallelOctaves", ::parallelOctaves }
 };

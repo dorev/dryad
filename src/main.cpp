@@ -35,7 +35,7 @@ std::string processScore(std::string musicXml, std::string rulesListWithSeparato
 
   Score score(xmlScore);
 
-  std::set<std::string> rulesList = { "parallel fifths", "parallel octaves" };
+  std::set<std::string> rulesList = { "parallelFifths", "parallelOctaves" };
 
   // ruleset will be provided from an input json string 
   std::set<Rule> ruleSet = buildRuleSet(rulesList);
