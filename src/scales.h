@@ -28,6 +28,20 @@ std::map<ScaleType, const std::vector<int>&> scaleTypes
   { ScaleType::Mixed,         mixedIntervals}
 });
 
+std::vector<int> notesOfScale(int rootNum, ScaleType type)
+{
+  std::vector<int> result;
+  for(auto interval : scaleTypes[type])
+    result.push_back((rootNum + interval) % 12);
+  return result;
+}
+
+std::vector<int> notesOfScale(std::string rootName, ScaleType type)
+{
+  return notesOfScale(noteNum(rootName), type);
+}
+
+
 struct Scale
 {
   std::string _rootName;
@@ -35,18 +49,17 @@ struct Scale
   ScaleType _type;
   std::vector<int> _notes;
 
+  Scale(int rootNum, ScaleType type)
+    : _rootName(noteName(rootNum))
+    , _type(type)
+    , _rootNum(rootNum)
+    , _notes(notesOfScale(rootNum, type))
+  {}
+
   Scale(std::string rootName, ScaleType type)
     : _rootName(rootName)
     , _type(type)
     , _rootNum(noteNum(rootName))
     , _notes(notesOfScale(rootName, type))
   {}
-
-  static std::vector<int> notesOfScale(std::string rootName, ScaleType type)
-  {
-    std::vector<int> result;
-    for(auto interval : scaleTypes[type])
-      result.push_back((noteNum(rootName) + interval) % 12);
-    return result;
-  }
 };

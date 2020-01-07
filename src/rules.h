@@ -42,12 +42,12 @@ namespace Rules
       if(pos._prev == nullptr)
         return PASS;
 
-      auto fifths = findInterval(7, pos);
+      auto fifths = findIntervalsInPos(7, pos);
 
       if(fifths.size() == 0)
         return PASS;
       
-      auto prevFifths = findInterval(7, *pos._prev);
+      auto prevFifths = findIntervalsInPos(7, *pos._prev);
 
       if(prevFifths.size() == 0)
         return PASS;
@@ -73,7 +73,7 @@ namespace Rules
       if(pos._prev == nullptr)
         return PASS;
 
-      auto octaves = findInterval(12, pos);
+      auto octaves = findIntervalsInPos(12, pos);
 
       if(octaves.size() == 0)
         return PASS;
@@ -81,7 +81,7 @@ namespace Rules
       if(pos._prev->_scoreIndex == 636)
         std::cout << "!\n";
       
-      auto prevOctaves = findInterval(12, *pos._prev);
+      auto prevOctaves = findIntervalsInPos(12, *pos._prev);
 
       if(prevOctaves.size() == 0)
         return PASS;

@@ -1,10 +1,11 @@
 #pragma once
 
 #include "score.h"
+#include "scales.h"
 
 using NotePairList = std::set<std::pair<PitchPtr,PitchPtr>> ;
 
-NotePairList findInterval(int semitoneInterval, const ScorePosition& pos)
+NotePairList findIntervalsInPos(int semitoneInterval, const ScorePosition& pos)
 {
   NotePairList output = {};
 
@@ -26,4 +27,16 @@ NotePairList findInterval(int semitoneInterval, const ScorePosition& pos)
     }
   }
   return output;
+}
+
+std::vector<Scale> findScalesInRange(const Score& score, int startPos, int endPos)
+{
+  // list all present notes
+  std::map<int,int> notesOccurences;
+
+  // find chords
+  // how do we represent chords?
+
+
+  return vector<Scale>();
 }

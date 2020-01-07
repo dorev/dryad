@@ -3,7 +3,20 @@
 #include "rules.h"
 #include "ruleChecker.h"
 
-std::string crunch(std::string musicXml)
+#include <sstream>
+
+std::vector<Rule> buildRuleSet(std::string rulesList)
+{
+  std::vector<Rule> ruleSet = 
+  {
+    Rules::parallelFifths,
+    Rules::parallelOctaves
+  };
+
+  return ruleSet;
+}
+
+std::string crunch(std::string musicXml, std::string rulesList)
 {
   xml_document xmlScore;
   xml_parse_result result = xmlScore.load(musicXml.c_str());
@@ -22,18 +35,15 @@ std::string crunch(std::string musicXml)
   Score score(xmlScore);
 
   // ruleset will be provided from an input json string 
+  std::vector<Rule> ruleSet = buildRuleSet(rulesList);
 
-  std::vector<Rule> ruleSet = 
-  {
-    Rules::parallelFifths,
-    Rules::parallelOctaves
-  };
+  std::stringstream ss;
 
   for(auto error : checkRulesOnScore(ruleSet, score))
-    std::cout << error.message << " at measure " << error.measure << "\n";
+    ss << error.message << " at measure " << error.measure << "\n";
 
   // return analysis in json
-
+  return ss.str();
 }
 
 int main()
@@ -41,7 +51,7 @@ int main()
   cstr filePath("./extern/musicxml/MozaChloSample.xml");
 
   // open file as string
-  std::cout << crunch(filePath);
+  std::cout << crunch(filePath, "rules");
 
   return 0;
 }
