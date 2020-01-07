@@ -9,8 +9,8 @@ struct RuleCheckResult
 {
   bool rulePassed;
   int measure;
-  std::set<NodePtr> badNotes;
-  std::set<NodePtr> explaningNotes;
+  std::set<const xml_node*> badNotes;
+  std::set<const xml_node*> explaningNotes;
   std::string message;
 };
 

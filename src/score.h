@@ -52,11 +52,11 @@ struct Score
     return stringBuffer.GetString();
   }
 
-  ScorePositionPtr operator[](int index)
+  const ScorePosition* operator[](int index)
   {
     return (_score.find(index) == _score.end())
       ? nullptr
-      : std::make_shared<ScorePosition>(_score[index]);
+      : &_score[index];
   }
 
   bool writeToScore(Pitch& pitch, int pos)
@@ -84,11 +84,11 @@ struct Score
     } 
 
     // Link position pointers
-    ScorePositionPtr prev = nullptr;
+    ScorePosition* prev = nullptr;
     for(auto& position : _score)
     {
       ScorePosition& currentPos = position.second;
-      ScorePositionPtr currentPtr = makeScorePosPtr(position.second);
+      ScorePosition* currentPtr = &position.second;
       
       if(prev)
         prev->_next = currentPtr;
@@ -100,7 +100,7 @@ struct Score
     }
   }
 
-  void parseMeasureNode(xml_node& node, int& pos, int& prevPos, int& shift)
+  void parseMeasureNode(const xml_node& node, int& pos, int& prevPos, int& shift)
   {
     // Check for position shift
     if(!strcmp(node.name(),"backup"))
@@ -209,13 +209,13 @@ struct Score
       // existing positions within the range of their duration
       for(auto& note : scorePos._notes)
         for(auto resonatingPos : findPosInRange(pos+1, pos + note._duration-1))
-          _score[resonatingPos].addResonating(makePitchPtr(note));
+          _score[resonatingPos].addResonating(&note);
     }
   }
 
   void updateLikelyScale()
   {
-    // trouver les indications aux armateurs
+    // trouver les indications aux armatures
     // se considérer en do, qu'on soit en Do majeur, Do mineur melo asc, harmo, naturel, etc...
     // regarder vers le futur? comment on explique les modulations?!?!
 
@@ -228,7 +228,7 @@ struct Score
       // existing positions within the range of their duration
       for(auto& note : scorePos._notes)
         for(auto resonatingPos : findPosInRange(pos+1, pos + note._duration-1))
-          _score[resonatingPos].addResonating(makePitchPtr(note));
+          _score[resonatingPos].addResonating(&note);
     }
 
   }

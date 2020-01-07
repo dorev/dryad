@@ -3,14 +3,12 @@
 #include "definitions.h"
 #include "pitch.h"
 
-using NotePairList = std::set<std::pair<PitchPtr,PitchPtr>> ;
-
 struct ScorePosition 
 {  
   std::set<Pitch> _notes;
-  std::set<PitchPtr> _resonatingNotes;
-  std::shared_ptr<ScorePosition> _prev;
-  std::shared_ptr<ScorePosition> _next;
+  std::set<const Pitch*> _resonatingNotes;
+  const ScorePosition* _prev;
+  const ScorePosition* _next;
   int _scoreIndex;
 
   ScorePosition()
@@ -26,7 +24,7 @@ struct ScorePosition
     return _notes.emplace(pitch).second;
   }
 
-  bool addResonating(PitchPtr pitchPtr)
+  bool addResonating(const Pitch* pitchPtr)
   {
     return _resonatingNotes.emplace(pitchPtr).second;
   }
@@ -41,5 +39,3 @@ struct ScorePosition
   }
 
 };
-
-using ScorePositionPtr = std::shared_ptr<ScorePosition>;

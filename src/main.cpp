@@ -19,7 +19,8 @@ std::set<Rule> buildRuleSet(std::string rulesList)
 std::string processScore(std::string musicXml, std::string rulesList)
 {
   xml_document xmlScore;
-  xml_parse_result result = xmlScore.load(musicXml.c_str());
+  //xml_parse_result result = xmlScore.load(musicXml.c_str());
+  xml_parse_result result = xmlScore.load_file(musicXml.c_str());
 
   if (result)
   {

@@ -11,7 +11,7 @@ struct Pitch
   int _duration;
   int _num;
   int _measure;
-  NodePtr _nodePtr;
+  const xml_node* _nodePtr;
 
   Pitch() // default pitch like this might be a rest
     : _step("")
@@ -23,7 +23,7 @@ struct Pitch
     , _nodePtr(nullptr)
   {}
 
-  Pitch(std::string step, int alter, int octave, int duration, NodePtr nodePtr)
+  Pitch(std::string step, int alter, int octave, int duration, const xml_node* nodePtr)
     : _step(step)
     , _alter(alter)
     , _octave(octave)
@@ -33,7 +33,7 @@ struct Pitch
     , _nodePtr(nodePtr)
   {}
 
-  bool fromNode(xml_node& noteNode)
+  bool fromNode(const xml_node& noteNode)
   {
     if(!(!strcmp(noteNode.name(),"note") 
     && noteNode.child("pitch") 
@@ -58,7 +58,7 @@ struct Pitch
     _num = _octave * 12 + (noteNum(_step) + _alter);
 
 
-    _nodePtr = makeNodePtr(noteNode);
+    _nodePtr = &noteNode;
     _measure = _nodePtr->parent().attribute("number").as_int();
 
     return isValid();
@@ -90,5 +90,3 @@ struct Pitch
   }
 
 };
-
-using PitchPtr = std::shared_ptr<Pitch>;
