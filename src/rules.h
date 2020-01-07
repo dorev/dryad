@@ -11,7 +11,7 @@ struct RuleCheckResult
   int measure;
   std::set<const xml_node*> badNotes;
   std::set<const xml_node*> explaningNotes;
-  std::string message;
+  Text message;
 };
 
 using RuleFunc = std::function<RuleCheckResult(const ScorePosition&)>;
@@ -30,7 +30,7 @@ struct Rule
 };
 
 // Constructing an empty RuleCheckResult with rulePassed = true;
-#define PASS { true, -1, {}, {}, "" }
+#define PASS { true, -1, {}, {}, {{{}}} }
 
 namespace
 {
@@ -67,7 +67,10 @@ namespace
         pos.measure(),
         { fifths.begin()->first->_nodePtr, fifths.begin()->second->_nodePtr },
         { prevFifths.begin()->first->_nodePtr, prevFifths.begin()->second->_nodePtr },
-        "Consecutive fifths"
+        {{
+          {Lang::fr, "Quintes parallèles consécutives trouvées"},
+          {Lang::en, "Consecutive parallel fifths found"}
+        }}
       };
     }
   };
@@ -108,7 +111,10 @@ namespace
         pos.measure(),
         { octaves.begin()->first->_nodePtr, octaves.begin()->second->_nodePtr },
         { prevOctaves.begin()->first->_nodePtr, prevOctaves.begin()->second->_nodePtr },
-        "Consecutive octaves"
+        {{
+          {Lang::fr, "Octaves parallèles consécutives trouvées"},
+          {Lang::en, "Consecutive parallel octaves found"}
+        }}
       };
     }
   };

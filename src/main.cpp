@@ -43,7 +43,7 @@ std::string processScore(std::string musicXml, std::string rulesListWithSeparato
   std::stringstream ss;
 
   for(auto error : checkRulesOnScore(ruleSet, score))
-    ss << error.message << " at measure " << error.measure << "\n";
+    ss << error.message[Lang::fr] << " at measure " << error.measure << "\n";
 
   // return analysis in json
   return ss.str();

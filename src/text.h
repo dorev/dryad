@@ -14,6 +14,9 @@ struct Text
 {
   std::vector<LangText> _text;
 
+  Text() : _text({{{}}})
+  {}
+
   Text(std::vector<LangText> text) : _text(text)
   {}
 

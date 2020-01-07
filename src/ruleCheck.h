@@ -9,7 +9,7 @@ std::vector<RuleCheckResult> checkRulesOnScore(const std::set<Rule>& ruleSet, co
 {
   std::cout << "Analyzing with ruleset : \n";
   for(auto& rule : ruleSet)
-    std::cout << "  - " << rule.name << "\n";
+    std::cout << "  - " << rule.title[Lang::fr] << "\n";
 
   std::vector<RuleCheckResult> errors;
 
