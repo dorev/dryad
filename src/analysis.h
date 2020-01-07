@@ -47,7 +47,8 @@ std::vector<Scale> findScalesOfChord(const Chord& chord)
       [&](int interval){ return (interval + root) % 12;});
 
       // Skip if any not of the chord doesn't match the scale
-      if(std::any_of(ALL(chord._pureNotes), [&](int i){ return !contains(shiftedIntervals, i);}))
+      if(std::any_of(ALL(chord._pureNotes), 
+         [&](int i){ return std::find(ALL(shiftedIntervals), i) == shiftedIntervals.end();}))
         continue;
 
       matchingScales.push_back(Scale(root, scaleType));
@@ -65,5 +66,5 @@ std::vector<Scale> findScalesInRange(const Score& score, int startPos, int endPo
   // how do we represent chords?
 
 
-  return vector<Scale>();
+  return std::vector<Scale>();
 }

@@ -30,7 +30,7 @@ struct Rule
 // Constructing an empty RuleCheckResult with rulePassed = true;
 #define PASS { true, -1, {}, {}, "" }
 
-namespace Rules
+namespace
 {
   // --------------------------------------------------------------------------
 
@@ -122,3 +122,9 @@ namespace Rules
 
 
 }
+
+std::map<std::string, const Rule> __rules =
+{
+  { "parallel fifths", ::parallelFifths },
+  { "parallel octaves", ::parallelOctaves }
+};

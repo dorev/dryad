@@ -5,18 +5,18 @@
 
 #include <sstream>
 
-std::set<Rule> buildRuleSet(std::string rulesList)
+std::set<Rule> buildRuleSet(std::set<std::string>& rulesList)
 {
-  std::set<Rule> ruleSet = 
-  {
-    Rules::parallelFifths,
-    Rules::parallelOctaves
-  };
+  std::set<Rule> ruleSet;
+
+  for(auto& ruleName : rulesList)
+    if(__rules.find(ruleName) != __rules.end())
+      ruleSet.insert(__rules[ruleName]);
 
   return ruleSet;
 }
 
-std::string processScore(std::string musicXml, std::string rulesList)
+std::string processScore(std::string musicXml, std::string rulesListWithSeparators)
 {
   xml_document xmlScore;
   //xml_parse_result result = xmlScore.load(musicXml.c_str());
@@ -34,6 +34,8 @@ std::string processScore(std::string musicXml, std::string rulesList)
   }
 
   Score score(xmlScore);
+
+  std::set<std::string> rulesList = { "parallel fifths", "parallel octaves" };
 
   // ruleset will be provided from an input json string 
   std::set<Rule> ruleSet = buildRuleSet(rulesList);
