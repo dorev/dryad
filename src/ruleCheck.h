@@ -5,7 +5,7 @@
 #include "rules.h"
 #include "score.h"
 
-std::vector<RuleCheckResult> checkRulesOnScore(const std::vector<Rule>& ruleSet, const Score& score )
+std::vector<RuleCheckResult> checkRulesOnScore(const std::set<Rule>& ruleSet, const Score& score )
 {
   std::cout << "Analyzing with ruleset : \n";
   for(auto& rule : ruleSet)

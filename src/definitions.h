@@ -27,77 +27,10 @@ using NodePtr = std::shared_ptr<xml_node>;
 #define makeNodePtr(xmlNode) std::make_shared<xml_node>(xmlNode)
 #define makePitchPtr(pitch) std::make_shared<Pitch>(pitch)
 #define makeScorePosPtr(scorePos) std::make_shared<ScorePosition>(scorePos)
+#define ALL(x) x.begin(),x.end()
 
-
-int noteNum(std::string noteName)
+template<typename T1, typename T2>
+bool contains(T1 iterable, T2 value)
 {
-  if(noteName.size() < 1 || noteName.size() > 2)
-    return -1;
-  else if(noteName == "C")
-    return 0;
-  else if(noteName == "C#" || noteName == "Db")
-    return 1;
-  else if(noteName == "D")
-    return 2;
-  else if(noteName == "D#" || noteName == "Eb")
-    return 3;
-  else if(noteName == "E")
-    return 4;
-  else if(noteName == "F")
-    return 5;
-  else if(noteName == "F#" || noteName == "Gb")
-    return 6;
-  else if(noteName == "G")
-    return 7;
-  else if(noteName == "G#" || noteName == "Ab")
-    return 8;
-  else if(noteName == "A")
-    return 9;
-  else if(noteName == "A#" || noteName == "Bb")
-    return 10;
-  else if(noteName == "B")
-    return 11;
-  else
-    return -1;  
+  return std::find(ALL(iterable), value) != iterable.end();
 }
-std::string noteName(int noteNum, bool flat = false)
-{
-  switch(noteNum % 12)
-  {
-    case 0: return "C";
-    case 1: return flat ? "Db" : "C#";
-    case 2: return "D";
-    case 3: return flat ? "Eb" : "D#";
-    case 4: return "E";
-    case 5: return "F";
-    case 6: return flat ? "Gb" : "F#";
-    case 7: return "G";
-    case 8: return flat ? "Ab" : "G#";
-    case 9: return "A";
-    case 10: return flat ? "Bb" : "A#";
-    case 11:  return "B";
-    default: return "";
-  }
-}
-
-std::map<std::string, int> noteNumber(
-{
-  {"", -1},
-  {"C", 0},
-  {"C#", 1},
-  {"Db", 1},
-  {"D", 2},
-  {"D#", 3},
-  {"Eb", 3},
-  {"E", 4},
-  {"F", 5},
-  {"F#", 6},
-  {"Gb", 6},
-  {"G", 7},
-  {"G#", 8},
-  {"Ab", 8},
-  {"A", 9},
-  {"A#", 10},
-  {"Bb", 10},
-  {"B", 11}
-});

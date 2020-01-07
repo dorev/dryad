@@ -19,7 +19,7 @@ enum class ScaleType
   Mixed
 };
 
-std::map<ScaleType, const std::vector<int>&> scaleTypes
+std::map<ScaleType, const std::vector<int>> __scaleList
 ({
   { ScaleType::Major,         majorIntervals},
   { ScaleType::MelodicMinor,  melodicMinorIntervals},
@@ -31,7 +31,7 @@ std::map<ScaleType, const std::vector<int>&> scaleTypes
 std::vector<int> notesOfScale(int rootNum, ScaleType type)
 {
   std::vector<int> result;
-  for(auto interval : scaleTypes[type])
+  for(auto interval : __scaleList[type])
     result.push_back((rootNum + interval) % 12);
   return result;
 }
@@ -40,7 +40,6 @@ std::vector<int> notesOfScale(std::string rootName, ScaleType type)
 {
   return notesOfScale(noteNum(rootName), type);
 }
-
 
 struct Scale
 {

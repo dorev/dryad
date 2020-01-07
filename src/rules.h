@@ -21,7 +21,7 @@ struct Rule
   std::string name;
   RuleFunc func;
 
-  bool operator<(Rule& other)
+  bool operator<(const Rule& other) const
   {
     return name < other.name;
   }

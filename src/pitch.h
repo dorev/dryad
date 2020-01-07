@@ -1,6 +1,7 @@
 #pragma once
 
 #include "definitions.h"
+#include "notes.h"
 
 struct Pitch 
 {
@@ -68,7 +69,7 @@ struct Pitch
     if(_num > 144)
       throw "Unexpected note value";
       
-    return  ::noteNumber[_step] >= 0 
+    return  noteNum(_step) >= 0 
             && _octave >= 0
             && _duration > 0
             && _measure >= 0

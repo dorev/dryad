@@ -2,6 +2,7 @@
 
 #include "score.h"
 #include "scales.h"
+#include "chords.h"
 
 using NotePairList = std::set<std::pair<PitchPtr,PitchPtr>> ;
 
@@ -27,6 +28,31 @@ NotePairList findIntervalsInPos(int semitoneInterval, const ScorePosition& pos)
     }
   }
   return output;
+}
+
+std::vector<Scale> findScalesOfChord(const Chord& chord)
+{
+  std::vector<Scale> matchingScales;
+
+  for(auto scale : __scaleList)
+  {
+    auto scaleType = scale.first;
+    auto scaleIntervals = scale.second;
+
+    for(int root : __notesIndex)
+    {
+      // Shift notes of interval
+      std::vector<int> shiftedIntervals;
+      std::transform(ALL(scaleIntervals), std::back_inserter(shiftedIntervals), 
+      [&](int interval){ return (interval + root) % 12;});
+
+      // Skip if any not of the chord doesn't match the scale
+      if(std::any_of(ALL(chord._pureNotes), [&](int i){ return !contains(shiftedIntervals, i);}))
+        continue;
+
+      matchingScales.push_back(Scale(root, scaleType));
+    }
+  }
 }
 
 std::vector<Scale> findScalesInRange(const Score& score, int startPos, int endPos)
