@@ -19,8 +19,6 @@ enum class ScaleType
   Mixed
 };
 
-
-
 std::map<ScaleType, const std::vector<int>> __scaleList
 ({
   { ScaleType::Major,         majorIntervals},
@@ -50,14 +48,14 @@ struct Scale
   ScaleType _type;
   std::vector<int> _notes;
 
-  Scale(int rootNum, ScaleType type)
+  Scale(int rootNum, ScaleType type = ScaleType::Major)
     : _rootName(noteName(rootNum))
     , _type(type)
     , _rootNum(rootNum)
     , _notes(notesOfScale(rootNum, type))
   {}
 
-  Scale(std::string rootName, ScaleType type)
+  Scale(const std::string rootName, ScaleType type = ScaleType::Major)
     : _rootName(rootName)
     , _type(type)
     , _rootNum(noteNum(rootName))
@@ -76,7 +74,25 @@ struct Scale
       case ScaleType::HarmonicMinor :   return output + " minor harmonic";
       case ScaleType::Mixed :           return output + " mixed";
       default : return output;
-    }
-    
+    }    
+  }
+
+  bool operator==(const Scale& other) const
+  {
+    return _notes == other._notes 
+        && _type == other._type;
+  }
+
+  bool operator<(const Scale& other) const
+  {
+    return _rootNum < other._rootNum;    
   }
 };
+
+Scale relativeMinor(Scale& scale)
+{
+  if(scale._type != ScaleType::Major)
+    return scale;
+  
+  return Scale((scale._rootNum + 9 % 12), ScaleType::NaturalMinor);
+}

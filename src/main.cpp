@@ -35,18 +35,26 @@ std::string processScore(std::string musicXml, std::string rulesListWithSeparato
 
   Score score(xmlScore);
 
-  std::set<std::string> rulesList = { "parallelFifths", "parallelOctaves" };
+  //std::set<std::string> rulesList = { "parallelFifths", "parallelOctaves" };
+  std::set<std::string> rulesList;
+  rulesSplit(rulesList, rulesListWithSeparators, " ");
 
   // ruleset will be provided from an input json string 
   std::set<Rule> ruleSet = buildRuleSet(rulesList);
 
-  std::stringstream ss;
+  std::stringstream s1;
+  std::stringstream s2;
 
   for(auto error : checkRulesOnScore(ruleSet, score))
-    ss << error.message[Lang::fr] << " at measure " << error.measure << "\n";
+    s1 << error.message[Lang::fr] << " at measure " << error.measure << "\n";
+
+  for(auto scale : findScalesOfScore(score))
+    s2 << scale.toString();
+    
+  s1 << s2.str();
 
   // return analysis in json
-  return ss.str();
+  return s1.str();
 }
 
 int main()
@@ -54,7 +62,7 @@ int main()
   cstr filePath("./extern/musicxml/MozaChloSample.xml");
 
   // open file as string
-  std::cout << processScore(filePath, "rules");
+  std::cout << processScore(filePath, "parallelFifths parallelOctaves");
 
   return 0;
 }

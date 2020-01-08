@@ -31,9 +31,9 @@ NotePairList findIntervalsInPos(int semitoneInterval, const ScorePosition& pos)
   return output;
 }
 
-std::vector<Scale> findScalesOfChord(const Chord& chord)
+std::set<Scale> findScalesOfChord(const Chord& chord)
 {
-  std::vector<Scale> matchingScales;
+  std::set<Scale> matchingScales;
 
   // For all possible scales
   for(auto scale : __scaleList)
@@ -54,15 +54,15 @@ std::vector<Scale> findScalesOfChord(const Chord& chord)
          [&](int i){ return std::find(ALL(shiftedIntervals), i) == shiftedIntervals.end();}))
         continue;
 
-      matchingScales.push_back(Scale(root, scaleType));
+      matchingScales.emplace(Scale(root, scaleType));
     }
   }
   return matchingScales;
 }
 
-std::vector<Scale> findScalesOfNotes(const std::vector<int>& notes)
+std::set<Scale> findScalesOfNotes(const std::vector<int>& notes)
 {
-  std::vector<Scale> matchingScales;
+  std::set<Scale> matchingScales;
 
   // List pure notes
   std::set<int> uniqueNotes;
@@ -87,7 +87,7 @@ std::vector<Scale> findScalesOfNotes(const std::vector<int>& notes)
          [&](int i){ return std::find(ALL(shiftedIntervals), i) == shiftedIntervals.end(); }))
         continue;
 
-      matchingScales.push_back(Scale(root, scaleType));
+      matchingScales.emplace(Scale(root, scaleType));
     }
   }
   return matchingScales;
@@ -112,12 +112,32 @@ std::map<int,int> noteOccurencesInRange(const Score& score, int startPos, int en
   return result;
 }
 
+std::set<Scale> findScalesOfScore(const Score& score)
+{
+  std::set<Scale> scalesFound;
+
+  for (auto& keyNode : score._xml->select_nodes("//key"))
+  {
+    int fifths = keyNode.node().child("fifths").text().as_int();
+    
+    // is that value relevant for our analysis?
+    bool minorMode = strcmp(keyNode.node().child("mode").text().as_string(),"minor");
+
+    int circleOfFifthIndex = fifths >= 0 ? fifths : 12 + fifths;
+    
+    Scale scale(circleOfFifths[circleOfFifthIndex]);
+
+    scalesFound.emplace(std::move(minorMode ? relativeMinor(scale) : scale));
+  }
+
+  return scalesFound;
+}
+
 
 std::vector<Scale> findScalesInRange(const Score& score, int startPos, int endPos)
 {
   // list all present notes
   // find chords
-  // how do we represent chords?
 
 
   return std::vector<Scale>();

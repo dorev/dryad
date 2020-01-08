@@ -16,7 +16,6 @@ struct RuleCheckResult
 
 using RuleFunc = std::function<RuleCheckResult(const ScorePosition&)>;
 
-
 struct Rule
 {
   Text title;
@@ -28,6 +27,21 @@ struct Rule
     return title[Lang::fr] < other.title[Lang::fr];
   }
 };
+
+void rulesSplit(std::set<std::string>& out, std::string rulesString, std::string delimiter)
+{
+  int next = 0;
+  int last = 0;
+
+  while((next = rulesString.find(delimiter, last)) != std::string::npos)
+  {
+    out.insert(rulesString.substr(last, next - last));
+    last = next + delimiter.size();
+  }
+
+  if(last < rulesString.size())
+    out.insert(rulesString.substr(last));
+}
 
 // Constructing an empty RuleCheckResult with rulePassed = true;
 #define PASS { true, -1, {}, {}, {{{}}} }
