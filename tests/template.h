@@ -39,6 +39,5 @@ class TemplateTest : public ::testing::Test
 // Tests that the Foo::Bar() method does Abc.
 TEST_F(TemplateTest, Test) 
 {
-   GTEST_SKIP();
-   EXPECT_TRUE(true);
+   GTEST_SKIP() << "Not implemented yet";
 }

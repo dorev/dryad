@@ -19,7 +19,7 @@ struct ScorePosition
     , _scoreIndex(-1)
   {}
 
-  bool insert(Pitch& pitch)
+  bool insert(const Pitch& pitch)
   {
     return _notes.emplace(pitch).second;
   }

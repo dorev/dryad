@@ -31,7 +31,7 @@ TEST_F(RulesTest, parallelFifth)
 
   for(auto& pos : score._score)
   {
-    auto result = __rules["parallel fifths"].func(pos.second);
+    auto result = __rules["parallelFifths"].func(pos.second);
     if(!result.rulePassed)
       errors.push_back(result);  
   }

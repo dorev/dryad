@@ -8,10 +8,12 @@ struct Score
 {
   std::map<int, ScorePosition> _score;
   int _divisionsValue;
+  const xml_document* _xml;
   
   // Constructor
   Score(xml_document& xmlScore)
-   : _score({})
+   : _score()
+   , _xml(&xmlScore)
    , _divisionsValue(0)
   {
     uniformizeDivisions(xmlScore);
@@ -52,11 +54,12 @@ struct Score
     return stringBuffer.GetString();
   }
 
-  const ScorePosition* operator[](int index)
+  const ScorePosition* operator[](int index) const
   {
-    return (_score.find(index) == _score.end())
+    auto result = _score.find(index);
+    return (result == _score.end())
       ? nullptr
-      : &_score[index];
+      : &result->second;
   }
 
   bool writeToScore(Pitch& pitch, int pos)
@@ -148,7 +151,7 @@ struct Score
       return;
     }
 
-    // Write normal note
+    // Write note
     writeToScore(pitch, pos);
     prevPos = pos;
     pos += duration;
@@ -223,12 +226,6 @@ struct Score
     {
       int pos = scoreKV.first;
       auto& scorePos = scoreKV.second;
-
-      // For every note, add self as 'resonating' in
-      // existing positions within the range of their duration
-      for(auto& note : scorePos._notes)
-        for(auto resonatingPos : findPosInRange(pos+1, pos + note._duration-1))
-          _score[resonatingPos].addResonating(&note);
     }
 
   }

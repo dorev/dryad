@@ -19,6 +19,8 @@ enum class ScaleType
   Mixed
 };
 
+
+
 std::map<ScaleType, const std::vector<int>> __scaleList
 ({
   { ScaleType::Major,         majorIntervals},
@@ -61,4 +63,20 @@ struct Scale
     , _rootNum(noteNum(rootName))
     , _notes(notesOfScale(rootName, type))
   {}
+
+  std::string toString()
+  {
+    std::string output = _rootName;
+
+    switch(_type)
+    {
+      case ScaleType::Major :           return output + " major";
+      case ScaleType::MelodicMinor :    return output + " minor melodic";
+      case ScaleType::NaturalMinor :    return output + " minor natural";
+      case ScaleType::HarmonicMinor :   return output + " minor harmonic";
+      case ScaleType::Mixed :           return output + " mixed";
+      default : return output;
+    }
+    
+  }
 };

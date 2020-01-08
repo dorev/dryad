@@ -8,8 +8,9 @@ using NotePairList = std::set<std::pair<const Pitch*,const Pitch*>> ;
 
 NotePairList findIntervalsInPos(int semitoneInterval, const ScorePosition& pos)
 {
-  NotePairList output = {};
+  NotePairList output;
 
+  // Build set of all notes heard at that position
   std::set<const Pitch*> allSounds;
   for(auto& note : pos._notes)
     allSounds.insert(&note);    
@@ -34,19 +35,21 @@ std::vector<Scale> findScalesOfChord(const Chord& chord)
 {
   std::vector<Scale> matchingScales;
 
+  // For all possible scales
   for(auto scale : __scaleList)
   {
     auto scaleType = scale.first;
     auto scaleIntervals = scale.second;
 
+    // For all possible roots
     for(int root : __notesIndex)
     {
-      // Shift notes of interval
+      // Shift scale notes based on scale intervals
       std::vector<int> shiftedIntervals;
       std::transform(ALL(scaleIntervals), std::back_inserter(shiftedIntervals), 
       [&](int interval){ return (interval + root) % 12;});
 
-      // Skip if any not of the chord doesn't match the scale
+      // Skip scale if any note of the chord doesn't fit in
       if(std::any_of(ALL(chord._pureNotes), 
          [&](int i){ return std::find(ALL(shiftedIntervals), i) == shiftedIntervals.end();}))
         continue;
@@ -61,22 +64,25 @@ std::vector<Scale> findScalesOfNotes(const std::vector<int>& notes)
 {
   std::vector<Scale> matchingScales;
 
+  // List pure notes
   std::set<int> uniqueNotes;
   std::for_each(ALL(notes), [&](int note){ uniqueNotes.insert(note % 12); });
 
+  // For all possible scales
   for(auto scale : __scaleList)
   {
     auto scaleType = scale.first;
     auto scaleIntervals = scale.second;
 
+    // For all possible roots
     for(int root : __notesIndex)
     {
-      // Shift notes of interval
+      // Shift scale notes based on scale intervals
       std::vector<int> shiftedIntervals;
       std::transform(ALL(scaleIntervals), std::back_inserter(shiftedIntervals), 
       [&](int interval){ return (interval + root) % 12; });
 
-      // Skip if any not of the chord doesn't match the scale
+      // Skip scale if any note of the chord doesn't fit in
       if(std::any_of(ALL(uniqueNotes), 
          [&](int i){ return std::find(ALL(shiftedIntervals), i) == shiftedIntervals.end(); }))
         continue;
@@ -88,18 +94,24 @@ std::vector<Scale> findScalesOfNotes(const std::vector<int>& notes)
 }
 
 
-std::map<int,int> notesOccurencesInRange(const Score& score, int startPos, int endPos)
+std::map<int,int> noteOccurencesInRange(const Score& score, int startPos, int endPos)
 {
   std::map<int,int> result;
 
-  std::set<int> activeScorePos = score.findPosInRange(startPos, endPos);
+  for(int pos : score.findPosInRange(startPos, endPos))
+  {
+    for(auto note : score[pos]->_notes)
+    {
+      if(result.find(note._num) == result.end())
+        result[note._num] = 0;
+      else
+        result[note._num]++;
+    }
+  }
 
-  for(int pos : activeScorePos)
-    for(auto note : score[pos]._notes)
-      result[note]++;
-
-
+  return result;
 }
+
 
 std::vector<Scale> findScalesInRange(const Score& score, int startPos, int endPos)
 {
