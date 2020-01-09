@@ -43,6 +43,7 @@ void rulesSplit(std::set<std::string>& out, std::string rulesString, std::string
     out.insert(rulesString.substr(last));
 }
 
+
 // Constructing an empty RuleCheckResult with rulePassed = true;
 #define PASS { true, -1, {}, {}, {{{}}} }
 
@@ -79,8 +80,8 @@ namespace
       {
         false,
         pos.measure(),
-        { fifths.begin()->first->_nodePtr, fifths.begin()->second->_nodePtr },
-        { prevFifths.begin()->first->_nodePtr, prevFifths.begin()->second->_nodePtr },
+        { fifths.begin()->first->nodePtr, fifths.begin()->second->nodePtr },
+        { prevFifths.begin()->first->nodePtr, prevFifths.begin()->second->nodePtr },
         {{
           {Lang::fr, "Quintes parallèles consécutives trouvées"},
           {Lang::en, "Consecutive parallel fifths found"}
@@ -123,8 +124,8 @@ namespace
       {
         false,
         pos.measure(),
-        { octaves.begin()->first->_nodePtr, octaves.begin()->second->_nodePtr },
-        { prevOctaves.begin()->first->_nodePtr, prevOctaves.begin()->second->_nodePtr },
+        { octaves.begin()->first->nodePtr, octaves.begin()->second->nodePtr },
+        { prevOctaves.begin()->first->nodePtr, prevOctaves.begin()->second->nodePtr },
         {{
           {Lang::fr, "Octaves parallèles consécutives trouvées"},
           {Lang::en, "Consecutive parallel octaves found"}
@@ -169,8 +170,6 @@ namespace
     }
   };
 
-
-
 }
 
 std::map<std::string, const Rule> __rules =
@@ -178,3 +177,15 @@ std::map<std::string, const Rule> __rules =
   { "parallelFifths", ::parallelFifths },
   { "parallelOctaves", ::parallelOctaves }
 };
+
+
+std::set<Rule> buildRuleSet(std::set<std::string>& rulesList)
+{
+  std::set<Rule> ruleSet;
+
+  for(auto& ruleName : rulesList)
+    if(__rules.find(ruleName) != __rules.end())
+      ruleSet.insert(__rules[ruleName]);
+
+  return ruleSet;
+}

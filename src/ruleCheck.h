@@ -13,7 +13,7 @@ std::vector<RuleCheckResult> checkRulesOnScore(const std::set<Rule>& ruleSet, co
 
   std::vector<RuleCheckResult> errors;
 
-  for(auto& pos : score._score)
+  for(auto& pos : score.score)
   {
     for(auto& rule : ruleSet)
     {

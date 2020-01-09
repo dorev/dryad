@@ -12,10 +12,10 @@ NotePairList findIntervalsInPos(int semitoneInterval, const ScorePosition& pos)
 
   // Build set of all notes heard at that position
   std::set<const Pitch*> allSounds;
-  for(auto& note : pos._notes)
+  for(auto& note : pos.notes)
     allSounds.insert(&note);    
 
-  allSounds.insert(ALL(pos._resonatingNotes));
+  allSounds.insert(ALL(pos.resonatingNotes));
 
   for(auto& note1 : allSounds)
   {
@@ -24,7 +24,7 @@ NotePairList findIntervalsInPos(int semitoneInterval, const ScorePosition& pos)
       if(note1 == note2)
         continue;
 
-      if(note1->_num - note2->_num == semitoneInterval)
+      if(note1->num - note2->num == semitoneInterval)
         output.emplace(note1, note2);
     }
   }
@@ -101,11 +101,11 @@ std::map<int,int> noteOccurencesInRange(const Score& score, int startPos, int en
   std::map<int,int> result;
 
   for(int pos : score.findPosInRange(startPos, endPos))
-    for(auto note : score[pos]->_notes)
-      if(result.find(note._num) == result.end())
-        result[note._num] = 0;
+    for(auto note : score[pos]->notes)
+      if(result.find(note.num) == result.end())
+        result[note.num] = 0;
       else
-        result[note._num]++;
+        result[note.num]++;
 
   return result;
 }
@@ -115,7 +115,7 @@ std::set<Scale> findScalesOfScore(const Score& score)
 {
   std::set<Scale> scalesFound;
 
-  for (auto& keyNode : score._xml->select_nodes("//key"))
+  for (auto& keyNode : score.xml->select_nodes("//key"))
   {
     // Gather "fifths" and "mode" values of key nodes
     int fifths = keyNode.node().child("fifths").text().as_int();
@@ -137,7 +137,7 @@ std::multimap<int, Scale> findScalesByMeasure(const Score& score, int startPos =
   if(startPos == endPos && startPos == -1)
   {
     startPos = 0;
-    endPos = score._score.rbegin()->first;
+    endPos = score.score.rbegin()->first;
   }
   else if(endPos < startPos)
     throw "Invalid range asked to findScalesByMeasure";
@@ -158,8 +158,8 @@ std::multimap<int, Scale> findScalesByMeasure(const Score& score, int startPos =
     // Gather all notes of measure
     std::set<int> notes;
     for(auto pos : measure.second)
-      for(auto& note : pos->_notes)
-        notes.insert(note._num);
+      for(auto& note : pos->notes)
+        notes.insert(note.num);
 
     // List scales based on found notes
     std::set<Scale> scalesOfMeasure = findScalesOfNotes(notes);

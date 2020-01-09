@@ -5,19 +5,12 @@
 #include "rules.h"
 #include "ruleCheck.h"
 
-std::set<Rule> buildRuleSet(std::set<std::string>& rulesList)
-{
-  std::set<Rule> ruleSet;
-
-  for(auto& ruleName : rulesList)
-    if(__rules.find(ruleName) != __rules.end())
-      ruleSet.insert(__rules[ruleName]);
-
-  return ruleSet;
-}
-
 std::string processScore(std::string musicXml, std::string rulesListWithSeparators)
 {
+  //
+  // Setup score
+  //
+
   xml_document xmlScore;
   //xml_parse_result result = xmlScore.load(musicXml.c_str());
   xml_parse_result result = xmlScore.load_file(musicXml.c_str());
@@ -35,6 +28,10 @@ std::string processScore(std::string musicXml, std::string rulesListWithSeparato
 
   Score score(xmlScore);
 
+  //
+  // Setup rules to check
+  //
+
   std::set<std::string> rulesList;
   rulesSplit(rulesList, rulesListWithSeparators, " ");
 
@@ -42,6 +39,10 @@ std::string processScore(std::string musicXml, std::string rulesListWithSeparato
 
   std::stringstream s1;
   std::stringstream s2;
+
+  //
+  // Run analysis
+  //
 
   for(auto error : checkRulesOnScore(ruleSet, score))
     s1 << error.message[Lang::fr] << " at measure " << error.measure << "\n";
@@ -51,9 +52,12 @@ std::string processScore(std::string musicXml, std::string rulesListWithSeparato
     
   s1 << "\n\nScale analysis :\n" << s2.str();
 
-  // return analysis in json
   return s1.str();
 }
+
+//
+// Entry point for testing purposes
+//
 
 int main()
 {

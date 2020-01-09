@@ -6,15 +6,14 @@
 
 struct Score
 {
-  std::map<int, ScorePosition> _score;
-  int _divisionsValue;
-  const xml_document* _xml;
+  std::map<int, ScorePosition> score;
+  int divisionsValue;
+  const xml_document* xml;
   
-  // Constructor
   Score(xml_document& xmlScore)
-   : _score()
-   , _xml(&xmlScore)
-   , _divisionsValue(0)
+   : score()
+   , xml(&xmlScore)
+   , divisionsValue(0)
   {
     uniformizeDivisions(xmlScore);
     fillScore(xmlScore);
@@ -29,20 +28,20 @@ struct Score
     writer.StartObject();
       writer.Key("score");
       writer.StartArray();
-        for(auto scorePos : _score)
+        for(auto scorePos : score)
         {
           writer.StartObject();
             writer.Key("position"); writer.Int(scorePos.first);
             writer.Key("notes");
             writer.StartArray();
-              for(auto note : scorePos.second._notes)
+              for(auto note : scorePos.second.notes)
               {
                 writer.StartObject();
-                  writer.Key("step");     writer.String(note._step.c_str());
-                  writer.Key("alter");    writer.Int(note._alter);
-                  writer.Key("octave");   writer.Int(note._octave);
-                  writer.Key("duration"); writer.Int(note._duration);
-                  writer.Key("num");      writer.Int(note._num);
+                  writer.Key("step");     writer.String(note.step.c_str());
+                  writer.Key("alter");    writer.Int(note.alter);
+                  writer.Key("octave");   writer.Int(note.octave);
+                  writer.Key("duration"); writer.Int(note.duration);
+                  writer.Key("num");      writer.Int(note.num);
                 writer.EndObject();        
               }
             writer.EndArray();
@@ -56,8 +55,8 @@ struct Score
 
   const ScorePosition* operator[](int index) const
   {
-    auto result = _score.find(index);
-    return (result == _score.end())
+    auto result = score.find(index);
+    return (result == score.end())
       ? nullptr
       : &result->second;
   }
@@ -67,7 +66,7 @@ struct Score
     if(!pitch.isValid())
       return false;
 
-    return _score[pos].insert(pitch);
+    return score[pos].insert(pitch);
   }
 
   void fillScore(xml_document& xmlScore)
@@ -92,7 +91,7 @@ struct Score
 
     // Link prev/next position pointers
     ScorePosition* prev = nullptr;
-    for(auto& position : _score)
+    for(auto& position : score)
     {
       ScorePosition& currentPos = position.second;
       ScorePosition* currentPtr = &position.second;
@@ -171,7 +170,7 @@ struct Score
       divisions[division.node().offset_debug()] = division.node().text().as_int();
 
     int maxDivision = std::max_element(divisions.begin(), divisions.end())->second;
-    _divisionsValue = maxDivision;
+    divisionsValue = maxDivision;
 
     // Set all factors to normalize quarter-note durations
     for(auto& division : divisions)
@@ -207,16 +206,16 @@ struct Score
 
   void updateResonatingNotes()
   {
-    for(auto& scoreKV : _score)
+    for(auto& scoreKV : score)
     {
       int pos = scoreKV.first;
       auto& scorePos = scoreKV.second;
 
       // For every note, add self as 'resonating' in
       // existing positions within the range of their duration
-      for(auto& note : scorePos._notes)
-        for(auto resonatingPos : findPosInRange(pos+1, pos + note._duration-1))
-          _score[resonatingPos].addResonating(&note);
+      for(auto& note : scorePos.notes)
+        for(auto resonatingPos : findPosInRange(pos+1, pos + note.duration-1))
+          score[resonatingPos].addResonating(&note);
     }
   }
 
@@ -226,7 +225,9 @@ struct Score
     // se considérer en do, qu'on soit en Do majeur, Do mineur melo asc, harmo, naturel, etc...
     // regarder vers le futur? comment on explique les modulations?!?!
 
-    for(auto& scoreKV : _score)
+    // how do we deal with likely scales
+
+    for(auto& scoreKV : score)
     {
       int pos = scoreKV.first;
       auto& scorePos = scoreKV.second;
@@ -240,7 +241,7 @@ struct Score
 
     // Scan for existing key values among the requested range
     for(int i = rangeBegin; i < rangeEnd; ++i)
-      if(_score.find(i) != _score.end())
+      if(score.find(i) != score.end())
         result.insert(i);
 
     return result;
