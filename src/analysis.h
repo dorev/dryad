@@ -31,6 +31,7 @@ NotePairList findIntervalsInPos(int semitoneInterval, const ScorePosition& pos)
   return output;
 }
 
+
 std::set<Scale> findScalesOfChord(const Chord& chord)
 {
   std::set<Scale> matchingScales;
@@ -60,7 +61,8 @@ std::set<Scale> findScalesOfChord(const Chord& chord)
   return matchingScales;
 }
 
-std::set<Scale> findScalesOfNotes(const std::vector<int>& notes)
+
+std::set<Scale> findScalesOfNotes(const std::set<int>& notes)
 {
   std::set<Scale> matchingScales;
 
@@ -99,18 +101,15 @@ std::map<int,int> noteOccurencesInRange(const Score& score, int startPos, int en
   std::map<int,int> result;
 
   for(int pos : score.findPosInRange(startPos, endPos))
-  {
     for(auto note : score[pos]->_notes)
-    {
       if(result.find(note._num) == result.end())
         result[note._num] = 0;
       else
         result[note._num]++;
-    }
-  }
 
   return result;
 }
+
 
 std::set<Scale> findScalesOfScore(const Score& score)
 {
@@ -118,27 +117,57 @@ std::set<Scale> findScalesOfScore(const Score& score)
 
   for (auto& keyNode : score._xml->select_nodes("//key"))
   {
+    // Gather "fifths" and "mode" values of key nodes
     int fifths = keyNode.node().child("fifths").text().as_int();
-    
-    // is that value relevant for our analysis?
-    bool minorMode = strcmp(keyNode.node().child("mode").text().as_string(),"minor");
+    bool minorMode = strcmp(keyNode.node().child("mode").text().as_string(), "minor");
 
-    int circleOfFifthIndex = fifths >= 0 ? fifths : 12 + fifths;
+    int circleOfFifthIndex = fifths >= 0 ? fifths : fifths + 12;
     
     Scale scale(circleOfFifths[circleOfFifthIndex]);
 
-    scalesFound.emplace(std::move(minorMode ? relativeMinor(scale) : scale));
+    scalesFound.emplace(minorMode ? relativeMinor(scale) : scale);
   }
 
   return scalesFound;
 }
 
 
-std::vector<Scale> findScalesInRange(const Score& score, int startPos, int endPos)
+std::multimap<int, Scale> findScalesByMeasure(const Score& score, int startPos, int endPos)
 {
-  // list all present notes
-  // find chords
+  std::set<int> activePos = score.findPosInRange(startPos, endPos);
 
+  // Group score positions by measure
+  std::map<int, std::set<const ScorePosition*>> scorePosByMeasure;
 
-  return std::vector<Scale>();
+  for(int pos : activePos)
+    scorePosByMeasure[score[pos]->measure()].insert(score[pos]);
+
+  // Find unique scales by measures
+  std::map<Scale, int> scaleOccurences;
+
+  for(auto measure : scorePosByMeasure)
+  {
+    // Gather all notes of measure
+    std::set<int> notes;
+    for(auto pos : measure.second)
+      for(auto& note : pos->_notes)
+        notes.insert(note._num);
+
+    // List scales based on found notes
+    std::set<Scale> scalesOfMeasure = findScalesOfNotes(notes);
+    
+    // Fill scaleOccurences map
+    for(auto& scale : scalesOfMeasure)
+      scaleOccurences.find(scale) != scaleOccurences.end() 
+        ? scaleOccurences[scale]++ 
+        : scaleOccurences[scale] = 0;
+  }
+
+  // Sort found scales by occurences
+  std::multimap<int, Scale> sortedScaleOccurences;
+
+  for(auto scaleOccurence : scaleOccurences)
+    sortedScaleOccurences.emplace(scaleOccurence.second, scaleOccurence.first);
+
+  return sortedScaleOccurences;
 }
