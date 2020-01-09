@@ -35,11 +35,9 @@ std::string processScore(std::string musicXml, std::string rulesListWithSeparato
 
   Score score(xmlScore);
 
-  //std::set<std::string> rulesList = { "parallelFifths", "parallelOctaves" };
   std::set<std::string> rulesList;
   rulesSplit(rulesList, rulesListWithSeparators, " ");
 
-  // ruleset will be provided from an input json string 
   std::set<Rule> ruleSet = buildRuleSet(rulesList);
 
   std::stringstream s1;
@@ -48,10 +46,10 @@ std::string processScore(std::string musicXml, std::string rulesListWithSeparato
   for(auto error : checkRulesOnScore(ruleSet, score))
     s1 << error.message[Lang::fr] << " at measure " << error.measure << "\n";
 
-  for(auto scale : findScalesOfScore(score))
-    s2 << scale.toString();
+  for(auto scale : findScalesByMeasure(score))
+    s2 << "[" << scale.first << "]\t" << scale.second.toString() << "\n";
     
-  s1 << s2.str();
+  s1 << "\n\nScale analysis :\n" << s2.str();
 
   // return analysis in json
   return s1.str();

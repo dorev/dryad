@@ -132,8 +132,16 @@ std::set<Scale> findScalesOfScore(const Score& score)
 }
 
 
-std::multimap<int, Scale> findScalesByMeasure(const Score& score, int startPos, int endPos)
+std::multimap<int, Scale> findScalesByMeasure(const Score& score, int startPos = -1, int endPos = -1)
 {
+  if(startPos == endPos && startPos == -1)
+  {
+    startPos = 0;
+    endPos = score._score.rbegin()->first;
+  }
+  else if(endPos < startPos)
+    throw "Invalid range asked to findScalesByMeasure";
+
   std::set<int> activePos = score.findPosInRange(startPos, endPos);
 
   // Group score positions by measure
@@ -160,7 +168,7 @@ std::multimap<int, Scale> findScalesByMeasure(const Score& score, int startPos, 
     for(auto& scale : scalesOfMeasure)
       scaleOccurences.find(scale) != scaleOccurences.end() 
         ? scaleOccurences[scale]++ 
-        : scaleOccurences[scale] = 0;
+        : scaleOccurences[scale] = 1;
   }
 
   // Sort found scales by occurences

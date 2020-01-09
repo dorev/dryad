@@ -2,11 +2,12 @@
 
 #include "definitions.h"
 
-const std::vector<int> majorIntervals          ({0,2,4,5,7,9,11});
-const std::vector<int> melodicMinorIntervals   ({0,2,3,5,7,9,11});
-const std::vector<int> harmonicMinorIntervals  ({0,2,3,5,7,8,11});
-const std::vector<int> naturalMinorIntervals   ({0,2,3,5,7,8,10});
-const std::vector<int> mixedIntervals          ({0,2,3,4,5,7,8,9,10,11});
+const std::vector<int> majorIntervals               ({0,2,4,5,7,9,11});
+const std::vector<int> melodicMinorIntervals        ({0,2,3,5,7,9,11});
+const std::vector<int> harmonicMinorIntervals       ({0,2,3,5,7,8,11});
+const std::vector<int> naturalMinorIntervals        ({0,2,3,5,7,8,10});
+const std::vector<int> melodicMinorAscDescIntervals ({0,2,3,5,7,8,9,10,11});
+const std::vector<int> mixedIntervals               ({0,2,3,4,5,7,8,9,10,11});
 
 const std::vector<std::string> circleOfFifths({"C", "G", "D", "A", "E", "B", "Gb", "Db", "Ab", "Eb", "Bb", "F"});
 
@@ -16,16 +17,18 @@ enum class ScaleType
   MelodicMinor,
   NaturalMinor,
   HarmonicMinor,
+  MelodicMinorAscDesc,
   Mixed
 };
 
 std::map<ScaleType, const std::vector<int>> __scaleList
 ({
-  { ScaleType::Major,         majorIntervals},
-  { ScaleType::MelodicMinor,  melodicMinorIntervals},
-  { ScaleType::NaturalMinor,  naturalMinorIntervals},
-  { ScaleType::HarmonicMinor, harmonicMinorIntervals},
-  { ScaleType::Mixed,         mixedIntervals}
+  { ScaleType::Major,               majorIntervals},
+  { ScaleType::MelodicMinor,        melodicMinorIntervals},
+  { ScaleType::NaturalMinor,        naturalMinorIntervals},
+  { ScaleType::HarmonicMinor,       harmonicMinorIntervals},
+  { ScaleType::MelodicMinorAscDesc, melodicMinorAscDescIntervals},
+  { ScaleType::Mixed,               mixedIntervals}
 });
 
 std::vector<int> notesOfScale(int rootNum, ScaleType type)
@@ -68,11 +71,12 @@ struct Scale
 
     switch(_type)
     {
-      case ScaleType::Major :           return output + " major";
-      case ScaleType::MelodicMinor :    return output + " minor melodic";
-      case ScaleType::NaturalMinor :    return output + " minor natural";
-      case ScaleType::HarmonicMinor :   return output + " minor harmonic";
-      case ScaleType::Mixed :           return output + " mixed";
+      case ScaleType::Major :               return output + " major";
+      case ScaleType::MelodicMinor :        return output + " minor melodic asc";
+      case ScaleType::NaturalMinor :        return output + " minor natural";
+      case ScaleType::HarmonicMinor :       return output + " minor harmonic";
+      case ScaleType::MelodicMinorAscDesc : return output + " minor harmonic asc/desc";
+      case ScaleType::Mixed :               return output + " mixed";
       default : return output;
     }    
   }

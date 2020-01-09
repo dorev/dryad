@@ -74,11 +74,15 @@ struct Score
   {
     for (auto& part : xmlScore.select_nodes("//part"))
     {
+      // Longer living value to keep track of position
+      // in part used by parseMeasureNode
       int pos = 0;
       int prevPos = 0;
 
       for (auto& measure : part.node().children())
       {
+        // Longer living value to keep track of backup/forward 
+        // nodes used by parseMeasureNode
         int shift = 0;
 
         for(auto& node : measure.children())
@@ -86,7 +90,7 @@ struct Score
       } 
     } 
 
-    // Link position pointers
+    // Link prev/next position pointers
     ScorePosition* prev = nullptr;
     for(auto& position : _score)
     {
