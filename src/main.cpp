@@ -5,6 +5,10 @@
 #include "rules.h"
 #include "ruleCheck.h"
 
+#ifdef __EMSCRIPTEN__
+  #include <emscripten.h>
+#endif
+
 std::string processScore(std::string musicXml, std::string rulesListWithSeparators)
 {
   //

@@ -6,6 +6,8 @@ PROGRAM = dryad
 COMPILER = g++
 OUTDIR = -o tmp/$@
 INCLUDES = -I. -Isrc -Iextern -Iextern/gtest -Iextern/gtest/include
+EMCCINCLUDES = -I./../emscripten/system/include/emscripten
+EMCCDEFINES = -D__EMSCRIPTEN__
 OBJECTS = main.o pugixml.o
 
 # MAIN PROGRAM ----------------------------------------------------------------
@@ -21,6 +23,10 @@ main.o : pugixml.o
 pugixml.o:
 	@echo Compiling $*...
 	$(COMPILER) -g -c extern/pugixml/$*.cpp $(INCLUDES) $(OUTDIR)
+
+# WASM ------------------------------------------------------------------------
+wasm : 
+	emcc src/main.cpp extern/pugixml/pugixml.cpp -s WASM=1 -o dryad.js $(INCLUDES) $(EMCCINCLUDES)
 
 # TESTS -----------------------------------------------------------------------
 GTESTLIBS = -L/usr/lib/x86_64-linux-gnu -pthread

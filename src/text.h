@@ -12,18 +12,18 @@ using LangText = std::pair<Lang, std::string>;
 
 struct Text
 {
-  std::vector<LangText> _text;
+  std::vector<LangText> text;
 
-  Text() : _text({{{}}})
+  Text() : text({{{}}})
   {}
 
-  Text(std::vector<LangText> text) : _text(text)
+  Text(std::vector<LangText> text) : text(text)
   {}
 
   std::string operator[](Lang lang) const
   {
-    auto result = std::find_if(ALL(_text), [&](LangText lt){ return lt.first == lang; });
-    if(result != _text.end())
+    auto result = std::find_if(ALL(text), [&](LangText lt){ return lt.first == lang; });
+    if(result != text.end())
       return result->second;
 
     return "";
