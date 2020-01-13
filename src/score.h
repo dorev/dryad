@@ -6,14 +6,15 @@
 
 struct Score
 {
-  std::map<int, ScorePosition> score;
-  int divisionsValue;
-  const xml_document* xml;
+  std::map<int, ScorePosition> _score;
+  int _divisionsValue;
+  const xml_document* _xml;
+  std::map<int, std::set<int> > _measures;
   
   Score(xml_document& xmlScore)
-   : score()
-   , xml(&xmlScore)
-   , divisionsValue(0)
+   : _score()
+   , _xml(&xmlScore)
+   , _divisionsValue(0)
   {
     uniformizeDivisions(xmlScore);
     fillScore(xmlScore);
@@ -28,7 +29,7 @@ struct Score
     writer.StartObject();
       writer.Key("score");
       writer.StartArray();
-        for(auto scorePos : score)
+        for(auto scorePos : _score)
         {
           writer.StartObject();
             writer.Key("position"); writer.Int(scorePos.first);
@@ -55,18 +56,23 @@ struct Score
 
   const ScorePosition* operator[](int index) const
   {
-    auto result = score.find(index);
-    return (result == score.end())
+    auto result = _score.find(index);
+    return (result == _score.end())
       ? nullptr
       : &result->second;
   }
 
-  bool writeToScore(Pitch& pitch, int pos)
+  bool writeToScore(Pitch& pitch, int pos, int measure)
   {
     if(!pitch.isValid())
       return false;
 
-    return score[pos].insert(pitch);
+    bool result = _score[pos].insert(pitch, measure);
+
+    if(result)
+      _measures[measure].insert(pos);
+
+    return result;
   }
 
   void fillScore(xml_document& xmlScore)
@@ -84,14 +90,16 @@ struct Score
         // nodes used by parseMeasureNode
         int shift = 0;
 
+        int measureNum = measure.attribute("number").as_int();
+
         for(auto& node : measure.children())
-          parseMeasureNode(node, pos, prevPos, shift); 
+          parseMeasureNode(node, pos, prevPos, shift, measureNum); 
       } 
     } 
 
     // Link prev/next position pointers
     ScorePosition* prev = nullptr;
-    for(auto& position : score)
+    for(auto& position : _score)
     {
       ScorePosition& currentPos = position.second;
       ScorePosition* currentPtr = &position.second;
@@ -106,7 +114,7 @@ struct Score
     }
   }
 
-  void parseMeasureNode(const xml_node& node, int& pos, int& prevPos, int& shift)
+  void parseMeasureNode(const xml_node& node, int& pos, int& prevPos, int& shift, int measure)
   {
     // Check for position shift
     if(!strcmp(node.name(),"backup"))
@@ -150,12 +158,12 @@ struct Score
     if(node.child("chord"))
     {
       // Write to previous position and don't increment pos
-      writeToScore(pitch, prevPos);
+      writeToScore(pitch, prevPos, measure);
       return;
     }
 
     // Write note
-    writeToScore(pitch, pos);
+    writeToScore(pitch, pos, measure);
     prevPos = pos;
     pos += duration;
   }
@@ -170,7 +178,7 @@ struct Score
       divisions[division.node().offset_debug()] = division.node().text().as_int();
 
     int maxDivision = std::max_element(divisions.begin(), divisions.end())->second;
-    divisionsValue = maxDivision;
+    _divisionsValue = maxDivision;
 
     // Set all factors to normalize quarter-note durations
     for(auto& division : divisions)
@@ -206,7 +214,7 @@ struct Score
 
   void updateResonatingNotes()
   {
-    for(auto& scoreKV : score)
+    for(auto& scoreKV : _score)
     {
       int pos = scoreKV.first;
       auto& scorePos = scoreKV.second;
@@ -215,7 +223,7 @@ struct Score
       // existing positions within the range of their duration
       for(auto& note : scorePos.notes)
         for(auto resonatingPos : findPosInRange(pos+1, pos + note.duration-1))
-          score[resonatingPos].addResonating(&note);
+          _score[resonatingPos].addResonating(&note);
     }
   }
 
@@ -227,7 +235,7 @@ struct Score
 
     // how do we deal with likely scales
 
-    for(auto& scoreKV : score)
+    for(auto& scoreKV : _score)
     {
       int pos = scoreKV.first;
       auto& scorePos = scoreKV.second;
@@ -241,7 +249,7 @@ struct Score
 
     // Scan for existing key values among the requested range
     for(int i = rangeBegin; i < rangeEnd; ++i)
-      if(score.find(i) != score.end())
+      if(_score.find(i) != _score.end())
         result.insert(i);
 
     return result;

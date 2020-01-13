@@ -25,5 +25,5 @@ using namespace rapidjson;
 
 // empty initializers for WASM
 std::set<int> emptyIntSet;
-std::multimap<int,Scale> emptyScaleMultimap;
+//std::multimap<int, Scale> emptyScaleMultimap;
 

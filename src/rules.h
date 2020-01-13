@@ -79,7 +79,7 @@ namespace
       return 
       {
         false,
-        pos.measure(),
+        pos._measure,
         { fifths.begin()->first->nodePtr, fifths.begin()->second->nodePtr },
         { prevFifths.begin()->first->nodePtr, prevFifths.begin()->second->nodePtr },
         {{
@@ -123,7 +123,7 @@ namespace
       return 
       {
         false,
-        pos.measure(),
+        pos._measure,
         { octaves.begin()->first->nodePtr, octaves.begin()->second->nodePtr },
         { prevOctaves.begin()->first->nodePtr, prevOctaves.begin()->second->nodePtr },
         {{

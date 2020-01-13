@@ -10,6 +10,7 @@ struct ScorePosition
   const ScorePosition* _prev;
   const ScorePosition* _next;
   int _scoreIndex;
+  int _measure;
 
   ScorePosition()
     : notes({})
@@ -19,23 +20,19 @@ struct ScorePosition
     , _scoreIndex(-1)
   {}
 
-  bool insert(const Pitch& pitch)
+  bool insert(const Pitch& pitch, int measure)
   {
-    return notes.emplace(pitch).second;
+    bool result = notes.emplace(pitch).second;
+
+    if(result)
+      _measure = measure;
+
+    return result;
   }
 
   bool addResonating(const Pitch* pitchPtr)
   {
     return resonatingNotes.emplace(pitchPtr).second;
-  }
-
-  int measure() const
-  {
-    if(notes.size() == 0)
-      return 0;
-    
-    // Return measure value of the first note of position
-    return notes.begin()->measure;
   }
 
 };

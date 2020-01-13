@@ -29,7 +29,7 @@ TEST_F(RulesTest, parallelFifth)
   
   std::vector<RuleCheckResult> errors;
 
-  for(auto& pos : score.score)
+  for(auto& pos : score._score)
   {
     auto result = __rules["parallelFifths"].func(pos.second);
     if(!result.rulePassed)

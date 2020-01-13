@@ -4,7 +4,7 @@
 #include "scales.h"
 #include "chords.h"
 
-using NotePairList = std::set<std::pair<const Pitch*,const Pitch*>> ;
+using NotePairList = std::set< std::pair<const Pitch*,const Pitch*> > ;
 
 NotePairList findIntervalsInPos(int semitoneInterval, const ScorePosition& pos)
 {
@@ -115,7 +115,7 @@ std::set<Scale> findScalesOfScore(const Score& score)
 {
   std::set<Scale> scalesFound;
 
-  for (auto& keyNode : score.xml->select_nodes("//key"))
+  for (auto& keyNode : score._xml->select_nodes("//key"))
   {
     // Gather "fifths" and "mode" values of key nodes
     int fifths = keyNode.node().child("fifths").text().as_int();
@@ -131,13 +131,14 @@ std::set<Scale> findScalesOfScore(const Score& score)
   return scalesFound;
 }
 
+// change for findScaleOfMeasure(score, measure)?
 
 std::multimap<int, Scale> findScalesByMeasure(const Score& score, int startPos = -1, int endPos = -1)
 {
   if(startPos == endPos && startPos == -1)
   {
     startPos = 0;
-    endPos = score.score.rbegin()->first;
+    endPos = score._score.rbegin()->first;
   }
   else if(endPos < startPos)
     throw "Invalid range asked to findScalesByMeasure";
@@ -148,7 +149,7 @@ std::multimap<int, Scale> findScalesByMeasure(const Score& score, int startPos =
   std::map<int, std::set<const ScorePosition*>> scorePosByMeasure;
 
   for(int pos : activePos)
-    scorePosByMeasure[score[pos]->measure()].insert(score[pos]);
+    scorePosByMeasure[score[pos]->_measure].insert(score[pos]);
 
   // Find unique scales by measures
   std::map<Scale, int> scaleOccurences;
