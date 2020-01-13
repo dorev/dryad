@@ -133,7 +133,11 @@ std::set<Scale> findScalesOfScore(const Score& score)
 
 // change for findScaleOfMeasure(score, measure)?
 
-std::multimap<int, Scale> findScalesByMeasure(const Score& score, int startPos = -1, int endPos = -1)
+
+
+
+
+std::multimap<int, Scale> findScalesOfMeasures(const Score& score, int startPos = -1, int endPos = -1)
 {
   if(startPos == endPos && startPos == -1)
   {

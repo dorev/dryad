@@ -2,14 +2,14 @@
 
 #include "definitions.h"
 #include "pitch.h"
-#include "scorePosition.h"
+#include "measures.h"
 
 struct Score
 {
   std::map<int, ScorePosition> _score;
   int _divisionsValue;
   const xml_document* _xml;
-  std::map<int, std::set<int> > _measures;
+  std::map<int, Measure> _measures;
   
   Score(xml_document& xmlScore)
    : _score()
@@ -70,7 +70,7 @@ struct Score
     bool result = _score[pos].insert(pitch, measure);
 
     if(result)
-      _measures[measure].insert(pos);
+      _measures[measure]._scorePositions.insert(&_score[pos]);
 
     return result;
   }
@@ -227,6 +227,78 @@ struct Score
     }
   }
 
+
+  std::set<Scale> findScalesOfNotes(const std::set<int>& notes)
+  {
+    std::set<Scale> matchingScales;
+
+    // List pure notes
+    std::set<int> uniqueNotes;
+    std::for_each(ALL(notes), [&](int note){ uniqueNotes.insert(note % 12); });
+
+    // For all possible scales
+    for(auto scale : __scaleList)
+    {
+      auto scaleType = scale.first;
+      auto scaleIntervals = scale.second;
+
+      // For all possible roots
+      for(int root : __notesIndex)
+      {
+        // Shift scale notes based on scale intervals
+        std::vector<int> shiftedIntervals;
+        std::transform(ALL(scaleIntervals), std::back_inserter(shiftedIntervals), 
+        [&](int interval){ return (interval + root) % 12; });
+
+        // Skip scale if any note of the chord doesn't fit in
+        if(std::any_of(ALL(uniqueNotes), 
+          [&](int i){ return std::find(ALL(shiftedIntervals), i) == shiftedIntervals.end(); }))
+          continue;
+
+        matchingScales.emplace(Scale(root, scaleType));
+      }
+    }
+    return matchingScales;
+  }
+
+
+  std::multimap<int, Scale> findScalesOfMeasure(Score& score, int measureNum)
+  {
+    auto measureFound = score._measures.find(measureNum);
+
+    if(measureFound == score._measures.end())
+      return {};
+    
+    auto& measure = measureFound->second;
+    
+    // Find unique scales by measures
+    std::map<Scale, int> scaleOccurences;
+
+    // Gather all notes of measure
+    std::set<int> notes;
+    for(auto pos : measure._scorePositions)
+      for(auto& note : pos->notes)
+        notes.insert(note.num);
+
+    // List scales based on found notes
+    std::set<Scale> scalesOfMeasure = findScalesOfNotes(notes);
+    
+    // Fill scaleOccurences map
+    for(auto& scale : scalesOfMeasure)
+      scaleOccurences.find(scale) != scaleOccurences.end() 
+        ? scaleOccurences[scale]++ 
+        : scaleOccurences[scale] = 1;
+
+    // Sort found scales by occurences
+    std::multimap<int, Scale> sortedScaleOccurences;
+
+    for(auto scaleOccurence : scaleOccurences)
+      sortedScaleOccurences.emplace(scaleOccurence.second, scaleOccurence.first);
+
+    measure._scales = sortedScaleOccurences;
+    return sortedScaleOccurences;
+  }
+
   void updateLikelyScale()
   {
     // trouver les indications aux armatures
@@ -235,11 +307,8 @@ struct Score
 
     // how do we deal with likely scales
 
-    for(auto& scoreKV : _score)
-    {
-      int pos = scoreKV.first;
-      auto& scorePos = scoreKV.second;
-    }
+    for(auto& measureKV : _measures)
+      findScalesOfMeasure(*this, measureKV.first);
 
   }
 
