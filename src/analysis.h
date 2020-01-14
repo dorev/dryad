@@ -78,7 +78,7 @@ std::set<Scale> listScalesOfNotes(const std::set<int>& notes)
   return listScalesOfUniqueNotes(uniqueNotes);
 }
 
-
+// Returns a map indicating at what measure new scales are declared in the key signature
 std::map<int, Scale> findScalesOfScore(const Score& score)
 {
   std::map<int, Scale> scalesFound;
@@ -109,10 +109,50 @@ std::map<int, Scale> findScalesOfScore(const Score& score)
   return scalesFound;
 }
 
+using SortedScalesMap = std::multimap<int, Scale>;
 
-std::multimap<int, Scale> countAndSortScales(std::set<Scale> scales)
+template <typename T1, typename T2>
+std::multimap<T2, T1> reverseMapToMultimap(const std::map<T1, T2> map)
 {
-  // Structure go store and count scales
+  // Sort found scales by occurences
+  std::multimap<T2, T1> multimap;
+
+  for(auto kv : map)
+    multimap.emplace(kv.second, kv.first);
+
+  return multimap;
+}
+
+
+SortedScalesMap combineScalesMaps(std::multiset<SortedScalesMap> scalesMaps)
+{
+  // Structure to store and count scales
+  std::map<Scale, int> combinedScaleOccurences;
+
+  for(auto& scalesMap : scalesMaps)
+  {
+    for(auto& scaleKV : scalesMap)
+    {
+      int scaleOccurences = scaleKV.first;
+      auto& scale = scaleKV.second;
+
+      auto itrFound = combinedScaleOccurences.find(scale);
+
+      // Combine scale occurences (initial entry or add)
+      if(itrFound == combinedScaleOccurences.end())
+        combinedScaleOccurences[scale] = scaleOccurences;
+      else
+        combinedScaleOccurences[scale] += scaleOccurences;      
+    }
+  }
+
+  return reverseMapToMultimap(combinedScaleOccurences);
+}
+
+
+SortedScalesMap countAndSortScales(std::set<Scale> scales)
+{
+  // Structure to store and count scales
   std::map<Scale, int> scaleOccurences;
 
   // Fill scaleOccurences map
@@ -121,17 +161,12 @@ std::multimap<int, Scale> countAndSortScales(std::set<Scale> scales)
       ? scaleOccurences[scale]++ 
       : scaleOccurences[scale] = 1;
 
-  // Sort found scales by occurences
-  std::multimap<int, Scale> sortedScaleOccurences;
-
-  for(auto scaleOccurence : scaleOccurences)
-    sortedScaleOccurences.emplace(scaleOccurence.second, scaleOccurence.first);
-
-  return sortedScaleOccurences;
+  
+  return reverseMapToMultimap(scaleOccurences);
 }
 
-
-std::multimap<int, Scale> findScalesOfMeasure(Score& score, int measureNum)
+// Return a map sorting scales by occurence 
+SortedScalesMap findScalesOfMeasure(Score& score, int measureNum)
 {
   auto measureFound = score._measures.find(measureNum);
 
@@ -144,7 +179,7 @@ std::multimap<int, Scale> findScalesOfMeasure(Score& score, int measureNum)
 }
 
 
-std::multimap<int, Scale> findScalesInRange(const Score& score, int startPos, int endPos)
+SortedScalesMap findScalesInRange(const Score& score, int startPos, int endPos)
 {
   if(endPos < startPos)
     throw "Invalid range asked to findScalesInRange";
