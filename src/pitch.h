@@ -5,32 +5,32 @@
 
 struct Pitch 
 {
-  std::string step;
-  int alter;
-  int octave;
-  int duration;
-  int num;
-  int measure;
-  const xml_node* nodePtr;
+  std::string _step;
+  int _alter;
+  int _octave;
+  int _duration;
+  int _num;
+  int _measure;
+  const xml_node* _nodePtr;
 
   Pitch() // default pitch like this might be a rest
-    : step("")
-    , alter(0)
-    , octave(0)
-    , duration(-1)
-    , num(-1)
-    , measure(-1)
-    , nodePtr(nullptr)
+    : _step("")
+    , _alter(0)
+    , _octave(0)
+    , _duration(-1)
+    , _num(-1)
+    , _measure(-1)
+    , _nodePtr(nullptr)
   {}
 
   Pitch(std::string step, int alter, int octave, int duration, const xml_node* nodePtr)
-    : step(step)
-    , alter(alter)
-    , octave(octave)
-    , duration(duration)
-    , num(octave * 12 + (noteNum(step) + alter))
-    , measure(nodePtr ? nodePtr->parent().attribute("number").as_int() : -1)
-    , nodePtr(nodePtr)
+    : _step(step)
+    , _alter(alter)
+    , _octave(octave)
+    , _duration(duration)
+    , _num(octave * 12 + (noteNum(step) + alter))
+    , _measure(nodePtr ? nodePtr->parent().attribute("number").as_int() : -1)
+    , _nodePtr(nodePtr)
   {}
 
   bool fromNode(const xml_node& noteNode)
@@ -41,52 +41,52 @@ struct Pitch
       return false;
     
     if(xml_node stepNode = noteNode.child("pitch").child("step"))
-      step = stepNode.text().as_string();
+      _step = stepNode.text().as_string();
     else 
       return false;
     
     if(xml_node alterNode = noteNode.child("pitch").child("alter"))
-      alter = alterNode.text().as_int();
+      _alter = alterNode.text().as_int();
     
     if(xml_node octaveNode = noteNode.child("pitch").child("octave"))
-      octave = octaveNode.text().as_int();
+      _octave = octaveNode.text().as_int();
     else
       return false;
 
-    duration = noteNode.child("duration").text().as_int();
+    _duration = noteNode.child("duration").text().as_int();
     
-    num = octave * 12 + (noteNum(step) + alter);
+    _num = _octave * 12 + (noteNum(_step) + _alter);
 
 
-    nodePtr = &noteNode;
-    measure = nodePtr->parent().attribute("number").as_int();
+    _nodePtr = &noteNode;
+    _measure = _nodePtr->parent().attribute("number").as_int();
 
     return isValid();
   }
 
   bool isValid()
   {
-    if(num > 144)
+    if(_num > 144)
       throw "Unexpected note value";
       
-    return  noteNum(step) >= 0 
-            && octave >= 0
-            && duration > 0
-            && measure >= 0
-            && num == octave * 12 + (noteNum(step) + alter)
-            && nodePtr != nullptr;
+    return  noteNum(_step) >= 0 
+            && _octave >= 0
+            && _duration > 0
+            && _measure >= 0
+            && _num == _octave * 12 + (noteNum(_step) + _alter)
+            && _nodePtr != nullptr;
   }
   
 
   bool operator==(const Pitch& other) const
   {
-    return duration == other.duration && num == other.num;
+    return _duration == other._duration && _num == other._num;
   }
 
   bool operator<(const Pitch& other) const
   {
-    return  num  < other.num 
-        || (num == other.num && duration < other.duration);
+    return  _num  < other._num 
+        || (_num == other._num && _duration < other._duration);
   }
 
 };

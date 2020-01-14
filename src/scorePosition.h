@@ -5,16 +5,16 @@
 
 struct ScorePosition 
 {  
-  std::set<Pitch> notes;
-  std::set<const Pitch*> resonatingNotes;
+  std::set<Pitch> _notes;
+  std::set<const Pitch*> _resonatingNotes;
   const ScorePosition* _prev;
   const ScorePosition* _next;
   int _scoreIndex;
   int _measure;
 
   ScorePosition()
-    : notes({})
-    , resonatingNotes({})
+    : _notes({})
+    , _resonatingNotes({})
     , _prev(nullptr)
     , _next(nullptr)
     , _scoreIndex(-1)
@@ -22,7 +22,7 @@ struct ScorePosition
 
   bool insert(const Pitch& pitch, int measure)
   {
-    bool result = notes.emplace(pitch).second;
+    bool result = _notes.emplace(pitch).second;
 
     if(result)
       _measure = measure;
@@ -32,7 +32,7 @@ struct ScorePosition
 
   bool addResonating(const Pitch* pitchPtr)
   {
-    return resonatingNotes.emplace(pitchPtr).second;
+    return _resonatingNotes.emplace(pitchPtr).second;
   }
 
 };

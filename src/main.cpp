@@ -52,8 +52,8 @@ std::string processScore(std::string musicXml, std::string rulesListWithSeparato
     s1 << error.message[Lang::fr] << " at measure " << error.measure << "\n";
 
   // THIS MADE NO SENSE SINCE SCALES HAD TO BE FOUND BEFORE CHECKING RULES
-  //for(auto scale : findScalesByMeasure(score))
-  //  s2 << "[" << scale.first << "]\t" << scale.second.toString() << "\n";
+  for(auto scale : findScalesInRange(score, 0, 400))
+    s2 << "[" << scale.first << "]\t" << scale.second.toString() << "\n";
     
   s1 << "\n\nScale analysis :\n" << s2.str();
 

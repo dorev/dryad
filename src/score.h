@@ -35,14 +35,14 @@ struct Score
             writer.Key("position"); writer.Int(scorePos.first);
             writer.Key("notes");
             writer.StartArray();
-              for(auto note : scorePos.second.notes)
+              for(auto note : scorePos.second._notes)
               {
                 writer.StartObject();
-                  writer.Key("step");     writer.String(note.step.c_str());
-                  writer.Key("alter");    writer.Int(note.alter);
-                  writer.Key("octave");   writer.Int(note.octave);
-                  writer.Key("duration"); writer.Int(note.duration);
-                  writer.Key("num");      writer.Int(note.num);
+                  writer.Key("step");     writer.String(note._step.c_str());
+                  writer.Key("alter");    writer.Int(note._alter);
+                  writer.Key("octave");   writer.Int(note._octave);
+                  writer.Key("duration"); writer.Int(note._duration);
+                  writer.Key("num");      writer.Int(note._num);
                 writer.EndObject();        
               }
             writer.EndArray();
@@ -221,95 +221,10 @@ struct Score
 
       // For every note, add self as 'resonating' in
       // existing positions within the range of their duration
-      for(auto& note : scorePos.notes)
-        for(auto resonatingPos : findPosInRange(pos+1, pos + note.duration-1))
+      for(auto& note : scorePos._notes)
+        for(auto resonatingPos : findPosInRange(pos+1, pos + note._duration-1))
           _score[resonatingPos].addResonating(&note);
     }
-  }
-
-
-  std::set<Scale> findScalesOfNotes(const std::set<int>& notes)
-  {
-    std::set<Scale> matchingScales;
-
-    // List pure notes
-    std::set<int> uniqueNotes;
-    std::for_each(ALL(notes), [&](int note){ uniqueNotes.insert(note % 12); });
-
-    // For all possible scales
-    for(auto scale : __scaleList)
-    {
-      auto scaleType = scale.first;
-      auto scaleIntervals = scale.second;
-
-      // For all possible roots
-      for(int root : __notesIndex)
-      {
-        // Shift scale notes based on scale intervals
-        std::vector<int> shiftedIntervals;
-        std::transform(ALL(scaleIntervals), std::back_inserter(shiftedIntervals), 
-        [&](int interval){ return (interval + root) % 12; });
-
-        // Skip scale if any note of the chord doesn't fit in
-        if(std::any_of(ALL(uniqueNotes), 
-          [&](int i){ return std::find(ALL(shiftedIntervals), i) == shiftedIntervals.end(); }))
-          continue;
-
-        matchingScales.emplace(Scale(root, scaleType));
-      }
-    }
-    return matchingScales;
-  }
-
-
-  std::multimap<int, Scale> findScalesOfMeasure(Score& score, int measureNum)
-  {
-    auto measureFound = score._measures.find(measureNum);
-
-    if(measureFound == score._measures.end())
-      return {};
-    
-    auto& measure = measureFound->second;
-    
-    // Find unique scales by measures
-    std::map<Scale, int> scaleOccurences;
-
-    // Gather all notes of measure
-    std::set<int> notes;
-    for(auto pos : measure._scorePositions)
-      for(auto& note : pos->notes)
-        notes.insert(note.num);
-
-    // List scales based on found notes
-    std::set<Scale> scalesOfMeasure = findScalesOfNotes(notes);
-    
-    // Fill scaleOccurences map
-    for(auto& scale : scalesOfMeasure)
-      scaleOccurences.find(scale) != scaleOccurences.end() 
-        ? scaleOccurences[scale]++ 
-        : scaleOccurences[scale] = 1;
-
-    // Sort found scales by occurences
-    std::multimap<int, Scale> sortedScaleOccurences;
-
-    for(auto scaleOccurence : scaleOccurences)
-      sortedScaleOccurences.emplace(scaleOccurence.second, scaleOccurence.first);
-
-    measure._scales = sortedScaleOccurences;
-    return sortedScaleOccurences;
-  }
-
-  void updateLikelyScale()
-  {
-    // trouver les indications aux armatures
-    // se considérer en do, qu'on soit en Do majeur, Do mineur melo asc, harmo, naturel, etc...
-    // regarder vers le futur? comment on explique les modulations?!?!
-
-    // how do we deal with likely scales
-
-    for(auto& measureKV : _measures)
-      findScalesOfMeasure(*this, measureKV.first);
-
   }
 
   std::set<int> findPosInRange(int rangeBegin, int rangeEnd) const

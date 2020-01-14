@@ -9,7 +9,7 @@ std::vector<RuleCheckResult> checkRulesOnScore(const std::set<Rule>& ruleSet, co
 {
   std::cout << "Analyzing with ruleset : \n";
   for(auto& rule : ruleSet)
-    std::cout << "  - " << rule.title[Lang::fr] << "\n";
+    std::cout << "  - " << rule._title[Lang::fr] << "\n";
 
   std::vector<RuleCheckResult> errors;
 
@@ -17,7 +17,7 @@ std::vector<RuleCheckResult> checkRulesOnScore(const std::set<Rule>& ruleSet, co
   {
     for(auto& rule : ruleSet)
     {
-      auto result = rule.func(pos.second);
+      auto result = rule._func(pos.second);
       if(!result.rulePassed)
         errors.push_back(result);
     }    

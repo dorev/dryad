@@ -18,13 +18,13 @@ using RuleFunc = std::function<RuleCheckResult(const ScorePosition&)>;
 
 struct Rule
 {
-  Text title;
-  Text description;
-  RuleFunc func;
+  Text _title;
+  Text _description;
+  RuleFunc _func;
 
   bool operator<(const Rule& other) const
   {
-    return title[Lang::fr] < other.title[Lang::fr];
+    return _title[Lang::fr] < other._title[Lang::fr];
   }
 };
 
@@ -80,8 +80,8 @@ namespace
       {
         false,
         pos._measure,
-        { fifths.begin()->first->nodePtr, fifths.begin()->second->nodePtr },
-        { prevFifths.begin()->first->nodePtr, prevFifths.begin()->second->nodePtr },
+        { fifths.begin()->first->_nodePtr, fifths.begin()->second->_nodePtr },
+        { prevFifths.begin()->first->_nodePtr, prevFifths.begin()->second->_nodePtr },
         {{
           {Lang::fr, "Quintes parallèles consécutives trouvées"},
           {Lang::en, "Consecutive parallel fifths found"}
@@ -124,8 +124,8 @@ namespace
       {
         false,
         pos._measure,
-        { octaves.begin()->first->nodePtr, octaves.begin()->second->nodePtr },
-        { prevOctaves.begin()->first->nodePtr, prevOctaves.begin()->second->nodePtr },
+        { octaves.begin()->first->_nodePtr, octaves.begin()->second->_nodePtr },
+        { prevOctaves.begin()->first->_nodePtr, prevOctaves.begin()->second->_nodePtr },
         {{
           {Lang::fr, "Octaves parallèles consécutives trouvées"},
           {Lang::en, "Consecutive parallel octaves found"}
