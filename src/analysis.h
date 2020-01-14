@@ -33,10 +33,10 @@ IntervalList findIntervalsInPos(int semitoneInterval, const ScorePosition& pos)
 }
 
 
-std::set<Scale> findScalesOfChord(const Chord& chord)
+std::set<Scale> listScalesOfUniqueNotes(std::set<int> uniqueNotes)
 {
   std::set<Scale> matchingScales;
-
+  
   // For all possible scales
   for(auto scale : __scaleList)
   {
@@ -52,48 +52,30 @@ std::set<Scale> findScalesOfChord(const Chord& chord)
       [&](int interval){ return (interval + root) % 12;});
 
       // Skip scale if any note of the chord doesn't fit in
-      if(std::any_of(ALL(chord._pureNotes), 
+      if(std::any_of(ALL(uniqueNotes), 
          [&](int i){ return std::find(ALL(shiftedIntervals), i) == shiftedIntervals.end();}))
         continue;
 
       matchingScales.emplace(Scale(root, scaleType));
     }
   }
-  return matchingScales;
+  
+  return matchingScales;  
 }
 
 
-std::set<Scale> findCommonScalesOfNotes(const std::set<int>& notes)
+std::set<Scale> listScalesOfChord(const Chord& chord)
 {
-  std::set<Scale> matchingScales;
+  return listScalesOfUniqueNotes(chord._pureNotes);
+}
 
-  // List pure notes
+
+std::set<Scale> listScalesOfNotes(const std::set<int>& notes)
+{
   std::set<int> uniqueNotes;
   std::for_each(ALL(notes), [&](int note){ uniqueNotes.insert(note % 12); });
 
-  // For all possible scales
-  for(auto scale : __scaleList)
-  {
-    auto scaleType = scale.first;
-    auto scaleIntervals = scale.second;
-
-    // For all possible roots
-    for(int root : __notesIndex)
-    {
-      // Shift scale notes based on scale intervals
-      std::vector<int> shiftedIntervals;
-      std::transform(ALL(scaleIntervals), std::back_inserter(shiftedIntervals), 
-      [&](int interval){ return (interval + root) % 12; });
-
-      // Skip scale if any note of the chord doesn't fit in
-      if(std::any_of(ALL(uniqueNotes), 
-         [&](int i){ return std::find(ALL(shiftedIntervals), i) == shiftedIntervals.end(); }))
-        continue;
-
-      matchingScales.emplace(Scale(root, scaleType));
-    }
-  }
-  return matchingScales;
+  return listScalesOfUniqueNotes(uniqueNotes);
 }
 
 
@@ -112,9 +94,9 @@ std::map<int,int> noteOccurencesInRange(const Score& score, int startPos, int en
 }
 
 
-std::set<Scale> findScalesOfScore(const Score& score)
+std::map<int, Scale> findScalesOfScore(const Score& score)
 {
-  std::set<Scale> scalesFound;
+  std::map<int, Scale> scalesFound;
 
   for (auto& keyNode : score._xml->select_nodes("//key"))
   {
@@ -126,11 +108,22 @@ std::set<Scale> findScalesOfScore(const Score& score)
     
     Scale scale(circleOfFifths[circleOfFifthIndex]);
 
-    scalesFound.emplace(minorMode ? relativeMinor(scale) : scale);
+    // Find the measure of the key change
+    int measure = keyNode.parent().parent().attribute("number").as_int();
+
+    if(scalesFound.find(measure) == scalesFound.end())
+    {
+      std::cerr << "Multiple key change found in same measure of score\n"
+                << (minorMode ? relativeMinor(scale) : scale).toString() 
+                << " at measure " << measure << "\n";
+    }
+
+    scalesFound.emplace(measure, minorMode ? relativeMinor(scale) : scale);
   }
 
   return scalesFound;
 }
+
 
 std::multimap<int, Scale> countAndSortScales(std::set<Scale> scales)
 {
@@ -152,6 +145,7 @@ std::multimap<int, Scale> countAndSortScales(std::set<Scale> scales)
   return sortedScaleOccurences;
 }
 
+
 std::multimap<int, Scale> findScalesOfMeasure(Score& score, int measureNum)
 {
   auto measureFound = score._measures.find(measureNum);
@@ -168,10 +162,11 @@ std::multimap<int, Scale> findScalesOfMeasure(Score& score, int measureNum)
       notes.insert(note._num);
 
   // List scales based on found notes
-  std::set<Scale> scalesOfMeasure = findCommonScalesOfNotes(notes);
+  std::set<Scale> scalesOfMeasure = listScalesOfNotes(notes);
   
   return countAndSortScales(scalesOfMeasure);
 }
+
 
 std::multimap<int, Scale> findScalesInRange(const Score& score, int startPos, int endPos)
 {
@@ -187,7 +182,7 @@ std::multimap<int, Scale> findScalesInRange(const Score& score, int startPos, in
       notes.insert(note._num);
 
   // List scales based on found notes
-  std::set<Scale> scalesOfRange = findCommonScalesOfNotes(notes);
+  std::set<Scale> scalesOfRange = listScalesOfNotes(notes);
   
   return countAndSortScales(scalesOfRange);
 }
