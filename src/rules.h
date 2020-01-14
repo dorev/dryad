@@ -111,9 +111,6 @@ namespace
 
       if(octaves.size() == 0)
         return PASS;
-
-      if(pos._prev->_scoreIndex == 636)
-        std::cout << "!\n";
       
       auto prevOctaves = findIntervalsInPos(12, *pos._prev);
 

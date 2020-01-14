@@ -1,12 +1,9 @@
 # To check
-* What is the MXL format of flat.io
+* What is the MXL format of flat.io?
 
 # Hypothesis
 * MusicXml format is part-wise
 * All measures have numbers
-
-# Robustness
-* Validate xml file measures (add them if necessary)
 
 # Flexibility
 * Input language

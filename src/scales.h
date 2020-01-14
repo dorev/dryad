@@ -83,8 +83,7 @@ struct Scale
 
   bool operator==(const Scale& other) const
   {
-    return _notes == other._notes 
-        && _type == other._type;
+    return _notes == other._notes;
   }
 
   bool operator<(const Scale& other) const

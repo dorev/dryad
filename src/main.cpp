@@ -4,6 +4,7 @@
 #include "score.h"
 #include "rules.h"
 #include "ruleChecker.h"
+#include "harmonyAnalyzer.h"
 
 #ifdef __EMSCRIPTEN__
   #include <emscripten.h>

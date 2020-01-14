@@ -10,6 +10,7 @@ struct Score
   int _divisionsValue;
   const xml_document* _xml;
   std::map<int, Measure> _measures;
+  int _lastPos;
   
   Score(xml_document& xmlScore)
    : _score()
@@ -67,7 +68,7 @@ struct Score
     if(!pitch.isValid())
       return false;
 
-    bool result = _score[pos].insert(pitch, measure);
+    bool result = _score[pos].insert(pitch, measure, pos);
 
     if(result)
       _measures[measure]._scorePositions.insert(&_score[pos]);
@@ -112,6 +113,9 @@ struct Score
       // Prepare for next iteration
       prev = currentPtr;
     }
+
+    // Gathering last index
+    _lastPos = prev->_scoreIndex; 
   }
 
   void parseMeasureNode(const xml_node& node, int& pos, int& prevPos, int& shift, int measure)
