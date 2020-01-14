@@ -3,7 +3,7 @@
 #include "definitions.h"
 #include "score.h"
 #include "rules.h"
-#include "ruleCheck.h"
+#include "ruleChecker.h"
 
 #ifdef __EMSCRIPTEN__
   #include <emscripten.h>
@@ -66,7 +66,7 @@ std::string processScore(std::string musicXml, std::string rulesListWithSeparato
 
 int main()
 {
-  cstr filePath("./extern/musicxml/MozaChloSample.xml");
+  const char* filePath("./extern/musicxml/MozaChloSample.xml");
 
   // open file as string
   std::cout << processScore(filePath, "parallelFifths parallelOctaves");

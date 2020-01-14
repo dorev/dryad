@@ -17,13 +17,10 @@
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
 
-// cheating
-using cstr = const char *;
+// namespaces
 using namespace pugi;
 using namespace rapidjson;
-#define ALL(x) x.begin(),x.end()
 
-// empty initializers for WASM
-std::set<int> emptyIntSet;
-//std::multimap<int, Scale> emptyScaleMultimap;
+// cheating
+#define ALL(x) x.begin(),x.end()
 
