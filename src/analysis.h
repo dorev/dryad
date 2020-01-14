@@ -59,7 +59,7 @@ std::set<Scale> listScalesOfUniqueNotes(std::set<int> uniqueNotes)
       matchingScales.emplace(Scale(root, scaleType));
     }
   }
-  
+
   return matchingScales;  
 }
 
@@ -76,21 +76,6 @@ std::set<Scale> listScalesOfNotes(const std::set<int>& notes)
   std::for_each(ALL(notes), [&](int note){ uniqueNotes.insert(note % 12); });
 
   return listScalesOfUniqueNotes(uniqueNotes);
-}
-
-
-std::map<int,int> noteOccurencesInRange(const Score& score, int startPos, int endPos)
-{
-  std::map<int,int> result;
-
-  for(int pos : score.findPosInRange(startPos, endPos))
-    for(auto note : score[pos]->_notes)
-      if(result.find(note._num) == result.end())
-        result[note._num] = 0;
-      else
-        result[note._num]++;
-
-  return result;
 }
 
 
@@ -155,16 +140,7 @@ std::multimap<int, Scale> findScalesOfMeasure(Score& score, int measureNum)
   
   auto& measure = measureFound->second;
   
-  // Gather all notes of measure
-  std::set<int> notes;
-  for(auto pos : measure._scorePositions)
-    for(auto& note : pos->_notes)
-      notes.insert(note._num);
-
-  // List scales based on found notes
-  std::set<Scale> scalesOfMeasure = listScalesOfNotes(notes);
-  
-  return countAndSortScales(scalesOfMeasure);
+  return countAndSortScales(listScalesOfNotes(measure.allNotes()));
 }
 
 
@@ -172,17 +148,6 @@ std::multimap<int, Scale> findScalesInRange(const Score& score, int startPos, in
 {
   if(endPos < startPos)
     throw "Invalid range asked to findScalesInRange";
-
-  std::set<int> activePos = score.findPosInRange(startPos, endPos);
-
-  // Gather all notes of range
-  std::set<int> notes;
-  for(auto pos : activePos)
-    for(auto& note : score[pos]->_notes)
-      notes.insert(note._num);
-
-  // List scales based on found notes
-  std::set<Scale> scalesOfRange = listScalesOfNotes(notes);
-  
-  return countAndSortScales(scalesOfRange);
+    
+  return countAndSortScales(listScalesOfNotes(score.listUniqueNotesInRange(startPos, endPos)));
 }

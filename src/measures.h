@@ -13,4 +13,14 @@ struct Measure
     : _scorePositions(scorePositions)
     , _scales(scales)
     {}
+
+  std::set<int> allNotes()
+  {
+    std::set<int> notes;
+    for(auto pos : _scorePositions)
+      for(auto& note : pos->_notes)
+        notes.insert(note._num);
+    
+    return notes;
+  }
 };

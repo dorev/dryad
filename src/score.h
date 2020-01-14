@@ -227,16 +227,50 @@ struct Score
     }
   }
 
-  std::set<int> findPosInRange(int rangeBegin, int rangeEnd) const
+  std::set<int> findPosInRange(int startPos, int endPos) const
   {
     std::set<int> result;
 
     // Scan for existing key values among the requested range
-    for(int i = rangeBegin; i < rangeEnd; ++i)
+    for(int i = startPos; i < endPos; ++i)
       if(_score.find(i) != _score.end())
         result.insert(i);
 
     return result;
+  }
+
+  std::set<int> listUniqueNotesInRange(int startPos, int endPos) const
+  {
+    std::set<int> notes;
+    for(auto posIndex : findPosInRange(startPos, endPos))
+    {
+      auto pos = _score.find(posIndex);
+
+      if(pos != _score.end())
+        for(auto note : pos->second._notes)
+          notes.insert(note._num);
+    }
+    
+    return notes;
+  }
+
+  std::map<int,int> noteOccurencesInRange(int startPos, int endPos) const
+  {
+    std::map<int,int> noteOccurences;
+
+    for(auto posIndex : findPosInRange(startPos, endPos))
+    {
+      auto pos = _score.find(posIndex);
+
+      if(pos != _score.end())
+        for(auto note : pos->second._notes)
+          if(noteOccurences.find(note._num) == noteOccurences.end())
+            noteOccurences[note._num] = 0;
+          else
+            noteOccurences[note._num]++;
+    }
+
+    return noteOccurences;
   }
 
 };
