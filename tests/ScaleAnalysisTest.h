@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "analysis.h"
+#include "scaleAnalysis.h"
 
 class ScaleTest : public ::testing::Test
 {};

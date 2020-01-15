@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "analysis.h"
+#include "chordAnalysis.h"
 
 struct IntervalTestParam
 {
@@ -29,8 +29,8 @@ protected :
     notes.insert(Pitch("B",  0, 4, 1, nullptr));
     notes.insert(Pitch("C",  0, 5, 1, nullptr));
 
-    for(auto note : notes)
-      scorePos.insert(note);
+    for(auto& note : notes)
+      scorePos.insert(note, 0, 0);
   }
 };
 

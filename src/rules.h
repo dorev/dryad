@@ -2,7 +2,8 @@
 
 #include "definitions.h"
 #include "score.h"
-#include "analysis.h"
+#include "chordAnalysis.h"
+#include "scaleAnalysis.h"
 #include "text.h"
 
 struct RuleCheckResult 

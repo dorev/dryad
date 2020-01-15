@@ -1,7 +1,8 @@
 #pragma once
 
 #include "definitions.h"
-#include "analysis.h"
+#include "scaleAnalysis.h"
+#include "chordAnalysis.h"
 
 // set scales for measures
   // set according degrees for each note
