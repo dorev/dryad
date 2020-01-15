@@ -8,13 +8,17 @@ struct Measure
 {
   std::set<const ScorePosition*> _scorePositions;
   std::multimap<int, Scale> _scales;
+  Scale _keySignature;
 
-  Measure(std::set<const ScorePosition*> scorePositions = {}, std::multimap<int,Scale> scales = {})
+  Measure(std::set<const ScorePosition*> scorePositions = {}, 
+          std::multimap<int,Scale> scales = {},
+          Scale keySignature = Scale())
     : _scorePositions(scorePositions)
     , _scales(scales)
+    , _keySignature()
     {}
 
-  std::set<int> allNotes()
+  std::set<int> allUniqueNotes()
   {
     std::set<int> notes;
     for(auto pos : _scorePositions)

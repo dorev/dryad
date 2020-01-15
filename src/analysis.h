@@ -79,7 +79,7 @@ std::set<Scale> listScalesOfNotes(const std::set<int>& notes)
 }
 
 // Returns a map indicating at what measure new scales are declared in the key signature
-std::map<int, Scale> findScalesOfScore(const Score& score)
+std::map<int, Scale> findKeySignaturesOfScore(const Score& score)
 {
   std::map<int, Scale> scalesFound;
 
@@ -175,7 +175,7 @@ SortedScalesMap findScalesOfMeasure(Score& score, int measureNum)
   
   auto& measure = measureFound->second;
   
-  return countAndSortScales(listScalesOfNotes(measure.allNotes()));
+  return countAndSortScales(listScalesOfNotes(measure.allUniqueNotes()));
 }
 
 

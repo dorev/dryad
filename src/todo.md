@@ -11,3 +11,6 @@
 
 # Precision
 * Improve Scale::relativeMinor implementation
+
+# Refactoring
+* Migrate parsing logic from score to scoreParser
