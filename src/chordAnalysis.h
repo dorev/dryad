@@ -12,20 +12,24 @@ std::set<const Pitch*> everyPitchInPos(const ScorePosition& pos)
 {
   // Build set of all notes heard at that position
   std::set<const Pitch*> allNotes;
-  for(auto& note : pos._notes)
+
+  // Add pointer to all position's notes
+  for(const auto& note : pos._notes)
     allNotes.insert(&note);    
 
+  // Add all pointers to resonating notes
   allNotes.insert(ALL(pos._resonatingNotes));
 
   return allNotes;
 }
 
-PitchIntervalsList findIntervalsInPos(int semitoneInterval, const ScorePosition& pos)
+PitchIntervalsList findIntervalsInPos(int searchedInterval, const ScorePosition& pos)
 {
   PitchIntervalsList output;
 
-  std::set<const Pitch*> allSounds = everyPitchInPos(pos);
+  const std::set<const Pitch*> allSounds = everyPitchInPos(pos);
   
+  // For every note bi-directional combination
   for(auto& note1 : allSounds)
   {
     for(auto& note2 : allSounds)
@@ -34,7 +38,7 @@ PitchIntervalsList findIntervalsInPos(int semitoneInterval, const ScorePosition&
         continue;
 
       // Store pair of note matching the requested interval
-      if(note1->_num - note2->_num == semitoneInterval)
+      if(note1->_num - note2->_num == searchedInterval)
         output.emplace(note1, note2);
     }
   }
@@ -42,36 +46,54 @@ PitchIntervalsList findIntervalsInPos(int semitoneInterval, const ScorePosition&
 }
 
 
-IntervalsList findIntervalsInPureNotes(int interval, std::set<int> notes)
+PitchIntervalsList findPureIntervalsInPos(int searchedInterval, const ScorePosition& pos)
 {
+  PitchIntervalsList result;
 
+  const std::set<const Pitch*> allSounds = everyPitchInPos(pos);
+
+  // For every note bi-directional combination
+  for(auto& note1 : allSounds)
+  {
+    for(auto& note2 : allSounds)
+    {
+      if(note1 == note2)
+        continue;
+      
+      int interval = (note1->_num % 12) - (note2->_num % 12);
+      
+      // Measure the interval as if it was from another octave
+      if(interval < 0)
+        interval += 12; 
+
+      if(interval == searchedInterval)
+        result.emplace(note1, note2);
+    }
+  }
   
-  return {};
+  return result;
 }
+
+
 
 std::set<Chord> findChordInPos(const ScorePosition& pos)
 {
-  // how to identify chords qualities
-  
-  // what's the maximum amount of notes 
-  //I want to deal with in a chord (4? 5? more?)
-
-  // what makes a chord!?
-    // root + fifth or root + third...
-    // let's start with that!!
-
-  std::set<const Pitch*> pitches = everyPitchInPos(pos);
-  std::set<int> pureNotes;
-
-  // Extract pure notes from pitch
-  std::for_each(ALL(pitches), 
-    [&](auto pitch) { pureNotes.insert(pitch->_num % 12); });
-
   // Find interesting intervals in pure notes
 
-  auto minorTriads = findIntervalsInPureNotes(3, pureNotes);
-  auto majorTriads = findIntervalsInPureNotes(4, pureNotes);
-  auto majorFifths = findIntervalsInPureNotes(7, pureNotes);
+  auto minorTriads = findPureIntervalsInPos(3, pos);
+  auto majorTriads = findPureIntervalsInPos(4, pos);
+  auto majorFifths = findPureIntervalsInPos(7, pos);
+
+  // For every major 5th, look if we have a connected triad
+    // A triad connected to the lowest note is 100% a chord
+      // Look for triad above 5th to find seventh
+    
+    // Look for a major fourth of the lowest note for sus4
+    // Look for a major second of the lowest note for sus2
+    // Look for a major second of the highest note to find a 6 chord
+
+  
+    
 
   return {};
 }
