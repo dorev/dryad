@@ -23,7 +23,7 @@ struct Pitch
     , _nodePtr(nullptr)
   {}
 
-  Pitch(std::string step, int alter, int octave, int duration, const xml_node* nodePtr)
+  Pitch(std::string step, int alter = 0, int octave = 4, int duration = 0, const xml_node* nodePtr = nullptr)
     : _step(step)
     , _alter(alter)
     , _octave(octave)

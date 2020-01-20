@@ -72,6 +72,7 @@ PitchIntervalsList findPureIntervalsInPos(int searchedInterval, const ScorePosit
       // Measure the interval as if it was from another octave
       if(interval < 0)
       {
+        // DOES NOT SEEM TO BE WORKING!!!!
         flipPair = true;
         interval += 12; 
       }
@@ -79,9 +80,9 @@ PitchIntervalsList findPureIntervalsInPos(int searchedInterval, const ScorePosit
       if(interval == searchedInterval)
       {
         if(flipPair)
-          result.emplace(note2, note1);
-        else
           result.emplace(note1, note2);
+        else
+          result.emplace(note2, note1);
       }
     }
   }
@@ -102,26 +103,42 @@ std::set<Chord> findChordInPos(const ScorePosition& pos)
   auto majorTriads = findPureIntervalsInPos(4, pos);
   auto fifths = findPureIntervalsInPos(7, pos);
 
+  std::set<Chord> result;
+   
   // For every fifth, look if we have a connected triad
   for(auto& fifth : fifths)
   {
     // A triad connected to the lowest note is 100% a chord
     const auto minorTriadItr = std::find_if(ALL(minorTriads), 
-      [&](PitchInterval& triad){ return triad.first == fifth.first; });
+      [&](PitchInterval triad)->bool{ return triad.first == fifth.first; });
     
     const auto majorTriadItr = std::find_if(ALL(majorTriads), 
-      [&](PitchInterval& triad){ return triad.first == fifth.first; });
+      [&](PitchInterval triad)->bool{ return triad.first == fifth.first; });
     
-    const bool minorTriadFound = minorTriadItr == minorTriads.end();
-    const bool majorTriadFound = majorTriadItr == majorTriads.end();
+    const bool minorTriadFound = minorTriadItr != minorTriads.end();
+    const bool majorTriadFound = majorTriadItr != majorTriads.end();
 
-    if(!minorTriadFound && !majorTriadFound) 
+    if(!minorTriadFound && !majorTriadFound)
       continue;
 
     if(minorTriadFound && majorTriadFound)
-      { /* Let's handle jazz stuff later */ }
-  
-      // Look for triad above fifth to find seventh
+    { 
+      /* Let's handle jazz stuff later, check for 9th, 11th, 13th,... */ 
+    }
+
+    std::set<int> notes{fifth.first->_num, fifth.second->_num};
+
+    notes.insert(minorTriadFound 
+      ? minorTriadItr->second->_num 
+      : majorTriadItr->second->_num);
+    
+
+    // So far this is a 3 notes chord
+
+
+    Chord chord();
+
+    // Look for triad above fifth to find seventh
     
     // Look for a fourth of the lowest note for sus4
     // Look for a major second of the lowest note for sus2
