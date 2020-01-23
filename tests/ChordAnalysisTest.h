@@ -47,9 +47,6 @@ TEST_F(ChordAnalysisTest, MajorChord)
     Pitch("G")
   };
 
-  
-  
-  
   auto result = findChordInPos(pos);
 
   EXPECT_EQ(1,1);
