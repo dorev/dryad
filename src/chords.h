@@ -17,7 +17,7 @@ enum class ChordInversion
   Root,
   Six,
   FourSix,
-  WeirdSeventhInversions 
+  NotImplementedYet 
 };
 
 enum class ChordVariations
@@ -34,6 +34,7 @@ struct Chord
   std::set<int> _notes;
   std::set<int> _pureNotes;
   std::string _name;
+  int _root;
   int _bass;
   ChordTriads _triads;
   ChordInversion _inversion;
@@ -56,3 +57,17 @@ struct Chord
     return _bass < other._bass;
   }
 };
+
+std::string toString(const ChordInversion& input)
+{
+  switch(input)
+  {
+    case ChordInversion::Invalid :            return "Invalid";
+    case ChordInversion::Root :               return "Root";
+    case ChordInversion::Six :                return "Six";
+    case ChordInversion::FourSix :            return "FourSix";
+    case ChordInversion::NotImplementedYet :  return "NotImplementedYet";
+    default : return "";
+
+  }
+}

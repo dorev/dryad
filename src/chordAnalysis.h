@@ -62,18 +62,11 @@ PitchIntervalsList findPureIntervalsInPos(int searchedInterval, const ScorePosit
       
       int interval = (note1->_num % 12) - (note2->_num % 12);
       
-      // EXPERIMENT
-      // The objective here is to have the first element of the output
-      // pair being the lowest note of the interval, this way, if we're looking
-      // for fifths, pairs returns by this method will always have the root
-      // in the first element of the pair
-      bool flipPair = false;
-
       // Measure the interval as if it was from another octave
+      bool flipPair = false;
       if(interval < 0)
       {
-        // DOES NOT SEEM TO BE WORKING!!!!
-        flipPair = true;
+         flipPair = true;
         interval += 12; 
       }
 
@@ -92,18 +85,44 @@ PitchIntervalsList findPureIntervalsInPos(int searchedInterval, const ScorePosit
 
 Chord& resolveChordName(Chord& chord)
 {
-  // based initially on pure notes
-    // check for fifths
-      // check for thirds
-        // check for sus4/sus2
-      // check for 6
-      // check for seventh
-    //
+  // Inversion must be set
+  if(chord._inversion == ChordInversion::Invalid)
+    throw "Invalid chord, invalid chord inversion";
 
-  // then refined with real notes
-    // check inversion
-    // check root
+  
+  
+  return chord;
+}
 
+Chord& resolveChordInversion(Chord& chord)
+{
+  // Chord root and triads must be set  
+  if(chord._root < 0 || chord._root > 144 || chord._triads == ChordTriads::Invalid)
+    throw "Invalid chord, root range or triads are invalid";
+
+  // Find pure interval between bass and root  
+  int interval = (chord._bass % 12) - (chord._root % 12);
+
+  if(interval < 0)
+    interval += 12; 
+
+  if(interval == 0)
+    chord._inversion = ChordInversion::Root;
+  else if(interval == 4 || interval == 5)
+    chord._inversion = ChordInversion::Six;
+  else if(interval == 7)
+    chord._inversion = ChordInversion::FourSix;
+  else
+    // handle sus2, sus4, 6 and 7 inversions later
+    chord._inversion = ChordInversion::NotImplementedYet;
+
+  return chord;
+}
+
+Chord& postProcessChord(Chord& chord)
+{
+  resolveChordInversion(chord);
+  resolveChordName(chord);
   return chord;
 }
 
@@ -151,19 +170,26 @@ std::set<Chord> findChordInPos(const ScorePosition& pos)
       const auto fourthItr = std::find_if(ALL(fourths), 
         [&](PitchInterval fourth)->bool{ return fourth.first == fifth.first; });
 
+      bool fourthFound = fourthItr != minorThirds.end();
+
       // Look for a major second of the lowest note for sus2
       const auto majorSecondItr = std::find_if(ALL(majorSeconds), 
         [&](PitchInterval second)->bool{ return second.first == fifth.first; });
       
-      const bool fourthFound = fourthItr != minorThirds.end();
-      const bool majorsecondFound = majorSecondItr != majorThirds.end();
+      bool majorsecondFound = majorSecondItr != majorThirds.end();
 
       // Give sus4 priority
       if(fourthFound)
+      {
         notes.insert(fourthItr->second->_num);
+        variations.insert(ChordVariations::Sus4);
+      }
       // Fallback to sus2
       else if(majorsecondFound)
+      {
         notes.insert(majorSecondItr->second->_num);
+        variations.insert(ChordVariations::Sus2);
+      }
     }
     else
     {
@@ -176,10 +202,6 @@ std::set<Chord> findChordInPos(const ScorePosition& pos)
       // Look for a major second of the highest note to find a 6 chord
       const auto majorSecondItr = std::find_if(ALL(majorSeconds), 
         [&](PitchInterval second)->bool{ return second.first == fifth.second; });
-
-      notes.insert(minorThirdFound 
-        ? minorThirdItr->second->_num 
-        : majorThirdItr->second->_num);
 
       if(minorThirdFound)
       {
@@ -210,8 +232,8 @@ std::set<Chord> findChordInPos(const ScorePosition& pos)
     const auto majorSeventhItr = std::find_if(ALL(majorThirds), 
       [&](PitchInterval third)->bool{ return third.first == fifth.second; });
     
-    const bool minorSeventhFound = minorSeventhItr != minorThirds.end();
-    const bool majorSeventhFound = majorSeventhItr != majorThirds.end();
+    bool minorSeventhFound = minorSeventhItr != minorThirds.end();
+    bool majorSeventhFound = majorSeventhItr != majorThirds.end();
     
     if(minorSeventhFound || majorSeventhFound)
     {
@@ -234,21 +256,30 @@ std::set<Chord> findChordInPos(const ScorePosition& pos)
           
     }
 
+    // 9th?
+
+
+    // 11th?
+
+
     Chord chord(notes);
+    chord._root = fifth.first->_num;
     chord._triads = triads;
     chord._variations = variations;
-    resolveChordName(chord);
+    postProcessChord(chord);
     result.emplace(chord);
   }
 
   if(fifths.size() != 0)
   {
-
     // Diminished chord
     // For each distinct minor third, find a connected minor third
     for(auto& minorThird : minorThirds)
     {
       std::set<int> notes;
+      ChordTriads triads = ChordTriads::Invalid;
+      ChordInversion inversion = ChordInversion::Invalid;
+      std::set<ChordVariations> variations({});
 
       const auto minorThirdItr = std::find_if(ALL(minorThirds), 
         [&](PitchInterval third)->bool{ return third.first == minorThird.second; });
@@ -262,7 +293,10 @@ std::set<Chord> findChordInPos(const ScorePosition& pos)
         });
 
       Chord chord(notes);
-      resolveChordName(chord);
+      chord._root = minorThird.first->_num;
+      chord._triads = triads;
+      chord._variations = variations;
+      postProcessChord(chord);
       result.emplace(chord);
     }
 
@@ -271,6 +305,9 @@ std::set<Chord> findChordInPos(const ScorePosition& pos)
     for(auto& majorThird : majorThirds)
     {
       std::set<int> notes;
+      ChordTriads triads = ChordTriads::Invalid;
+      ChordInversion inversion = ChordInversion::Invalid;
+      std::set<ChordVariations> variations({});
 
       const auto majorThirdItr = std::find_if(ALL(majorThirds), 
         [&](PitchInterval third)->bool{ return third.first == majorThird.second; });
@@ -284,10 +321,15 @@ std::set<Chord> findChordInPos(const ScorePosition& pos)
         });
 
       Chord chord(notes);
-      resolveChordName(chord);
+      chord._root = majorThird.first->_num;
+      chord._triads = triads;
+      chord._variations = variations;
+      postProcessChord(chord);
       result.emplace(chord);
     }
   }
+
+  // post process chords to 
 
 
   return result;
