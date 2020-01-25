@@ -58,16 +58,27 @@ struct Chord
   }
 };
 
-std::string toString(const ChordInversion& input)
+std::string toString(const ChordTriads& input)
 {
   switch(input)
   {
-    case ChordInversion::Invalid :            return "Invalid";
-    case ChordInversion::Root :               return "Root";
-    case ChordInversion::Six :                return "Six";
-    case ChordInversion::FourSix :            return "FourSix";
-    case ChordInversion::NotImplementedYet :  return "NotImplementedYet";
+    case ChordTriads::Maj : return "";
+    case ChordTriads::Min : return "m";
+    case ChordTriads::Aug : return "+";
+    case ChordTriads::Dim : return "-";
     default : return "";
+  }
+}
 
+std::string toString(const ChordVariations& input)
+{
+  switch(input)
+  {
+    case ChordVariations::Sus2 :        return "sus2";
+    case ChordVariations::Sus4 :        return "sus4";
+    case ChordVariations::Six :         return "6";
+    case ChordVariations::Seven :       return "7";
+    case ChordVariations::MajorSeven :  return "M7";
+    default : return "";
   }
 }

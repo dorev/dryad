@@ -89,8 +89,21 @@ Chord& resolveChordName(Chord& chord)
   if(chord._inversion == ChordInversion::Invalid)
     throw "Invalid chord, invalid chord inversion";
 
+  std::string name = noteName(chord._root);
+  name += toString(chord._triads);
+
+  // This might be ugly
+  for(auto& variation : chord._variations)
+    name += toString(variation);
   
-  
+  if(chord._root != chord._bass)
+  {
+    name += "/";
+    name += noteName(chord._bass);
+  }
+
+  chord._name = name;
+
   return chord;
 }
 
@@ -205,12 +218,12 @@ std::set<Chord> findChordInPos(const ScorePosition& pos)
 
       if(minorThirdFound)
       {
-        minorThirdItr->second->_num;
+        notes.insert(minorThirdItr->second->_num);
         triads = ChordTriads::Min;
       }
       else
       {
-        majorThirdItr->second->_num;
+        notes.insert(majorThirdItr->second->_num);
         triads = ChordTriads::Maj;
       }
     }
@@ -245,12 +258,12 @@ std::set<Chord> findChordInPos(const ScorePosition& pos)
 
       if(minorSeventhFound)
       {
-        minorSeventhItr->second->_num;
+        notes.insert(minorSeventhItr->second->_num);
         variations.insert(ChordVariations::Seven);
       } 
       else
       {
-        majorSeventhItr->second->_num;
+        notes.insert(majorSeventhItr->second->_num);
         variations.insert(ChordVariations::MajorSeven);
       }
           
@@ -270,62 +283,50 @@ std::set<Chord> findChordInPos(const ScorePosition& pos)
     result.emplace(chord);
   }
 
-  if(fifths.size() != 0)
+  if(fifths.size() == 0)
   {
     // Diminished chord
     // For each distinct minor third, find a connected minor third
     for(auto& minorThird : minorThirds)
     {
-      std::set<int> notes;
-      ChordTriads triads = ChordTriads::Invalid;
-      ChordInversion inversion = ChordInversion::Invalid;
-      std::set<ChordVariations> variations({});
-
       const auto minorThirdItr = std::find_if(ALL(minorThirds), 
         [&](PitchInterval third)->bool{ return third.first == minorThird.second; });
     
       if(minorThirdItr != minorThirds.end())
-        notes.insert(
-        {
+      {
+        Chord chord
+        ({
           minorThird.first->_num,
           minorThird.second->_num,
           minorThirdItr->second->_num,
         });
-
-      Chord chord(notes);
-      chord._root = minorThird.first->_num;
-      chord._triads = triads;
-      chord._variations = variations;
-      postProcessChord(chord);
-      result.emplace(chord);
+        chord._root = minorThird.first->_num;
+        chord._triads = ChordTriads::Dim;
+        postProcessChord(chord);
+        result.emplace(chord);
+      }
     }
 
     // Augmented chord
     // For each distinct major third, find a connected major third
     for(auto& majorThird : majorThirds)
     {
-      std::set<int> notes;
-      ChordTriads triads = ChordTriads::Invalid;
-      ChordInversion inversion = ChordInversion::Invalid;
-      std::set<ChordVariations> variations({});
-
       const auto majorThirdItr = std::find_if(ALL(majorThirds), 
         [&](PitchInterval third)->bool{ return third.first == majorThird.second; });
     
       if(majorThirdItr != majorThirds.end())
-        notes.insert(
-        {
+      {
+        Chord chord
+        ({
           majorThird.first->_num,
           majorThird.second->_num,
           majorThirdItr->second->_num,
         });
-
-      Chord chord(notes);
-      chord._root = majorThird.first->_num;
-      chord._triads = triads;
-      chord._variations = variations;
-      postProcessChord(chord);
-      result.emplace(chord);
+        chord._root = majorThird.first->_num;
+        chord._triads = ChordTriads::Aug;
+        postProcessChord(chord);
+        result.emplace(chord);
+      }
     }
   }
 

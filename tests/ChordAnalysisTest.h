@@ -49,6 +49,67 @@ TEST_F(ChordAnalysisTest, MajorChord)
 
   auto result = findChordInPos(pos);
 
-  EXPECT_EQ(1,1);
+  EXPECT_EQ(result.size(),1);
+  EXPECT_EQ(result.begin()->_name,"C");
+  EXPECT_EQ(result.begin()->_triads,ChordTriads::Maj);
+  EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
+  EXPECT_EQ(result.begin()->_variations.size(), 0);  
+}
+
+TEST_F(ChordAnalysisTest, MinorChord) 
+{
+  auto pos = ScorePosition();
+
+  pos._notes = {
+    Pitch("C"),
+    Pitch("Eb"),
+    Pitch("G")
+  };
+
+  auto result = findChordInPos(pos);
+
+  EXPECT_EQ(result.size(),1);
+  EXPECT_EQ(result.begin()->_name,"Cm");
+  EXPECT_EQ(result.begin()->_triads,ChordTriads::Min);
+  EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
+  EXPECT_EQ(result.begin()->_variations.size(), 0);  
+}
+
+TEST_F(ChordAnalysisTest, DiminishedChord) 
+{
+  auto pos = ScorePosition();
+
+  pos._notes = {
+    Pitch("C"),
+    Pitch("Eb"),
+    Pitch("Gb")
+  };
+
+  auto result = findChordInPos(pos);
+
+  EXPECT_EQ(result.size(),1);
+  EXPECT_EQ(result.begin()->_name,"C-");
+  EXPECT_EQ(result.begin()->_triads,ChordTriads::Dim);
+  EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
+  EXPECT_EQ(result.begin()->_variations.size(), 0);  
+}
+
+TEST_F(ChordAnalysisTest, AugmentedChord) 
+{
+  auto pos = ScorePosition();
+
+  pos._notes = {
+    Pitch("C"),
+    Pitch("E"),
+    Pitch("G#")
+  };
+
+  auto result = findChordInPos(pos);
+
+  EXPECT_EQ(result.size(),1);
+  EXPECT_EQ(result.begin()->_name,"C+");
+  EXPECT_EQ(result.begin()->_triads,ChordTriads::Aug);
+  EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
+  EXPECT_EQ(result.begin()->_variations.size(), 0);  
 }
 
