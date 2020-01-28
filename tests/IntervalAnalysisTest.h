@@ -44,7 +44,7 @@ TEST_P(IntervalTest, FindInterval)
   << " intervals of "     << GetParam().interval << " semitones"; 
 }
 
-INSTANTIATE_TEST_CASE_P 
+INSTANTIATE_TEST_SUITE_P 
 (
   Analysis,
   IntervalTest,

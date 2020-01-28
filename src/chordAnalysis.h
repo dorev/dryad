@@ -338,3 +338,100 @@ std::set<Chord> findChordInPos(const ScorePosition& pos)
 
 // degreeOfChordInScale()
 
+
+
+
+
+
+
+
+class ChordSetBuilder
+{
+  ChordSetBuilder(){}
+  public:
+
+  std::set<Chord> _chordBuffer;
+  std::set<int> _notes;
+  std::vector<int> _intervals;
+
+  ChordSetBuilder& getInstance()
+  {
+    static ChordSetBuilder instance;
+    return instance;
+  }
+
+  void storeNote(int note)
+  {
+    _notes.insert(note);
+  }
+
+  void clearNotes()
+  {
+    _notes.clear();
+  }
+
+  void storeChord()
+  {
+    _chordBuffer.insert(Chord(_notes));
+    clearNotes();
+  }
+
+  void clearBuffer()
+  {
+    _chordBuffer.clear();
+  }
+};
+
+static std::vector<int> minor7chord({3,4,3});
+
+void stateMachine(std::vector<int>& notes, std::vector<int> intervals)
+{
+  // if I have a M2
+    // if I have no interval yet
+      // store interval & recurse
+    // if I am a 4
+      // store interval & flush (sus4)
+    // else
+      // clear notes
+
+  // if I have a m3
+    // if I have no interval yet
+      // store interval & recurse
+    // if I am a m3
+      // store interval & recurse (dim)
+    // if I am a [m3, m3]
+      // store interval & flush (dim7)
+    // if I am a M3
+      // store interval & recurse (m)
+    // if I am a [m3, M3]
+      // store interval & flush (m7)
+    // if I am a [M3, m3]
+      // store interval & recurse (7)
+    // else
+      // clear notes
+
+  // if I have a M3
+    // if I have no interval yet
+      // store interval & recurse
+    // if I am a m3
+      // store interval & recurse (M)
+    // if I am a M3
+      // store interval & flush (aug)
+    // if I am a [M3, m3]
+      // store interval & recurse (M7)
+    // if I am a [m3, M3]
+      // store interval & flush (mM7)
+    // else
+      // clear notes
+
+
+  // if I have a 4
+    // if I have no interval yet
+      // store interval & recurse
+    // if I am a M2
+      // store interval & flush (sus2)
+    // else
+      // clear notes
+
+  // flush
+}
