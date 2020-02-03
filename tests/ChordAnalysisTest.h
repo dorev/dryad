@@ -213,23 +213,84 @@ TEST_F(ChordAnalysisTest, Sus2Chord)
   EXPECT_EQ(result.begin()->_extension, ChordExtension::None);  
 }
 
-TEST_F(ChordAnalysisTest, Sus4Chord) 
+TEST_F(ChordAnalysisTest, Sus2_7Chord) 
+{
+  auto pos = ScorePosition();
+
+  pos._notes = {
+    Pitch("C"),
+    Pitch("D"),
+    Pitch("G"),
+    Pitch("Bb"),
+  };
+
+  auto result = findChordInPos(pos);
+
+  EXPECT_EQ(result.size(),1);
+  EXPECT_EQ(result.begin()->_name,"Csus2-7");
+  EXPECT_EQ(result.begin()->_triads,ChordTriad::Sus2);
+  EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
+  EXPECT_EQ(result.begin()->_extension, ChordExtension::Seven);  
+}
+
+TEST_F(ChordAnalysisTest, Sus2_M7Chord) 
+{
+  auto pos = ScorePosition();
+
+  pos._notes = {
+    Pitch("C"),
+    Pitch("D"),
+    Pitch("G"),
+    Pitch("B"),
+  };
+
+  auto result = findChordInPos(pos);
+
+  EXPECT_EQ(result.size(),1);
+  EXPECT_EQ(result.begin()->_name,"Csus2-M7");
+  EXPECT_EQ(result.begin()->_triads,ChordTriad::Sus2);
+  EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
+  EXPECT_EQ(result.begin()->_extension, ChordExtension::MajorSeven);  
+}
+
+TEST_F(ChordAnalysisTest, Sus4_7Chord) 
 {
   auto pos = ScorePosition();
 
   pos._notes = {
     Pitch("C"),
     Pitch("F"),
-    Pitch("G")
+    Pitch("G"),
+    Pitch("Bb")
   };
 
   auto result = findChordInPos(pos);
 
-  EXPECT_EQ(result.size(),2);
-  EXPECT_EQ(result.begin()->_name,"Csus4");
+  EXPECT_EQ(result.size(),1);
+  EXPECT_EQ(result.begin()->_name,"Csus4-7");
   EXPECT_EQ(result.begin()->_triads,ChordTriad::Sus4);
   EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
-  EXPECT_EQ(result.begin()->_extension, ChordExtension::None);  
+  EXPECT_EQ(result.begin()->_extension, ChordExtension::Seven);  
+}
+
+TEST_F(ChordAnalysisTest, Sus4_M7Chord) 
+{
+  auto pos = ScorePosition();
+
+  pos._notes = {
+    Pitch("C"),
+    Pitch("F"),
+    Pitch("G"),
+    Pitch("B")
+  };
+
+  auto result = findChordInPos(pos);
+
+  EXPECT_EQ(result.size(),1);
+  EXPECT_EQ(result.begin()->_name,"Csus4-M7");
+  EXPECT_EQ(result.begin()->_triads,ChordTriad::Sus4);
+  EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
+  EXPECT_EQ(result.begin()->_extension, ChordExtension::MajorSeven);  
 }
 
 TEST_F(ChordAnalysisTest, Major6Chord) 
