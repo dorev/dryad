@@ -52,9 +52,9 @@ TEST_F(ChordAnalysisTest, MajorChord)
 
   EXPECT_EQ(result.size(),1);
   EXPECT_EQ(result.begin()->_name,"C");
-  EXPECT_EQ(result.begin()->_triads,ChordTriads::Maj);
+  EXPECT_EQ(result.begin()->_triads,ChordTriad::Major);
   EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
-  EXPECT_EQ(result.begin()->_variations.size(), 0);  
+  EXPECT_EQ(result.begin()->_extension, ChordExtension::None);   
 }
 
 TEST_F(ChordAnalysisTest, MinorChord) 
@@ -71,9 +71,9 @@ TEST_F(ChordAnalysisTest, MinorChord)
 
   EXPECT_EQ(result.size(),1);
   EXPECT_EQ(result.begin()->_name,"Cm");
-  EXPECT_EQ(result.begin()->_triads,ChordTriads::Min);
+  EXPECT_EQ(result.begin()->_triads,ChordTriad::Minor);
   EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
-  EXPECT_EQ(result.begin()->_variations.size(), 0);  
+  EXPECT_EQ(result.begin()->_extension, ChordExtension::None);  
 }
 
 TEST_F(ChordAnalysisTest, DiminishedChord) 
@@ -90,9 +90,9 @@ TEST_F(ChordAnalysisTest, DiminishedChord)
 
   EXPECT_EQ(result.size(),1);
   EXPECT_EQ(result.begin()->_name,"C-");
-  EXPECT_EQ(result.begin()->_triads,ChordTriads::Dim);
+  EXPECT_EQ(result.begin()->_triads,ChordTriad::Dim);
   EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
-  EXPECT_EQ(result.begin()->_variations.size(), 0);  
+  EXPECT_EQ(result.begin()->_extension, ChordExtension::None);  
 }
 
 TEST_F(ChordAnalysisTest, AugmentedChord) 
@@ -107,11 +107,11 @@ TEST_F(ChordAnalysisTest, AugmentedChord)
 
   auto result = findChordInPos(pos);
 
-  EXPECT_EQ(result.size(),1);
+  EXPECT_EQ(result.size(),3);
   EXPECT_EQ(result.begin()->_name,"C+");
-  EXPECT_EQ(result.begin()->_triads,ChordTriads::Aug);
+  EXPECT_EQ(result.begin()->_triads,ChordTriad::Aug);
   EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
-  EXPECT_EQ(result.begin()->_variations.size(), 0);  
+  EXPECT_EQ(result.begin()->_extension, ChordExtension::None);  
 }
 
 TEST_F(ChordAnalysisTest, SevenChord) 
@@ -129,9 +129,9 @@ TEST_F(ChordAnalysisTest, SevenChord)
 
   EXPECT_EQ(result.size(),1);
   EXPECT_EQ(result.begin()->_name,"C7");
-  EXPECT_EQ(result.begin()->_triads,ChordTriads::Maj);
+  EXPECT_EQ(result.begin()->_triads,ChordTriad::Major);
   EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
-  EXPECT_EQ(*result.begin()->_variations.begin(), ChordVariations::Seven);  
+  EXPECT_EQ(result.begin()->_extension, ChordExtension::Seven);  
 }
 
 TEST_F(ChordAnalysisTest, MinorSevenChord) 
@@ -147,11 +147,11 @@ TEST_F(ChordAnalysisTest, MinorSevenChord)
 
   auto result = findChordInPos(pos);
 
-  EXPECT_EQ(result.size(),2); // D# also present
+  EXPECT_EQ(result.size(),2);
   EXPECT_EQ(result.begin()->_name,"Cm7");
-  EXPECT_EQ(result.begin()->_triads,ChordTriads::Min);
+  EXPECT_EQ(result.begin()->_triads,ChordTriad::Minor);
   EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
-  EXPECT_EQ(*result.begin()->_variations.begin(), ChordVariations::Seven);  
+  EXPECT_EQ(result.begin()->_extension, ChordExtension::Seven);  
 }
 
 TEST_F(ChordAnalysisTest, MajorSevenChord) 
@@ -167,11 +167,11 @@ TEST_F(ChordAnalysisTest, MajorSevenChord)
 
   auto result = findChordInPos(pos);
 
-  EXPECT_EQ(result.size(),2); // Em also present
+  EXPECT_EQ(result.size(),1);
   EXPECT_EQ(result.begin()->_name,"CM7");
-  EXPECT_EQ(result.begin()->_triads,ChordTriads::Maj);
+  EXPECT_EQ(result.begin()->_triads,ChordTriad::Major);
   EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
-  EXPECT_EQ(*result.begin()->_variations.begin(), ChordVariations::MajorSeven);  
+  EXPECT_EQ(result.begin()->_extension, ChordExtension::MajorSeven);  
 }
 
 TEST_F(ChordAnalysisTest, MinorMajorSevenChord) 
@@ -189,9 +189,9 @@ TEST_F(ChordAnalysisTest, MinorMajorSevenChord)
 
   EXPECT_EQ(result.size(),1);
   EXPECT_EQ(result.begin()->_name,"CmM7");
-  EXPECT_EQ(result.begin()->_triads,ChordTriads::Min);
+  EXPECT_EQ(result.begin()->_triads,ChordTriad::Minor);
   EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
-  EXPECT_EQ(*result.begin()->_variations.begin(), ChordVariations::MajorSeven);  
+  EXPECT_EQ(result.begin()->_extension, ChordExtension::MajorSeven);  
 }
 
 TEST_F(ChordAnalysisTest, Sus2Chord) 
@@ -206,11 +206,11 @@ TEST_F(ChordAnalysisTest, Sus2Chord)
 
   auto result = findChordInPos(pos);
 
-  EXPECT_EQ(result.size(),1);
+  EXPECT_EQ(result.size(),2);
   EXPECT_EQ(result.begin()->_name,"Csus2");
-  //EXPECT_EQ(result.begin()->_triads,ChordTriads::Maj);
+  EXPECT_EQ(result.begin()->_triads,ChordTriad::Sus2);
   EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
-  EXPECT_EQ(*result.begin()->_variations.begin(), ChordVariations::Sus2);  
+  EXPECT_EQ(result.begin()->_extension, ChordExtension::None);  
 }
 
 TEST_F(ChordAnalysisTest, Sus4Chord) 
@@ -225,11 +225,11 @@ TEST_F(ChordAnalysisTest, Sus4Chord)
 
   auto result = findChordInPos(pos);
 
-  EXPECT_EQ(result.size(),1);
+  EXPECT_EQ(result.size(),2);
   EXPECT_EQ(result.begin()->_name,"Csus4");
-  //EXPECT_EQ(result.begin()->_triads,ChordTriads::Min);
+  EXPECT_EQ(result.begin()->_triads,ChordTriad::Sus4);
   EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
-  EXPECT_EQ(*result.begin()->_variations.begin(), ChordVariations::Sus4);  
+  EXPECT_EQ(result.begin()->_extension, ChordExtension::None);  
 }
 
 TEST_F(ChordAnalysisTest, Major6Chord) 
@@ -245,14 +245,13 @@ TEST_F(ChordAnalysisTest, Major6Chord)
 
   auto result = findChordInPos(pos);
 
-  // 6 does not seem to include third
-  // research also yields Em, but we have no B in the chord.. weird.....
+  // also expecting Am7
 
   EXPECT_EQ(result.size(),2);
-  EXPECT_EQ(result.begin()->_name,"C6");
-  EXPECT_EQ(result.begin()->_triads,ChordTriads::Maj);
-  EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
-  EXPECT_EQ(*result.begin()->_variations.begin(), ChordVariations::Six);  
+  EXPECT_EQ((++result.begin())->_name,"C6");
+  EXPECT_EQ((++result.begin())->_triads,ChordTriad::Major);
+  EXPECT_EQ((++result.begin())->_inversion,ChordInversion::Root);
+  EXPECT_EQ((++result.begin())->_extension, ChordExtension::Six);  
 }
 
 TEST_F(ChordAnalysisTest, Minor6Chord) 
@@ -268,11 +267,11 @@ TEST_F(ChordAnalysisTest, Minor6Chord)
 
   auto result = findChordInPos(pos);
 
-  EXPECT_EQ(result.size(),1);
-  EXPECT_EQ(result.begin()->_name,"Cm6");
-  EXPECT_EQ(result.begin()->_triads,ChordTriads::Min);
-  EXPECT_EQ(result.begin()->_inversion,ChordInversion::Root);
-  EXPECT_EQ(*result.begin()->_variations.begin(), ChordVariations::Six);  
+  EXPECT_EQ(result.size(),2);
+  EXPECT_EQ((++result.begin())->_name,"Cm6");
+  EXPECT_EQ((++result.begin())->_triads,ChordTriad::Minor);
+  EXPECT_EQ((++result.begin())->_inversion,ChordInversion::Root);
+  EXPECT_EQ((++result.begin())->_extension, ChordExtension::Six);  
 }
 
 
