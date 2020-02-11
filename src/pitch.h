@@ -14,12 +14,24 @@ struct Pitch
   const xml_node *_nodePtr;
 
   Pitch() // default pitch like this might be a rest
-      : _step(""), _alter(0), _octave(0), _duration(-1), _num(-1), _measure(-1), _nodePtr(nullptr)
+      : _step("")
+      , _alter(0)
+      , _octave(0)
+      , _duration(-1)
+      , _num(-1)
+      , _measure(-1)
+      , _nodePtr(nullptr)
   {
   }
 
   Pitch(std::string step, int alter = 0, int octave = 4, int duration = 0, const xml_node *nodePtr = nullptr)
-      : _step(step), _alter(alter), _octave(octave), _duration(duration), _num(octave * 12 + (noteNum(step) + alter)), _measure(nodePtr ? nodePtr->parent().attribute("number").as_int() : -1), _nodePtr(nodePtr)
+      : _step(step)
+      , _alter(alter)
+      , _octave(octave)
+      , _duration(duration)
+      , _num(octave * 12 + (noteNum(step) + alter))
+      , _measure(nodePtr ? nodePtr->parent().attribute("number").as_int() : -1)
+      , _nodePtr(nodePtr)
   {
   }
 

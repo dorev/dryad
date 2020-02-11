@@ -8,17 +8,19 @@ struct Degree
     Scale _scale;
 
     Degree()
-        : _degree(0), _scale()
+        : _degree(0)
+        , _scale()
     {
     }
 
     Degree(int degree, Scale scale = Scale())
-        : _degree(degree), _scale(scale)
+        : _degree(degree)
+        , _scale(scale)
     {
     }
 
-    operator<(const Degree &other)
+    bool operator<(const Degree &other)
     {
-        return _degree < other.degree;
+        return _degree < other._degree;
     }
 }

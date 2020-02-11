@@ -3,28 +3,29 @@
 #include "definitions.h"
 #include "pitch.h"
 
-struct ScorePosition 
-{  
+struct ScorePosition
+{
   std::set<Pitch> _notes;
-  std::set<const Pitch*> _resonatingNotes;
-  const ScorePosition* _prev;
-  const ScorePosition* _next;
+  std::set<const Pitch *> _resonatingNotes;
+  const ScorePosition *_prev;
+  const ScorePosition *_next;
   int _scoreIndex;
   int _measure;
 
   ScorePosition()
-    : _notes({})
-    , _resonatingNotes({})
-    , _prev(nullptr)
-    , _next(nullptr)
-    , _scoreIndex(-1)
-  {}
+      : _notes({})
+      , _resonatingNotes({})
+      , _prev(nullptr)
+      , _next(nullptr)
+      , _scoreIndex(-1)
+  {
+  }
 
-  bool insert(const Pitch& pitch, int measure, int scoreIndex)
+  bool insert(const Pitch &pitch, int measure, int scoreIndex)
   {
     bool result = _notes.emplace(pitch).second;
 
-    if(result)
+    if (result)
     {
       _measure = measure;
       _scoreIndex = scoreIndex;
@@ -33,9 +34,8 @@ struct ScorePosition
     return result;
   }
 
-  bool addResonating(const Pitch* pitchPtr)
+  bool addResonating(const Pitch *pitchPtr)
   {
     return _resonatingNotes.emplace(pitchPtr).second;
   }
-
 };

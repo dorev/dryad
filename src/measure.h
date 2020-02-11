@@ -13,7 +13,9 @@ struct Measure
   Measure(std::set<const ScorePosition *> scorePositions = {},
           std::multimap<int, Scale> scales = {},
           Scale keySignature = Scale())
-      : _scorePositions(scorePositions), _scales(scales), _keySignature()
+      : _scorePositions(scorePositions)
+      , _scales(scales)
+      , _keySignature()
   {
   }
 

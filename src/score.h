@@ -13,7 +13,9 @@ struct Score
   int _lastPos;
 
   Score(xml_document &xmlScore)
-      : _score(), _xml(&xmlScore), _divisionsValue(0)
+      : _score()
+      , _xml(&xmlScore)
+      , _divisionsValue(0)
   {
     uniformizeDivisions(xmlScore);
     fillScore(xmlScore);

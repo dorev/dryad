@@ -49,17 +49,26 @@ struct Scale
   std::vector<int> _notes;
 
   Scale()
-      : _rootName(noteName(-1)), _root(-1), _type(), _notes()
+      : _rootName(noteName(-1))
+      , _root(-1)
+      , _type()
+      , _notes()
   {
   }
 
   Scale(int rootNum, ScaleType type = ScaleType::Major)
-      : _rootName(noteName(rootNum)), _root(rootNum), _type(type), _notes(notesOfScale(rootNum, type))
+      : _rootName(noteName(rootNum))
+      , _root(rootNum)
+      , _type(type)
+      , _notes(notesOfScale(rootNum, type))
   {
   }
 
   Scale(const std::string rootName, ScaleType type = ScaleType::Major)
-      : _rootName(rootName), _root(noteNum(rootName)), _type(type), _notes(notesOfScale(rootName, type))
+      : _rootName(rootName)
+      , _root(noteNum(rootName))
+      , _type(type)
+      , _notes(notesOfScale(rootName, type))
   {
   }
 

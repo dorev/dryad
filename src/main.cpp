@@ -7,7 +7,7 @@
 #include "scorePostProcessor.h"
 
 #ifdef __EMSCRIPTEN__
-  #include <emscripten.h>
+#include <emscripten.h>
 #endif
 
 std::string processScore(std::string musicXml, std::string rulesListWithSeparators)
@@ -49,14 +49,15 @@ std::string processScore(std::string musicXml, std::string rulesListWithSeparato
   // Run analysis
   //
 
-  for(auto error : checkRulesOnScore(ruleSet, score))
+  for (auto error : checkRulesOnScore(ruleSet, score))
     s1 << error.message[Lang::fr] << " at measure " << error.measure << "\n";
 
   // THIS MADE NO SENSE SINCE SCALES HAD TO BE FOUND BEFORE CHECKING RULES
-  for(auto scale : findScalesInRange(score, 0, 400))
+  for (auto scale : findScalesInRange(score, 0, 400))
     s2 << "[" << scale.first << "]\t" << scale.second.toString() << "\n";
-    
-  s1 << "\n\nScale analysis :\n" << s2.str();
+
+  s1 << "\n\nScale analysis :\n"
+     << s2.str();
 
   return s1.str();
 }
@@ -67,7 +68,7 @@ std::string processScore(std::string musicXml, std::string rulesListWithSeparato
 
 int main()
 {
-  const char* filePath("./extern/musicxml/MozaChloSample.xml");
+  const char *filePath("./extern/musicxml/MozaChloSample.xml");
 
   // open file as string
   std::cout << processScore(filePath, "parallelFifths parallelOctaves");

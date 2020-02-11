@@ -22,5 +22,4 @@ using namespace pugi;
 using namespace rapidjson;
 
 // cheating
-#define ALL(x) x.begin(),x.end()
-
+#define ALL(x) x.begin(), x.end()

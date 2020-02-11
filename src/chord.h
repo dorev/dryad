@@ -38,24 +38,24 @@ struct ChordQualities
 };
 
 using ChordIntervals = std::vector<int>;
-const static std::map<ChordIntervals, ChordQualities> __chordsTypes({{{3, 4}, {ChordTriad::Minor, ChordExtension::None}},
-                                                                     {{3, 4, 2}, {ChordTriad::Minor, ChordExtension::Six}},
-                                                                     {{3, 4, 3}, {ChordTriad::Minor, ChordExtension::Seven}},
-                                                                     {{3, 4, 4}, {ChordTriad::Minor, ChordExtension::MajorSeven}},
-                                                                     {{4, 3}, {ChordTriad::Major, ChordExtension::None}},
-                                                                     {{4, 3, 2}, {ChordTriad::Major, ChordExtension::Six}},
-                                                                     {{4, 3, 3}, {ChordTriad::Major, ChordExtension::Seven}},
-                                                                     {{4, 3, 4}, {ChordTriad::Major, ChordExtension::MajorSeven}},
-                                                                     {{3, 3}, {ChordTriad::Dim, ChordExtension::None}},
-                                                                     {{3, 3, 3}, {ChordTriad::Dim, ChordExtension::Seven}},
-                                                                     {{3, 3, 4}, {ChordTriad::Dim, ChordExtension::HalfDim}},
-                                                                     {{4, 4}, {ChordTriad::Aug, ChordExtension::None}},
-                                                                     {{2, 5}, {ChordTriad::Sus2, ChordExtension::None}},
-                                                                     {{2, 5, 3}, {ChordTriad::Sus2, ChordExtension::Seven}},
-                                                                     {{2, 5, 4}, {ChordTriad::Sus2, ChordExtension::MajorSeven}},
-                                                                     {{5, 2}, {ChordTriad::Sus4, ChordExtension::None}},
-                                                                     {{5, 2, 3}, {ChordTriad::Sus4, ChordExtension::Seven}},
-                                                                     {{5, 2, 4}, {ChordTriad::Sus4, ChordExtension::MajorSeven}}});
+const static std::map<ChordIntervals, ChordQualities> __chordsTypes({{{3, 4},     {ChordTriad::Minor, ChordExtension::None}},
+                                                                     {{3, 4, 2},  {ChordTriad::Minor, ChordExtension::Six}},
+                                                                     {{3, 4, 3},  {ChordTriad::Minor, ChordExtension::Seven}},
+                                                                     {{3, 4, 4},  {ChordTriad::Minor, ChordExtension::MajorSeven}},
+                                                                     {{4, 3},     {ChordTriad::Major, ChordExtension::None}},
+                                                                     {{4, 3, 2},  {ChordTriad::Major, ChordExtension::Six}},
+                                                                     {{4, 3, 3},  {ChordTriad::Major, ChordExtension::Seven}},
+                                                                     {{4, 3, 4},  {ChordTriad::Major, ChordExtension::MajorSeven}},
+                                                                     {{3, 3},     {ChordTriad::Dim,   ChordExtension::None}},
+                                                                     {{3, 3, 3},  {ChordTriad::Dim,   ChordExtension::Seven}},
+                                                                     {{3, 3, 4},  {ChordTriad::Dim,   ChordExtension::HalfDim}},
+                                                                     {{4, 4},     {ChordTriad::Aug,   ChordExtension::None}},
+                                                                     {{2, 5},     {ChordTriad::Sus2,  ChordExtension::None}},
+                                                                     {{2, 5, 3},  {ChordTriad::Sus2,  ChordExtension::Seven}},
+                                                                     {{2, 5, 4},  {ChordTriad::Sus2,  ChordExtension::MajorSeven}},
+                                                                     {{5, 2},     {ChordTriad::Sus4,  ChordExtension::None}},
+                                                                     {{5, 2, 3},  {ChordTriad::Sus4,  ChordExtension::Seven}},
+                                                                     {{5, 2, 4},  {ChordTriad::Sus4,  ChordExtension::MajorSeven}}});
 
 struct Chord
 {
@@ -69,7 +69,12 @@ struct Chord
   ChordExtension _extension;
 
   Chord(std::set<int> notes)
-      : _notes(notes), _name(""), _bass(*_notes.begin()), _triads(ChordTriad::Invalid), _inversion(ChordInversion::Invalid), _extension(ChordExtension::None)
+      : _notes(notes)
+      , _name("")
+      , _bass(*_notes.begin())
+      , _triads(ChordTriad::Invalid)
+      , _inversion(ChordInversion::Invalid)
+      , _extension(ChordExtension::None)
   {
     for (int note : _notes)
       _absoluteNotes.insert(note % 12);

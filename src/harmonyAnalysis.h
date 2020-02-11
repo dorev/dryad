@@ -1,8 +1,8 @@
 #pragma once
 
+#include "degree.h"
 #include "scaleAnalysis.h"
 #include "chordAnalysis.h"
-#include "degree.h"
 
 // find degree(s) of chord at position
 
@@ -13,7 +13,7 @@ Degree degreeOfChordInScale(const Chord &chord, const Scale &scale)
       return std::find_if(ALL(scale._notes), [&](int scaleNote)
       {
         return scaleNote == chordNote;
-      } != scale._notes.end();
+      }) != scale._notes.end();
   });
 
   // Return invalid Degree
