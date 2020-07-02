@@ -1,4 +1,8 @@
 #include "gtest/gtest.h"
+#include "majorgraph.h"
+
+namespace dryad
+{
 
 class mode_graph_should : public ::testing::Test
 {
@@ -22,10 +26,14 @@ protected:
 };
 
 
-TEST_F(mode_graph_should, be_cool)
+TEST_F(mode_graph_should, print_some_permutations)
 {
+    major_graph().print_permutations();
+
     // Arrange
     // Act
     // Assert
     EXPECT_TRUE(true);
+}
+
 }
