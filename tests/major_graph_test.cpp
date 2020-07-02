@@ -28,7 +28,7 @@ protected:
 
 TEST_F(mode_graph_should, print_some_permutations)
 {
-    major_graph().print_permutations();
+    major_mode().print_permutations();
 
     // Arrange
     // Act

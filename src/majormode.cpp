@@ -1,18 +1,9 @@
-#include "majorgraph.h"
+#include "majormode.h"
 
 namespace dryad
 {
 
-void major_graph::generate_permutations()
-{
-    // Hardcoded for test
-    _permutations.push_back({ I, IV, V, I });
-    _permutations.push_back({ ii, V, I });
-    _permutations.push_back({ vi, I });
-    _permutations.push_back({ V, I });
-}
-
-major_graph::major_graph()
+major_mode::major_mode()
     : _I    (1, MAJOR), I    (&_I)
     , _ii   (2, MINOR), ii   (&_ii)
     , _iii  (3, MINOR), iii  (&_iii)
@@ -21,7 +12,7 @@ major_graph::major_graph()
     , _vi   (6, MINOR), vi   (&_vi)
     , _viid (7, DIM)  , viid (&_viid)
 {
-    _degrees.insert(_degrees.end(), { I, ii, iii, IV, V, vi, viid });
+    _degrees = { I, ii, iii, IV, V, vi, viid };
 
     // Adding basic edges + circle of fifth
     //I    ->add_edge({ ii, iii, IV, V, vi, viid });
@@ -58,23 +49,6 @@ major_graph::major_graph()
         .mark_as_exit();
 
     generate_permutations();
-}
-
-void major_graph::print_permutations()
-{
-    LOG(_permutations.size() << " major permutations");
-
-    int prog_counter = 0;
-
-    for (std::vector<degree_node*>& progression : _permutations)
-    {
-        std::cout << ++prog_counter << " : ";
-        for (degree_node* degree : progression)
-        {
-            std::cout << degree->get_name().c_str() << " ";
-        }
-        std::cout << "\n";
-    }
 }
 
 }

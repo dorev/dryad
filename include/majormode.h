@@ -6,15 +6,11 @@
 namespace dryad
 {
 
-class major_graph : public mode_graph
+class major_mode : public mode_graph
 {
 public:
 
-    // Ctor
-    major_graph();
-
-    // Methods
-    void print_permutations() override final;
+    major_mode();
 
 private:
 
@@ -25,10 +21,6 @@ private:
     degree_node _V;     degree_node* V;
     degree_node _vi;    degree_node* vi;
     degree_node _viid;  degree_node* viid;
-
-    std::vector<std::vector<degree_node*>> _permutations;
-
-    void generate_permutations() override final;
 };
 
 }

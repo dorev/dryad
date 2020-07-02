@@ -21,14 +21,15 @@
   <ItemGroup>
     <ClCompile Include="src\degreenode.cpp" />
     <ClCompile Include="src\dryadutils.cpp" />
-    <ClCompile Include="src\majorgraph.cpp" />
+    <ClCompile Include="src\majormode.cpp" />
+    <ClCompile Include="src\modegraph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\dryadcommon.h" />
     <ClInclude Include="include\degreenode.h" />
     <ClInclude Include="include\dryadutils.h" />
     <ClInclude Include="include\modegraph.h" />
-    <ClInclude Include="include\majorgraph.h" />
+    <ClInclude Include="include\majormode.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

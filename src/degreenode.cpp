@@ -16,23 +16,42 @@ void degree_node::build_name()
     case 7: _name = "vii"; break;
     default:
         CRASHLOG("Unsupported degree value : " << _degree);
+        break;
     }
 
-    if (_triad == MAJOR || _triad == AUG) uppercase(_name);
+    if (_triad == MAJOR || _triad == AUG)
+    {
+        uppercase(_name);
+    }
 
-    if (_alteration != 0) _name += _alteration == FLAT ? "b" : "#";
+    if (_alteration != 0)
+    {
+        _name += _alteration == FLAT ? "b" : "#";
+    }
 }
 
 degree_node::degree_node(int number, int triad, int alteration)
     : _degree(number)
     , _triad(triad)
     , _alteration(alteration)
+    , _id(0)
     , _prog_entry(false)
     , _prog_exit(false)
 {
-    if (_degree < 1 || _degree > 7)                 CRASHLOG("Unsupported degree value : " << _degree);
-    if (_triad < MAJOR || _triad > AUG)             CRASHLOG("Unsupported triad value : " << _triad);
-    if (_alteration < FLAT || _alteration > SHARP)  CRASHLOG("Unsupported alteration value : " << _degree);
+    if (_degree < 1 || _degree > 7)
+    {
+        CRASHLOG("Unsupported degree value : " << _degree);
+    }
+
+    if (_triad < MAJOR || _triad > AUG)
+    {
+        CRASHLOG("Unsupported triad value : " << _triad);
+    }
+
+    if (_alteration < FLAT || _alteration > SHARP)
+    {
+        CRASHLOG("Unsupported alteration value : " << _degree);
+    }
 
     build_name();
 }

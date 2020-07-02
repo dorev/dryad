@@ -1,8 +1,13 @@
 #pragma once
 
 #include <iostream>
+#include <iomanip>
 #include <string>
+#include <algorithm>
+#include <functional>
 #include <vector>
+#include <deque>
+#include <set>
 
 namespace dryad
 {

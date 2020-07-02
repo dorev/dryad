@@ -8,6 +8,6 @@
 namespace dryad
 {
 
-    void uppercase(std::string& s);
+void uppercase(std::string& s);
 
 }
