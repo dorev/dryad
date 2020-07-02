@@ -6,27 +6,23 @@ namespace dryad
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void mode_graph::generate_permutations(size_t max_node_visit, size_t max_prog_length)
+void mode_graph::generate_permutations(size_t max_prog_length)
 {
+    _permutations.clear();
+    size_t effective_max_prog_length = max_prog_length > 0 ? max_prog_length : HARD_MAX_PROG_LENGTH;
+
     // This vector will contain the progression created while exploring the graph
     // During graph exploration, nodes will be added and removed and copies of valid
     // progressions will be submitted to the _permutations vector.
     std::vector<degree_node*> current_prog;
-    current_prog.reserve(max_prog_length);
+    current_prog.reserve(effective_max_prog_length);
 
     // Lambda called when visiting a node
     // Incrementing the node visit_count and push it on current progression
     auto visit = [&](degree_node* node) mutable
     {
-        if (node->get_visit_count() < max_node_visit)
-        {
-            node->visit();
-            current_prog.push_back(node);
-        }
-        else
-        {
-            CRASHLOG("A node should not be visited if max_visit limit is exceeded");
-        }
+        node->visit();
+        current_prog.push_back(node);
     };
 
     // Lambda called when leaving a node
@@ -49,14 +45,14 @@ void mode_graph::generate_permutations(size_t max_node_visit, size_t max_prog_le
 
         if (node->is_prog_exit()
             && current_prog.size() > 1
-            && current_prog.size() <= max_prog_length)
+            && current_prog.size() <= effective_max_prog_length)
         {
             _permutations.push_back(current_prog); 
         }
         
         for (degree_node* next_node : node->get_edges())
         {
-            if (next_node->get_visit_count() < max_node_visit)
+            if (next_node->is_visitable())
             {
                 explore_node(next_node);
             }
@@ -66,8 +62,7 @@ void mode_graph::generate_permutations(size_t max_node_visit, size_t max_prog_le
     };
     
     LOG("Generating permutations with parameters\n"
-        "Max node visit         : " << max_node_visit << "\n"
-        "Max progression length : " << max_prog_length);
+        "Max progression length : " << effective_max_prog_length);
 
     timer t;
 

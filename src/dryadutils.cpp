@@ -53,7 +53,7 @@ std::string timer::stop()
     std::chrono::duration<double> diff = end - _start;
 
     std::stringstream ss;
-    ss << std::fixed << std::setprecision(6) << diff.count() * 1000 << "ms";
+    ss << std::fixed << std::setprecision(6) << diff.count() * 1000 << " ms";
 
     return ss.str();
 }

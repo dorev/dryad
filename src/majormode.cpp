@@ -6,14 +6,22 @@ namespace dryad
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 major_mode::major_mode()
-    : _I    (1, MAJOR), I    (&_I)
-    , _ii   (2, MINOR), ii   (&_ii)
-    , _iii  (3, MINOR), iii  (&_iii)
-    , _IV   (4, MAJOR), IV   (&_IV)
-    , _V    (5, MAJOR), V    (&_V)
-    , _vi   (6, MINOR), vi   (&_vi)
-    , _viid (7, DIM)  , viid (&_viid)
+    : _I    (1, MAJOR)
+    , _ii   (2, MINOR)
+    , _iii  (3, MINOR)
+    , _IV   (4, MAJOR)
+    , _V    (5, MAJOR)
+    , _vi   (6, MINOR)
+    , _viid (7, DIM)
 {
+    degree_node* I    = &_I;
+    degree_node* ii   = &_ii;
+    degree_node* iii  = &_iii;
+    degree_node* IV   = &_IV;
+    degree_node* V    = &_V;
+    degree_node* vi   = &_vi;
+    degree_node* viid = &_viid;
+
     _degrees = { I, ii, iii, IV, V, vi, viid };
 
     // Adding basic edges + circle of fifth
@@ -28,7 +36,8 @@ major_mode::major_mode()
     // Basic edges
     _I.add_edge({ ii, iii, IV, V, vi, viid })
         .mark_as_entry()
-        .mark_as_exit();
+        .mark_as_exit()
+        .set_max_visit(2);
 
     _ii.add_edge({ V, viid });
 
@@ -37,20 +46,21 @@ major_mode::major_mode()
 
     _IV.add_edge({ V, viid })
         .mark_as_entry()
-        .mark_as_exit();
+        .mark_as_exit()
+        .set_max_visit(2);
 
     _V.add_edge({ I })
         .mark_as_entry()
-        .mark_as_exit();
+        .mark_as_exit()
+        .set_max_visit(2);
 
     _vi.add_edge({ ii, IV })
         .mark_as_entry()
-        .mark_as_exit();
+        .mark_as_exit()
+        .set_max_visit(2);
 
     _viid.add_edge({ I, iii })
         .mark_as_exit();
-
-    generate_permutations(2, 4);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

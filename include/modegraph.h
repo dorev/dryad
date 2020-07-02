@@ -10,6 +10,7 @@ class mode_graph
 public:
 
     virtual void print_permutations() final;
+    virtual void generate_permutations(size_t max_prog_length = 8) final;
 
 protected:
 
@@ -19,7 +20,6 @@ protected:
     mode_graph() {}
     virtual ~mode_graph() {}
 
-    virtual void generate_permutations(size_t max_node_visit = 1, size_t max_prog_length = 8) final;
 };
 
 }

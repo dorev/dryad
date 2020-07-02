@@ -22,4 +22,6 @@ namespace dryad
     constexpr int DIM = 2;
     constexpr int AUG = 3;
 
+    constexpr size_t HARD_MAX_PROG_LENGTH = 128;
+
 }
