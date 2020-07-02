@@ -4,7 +4,7 @@ namespace dryad
 {
 
 class degree_node;
-    
+
 class mode_graph
 {
     protected:

@@ -33,13 +33,29 @@ major_graph::major_graph()
     //viid ->add_edge({ I, iii, IV });
 
     // Basic edges
-    I    ->add_edge({ ii, iii, IV, V, vi, viid });
-    ii   ->add_edge({ V, viid });
-    iii  ->add_edge({ vi });
-    IV   ->add_edge({ V, viid });
-    V    ->add_edge({ I });
-    vi   ->add_edge({ ii, IV });
-    viid ->add_edge({ I, iii });
+    _I.add_edge({ ii, iii, IV, V, vi, viid })
+        .mark_as_entry()
+        .mark_as_exit();
+
+    _ii.add_edge({ V, viid });
+
+    _iii.add_edge({ vi })
+        .mark_as_entry();
+
+    _IV.add_edge({ V, viid })
+        .mark_as_entry()
+        .mark_as_exit();
+
+    _V.add_edge({ I })
+        .mark_as_entry()
+        .mark_as_exit();
+
+    _vi.add_edge({ ii, IV })
+        .mark_as_entry()
+        .mark_as_exit();
+
+    _viid.add_edge({ I, iii })
+        .mark_as_exit();
 
     generate_permutations();
 }
@@ -49,14 +65,14 @@ void major_graph::print_permutations()
     LOG(_permutations.size() << " major permutations");
 
     int prog_counter = 0;
-            
+
     for (std::vector<degree_node*>& progression : _permutations)
     {
         std::cout << ++prog_counter << " : ";
         for (degree_node* degree : progression)
         {
             std::cout << degree->get_name().c_str() << " ";
-        } 
+        }
         std::cout << "\n";
     }
 }

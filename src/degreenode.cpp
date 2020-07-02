@@ -33,13 +33,14 @@ degree_node::degree_node(int number, int triad, int alteration)
     if (_degree < 1 || _degree > 7)                 CRASHLOG("Unsupported degree value : " << _degree);
     if (_triad < MAJOR || _triad > AUG)             CRASHLOG("Unsupported triad value : " << _triad);
     if (_alteration < FLAT || _alteration > SHARP)  CRASHLOG("Unsupported alteration value : " << _degree);
-            
+
     build_name();
 }
 
-void degree_node::add_edge(std::initializer_list<degree_node*> nodes)
+degree_node& degree_node::add_edge(std::initializer_list<degree_node*> nodes)
 {
     _edges.insert(_edges.end(), nodes);
+    return *this;
 }
 
 }

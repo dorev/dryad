@@ -1,4 +1,3 @@
-#include "dryadcommon.h"
 #include "dryadutils.h"
 
 namespace dryad
@@ -14,14 +13,14 @@ public:
     inline bool is_prog_exit() const                { return _prog_exit; }
 
     // Setters
-    inline void set_prog_entry(bool value = true)   { _prog_entry = value; }
-    inline void set_prog_exit (bool value = true)   { _prog_exit = value; }
+    degree_node& mark_as_entry(bool value = true) { _prog_entry = value; return *this; }
+    degree_node& mark_as_exit (bool value = true) { _prog_exit = value; return *this; }
 
     // Ctor
     degree_node(int number, int triad, int alteration = 0);
-    
+
     // Methods
-    void add_edge(std::initializer_list<degree_node*> nodes);
+    degree_node& add_edge(std::initializer_list<degree_node*> nodes);
 
 private:
 

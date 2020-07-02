@@ -15,7 +15,7 @@ public:
 
     // Methods
     void print_permutations() override final;
-    
+
 private:
 
     degree_node _I;     degree_node* I;
@@ -30,4 +30,5 @@ private:
 
     void generate_permutations() override final;
 };
+
 }

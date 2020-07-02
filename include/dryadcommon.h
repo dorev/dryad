@@ -1,7 +1,7 @@
 #pragma once
 
-// precompile?
-
+#include <iostream>
+#include <string>
 #include <vector>
 
 namespace dryad
