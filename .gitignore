@@ -1,9 +1,6 @@
 tmp/
-**/*.o
-**/*.exe
-dryad
-dryadtest
-logs/
-Cache/
-User/
 build/
+.vs/
+.vscode/
+*.user
+*.filters
