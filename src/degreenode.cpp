@@ -3,6 +3,37 @@
 namespace dryad
 {
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+degree_node::degree_node(int number, int triad, int alteration)
+    : _degree(number)
+    , _triad(triad)
+    , _alteration(alteration)
+    , _id(0)
+    , _prog_entry(false)
+    , _prog_exit(false)
+    , _visit_count(0)
+{
+    if (_degree < 1 || _degree > 7)
+    {
+        CRASHLOG("Unsupported degree value : " << _degree);
+    }
+
+    if (_triad < MAJOR || _triad > AUG)
+    {
+        CRASHLOG("Unsupported triad value : " << _triad);
+    }
+
+    if (_alteration < FLAT || _alteration > SHARP)
+    {
+        CRASHLOG("Unsupported alteration value : " << _degree);
+    }
+
+    build_name();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void degree_node::build_name()
 {
     switch (_degree)
@@ -30,31 +61,7 @@ void degree_node::build_name()
     }
 }
 
-degree_node::degree_node(int number, int triad, int alteration)
-    : _degree(number)
-    , _triad(triad)
-    , _alteration(alteration)
-    , _id(0)
-    , _prog_entry(false)
-    , _prog_exit(false)
-{
-    if (_degree < 1 || _degree > 7)
-    {
-        CRASHLOG("Unsupported degree value : " << _degree);
-    }
-
-    if (_triad < MAJOR || _triad > AUG)
-    {
-        CRASHLOG("Unsupported triad value : " << _triad);
-    }
-
-    if (_alteration < FLAT || _alteration > SHARP)
-    {
-        CRASHLOG("Unsupported alteration value : " << _degree);
-    }
-
-    build_name();
-}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 degree_node& degree_node::add_edge(std::initializer_list<degree_node*> nodes)
 {

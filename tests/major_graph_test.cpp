@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "majorgraph.h"
+#include "majormode.h"
 
 namespace dryad
 {

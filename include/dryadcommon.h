@@ -11,6 +11,7 @@
 
 namespace dryad
 {
+
     constexpr int SHARP = 1;
     constexpr int FLAT = -1;
 

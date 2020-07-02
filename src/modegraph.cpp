@@ -4,61 +4,60 @@
 namespace dryad
 {
 
-void mode_graph::generate_permutations()
-{
-    std::deque<const degree_node*> visited;
-    std::vector<const degree_node*> current_prog;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    auto visit = [&](const degree_node* node) mutable
+void mode_graph::generate_permutations(size_t max_node_visit, size_t max_prog_length)
+{
+    std::vector<degree_node*> current_prog;
+
+    auto visit = [&](degree_node* node) mutable
     {
-        if (std::find(visited.begin(), visited.end(), node) == visited.end())
+        if (node->get_visit_count() < max_node_visit)
         {
-            visited.push_back(node);
+            node->visit();
             current_prog.push_back(node);
+        }
+        else
+        {
+            CRASHLOG("A node should not be visited if max_visit limit is exceeded");
         }
     };
 
-    auto unvisit_last_node = [&]() mutable
+    auto leave_node = [&](degree_node* node) mutable
     {
-        if (!visited.empty())
-        {
-            visited.pop_back();
-        }
+        node->leave();
 
         if (!current_prog.empty())
         {
             current_prog.pop_back();
         }
     };
-    
-    auto already_visited = [&](const degree_node* node) -> bool 
-    {
-        return std::find(visited.begin(), visited.end(), node) != visited.end();
-    };
 
-    std::function<void(const degree_node*)> explore_node = [&](const degree_node* node) mutable
+    std::function<void(degree_node*)> explore_node = [&](degree_node* node) mutable
     {
         visit(node);
 
-        if (node->is_prog_exit() && current_prog.size() > 1)
+        if (node->is_prog_exit()
+            && current_prog.size() > 1
+            && current_prog.size() <= max_prog_length)
         {
             _permutations.push_back(current_prog); 
         }
         
-        for (const degree_node* next_node : node->get_edges())
+        for (degree_node* next_node : node->get_edges())
         {
-            if (!already_visited(next_node))
+            if (next_node->get_visit_count() < max_node_visit)
             {
                 explore_node(next_node);
             }
         }
 
-        unvisit_last_node();
+        leave_node(node);
     };
 
     // Actual processing
 
-    for (const degree_node* node : _degrees)
+    for (degree_node* node : _degrees)
     {
         if (node->is_prog_entry())
         {
@@ -67,21 +66,25 @@ void mode_graph::generate_permutations()
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void mode_graph::print_permutations()
 {
     LOG(_permutations.size() << " major permutations");
 
     int prog_counter = 0;
 
-    for (std::vector<const degree_node*>& progression : _permutations)
+    for (std::vector<degree_node*>& progression : _permutations)
     {
-        std::cout << std::setw(4) << ++prog_counter << " : ";
-        for (const degree_node* degree : progression)
+        std::cout << std::setw(5) << ++prog_counter << " : ";
+        for (degree_node* degree : progression)
         {
             std::cout << degree->get_name().c_str() << " ";
         }
         std::cout << "\n";
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }

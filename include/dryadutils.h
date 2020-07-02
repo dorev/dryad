@@ -10,4 +10,26 @@ namespace dryad
 
 void uppercase(std::string& s);
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class degree_node;
+
+class node_visit_counter
+{
+public:
+
+    node_visit_counter(degree_node* node);
+
+    node_visit_counter& operator++();
+    node_visit_counter& operator--();
+    bool operator<(const node_visit_counter& other) const;
+
+private:
+
+    degree_node* _node;
+    int _visit_count;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 }
