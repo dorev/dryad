@@ -8,6 +8,8 @@
 #include <vector>
 #include <deque>
 #include <set>
+#include <chrono>
+using namespace std::chrono_literals;
 
 namespace dryad
 {
@@ -19,4 +21,5 @@ namespace dryad
     constexpr int MINOR = 1;
     constexpr int DIM = 2;
     constexpr int AUG = 3;
+
 }

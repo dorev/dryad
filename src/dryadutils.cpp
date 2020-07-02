@@ -1,7 +1,7 @@
 #include "dryadutils.h"
 
-#include <algorithm>
 #include <cctype>
+#include <sstream>
 
 namespace dryad
 {
@@ -39,6 +39,23 @@ node_visit_counter& node_visit_counter::operator--()
 bool node_visit_counter::operator<(const node_visit_counter& other) const
 {
     return _node < other._node;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+timer::timer()
+    : _start(std::chrono::steady_clock::now())
+{}
+
+std::string timer::stop()
+{
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> diff = end - _start;
+
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(6) << diff.count() * 1000 << "ms";
+
+    return ss.str();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
