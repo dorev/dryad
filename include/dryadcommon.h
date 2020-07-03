@@ -14,14 +14,41 @@ using namespace std::chrono_literals;
 namespace dryad
 {
 
-    constexpr int SHARP = 1;
-    constexpr int FLAT = -1;
+constexpr size_t MAX_PROG_LENGTH    = 128;
+constexpr size_t MAX_BAR_DIVISION   = 4;
 
-    constexpr int MAJOR = 0;
-    constexpr int MINOR = 1;
-    constexpr int DIM = 2;
-    constexpr int AUG = 3;
+enum class accidental
+{
+    none,
+    sharp,
+    flat,
+};
 
-    constexpr size_t HARD_MAX_PROG_LENGTH = 128;
+enum class triad
+{
+    none,
+    major,
+    minor,
+    dim,
+    aug,
+};
+
+enum class structural_pattern
+{
+    none,
+
+    // 2 elements
+    aaab,
+    aabb,
+    abab,
+
+    // 3 elements
+    aabc,
+    abcc,
+    abac,
+
+    // 4 elements
+    abcd,
+};
 
 }

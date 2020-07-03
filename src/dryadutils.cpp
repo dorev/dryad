@@ -18,34 +18,14 @@ void uppercase(std::string& s)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-node_visit_counter::node_visit_counter(degree_node* node) 
-    : _node(node)
-    , _visit_count(0)
-{}
-
-node_visit_counter& node_visit_counter::operator++()
-{
-    _visit_count++;
-    return *this;
-}
-
-node_visit_counter& node_visit_counter::operator--()
-{
-    _visit_count--;
-    return *this;
-}
-
-
-bool node_visit_counter::operator<(const node_visit_counter& other) const
-{
-    return _node < other._node;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 timer::timer()
     : _start(std::chrono::steady_clock::now())
 {}
+
+void timer::reset()
+{
+    _start = std::chrono::steady_clock::now();
+}
 
 std::string timer::stop()
 {
@@ -56,6 +36,15 @@ std::string timer::stop()
     ss << std::fixed << std::setprecision(6) << diff.count() * 1000 << " ms";
 
     return ss.str();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int random::range(int min, int max)
+{
+    static thread_local std::mt19937 generator;
+    std::uniform_int_distribution<int> distribution(min, max);
+    return distribution(generator);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

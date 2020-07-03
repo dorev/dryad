@@ -9,7 +9,12 @@ namespace dryad
 void mode_graph::generate_permutations(size_t max_prog_length)
 {
     _permutations.clear();
-    size_t effective_max_prog_length = max_prog_length > 0 ? max_prog_length : HARD_MAX_PROG_LENGTH;
+
+    // 0 == max length
+    size_t effective_max_prog_length =
+        (max_prog_length > 0 && max_prog_length < MAX_PROG_LENGTH)
+        ? max_prog_length
+        : MAX_PROG_LENGTH;
 
     // This vector will contain the progression created while exploring the graph
     // During graph exploration, nodes will be added and removed and copies of valid
@@ -43,9 +48,9 @@ void mode_graph::generate_permutations(size_t max_prog_length)
     {
         visit(node);
 
-        if (node->is_prog_exit()
-            && current_prog.size() > 1
-            && current_prog.size() <= effective_max_prog_length)
+        if (node->is_prog_exit()    &&
+            current_prog.size() > 1 &&
+            current_prog.size() <= effective_max_prog_length)
         {
             _permutations.push_back(current_prog); 
         }

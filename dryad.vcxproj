@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\barlayout.cpp" />
     <ClCompile Include="src\degreenode.cpp" />
     <ClCompile Include="src\dryadutils.cpp" />
     <ClCompile Include="src\majormode.cpp" />
@@ -30,6 +31,8 @@
     <ClInclude Include="include\dryadutils.h" />
     <ClInclude Include="include\modegraph.h" />
     <ClInclude Include="include\majormode.h" />
+    <ClInclude Include="include\barlayout.h" />
+    <ClInclude Include="include\phraselayout.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

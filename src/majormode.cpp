@@ -6,13 +6,13 @@ namespace dryad
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 major_mode::major_mode()
-    : _I    (1, MAJOR)
-    , _ii   (2, MINOR)
-    , _iii  (3, MINOR)
-    , _IV   (4, MAJOR)
-    , _V    (5, MAJOR)
-    , _vi   (6, MINOR)
-    , _viid (7, DIM)
+    : _I    (1, triad::major)
+    , _ii   (2, triad::minor)
+    , _iii  (3, triad::minor)
+    , _IV   (4, triad::major)
+    , _V    (5, triad::major)
+    , _vi   (6, triad::minor)
+    , _viid (7, triad::dim)
 {
     degree_node* I    = &_I;
     degree_node* ii   = &_ii;

@@ -8,7 +8,7 @@ class degree_node
 
 public:
 
-    degree_node(int number, int triad, int alteration = 0);
+    degree_node(int number, triad triad, accidental accidental = accidental::none);
 
     inline int    get_id() const                                { return _id; }
     inline size_t get_visit_count() const                       { return _visit_count; }
@@ -28,17 +28,16 @@ public:
 
 private:
 
-    const int _degree;
-    const int _triad;
-    const int _alteration;
-    int _id;
-    bool _prog_entry;
-    bool _prog_exit; 
-    size_t _visit_count;
-    size_t _max_visit;
-
-    std::string _name;
-    std::vector<degree_node*> _edges;
+    const int                   _degree;
+    const triad                 _triad;
+    const accidental            _accidental;
+    int                         _id;
+    bool                        _prog_entry;
+    bool                        _prog_exit; 
+    size_t                      _visit_count;
+    size_t                      _max_visit;
+    std::string                 _name;
+    std::vector<degree_node*>   _edges;
 
     void build_name();
 
