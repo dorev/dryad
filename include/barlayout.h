@@ -14,8 +14,10 @@ public:
     bar_layout();
 
     inline bool is_valid() const { return _valid; }
-    
+
     bool arrange(std::vector<degree_node*> degrees, structural_pattern pattern = structural_pattern::aaaa);
+
+    inline void insert(degree_node* degree) { _degrees.push_back(degree); }
 
 private:
 

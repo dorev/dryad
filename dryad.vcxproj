@@ -25,6 +25,7 @@
     <ClCompile Include="src\dryadutils.cpp" />
     <ClCompile Include="src\majormode.cpp" />
     <ClCompile Include="src\modegraph.cpp" />
+    <ClCompile Include="src\pattern.cpp" />
     <ClCompile Include="src\phraselayout.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -35,6 +36,7 @@
     <ClInclude Include="include\modegraph.h" />
     <ClInclude Include="include\majormode.h" />
     <ClInclude Include="include\barlayout.h" />
+    <ClInclude Include="include\pattern.h" />
     <ClInclude Include="include\phraselayout.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
