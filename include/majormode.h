@@ -1,5 +1,6 @@
 #pragma once
 
+#include "dryadcommon.h"
 #include "modegraph.h"
 #include "degreenode.h"
 

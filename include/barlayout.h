@@ -1,3 +1,5 @@
+#pragma once
+
 #include "dryadcommon.h"
 
 namespace dryad
@@ -13,7 +15,7 @@ public:
 
     inline bool is_valid() const { return _valid; }
     
-    bool arrange(std::vector<degree_node*> degrees, structural_pattern pattern = structural_pattern::none);
+    bool arrange(std::vector<degree_node*> degrees, structural_pattern pattern = structural_pattern::aaaa);
 
 private:
 

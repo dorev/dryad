@@ -8,7 +8,7 @@ namespace dryad
 
 void mode_graph::generate_permutations(size_t max_prog_length)
 {
-    _permutations.clear();
+    _progs.clear();
 
     // 0 == max length
     size_t effective_max_prog_length =
@@ -52,7 +52,7 @@ void mode_graph::generate_permutations(size_t max_prog_length)
             current_prog.size() > 1 &&
             current_prog.size() <= effective_max_prog_length)
         {
-            _permutations.push_back(current_prog); 
+            _progs.push_back(current_prog); 
         }
         
         for (degree_node* next_node : node->get_edges())
@@ -79,18 +79,18 @@ void mode_graph::generate_permutations(size_t max_prog_length)
         }
     }
 
-    LOG("Permutations generation completed in " << t.stop().c_str());
+    LOG("Generated " << _progs.size() << " progressions in " << t.stop().c_str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void mode_graph::print_permutations()
 {
-    LOG(_permutations.size() << " major permutations");
+    LOG(_progs.size() << " major permutations");
 
     int prog_counter = 0;
 
-    for (std::vector<degree_node*>& progression : _permutations)
+    for (std::vector<degree_node*>& progression : _progs)
     {
         std::cout << std::setw(5) << ++prog_counter << " : ";
         for (degree_node* degree : progression)
@@ -99,6 +99,29 @@ void mode_graph::print_permutations()
         }
         std::cout << "\n";
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const progression& mode_graph::random_prog(size_t min_length, size_t max_length)
+{
+    if (min_length != 0 && max_length != 0)
+    {
+        auto end_itr = std::partition(_progs.begin(), _progs.end(),[&](const progression& p)
+        {
+            return p.size() >= min_length && p.size() <= max_length;
+        });
+
+        int max = std::distance(_progs.begin(), end_itr) - 1;
+
+        return _progs[random::range(0, max)];
+    }
+    else if (min_length == 0 && max_length == 0)
+    {
+        return _progs[random::range(0, _progs.size() - 1)];
+    }
+
+    CRASHLOG("min_length and max_length should both be set or not");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

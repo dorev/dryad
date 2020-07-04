@@ -7,12 +7,15 @@
 #include <functional>
 #include <vector>
 #include <deque>
+#include <map>
 #include <set>
 #include <chrono>
-using namespace std::chrono_literals;
 
 namespace dryad
 {
+
+class degree_node;
+using progression = std::vector<degree_node*>;
 
 constexpr size_t MAX_PROG_LENGTH    = 128;
 constexpr size_t MAX_BAR_DIVISION   = 4;
@@ -35,19 +38,14 @@ enum class triad
 
 enum class structural_pattern
 {
-    none,
-
-    // 2 elements
+    none_specified,
+    aaaa,
     aaab,
     aabb,
     abab,
-
-    // 3 elements
     aabc,
     abcc,
     abac,
-
-    // 4 elements
     abcd,
 };
 

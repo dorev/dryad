@@ -8,7 +8,7 @@ namespace dryad
 
 bar_layout::bar_layout()
     : _valid(false)
-    , _pattern(structural_pattern::none)
+    , _pattern(structural_pattern::aaaa)
 {
     _degrees.reserve(MAX_BAR_DIVISION);
 }
@@ -21,7 +21,7 @@ bool bar_layout::arrange(std::vector<degree_node*> degrees, structural_pattern p
     switch (degrees.size())
     {
     case 1: 
-        if (pattern != structural_pattern::none)
+        if (pattern != structural_pattern::aaaa)
         {
             return _valid = false;
         }
