@@ -1,5 +1,4 @@
-#include "pattern.h"
-#include "phrase.h"
+#include "bar.h"
 #include "dryadutils.h"
 
 namespace dryad
@@ -7,11 +6,9 @@ namespace dryad
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-pattern::pattern(std::initializer_list<int> pattern_representation)
-    : _pattern(pattern_representation)
-    , _pattern_size(pattern_representation.size())
-    , _element_count(std::set<int>(pattern_representation).size())
+bar::bar()
 {
+    _degrees.reserve(MAX_BAR_DIVISION);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

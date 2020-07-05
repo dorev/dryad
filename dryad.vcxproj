@@ -19,14 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\barlayout.cpp" />
+    <ClCompile Include="src\bar.cpp" />
     <ClCompile Include="src\composer.cpp" />
     <ClCompile Include="src\degreenode.cpp" />
     <ClCompile Include="src\dryadutils.cpp" />
     <ClCompile Include="src\majormode.cpp" />
     <ClCompile Include="src\modegraph.cpp" />
     <ClCompile Include="src\pattern.cpp" />
-    <ClCompile Include="src\phraselayout.cpp" />
+    <ClCompile Include="src\phrase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\composer.h" />
@@ -35,9 +35,9 @@
     <ClInclude Include="include\dryadutils.h" />
     <ClInclude Include="include\modegraph.h" />
     <ClInclude Include="include\majormode.h" />
-    <ClInclude Include="include\barlayout.h" />
+    <ClInclude Include="include\bar.h" />
     <ClInclude Include="include\pattern.h" />
-    <ClInclude Include="include\phraselayout.h" />
+    <ClInclude Include="include\phrase.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

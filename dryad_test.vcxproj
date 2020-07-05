@@ -151,7 +151,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="tests\barlayouttests.cpp" />
     <ClCompile Include="tests\composertests.cpp" />
     <ClCompile Include="tests\main.cpp" />
     <ClCompile Include="tests\majormodetests.cpp" />

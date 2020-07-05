@@ -49,4 +49,16 @@ enum class structural_pattern
     abcd,
 };
 
+enum class fitting_strategy
+{
+    compact_left,
+    compact_right,
+    symmetric_far,
+    symmetric_close,
+    even_compact_left,
+    even_compact_right,
+    even_symmetric_far,
+    even_symmetric_close,
+};
+
 }

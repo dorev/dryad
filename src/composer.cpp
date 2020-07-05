@@ -8,7 +8,7 @@ namespace dryad
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 composer::composer()
-    : _mode_graph(nullptr)
+    : _mode(nullptr)
 {
 }
 
@@ -16,14 +16,14 @@ composer::composer()
 
 composer& composer::set_mode(mode_graph* mode)
 {
-    _mode_graph = mode;
+    _mode = mode;
 
     return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-composer& composer::add_phrase(int id, phrase_layout phrase)
+composer& composer::add_phrase(int id, phrase phrase)
 {
     if (_phrases.find(id) != _phrases.end())
     {
@@ -55,19 +55,23 @@ composer& composer::set_phrase_sequence(std::initializer_list<int> phrase_sequen
 
 void composer::execute()
 {
-    if (_mode_graph == nullptr ||
+    if (_mode == nullptr ||
         _phrases.empty() ||
         _phrase_sequence.empty())
     {
         CRASHLOG("Missing elements to execute composer");
     }
 
-    _mode_graph->generate_permutations();
+    _mode->generate_permutations();
 
     for (auto& [id, phrase] : _phrases)
     {
-        //const progression& prog = _mode_graph->random_prog();
+        phrase.apply_progression(_mode->random_prog());
+    }
 
+    for (int phrase_id : _phrase_sequence)
+    {
+        _song.push_back(_phrases[phrase_id]);
     }
 
 }

@@ -44,9 +44,9 @@ TEST_F(composer_should, be_buildable)
     // Act
     // Assert
     c.set_mode(&m)
-        .add_phrase(0, phrase_layout())
-        .add_phrase(1, phrase_layout())
-        .add_phrase(2, phrase_layout())
+        .add_phrase(0, phrase(8, {0,1,2,1,2,3,1,1}, fitting_strategy::symmetric_close))
+        .add_phrase(1, phrase())
+        .add_phrase(2, phrase())
         .set_phrase_sequence({ 0, 1, 1, 0, 2 });
 }
 
@@ -59,9 +59,9 @@ TEST_F(composer_should, be_executable)
     // Act
     // Assert
     c.set_mode(&m)
-        .add_phrase(0, phrase_layout())
-        .add_phrase(1, phrase_layout())
-        .add_phrase(2, phrase_layout())
+        .add_phrase(0, phrase())
+        .add_phrase(1, phrase())
+        .add_phrase(2, phrase())
         .set_phrase_sequence({ 0, 1, 1, 0, 2 })
         .execute();
 }
