@@ -9,6 +9,7 @@
 #include <deque>
 #include <map>
 #include <set>
+#include <cmath>
 #include <chrono>
 
 namespace dryad

@@ -154,6 +154,7 @@
     <ClCompile Include="tests\composertests.cpp" />
     <ClCompile Include="tests\main.cpp" />
     <ClCompile Include="tests\majormodetests.cpp" />
+    <ClCompile Include="tests\phrasetests.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

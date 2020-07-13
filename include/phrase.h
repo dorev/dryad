@@ -17,6 +17,7 @@ public:
 
     void apply_progression(const progression& prog);
     bar& operator[](size_t index);
+    inline size_t size() { return _bars.size(); }
 
 private:
 

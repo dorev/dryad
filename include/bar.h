@@ -14,10 +14,11 @@ public:
     bar();
 
     inline void insert(degree_node* degree) { _degrees.push_back(degree); }
+    inline size_t size() { return _degrees.size(); }
 
 private:
 
-    std::vector<degree_node*>   _degrees;
+    std::vector<degree_node*> _degrees;
 
 };
 

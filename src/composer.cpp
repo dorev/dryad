@@ -64,6 +64,8 @@ void composer::execute()
 
     _mode->generate_permutations();
 
+    // generate cells
+
     for (auto& [id, phrase] : _phrases)
     {
         phrase.apply_progression(_mode->random_prog());
