@@ -13,6 +13,7 @@ major_mode::major_mode()
     , _V    (5, triad::major)
     , _vi   (6, triad::minor)
     , _viid (7, triad::dim)
+    , mode_graph({ 0, 2, 4, 5, 7, 9, 11 })
 {
     degree_node* I    = &_I;
     degree_node* ii   = &_ii;

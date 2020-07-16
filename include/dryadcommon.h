@@ -18,8 +18,22 @@ namespace dryad
 class degree_node;
 using progression = std::vector<degree_node*>;
 
-constexpr size_t MAX_PROG_LENGTH    = 128;
-constexpr size_t MAX_BAR_DIVISION   = 4;
+constexpr size_t MAX_PROG_LENGTH      = 128;
+constexpr size_t MAX_BAR_DIVISION     = 4;
+
+// Durations
+constexpr size_t WHOLE                = 96;
+constexpr size_t HALF                 = 48;
+constexpr size_t HALF_TRIPLET         = 32;
+constexpr size_t QUARTER              = 24;
+constexpr size_t QUARTER_TRIPLET      = 16;
+constexpr size_t EIGHTH               = 12;
+constexpr size_t EIGHTH_TRIPLET       = 8;
+constexpr size_t SIXTEENTH            = 6;
+constexpr size_t SIXTEENTH_TRIPLET    = 4;
+constexpr size_t THIRTYSECOND         = 3;
+constexpr size_t THIRTYSECOND_TRIPLET = 2;
+
 
 enum class accidental
 {
@@ -35,19 +49,6 @@ enum class triad
     minor,
     dim,
     aug,
-};
-
-enum class structural_pattern
-{
-    none_specified,
-    aaaa,
-    aaab,
-    aabb,
-    abab,
-    aabc,
-    abcc,
-    abac,
-    abcd,
 };
 
 enum class fitting_strategy

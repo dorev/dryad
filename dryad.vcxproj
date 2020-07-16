@@ -33,6 +33,7 @@
     <ClInclude Include="include\dryadcommon.h" />
     <ClInclude Include="include\degreenode.h" />
     <ClInclude Include="include\dryadutils.h" />
+    <ClInclude Include="include\melody.h" />
     <ClInclude Include="include\modegraph.h" />
     <ClInclude Include="include\majormode.h" />
     <ClInclude Include="include\bar.h" />

@@ -56,11 +56,12 @@ void phrase::apply_progression(const progression& prog)
                 size_t offset = phrase_size;
                 bar = 0;
 
-                for (size_t lsb = 0; lsb < log2(phrase_size); ++lsb)
+                for (size_t bit = 0; bit < log2(phrase_size); ++bit)
                 {
                     offset /= 2;
 
-                    bool bit_of_n_is_off = !((1 << lsb) & n);
+                    bool bit_of_n_is_off = !((1 << bit) & n);
+
                     if (bit_of_n_is_off)
                     {
                         bar += offset;
@@ -94,9 +95,6 @@ void phrase::apply_progression(const progression& prog)
         default:
             break;
         }
-
-
-
     }
     else if (prog_size < phrase_size)
     {
