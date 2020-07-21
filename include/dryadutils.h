@@ -17,7 +17,7 @@
 #include <memory>
 
 #define LOG(x) std::cout << x << "\n"
-#define CRASHLOG(x) { std::cout << "\n\n" << x << "\n --> " << __FILE__ << " l." << __LINE__ << "\n\n"; throw; }
+#define CRASHLOG(x) { std::cout << "\n\n" << x << "\n --> " << __FILE__ << " l." << __LINE__ << "\n\n"; *((int*)0xBAADD00D) = 0; throw; }
 
 #define for_range(index_variable, limit) for(size_t index_variable = 0; index_variable < (limit); ++index_variable)
 
@@ -28,11 +28,11 @@ void uppercase(std::string& s);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void step_down_duration(int& duration, const std::vector<int>& duration_vector);
+int step_down_duration(int duration, const std::vector<int>& duration_vector);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void step_up_duration(int& duration, const std::vector<int>& duration_vector);
+int step_up_duration(int duration, const std::vector<int>& duration_vector);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -98,9 +98,9 @@ public:
     template<template<typename...> typename CONTAINER,
         typename T,
         std::enable_if_t<has_random_access<CONTAINER<T>>, int> = 0>
-    static T& in(CONTAINER<T>& c)
+    static const T& in(const CONTAINER<T>& c)
     {
-        static thread_local std::mt19937 generator;
+        static thread_local std::mt19937 generator(std::random_device{}());
         std::uniform_int_distribution<size_t> distribution(0, c.size() - 1);
         return c[distribution(generator)];
     }

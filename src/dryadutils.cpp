@@ -18,7 +18,7 @@ void uppercase(std::string& s)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void step_down_duration(int& duration, const std::vector<int>& duration_vector)
+int step_down_duration(int duration, const std::vector<int>& duration_vector)
 {
     size_t i = 0;
 
@@ -35,12 +35,12 @@ void step_down_duration(int& duration, const std::vector<int>& duration_vector)
         CRASHLOG("Illegal duration");
     }
 
-    duration = duration_vector[i > 0 ? --i : 0];
+    return duration_vector[i > 0 ? --i : 0];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void step_up_duration(int& duration, const std::vector<int>& duration_vector)
+int step_up_duration(int duration, const std::vector<int>& duration_vector)
 {
     size_t i = 0;
 
@@ -57,7 +57,7 @@ void step_up_duration(int& duration, const std::vector<int>& duration_vector)
         CRASHLOG("Illegal duration");
     }
 
-    duration = duration_vector[i < duration_vector.size() - 1 ? ++i : duration_vector.size() - 1];
+    return duration_vector[i < duration_vector.size() - 1 ? ++i : duration_vector.size() - 1];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,7 +86,12 @@ std::string timer::stop()
 
 int random::range(int min, int max)
 {
-    static thread_local std::mt19937 generator;
+    if (min == max)
+    {
+        return min;
+    }
+
+    static thread_local std::mt19937 generator(std::random_device{}());
     std::uniform_int_distribution<int> distribution(min, max);
     return distribution(generator);
 }
@@ -95,7 +100,7 @@ int random::range(int min, int max)
 
 int random::normal_int(float mean, float stddev)
 {
-    static thread_local std::mt19937 generator;
+    static thread_local std::mt19937 generator(std::random_device{}());
     std::normal_distribution<float> distribution(mean, stddev);
     return static_cast<int>(distribution(generator));
 }

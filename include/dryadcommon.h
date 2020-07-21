@@ -24,27 +24,27 @@ constexpr int SIXTEENTH_TRIPLET    = 4;
 constexpr int THIRTYSECOND         = 3;
 constexpr int THIRTYSECOND_TRIPLET = 2;
 
+static const int __min_duration = THIRTYSECOND;
+static const int __max_duration = WHOLE;
+
 static const std::vector<int> __notes_durations
-{
+({
     THIRTYSECOND,
     SIXTEENTH,
     EIGHTH,
     QUARTER,
     HALF,
     WHOLE
-};
+});
 
 static const std::vector<int> __triplets_durations
-{
+({
     THIRTYSECOND_TRIPLET,
     SIXTEENTH_TRIPLET,
     EIGHTH_TRIPLET,
     QUARTER_TRIPLET,
     HALF_TRIPLET
-};
-
-static const int __min_duration = min_of(__notes_durations);
-static const int __max_duration = max_of(__notes_durations);
+});
 
 enum class accidental
 {

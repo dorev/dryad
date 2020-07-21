@@ -16,6 +16,7 @@ public:
 
     inline size_t size() const { return _pattern_size; }
     inline size_t element_count() const { return _element_count; }
+    inline const std::deque<int>& value() const { return _pattern; }
 
 private:
 
