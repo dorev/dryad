@@ -1,37 +1,32 @@
 #pragma once
 
 #include "dryadcommon.h"
+#include "pattern.h"
+#include "dryadutils.h"
+#include <numeric>
 
 namespace dryad
 {
 
 class mode_graph;
 
-class note
-{
-public:
-
-private:
-
-    int _duration; // based on degrees? think about how to transpose a melody to another mode
-    int _pitch;
-};
-
-
 class melody
 {
 public:
 
-    melody(mode_graph* mode, size_t duration);
+    // A melody can be a pattern like { 0, 0, 2, 4, 8 }
+    // jumps of 2 represent arpeggios, 8s are octaves, just like notes of a scale
+    // any accidental will come as decoration or later
 
-    int get_duration(); // a good time to use reduce or accumulate!
+    melody(size_t min_duration = HALF, size_t max_duration = 2 * WHOLE, size_t min_notes = 2, size_t max_notes = 12);
 
-
-    // generateVariation? (generate, stores and return a ref to a variations of the melody)
+    inline const pattern& get_notes() const { return _notes; }
+    inline const pattern& get_durations() const { return _durations; }
 
 private:
 
-    std::vector<note> _notes;
+    pattern _notes;
+    pattern _durations;
 
 };
 

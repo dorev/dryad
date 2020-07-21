@@ -1,16 +1,6 @@
 #pragma once
 
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <algorithm>
-#include <functional>
-#include <vector>
-#include <deque>
-#include <map>
-#include <set>
-#include <cmath>
-#include <chrono>
+#include "dryadutils.h"
 
 namespace dryad
 {
@@ -19,21 +9,42 @@ class degree_node;
 using progression = std::vector<degree_node*>;
 
 constexpr size_t MAX_PROG_LENGTH      = 128;
-constexpr size_t MAX_BAR_DIVISION     = 4;
+constexpr size_t MAX_CHORDS_BY_BAR    = 4;
 
 // Durations
-constexpr size_t WHOLE                = 96;
-constexpr size_t HALF                 = 48;
-constexpr size_t HALF_TRIPLET         = 32;
-constexpr size_t QUARTER              = 24;
-constexpr size_t QUARTER_TRIPLET      = 16;
-constexpr size_t EIGHTH               = 12;
-constexpr size_t EIGHTH_TRIPLET       = 8;
-constexpr size_t SIXTEENTH            = 6;
-constexpr size_t SIXTEENTH_TRIPLET    = 4;
-constexpr size_t THIRTYSECOND         = 3;
-constexpr size_t THIRTYSECOND_TRIPLET = 2;
+constexpr int WHOLE                = 96;
+constexpr int HALF                 = 48;
+constexpr int HALF_TRIPLET         = 32;
+constexpr int QUARTER              = 24;
+constexpr int QUARTER_TRIPLET      = 16;
+constexpr int EIGHTH               = 12;
+constexpr int EIGHTH_TRIPLET       = 8;
+constexpr int SIXTEENTH            = 6;
+constexpr int SIXTEENTH_TRIPLET    = 4;
+constexpr int THIRTYSECOND         = 3;
+constexpr int THIRTYSECOND_TRIPLET = 2;
 
+static const std::vector<int> __notes_durations
+{
+    THIRTYSECOND,
+    SIXTEENTH,
+    EIGHTH,
+    QUARTER,
+    HALF,
+    WHOLE
+};
+
+static const std::vector<int> __triplets_durations
+{
+    THIRTYSECOND_TRIPLET,
+    SIXTEENTH_TRIPLET,
+    EIGHTH_TRIPLET,
+    QUARTER_TRIPLET,
+    HALF_TRIPLET
+};
+
+static const int __min_duration = min_of(__notes_durations);
+static const int __max_duration = max_of(__notes_durations);
 
 enum class accidental
 {

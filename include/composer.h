@@ -22,9 +22,9 @@ public:
 
 private:
 
-    mode_graph*                     _mode;
+    mode_graph*              _mode;
     std::map<int, phrase>    _phrases;
-    std::vector<int>                _phrase_sequence;
+    std::vector<int>         _phrase_sequence;
     std::vector<phrase>      _song;
 
 };

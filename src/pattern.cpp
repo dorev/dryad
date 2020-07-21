@@ -7,11 +7,28 @@ namespace dryad
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-pattern::pattern(std::initializer_list<int> pattern_representation)
-    : _pattern(pattern_representation)
-    , _pattern_size(pattern_representation.size())
-    , _element_count(std::set<int>(pattern_representation).size())
+pattern::pattern(std::initializer_list<int> pattern)
+    : _pattern(pattern)
+    , _pattern_size(pattern.size())
+    , _element_count(std::set<int>(pattern).size())
 {
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+pattern::pattern(const std::deque<int>& pattern)
+    : _pattern(pattern)
+    , _pattern_size(pattern.size())
+    , _element_count(0)
+{
+    std::set<int> elementCounter;
+
+    for (int i : pattern)
+    {
+        elementCounter.insert(i);
+    }
+
+    _element_count = elementCounter.size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

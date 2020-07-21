@@ -27,7 +27,7 @@ void phrase::apply_progression(const progression& prog)
     // Perfect fit!
     if (prog_size == phrase_size)
     {
-        for (size_t i = 0; i < prog_size; ++i)
+        for_range(i, prog_size)
         {
             _bars[i].insert(prog[i]);
         }
@@ -56,7 +56,7 @@ void phrase::apply_progression(const progression& prog)
                 size_t offset = phrase_size;
                 bar = 0;
 
-                for (size_t bit = 0; bit < log2(phrase_size); ++bit)
+                for_range(bit, log2(phrase_size))
                 {
                     offset /= 2;
 
@@ -120,11 +120,11 @@ InsertChords:
 
     size_t prog_index = 0;
 
-    for (bar = 0; bar < phrase_size; ++bar)
+    for_range(i, phrase_size)
     {
-        while (degrees_per_bar[bar]--)
+        while (degrees_per_bar[i]--)
         {
-            _bars[bar].insert(prog[prog_index++]);
+            _bars[i].insert(prog[prog_index++]);
         }
     }
 }

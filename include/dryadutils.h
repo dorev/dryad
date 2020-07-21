@@ -1,15 +1,59 @@
 #pragma once
 
-#include "dryadcommon.h"
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <algorithm>
+#include <functional>
+#include <vector>
+#include <deque>
+#include <map>
+#include <set>
+#include <cmath>
+#include <chrono>
 #include <random>
+#include <utility>
+#include <type_traits>
+#include <memory>
 
 #define LOG(x) std::cout << x << "\n"
 #define CRASHLOG(x) { std::cout << "\n\n" << x << "\n --> " << __FILE__ << " l." << __LINE__ << "\n\n"; throw; }
+
+#define for_range(index_variable, limit) for(size_t index_variable = 0; index_variable < (limit); ++index_variable)
 
 namespace dryad
 {
 
 void uppercase(std::string& s);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void step_down_duration(int& duration, const std::vector<int>& duration_vector);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void step_up_duration(int& duration, const std::vector<int>& duration_vector);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<template<typename...> typename CONTAINER,
+    typename T,
+    typename HAS_BEGIN = decltype(std::declval<CONTAINER<T>>().begin()),
+    typename HAS_END = decltype(std::declval<CONTAINER<T>>().end())>
+    T& min_of(CONTAINER<T, std::allocator<T>> container)
+{
+    return *std::min_element(container.begin(), container.end());
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<template<typename...> typename CONTAINER,
+    typename T,
+    typename HAS_BEGIN = decltype(std::declval<CONTAINER<T>>().begin()),
+    typename HAS_END = decltype(std::declval<CONTAINER<T>>().end())>
+    T& max_of(CONTAINER<T, std::allocator<T>> container)
+{
+    return *std::max_element(container.begin(), container.end());
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,10 +72,38 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<typename CONTAINER>
+using iterator_category_of =
+typename std::iterator_traits<typename CONTAINER::iterator>::iterator_category;
+
+template<typename CONTAINER>
+struct has_random_access_impl
+{
+    static const bool value = std::is_base_of_v<
+        std::random_access_iterator_tag,
+        iterator_category_of<CONTAINER>>;
+};
+
+template<typename CONTAINER>
+constexpr bool has_random_access = has_random_access_impl<CONTAINER>::value;
+
 class random
 {
 public:
     static int range(int low, int high);
+    static int normal_int(float mean, float stddev);
+    static bool coin_flip();
+
+    // returns a random element of a randomly-accessible container
+    template<template<typename...> typename CONTAINER,
+        typename T,
+        std::enable_if_t<has_random_access<CONTAINER<T>>, int> = 0>
+    static T& in(CONTAINER<T>& c)
+    {
+        static thread_local std::mt19937 generator;
+        std::uniform_int_distribution<size_t> distribution(0, c.size() - 1);
+        return c[distribution(generator)];
+    }
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
