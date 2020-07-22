@@ -37,7 +37,7 @@ TEST_F(melody_should, have_the_specified_duration)
     times.reserve(static_cast<size_t>(iterations));
     double max_time = 0;
 
-    for_range(j, 20)
+    for_range(j, 100)
     {
         max_time = 0;
         times.clear();
