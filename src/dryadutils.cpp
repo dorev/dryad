@@ -62,24 +62,30 @@ int step_up_duration(int duration, const std::vector<int>& duration_vector)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-timer::timer()
+dryad_timer::dryad_timer()
     : _start(std::chrono::steady_clock::now())
 {}
 
-void timer::reset()
+void dryad_timer::reset()
 {
     _start = std::chrono::steady_clock::now();
 }
 
-std::string timer::stop()
+std::string dryad_timer::stop()
 {
-    auto end = std::chrono::steady_clock::now();
-    std::chrono::duration<double> diff = end - _start;
+    std::chrono::duration<double> diff = std::chrono::steady_clock::now() - _start;
 
     std::stringstream ss;
     ss << std::fixed << std::setprecision(6) << diff.count() * 1000 << " ms";
 
     return ss.str();
+}
+
+double dryad_timer::stop_ms()
+{
+    std::chrono::duration<double> diff = std::chrono::steady_clock::now() - _start;
+
+    return diff.count() * 1000;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

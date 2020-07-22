@@ -76,7 +76,7 @@ void mode_graph::generate_permutations(size_t max_prog_length)
     LOG("Generating permutations with parameters\n"
         "Max progression length : " << effective_max_prog_length);
 
-    timer t;
+    PROFILE(dryad_timer timer;)
 
     for (degree_node* node : _degrees)
     {
@@ -86,7 +86,7 @@ void mode_graph::generate_permutations(size_t max_prog_length)
         }
     }
 
-    LOG("Generated " << _progs.size() << " progressions in " << t.stop().c_str());
+    PROFILE(LOG("Generated " << _progs.size() << " progressions in " << timer.stop().c_str());)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

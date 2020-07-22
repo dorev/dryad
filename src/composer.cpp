@@ -17,7 +17,6 @@ composer::composer()
 composer& composer::set_mode(mode_graph* mode)
 {
     _mode = mode;
-
     return *this;
 }
 
@@ -31,7 +30,6 @@ composer& composer::add_phrase(int id, phrase phrase)
     }
 
     _phrases[id] = phrase;
-
     return *this;
 }
 
@@ -64,7 +62,7 @@ void composer::execute()
 
     _mode->generate_permutations();
 
-    // generate cells
+    // generate melodies
 
     for (auto& [id, phrase] : _phrases)
     {

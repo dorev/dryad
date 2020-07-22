@@ -19,7 +19,15 @@
 #define LOG(x) std::cout << x << "\n"
 #define CRASHLOG(x) { std::cout << "\n\n" << x << "\n --> " << __FILE__ << " l." << __LINE__ << "\n\n"; *((int*)0xBAADD00D) = 0; throw; }
 
-#define for_range(index_variable, limit) for(size_t index_variable = 0; index_variable < (limit); ++index_variable)
+//#define PROFILING_ENABLED
+
+#if defined(PROFILING_ENABLED)
+    #define PROFILE(x) x;
+#else
+    #define PROFILE(x)
+#endif
+
+#define for_range(index_variable, limit) for(size_t index_variable = 0; index_variable < static_cast<size_t>(limit); ++index_variable)
 
 namespace dryad
 {
@@ -57,13 +65,14 @@ template<template<typename...> typename CONTAINER,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class timer
+class dryad_timer
 {
 public:
 
-    timer();
+    dryad_timer();
     void reset();
     std::string stop();
+    double stop_ms();
 
 private:
 
@@ -73,19 +82,10 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename CONTAINER>
-using iterator_category_of =
-typename std::iterator_traits<typename CONTAINER::iterator>::iterator_category;
+using iterator_category_of = typename std::iterator_traits<typename CONTAINER::iterator>::iterator_category;
 
 template<typename CONTAINER>
-struct has_random_access_impl
-{
-    static const bool value = std::is_base_of_v<
-        std::random_access_iterator_tag,
-        iterator_category_of<CONTAINER>>;
-};
-
-template<typename CONTAINER>
-constexpr bool has_random_access = has_random_access_impl<CONTAINER>::value;
+constexpr bool has_random_access = std::is_base_of_v<std::random_access_iterator_tag, iterator_category_of<CONTAINER>>;
 
 class random
 {
