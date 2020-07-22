@@ -35,9 +35,9 @@ composer& composer::add_phrase(int id, phrase phrase)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-composer& composer::set_phrase_sequence(std::initializer_list<int> phrase_sequence)
+composer& composer::set_phrase_sequence(std::initializer_list<int> phrase_list)
 {
-    for (int id : phrase_sequence)
+    for (int id : phrase_list)
     {
         if (_phrases.find(id) == _phrases.end())
         {
@@ -45,7 +45,24 @@ composer& composer::set_phrase_sequence(std::initializer_list<int> phrase_sequen
         }
     }
 
-    _phrase_sequence = phrase_sequence;
+    _phrase_sequence = phrase_list;
+    return *this;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+composer& composer::add_melody(int id, std::initializer_list<int> phrase_list)
+{
+    static std::vector<int> melody_durations = { HALF, HALF_DOTTED, WHOLE, 2 * WHOLE};
+
+    _melodies[id] = melody(random::in(melody_durations), random::range(4, 12));
+
+    for (int phrase : phrase_list)
+    {
+        _melodies_of_phrases[phrase].push_back(id);
+    }
+
     return *this;
 }
 
@@ -62,11 +79,16 @@ void composer::execute()
 
     _mode->generate_permutations();
 
-    // generate melodies
-
     for (auto& [id, phrase] : _phrases)
     {
         phrase.apply_progression(_mode->random_prog());
+        
+        for (int melody_id : _melodies_of_phrases[id])
+        {
+            phrase.add_melody(_melodies[melody_id]);
+        }
+
+        phrase.apply_melodies();
     }
 
     for (int phrase_id : _phrase_sequence)

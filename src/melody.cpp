@@ -40,6 +40,7 @@ melody::melody(int duration, int notes_count)
         return std::reduce(durations_pattern.begin(), durations_pattern.end(), 0);
     };
 
+    // helper lambda for comparaisons in the duration fitting loop
     auto greater = [](int lhs, int rhs) -> bool { return lhs > rhs; };
     auto lesser = [](int lhs, int rhs) -> bool { return lhs < rhs; };
 
@@ -91,13 +92,39 @@ melody::melody(int duration, int notes_count)
         std::vector<int> candidates_index;
         candidates_index.reserve(notes_count);
 
-        for_range(i, durations_pattern.size())
+        for (;;)
         {
-            if (compare(durations_pattern[i], duration_to_exclude))
+            for_range(i, durations_pattern.size())
             {
-                candidates_index.push_back(i);
+                if (compare(durations_pattern[i], duration_to_exclude))
+                {
+                    candidates_index.push_back(i);
+                }
+            }
+
+            // if no current duration seems like a reasonable one to step
+            if (candidates_index.size() == 0)
+            {
+                // loosen duration exclusions
+                int next_duration_to_exclude = step_function(duration_to_exclude, durations_used);
+
+                // if we are already at the limit of available durations
+                if (next_duration_to_exclude == duration_to_exclude)
+                {
+                    CRASHLOG("Loosening duration exclusions not sufficient to fit duration/notes_count combination");
+                }
+                else
+                {
+                    duration_to_exclude = next_duration_to_exclude;
+                }
+            }
+            else
+            {
+                // we have some room to work with
+                break;
             }
         }
+
 
         int i = random::in(candidates_index);
         durations_pattern[i] = step_function(durations_pattern[i], durations_used);
@@ -105,8 +132,8 @@ melody::melody(int duration, int notes_count)
 
 duration_is_valid:
 
+    // TODO?
     // group similar durations to give more sense to the melody
-
 
     // set members
     _notes = notes_pattern;

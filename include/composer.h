@@ -2,6 +2,7 @@
 
 #include "dryadcommon.h"
 #include "phrase.h"
+#include "melody.h"
 
 namespace dryad
 {
@@ -16,16 +17,19 @@ public:
 
     composer& set_mode(mode_graph* mode);
     composer& add_phrase(int id, phrase phrase);
+    composer& add_melody(int id, std::initializer_list<int> phrase_list);
     composer& set_phrase_sequence(std::initializer_list<int> phrase_list);
 
     void execute();
 
 private:
 
-    mode_graph*              _mode;
-    std::map<int, phrase>    _phrases;
-    std::vector<int>         _phrase_sequence;
-    std::vector<phrase>      _song;
+    mode_graph*                      _mode;
+    std::map<int, phrase>            _phrases;
+    std::vector<int>                 _phrase_sequence;
+    std::map<int, melody>            _melodies;
+    std::map<int, std::vector<int>>  _melodies_of_phrases;
+    std::vector<phrase>              _song;
 
 };
 

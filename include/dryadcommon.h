@@ -13,9 +13,12 @@ constexpr size_t MAX_CHORDS_BY_BAR    = 4;
 
 // Durations
 constexpr int WHOLE                = 96;
+constexpr int HALF_DOTTED          = 72;
 constexpr int HALF                 = 48;
+constexpr int QUARTER_DOTTED       = 36;
 constexpr int HALF_TRIPLET         = 32;
 constexpr int QUARTER              = 24;
+constexpr int EIGHTH_DOTTED        = 18;
 constexpr int QUARTER_TRIPLET      = 16;
 constexpr int EIGHTH               = 12;
 constexpr int EIGHTH_TRIPLET       = 8;
@@ -32,8 +35,11 @@ static const std::vector<int> __notes_durations
     THIRTYSECOND,
     SIXTEENTH,
     EIGHTH,
+    EIGHTH_DOTTED,
     QUARTER,
+    QUARTER_DOTTED,
     HALF,
+    HALF_DOTTED,
     WHOLE
 });
 

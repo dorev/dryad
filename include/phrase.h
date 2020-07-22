@@ -3,6 +3,7 @@
 #include "dryadcommon.h"
 #include "bar.h"
 #include "pattern.h"
+#include "melody.h"
 
 namespace dryad
 {
@@ -16,6 +17,9 @@ public:
     inline fitting_strategy get_fitting_strategy() const { return _fitting_strategy; }
 
     void apply_progression(const progression& prog);
+    void add_melody(const melody& melody);
+    void apply_melodies();
+
     bar& operator[](size_t index);
     inline size_t size() { return _bars.size(); }
 
@@ -23,6 +27,7 @@ private:
 
     fitting_strategy _fitting_strategy;
     std::vector<bar> _bars;
+    std::vector<melody> _melodies;
 
 };
 
