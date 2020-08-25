@@ -1,46 +1,15 @@
 #pragma once
 
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <algorithm>
-#include <functional>
-#include <vector>
-#include <deque>
-#include <map>
-#include <set>
-#include <cmath>
-#include <chrono>
-#include <random>
-#include <utility>
-#include <type_traits>
-#include <memory>
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Debugging macros
-
-#define LOG(x) std::cout << x << "\n"
-#define CRASHLOG(x) { std::cout << "\n\n" << x << "\n --> " << __FILE__ << " l." << __LINE__ << "\n\n"; *((int*)0xBAADD00D) = 0; throw; }
-
-//#define PROFILING_ENABLED
-
-#if defined(PROFILING_ENABLED)
-    #define PROFILE(x) x;
-#else
-    #define PROFILE(x)
-#endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Utility macro
-
-#define for_range(index_variable, limit) for(size_t index_variable = 0; index_variable < static_cast<size_t>(limit); ++index_variable)
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#include "includes.h"
+#include "dryaddefinitions.h"
+#include "dryadmacros.h"
+#include "dryadaliases.h"
+#include "dryadrandom.h"
 
 namespace dryad
 {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void uppercase(std::string& s);
 
@@ -91,33 +60,6 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename CONTAINER>
-using iterator_category_of = typename std::iterator_traits<typename CONTAINER::iterator>::iterator_category;
-
-template<typename CONTAINER>
-constexpr bool has_random_access = std::is_base_of_v<std::random_access_iterator_tag, iterator_category_of<CONTAINER>>;
-
-class random
-{
-public:
-    static int range(int low, int high);
-    static int normal_int(float mean, float stddev);
-    static bool coin_flip();
-
-    // returns a random element of a randomly-accessible container
-    template<template<typename...> typename CONTAINER,
-        typename T,
-        std::enable_if_t<has_random_access<CONTAINER<T>>, int> = 0>
-    static const T& in(const CONTAINER<T>& c)
-    {
-        static thread_local std::mt19937 generator(std::random_device{}());
-        std::uniform_int_distribution<size_t> distribution(0, c.size() - 1);
-        return c[distribution(generator)];
-    }
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 template<typename N, std::enable_if_t<std::is_integral_v<N>, int> = 0>
 bool is_power_of_2(N n)
 {
@@ -134,5 +76,87 @@ bool is_power_of_2(N n)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename sub_class, template<typename> typename crtp_class>
+class crtp_helper
+{
+    // Convenience function to retrieve a reference to the inheriting class
+    sub_class& get_child() { return static_cast<sub_class&>(*this); }
+
+    // Private constructor resolves the ambiguity if more than once class implement the same crtp_class
+    crtp_helper() {}
+
+    // Solves the diamond problem if a class inherits from multiple crtp_class
+    friend crtp_class<sub_class>;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class id_provider
+{
+public:
+
+    static uint64_t new_id() { return static_cast<uint64_t>(_id++); }
+
+private:
+
+    inline static std::atomic_uint64_t _id = 0;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename dryad_object_type>
+class dryad_info : crtp_helper<dryad_object_type, dryad_info>
+{
+public:
+
+    inline const char* get_name() const     { return _name; }
+    inline const char* get_desc() const     { return _desc; }
+    inline uint64_t get_id() const          { return _id; }
+
+    inline void set_name(const char* name)  { _name = name; }
+    inline void set_desc(const char* desc)  { _desc = desc; }
+
+protected:
+
+    dryad_info(const char* name = "", const char* desc = "")
+        : _name(name)
+        , _desc(desc)
+        , _id(id_provider::new_id())
+    {
+        _created++;
+        _alive++;
+    }
+
+    dryad_info(const dryad_info& other)
+        : _name(other._name)
+        , _desc(other._desc)
+        , _id(id_provider::new_id())
+    {
+        _created++;
+        _alive++;
+    }
+
+    ~dryad_info()
+    {
+        _alive--;
+    }
+
+private:
+
+    const char* _name;
+    const char* _desc;
+    uint64_t _id;
+
+    static std::atomic_uint64_t _created;
+    static std::atomic_uint64_t _alive;
+};
+
+template <typename dryad_object_type>
+std::atomic_uint64_t dryad_info<dryad_object_type>::_created = 0;
+
+template <typename dryad_object_type>
+std::atomic_uint64_t dryad_info<dryad_object_type>::_alive = 0;
 
 }

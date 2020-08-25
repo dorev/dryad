@@ -22,24 +22,32 @@
     <ClCompile Include="src\bar.cpp" />
     <ClCompile Include="src\composer.cpp" />
     <ClCompile Include="src\degreenode.cpp" />
+    <ClCompile Include="src\dryadrandom.cpp" />
     <ClCompile Include="src\dryadutils.cpp" />
     <ClCompile Include="src\majormode.cpp" />
     <ClCompile Include="src\melody.cpp" />
     <ClCompile Include="src\modegraph.cpp" />
     <ClCompile Include="src\pattern.cpp" />
     <ClCompile Include="src\phrase.cpp" />
+    <ClCompile Include="src\voice.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\composer.h" />
-    <ClInclude Include="include\dryadcommon.h" />
+    <ClInclude Include="include\dryadaliases.h" />
+    <ClInclude Include="include\dryadmacros.h" />
+    <ClInclude Include="include\dryaddefinitions.h" />
     <ClInclude Include="include\degreenode.h" />
+    <ClInclude Include="include\dryadrandom.h" />
     <ClInclude Include="include\dryadutils.h" />
+    <ClInclude Include="include\includes.h" />
     <ClInclude Include="include\melody.h" />
     <ClInclude Include="include\modegraph.h" />
     <ClInclude Include="include\majormode.h" />
     <ClInclude Include="include\bar.h" />
+    <ClInclude Include="include\note.h" />
     <ClInclude Include="include\pattern.h" />
     <ClInclude Include="include\phrase.h" />
+    <ClInclude Include="include\voice.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

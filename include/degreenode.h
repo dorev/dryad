@@ -1,6 +1,5 @@
 #pragma once
 
-#include "dryadcommon.h"
 #include "dryadutils.h"
 
 namespace dryad

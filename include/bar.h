@@ -1,25 +1,28 @@
 #pragma once
 
-#include "dryadcommon.h"
+#include "dryadutils.h"
+#include "voice.h"
 
 namespace dryad
 {
 
 class degree_node;
 
-class bar
+class bar : dryad_info<bar>
 {
 public:
 
     bar();
 
-    inline void insert(degree_node* degree) { _degrees.push_back(degree); }
-    inline size_t size() { return _degrees.size(); }
+    inline void insert_degree(degree_node* degree) { _progression.push_back(degree); }
+    inline size_t progression_size() { return _progression.size(); }
+
+    void insert_note(int offset, int duration);
 
 private:
 
-    std::vector<degree_node*> _degrees;
-
+    progression _progression;
+    voice _voice;
 };
 
 }

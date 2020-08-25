@@ -1,16 +1,14 @@
 #pragma once
 
-#include "dryadcommon.h"
-#include "pattern.h"
 #include "dryadutils.h"
-#include <numeric>
+#include "pattern.h"
 
 namespace dryad
 {
 
 class mode_graph;
 
-class melody
+class melody : dryad_info<melody>
 {
 public:
 
@@ -18,6 +16,8 @@ public:
 
     inline const pattern& get_notes() const     { return _notes; }
     inline const pattern& get_durations() const { return _durations; }
+
+   // static melody
 
 private:
 

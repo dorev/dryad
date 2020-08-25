@@ -1,12 +1,9 @@
 #pragma once
 
-#include "dryadutils.h"
+#include "includes.h"
 
 namespace dryad
 {
-
-class degree_node;
-using progression = std::vector<degree_node*>;
 
 constexpr size_t MAX_PROG_LENGTH      = 128;
 constexpr size_t MAX_CHORDS_BY_BAR    = 4;

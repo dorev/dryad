@@ -1,13 +1,13 @@
 #pragma once
 
-#include "dryadcommon.h"
+#include "dryadutils.h"
 #include "modegraph.h"
 #include "degreenode.h"
 
 namespace dryad
 {
 
-class major_mode : public mode_graph
+class major_mode : public mode_graph, dryad_info<major_mode>
 {
 public:
 

@@ -1,4 +1,5 @@
 #include "melody.h"
+#include <numeric>
 
 namespace dryad
 {
@@ -34,7 +35,7 @@ melody::melody(int duration, int notes_count)
         durations_pattern.push_back(random::in(durations_used));
     }
 
-    // helper lambda to ge the current total content size of durations_pattern
+    // helper lambda to get the current total content size of durations_pattern
     auto total_duration = [&]() -> int
     {
         return std::reduce(durations_pattern.begin(), durations_pattern.end(), 0);

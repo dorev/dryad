@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dryadcommon.h"
+#include "dryadutils.h"
 #include "bar.h"
 #include "pattern.h"
 #include "melody.h"
@@ -8,26 +8,28 @@
 namespace dryad
 {
 
-class phrase
+class phrase : dryad_info<phrase>
 {
 public:
 
-    phrase(size_t bar_count = 4, fitting_strategy fitting_strategy = fitting_strategy::even_compact_right);
+    phrase(size_t bar_count = 4);
 
-    inline fitting_strategy get_fitting_strategy() const { return _fitting_strategy; }
-
-    void apply_progression(const progression& prog);
     void add_melody(const melody& melody);
-    void apply_melodies();
+
+    inline void set_progression(const progression& progression) { _progression = progression; }
+    inline const progression& get_progression() const { return _progression; }
+
+    void fit_progression(fitting_strategy strategy = fitting_strategy::even_compact_right);
+    void fit_melodies(fitting_strategy strategy = fitting_strategy::even_compact_right);
 
     bar& operator[](size_t index);
     inline size_t size() { return _bars.size(); }
 
 private:
 
-    fitting_strategy _fitting_strategy;
     std::vector<bar> _bars;
     std::vector<melody> _melodies;
+    progression _progression;
 
 };
 

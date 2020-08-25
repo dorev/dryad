@@ -6,17 +6,16 @@ namespace dryad
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-phrase::phrase(size_t bar_count, fitting_strategy fitting_strategy)
-    : _fitting_strategy(fitting_strategy)
-    , _bars(bar_count)
+phrase::phrase(size_t bar_count)
+    : _bars(bar_count)
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void phrase::apply_progression(const progression& prog)
+void phrase::fit_progression(fitting_strategy strategy)
 {
-    size_t prog_size = prog.size();
+    size_t prog_size = _progression.size();
     size_t phrase_size = _bars.capacity();
 
     if (!is_power_of_2(phrase_size))
@@ -29,7 +28,7 @@ void phrase::apply_progression(const progression& prog)
     {
         for_range(i, prog_size)
         {
-            _bars[i].insert(prog[i]);
+            _bars[i].insert_degree(_progression[i]);
         }
         return;
     }
@@ -42,12 +41,13 @@ void phrase::apply_progression(const progression& prog)
     size_t n = 0;
     size_t bar = 0;
     
+    // If we have more chords than measures, apply shrinking version of fitting strategy
     if (prog_size > phrase_size)
     {
         size_t exceeding_chords = prog_size % phrase_size;
         size_t bars_to_fill     = phrase_size;
 
-        switch (_fitting_strategy)
+        switch (strategy)
         {
         case fitting_strategy::even_compact_right:
 
@@ -96,9 +96,10 @@ void phrase::apply_progression(const progression& prog)
             break;
         }
     }
+    // If we have less chords than measures, apply expanding version of fitting strategy
     else if (prog_size < phrase_size)
     {
-        switch (_fitting_strategy)
+        switch (strategy)
         {
         case fitting_strategy::even_compact_right:
 
@@ -122,9 +123,11 @@ InsertChords:
 
     for_range(i, phrase_size)
     {
+        // for the number of chords in that measure
         while (degrees_per_bar[i]--)
         {
-            _bars[i].insert(prog[prog_index++]);
+            // insert the next chord of the progression in that measure
+            _bars[i].insert_degree(_progression[prog_index++]);
         }
     }
 }
@@ -138,8 +141,23 @@ void phrase::add_melody(const melody& melody)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void phrase::apply_melodies()
+void phrase::fit_melodies(fitting_strategy /*strategy*/)
 {
+    // if we have a single melody
+        // if melody size is different that the size of a bar
+            // if it is smaller or bigger
+                // write an altered version to fit the size of PROGRESSION CHORD (could make a feature switch later to fit the bar rather than the chords)
+
+
+        // or if it has the same size of a bar
+            // write melody notes to the bar
+
+    // if we have more than one melody
+
+
+
+    // how do we write the melodies to a bar?
+    // do we make a list by voice of melodies
 
 }
 

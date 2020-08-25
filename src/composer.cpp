@@ -81,14 +81,15 @@ void composer::execute()
 
     for (auto& [id, phrase] : _phrases)
     {
-        phrase.apply_progression(_mode->random_prog());
+        phrase.set_progression(_mode->random_prog());
+        phrase.fit_progression();
         
         for (int melody_id : _melodies_of_phrases[id])
         {
             phrase.add_melody(_melodies[melody_id]);
         }
 
-        phrase.apply_melodies();
+        phrase.fit_melodies();
     }
 
     for (int phrase_id : _phrase_sequence)

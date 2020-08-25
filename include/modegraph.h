@@ -1,11 +1,11 @@
 #pragma once
 
-#include "dryadcommon.h"
+#include "dryadutils.h"
 
 namespace dryad
 {
 
-class mode_graph
+class mode_graph 
 {
 public:
 

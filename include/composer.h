@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dryadcommon.h"
+#include "dryadutils.h"
 #include "phrase.h"
 #include "melody.h"
 
