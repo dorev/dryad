@@ -13,6 +13,9 @@ namespace dryad
             , _duration(duration)
         {}
 
+        inline int get_offset() const { return _offset; }
+        inline int get_duration() const { return _duration; }
+
     private:
 
         int _offset;

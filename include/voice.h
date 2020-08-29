@@ -1,6 +1,7 @@
 #pragma once
 
 #include "dryadutils.h"
+#include "dryadinfo.h"
 #include "note.h"
 
 namespace dryad

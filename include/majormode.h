@@ -1,6 +1,7 @@
 #pragma once
 
 #include "dryadutils.h"
+#include "dryadinfo.h"
 #include "modegraph.h"
 #include "degreenode.h"
 

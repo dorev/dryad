@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define LOG(x) std::cout << x << "\n"
-#define CRASHLOG(x) { std::cout << "\n\n" << x << "\n --> " << __FILE__ << " l." << __LINE__ << "\n\n"; *((int*)0xBAADD00D) = 0; throw; }
+#define CRASHLOG(x) { std::cout << "\n\n" << x << "\n --> " << __FILE__ << " l." << __LINE__ << "\n\n"; *(reinterpret_cast<unsigned int*>(0xBAADD00DBAADD00D)) = 0U; throw; }
 
 //#define PROFILING_ENABLED
 
@@ -19,6 +19,6 @@
 
 // Utility macro
 
-#define for_range(index_variable, limit) for(size_t index_variable = 0; index_variable < static_cast<size_t>(limit); ++index_variable)
+#define for_range(index_variable, limit) for(int index_variable = 0; index_variable < static_cast<int>(limit); ++index_variable)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

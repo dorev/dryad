@@ -67,6 +67,8 @@ enum class triad
 
 enum class fitting_strategy
 {
+    none,
+    random,
     compact_left,
     compact_right,
     symmetric_far,

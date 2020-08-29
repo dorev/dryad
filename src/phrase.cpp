@@ -33,7 +33,7 @@ void phrase::fit_progression(fitting_strategy strategy)
         return;
     }
 
-    int base_degrees_per_bar = prog_size / phrase_size;
+    size_t base_degrees_per_bar = prog_size / phrase_size;
     std::vector<size_t> degrees_per_bar(phrase_size, base_degrees_per_bar);
 
     // Sad values that cannot be initialized in the switch case
@@ -60,7 +60,7 @@ void phrase::fit_progression(fitting_strategy strategy)
                 {
                     offset /= 2;
 
-                    bool bit_of_n_is_off = !((1 << bit) & n);
+                    bool bit_of_n_is_off = !((1ULL << bit) & n);
 
                     if (bit_of_n_is_off)
                     {
@@ -144,21 +144,47 @@ void phrase::add_melody(const melody& melody)
 void phrase::fit_melodies(fitting_strategy /*strategy*/)
 {
     // if we have a single melody
-        // if melody size is different that the size of a bar
+    if (_melodies.size() == 1)
+    {
+        melody& melody = _melodies[0];
+
+        if (melody.get_total_duration() == _bars[0].duration())
+        {
+            // write melody notes to the bars
+
+        }
+        else
+        {
             // if it is smaller or bigger
                 // write an altered version to fit the size of PROGRESSION CHORD (could make a feature switch later to fit the bar rather than the chords)
+        }
+
+    }
+    else if (_melodies.size() > 1)
+    {
+        int combined_melodies_duration = std::reduce(_melodies.begin(), _melodies.end(), 0,
+            [](int acc, const melody& melody)
+            {
+                return acc + melody.get_total_duration();
+            });
 
 
-        // or if it has the same size of a bar
-            // write melody notes to the bar
+        if (is_power_of_2(combined_melodies_duration))
+        {
+            // write melody notes to the bars
 
-    // if we have more than one melody
+        }
+        else
+        {
+            // if it is smaller or bigger
+                // write an altered version to fit the size of PROGRESSION CHORD (could make a feature switch later to fit the bar rather than the chords)
+        }
 
-
-
-    // how do we write the melodies to a bar?
-    // do we make a list by voice of melodies
-
+    }
+    else // (_melodies.size() < 1)
+    {
+        CRASHLOG("Invalid phrase melodies size");
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

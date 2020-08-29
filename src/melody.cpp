@@ -1,13 +1,10 @@
 #include "melody.h"
-#include <numeric>
 
 namespace dryad
 {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 melody::melody(int duration, int notes_count)
-    : _notes()
-    , _durations()
 {
     // validate duration/notes_count combination
     if (notes_count * __max_duration < duration || notes_count * __min_duration > duration)
@@ -38,7 +35,7 @@ melody::melody(int duration, int notes_count)
     // helper lambda to get the current total content size of durations_pattern
     auto total_duration = [&]() -> int
     {
-        return std::reduce(durations_pattern.begin(), durations_pattern.end(), 0);
+        return std::reduce(durations_pattern.begin(), durations_pattern.end());
     };
 
     // helper lambda for comparaisons in the duration fitting loop
@@ -137,10 +134,27 @@ duration_is_valid:
     // group similar durations to give more sense to the melody
 
     // set members
-    _notes = notes_pattern;
-    _durations = durations_pattern;
+
+    for_range(i, notes_count)
+    {
+        _notes.emplace_back(notes_pattern[i], durations_pattern[i]);
+    }
 
     PROFILE(LOG("Melody generation took " << timer.stop().c_str());)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int melody::get_total_duration() const
+{
+    int result =  std::reduce(
+        _notes.begin(), _notes.end(), 0,
+        [](int acc, const note& note)
+        {
+            return acc + note.get_duration();
+        });
+
+    return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -60,10 +60,7 @@ TEST_F(melody_should, have_the_specified_duration)
             if (time > max_time) { max_time = time; }
 
             // Assert
-            auto durations = m.get_durations().value();
-            int total_duration = std::reduce(durations.begin(), durations.end(), 0);
-
-            if (total_duration != requested_duration)
+            if (m.get_total_duration() != requested_duration)
             {
                 FAIL() << "Unable to fit notes durations to requested melody duration";
             }
@@ -72,6 +69,12 @@ TEST_F(melody_should, have_the_specified_duration)
         double avg = std::reduce(std::execution::par_unseq, times.begin(), times.end()) / static_cast<double>(iterations);
         std::cout << "Average melody generation time : " << std::to_string(avg) << " ms (max : " << std::to_string(max_time) << " ms)\n";
     }
+}
+
+
+TEST_F(melody_should, fit_to_phrase)
+{
+    EXPECT_TRUE(true);
 }
 
 }

@@ -5,17 +5,17 @@ namespace dryad
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int random::range(int min, int max)
-{
-    if (min == max)
-    {
-        return min;
-    }
-
-    static thread_local std::mt19937 generator(std::random_device{}());
-    std::uniform_int_distribution<int> distribution(min, max);
-    return distribution(generator);
-}
+//int random::range(int min, int max)
+//{
+//    if (min == max)
+//    {
+//        return min;
+//    }
+//
+//    static thread_local std::mt19937 generator(std::random_device{}());
+//    std::uniform_int_distribution<int> distribution(min, max);
+//    return distribution(generator);
+//}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

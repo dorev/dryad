@@ -1,7 +1,9 @@
 #pragma once
 
 #include "dryadutils.h"
+#include "dryadinfo.h"
 #include "pattern.h"
+#include "note.h"
 
 namespace dryad
 {
@@ -12,17 +14,14 @@ class melody : dryad_info<melody>
 {
 public:
 
+
     melody(int duration = WHOLE, int note_count = 4);
 
-    inline const pattern& get_notes() const     { return _notes; }
-    inline const pattern& get_durations() const { return _durations; }
-
-   // static melody
+    int get_total_duration() const;
 
 private:
 
-    pattern _notes;
-    pattern _durations;
+    std::vector<note> _notes;
 
 };
 

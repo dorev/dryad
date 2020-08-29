@@ -119,7 +119,7 @@ const progression& mode_graph::random_prog(size_t min_length, size_t max_length)
             return p.size() >= min_length && p.size() <= max_length;
         });
 
-        int max = std::distance(_progs.begin(), end_itr) - 1;
+        int max = static_cast<int>(std::distance(_progs.begin(), end_itr) - 1);
 
         return _progs[random::range(0, max)];
     }

@@ -20,7 +20,6 @@ constexpr bool has_random_access = std::is_base_of_v<std::random_access_iterator
 class random
 {
 public:
-    static int range(int low, int high);
     static int normal_int(float mean, float stddev);
     static bool coin_flip();
 
@@ -33,6 +32,19 @@ public:
         static thread_local std::mt19937 generator(std::random_device{}());
         std::uniform_int_distribution<size_t> distribution(0, c.size() - 1);
         return c[distribution(generator)];
+    }
+
+    template <typename T, typename U>
+    static auto range(T min, U max) -> decltype(min + max)
+    {
+        if (min == max)
+        {
+            return min;
+        }
+
+        static thread_local std::mt19937 generator(std::random_device{}());
+        std::uniform_int_distribution<decltype(min + max)> distribution(min, max);
+        return distribution(generator);
     }
 };
 
