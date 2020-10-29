@@ -26,7 +26,7 @@ composer& composer::add_phrase(int id, phrase phrase)
 {
     if (_phrases.find(id) != _phrases.end())
     {
-        CRASHLOG("Attempting to overwrite existing phrase");
+        CRASH("Attempting to overwrite existing phrase");
     }
 
     _phrases[id] = phrase;
@@ -41,7 +41,7 @@ composer& composer::set_phrase_sequence(std::initializer_list<int> phrase_list)
     {
         if (_phrases.find(id) == _phrases.end())
         {
-            CRASHLOG("Adding unidentified phrase to sequence");
+            CRASH("Adding unidentified phrase to sequence");
         }
     }
 
@@ -74,7 +74,7 @@ void composer::execute()
         _phrases.empty() ||
         _phrase_sequence.empty())
     {
-        CRASHLOG("Missing elements to execute composer");
+        CRASH("Missing elements to execute composer");
     }
 
     _mode->generate_permutations();

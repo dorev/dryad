@@ -20,7 +20,7 @@ void phrase::fit_progression(fitting_strategy strategy)
 
     if (!is_power_of_2(phrase_size))
     {
-        CRASHLOG("A phrase should be a power of 2");
+        CRASH("A phrase should be a power of 2");
     }
 
     // Perfect fit!
@@ -115,7 +115,7 @@ void phrase::fit_progression(fitting_strategy strategy)
         }
     }
 
-    CRASHLOG("Not implemented yet!");
+    CRASH("Not implemented yet!");
 
 InsertChords:
 
@@ -183,7 +183,7 @@ void phrase::fit_melodies(fitting_strategy /*strategy*/)
     }
     else // (_melodies.size() < 1)
     {
-        CRASHLOG("Invalid phrase melodies size");
+        CRASH("Invalid phrase melodies size");
     }
 }
 
@@ -193,7 +193,7 @@ bar& phrase::operator[](size_t index)
 {
     if (index > _bars.size() - 1)
     {
-        CRASHLOG("Out of bound");
+        CRASH("Out of bound");
     }
 
     return _bars[index];

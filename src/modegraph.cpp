@@ -125,10 +125,10 @@ const progression& mode_graph::random_prog(size_t min_length, size_t max_length)
     }
     else if (min_length == 0 && max_length == 0)
     {
-        return _progs[random::range(0, _progs.size() - 1)];
+        return _progs[random::range(unsigned int(0), _progs.size() - 1)];
     }
 
-    CRASHLOG("min_length and max_length should both be set or not");
+    CRASH("min_length and max_length should both be set or not");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

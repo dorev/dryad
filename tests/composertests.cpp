@@ -50,7 +50,7 @@ TEST_F(composer_should, be_buildable)
         .set_phrase_sequence({ 0, 1, 1, 0, 2 });
 }
 
-TEST_F(composer_should, be_executable)
+TEST_F(composer_should, DISABLED_be_executable)
 {
     // Arrange
     composer c;

@@ -16,6 +16,11 @@ namespace dryad
         inline int get_offset() const { return _offset; }
         inline int get_duration() const { return _duration; }
 
+        void set_offset(int offset) { _offset = offset; }
+        void set_duration(int duration) { _duration = duration; }
+        void reduce_duration(int reduction) { _duration -= reduction; }
+        void extend_duration(int extension) { _duration += extension; }
+
     private:
 
         int _offset;

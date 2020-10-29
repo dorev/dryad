@@ -17,7 +17,7 @@ degree_node::degree_node(int number, triad triad, accidental accidental)
 {
     if (_degree < 1 || _degree > 7)
     {
-        CRASHLOG("Unsupported degree value : " << _degree);
+        CRASH("Unsupported degree value : " << _degree);
     }
 
     build_name();
@@ -37,7 +37,7 @@ void degree_node::build_name()
     case 6: _name = "vi";   break;
     case 7: _name = "vii";  break;
     default:
-        CRASHLOG("Unsupported degree value : " << _degree);
+        CRASH("Unsupported degree value : " << _degree);
         break;
     }
 
@@ -60,7 +60,7 @@ void degree_node::build_name()
         break;
 
     default:
-        CRASHLOG("Unsupported triad value : " << static_cast<int>(_triad));
+        CRASH("Unsupported triad value : " << static_cast<int>(_triad));
         break;
     }
 
@@ -78,7 +78,7 @@ void degree_node::build_name()
         break;
 
     default:
-        CRASHLOG("Unsupported accidental value : " << static_cast<int>(_accidental));
+        CRASH("Unsupported accidental value : " << static_cast<int>(_accidental));
         break;
     }
 }
@@ -97,7 +97,7 @@ void degree_node::visit()
 {
     if (!is_visitable())
     {
-        CRASHLOG("A node should not be visited if max_visit limit is exceeded");
+        CRASH("A node should not be visited if max_visit limit is exceeded");
     }
 
     _visit_count++;
@@ -109,7 +109,7 @@ void degree_node::leave()
 {
     if (_visit_count - 1 < 0)
     {
-        CRASHLOG("A node should not be leaved more than it was visited");
+        CRASH("A node should not be leaved more than it was visited");
     }
 
     _visit_count--;

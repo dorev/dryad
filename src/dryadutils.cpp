@@ -29,7 +29,7 @@ int step_down_duration(int duration, const std::vector<int>& duration_vector)
 
     if (i >= duration_vector.size())
     {
-        CRASHLOG("Illegal duration");
+        CRASH("Illegal duration");
     }
 
     return duration_vector[i > 0 ? --i : 0];
@@ -51,7 +51,7 @@ int step_up_duration(int duration, const std::vector<int>& duration_vector)
 
     if (i >= duration_vector.size())
     {
-        CRASHLOG("Illegal duration");
+        CRASH("Illegal duration");
     }
 
     return duration_vector[i < duration_vector.size() - 1 ? ++i : duration_vector.size() - 1];

@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define LOG(x) std::cout << x << "\n"
-#define CRASHLOG(x) { std::cout << "\n\n" << x << "\n --> " << __FILE__ << " l." << __LINE__ << "\n\n"; *(reinterpret_cast<unsigned int*>(0xBAADD00DBAADD00D)) = 0U; throw; }
+#define CRASH(x) { std::cout << "\n\n" << x << "\n --> " << __FILE__ << " l." << __LINE__ << "\n\n"; *(reinterpret_cast<unsigned int*>(0xBAADD00DBAADD00D)) = 0U; throw; }
 
 //#define PROFILING_ENABLED
 

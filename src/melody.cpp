@@ -9,7 +9,7 @@ melody::melody(int duration, int notes_count)
     // validate duration/notes_count combination
     if (notes_count * __max_duration < duration || notes_count * __min_duration > duration)
     {
-        CRASHLOG("Invalid duration/notes_count combination");
+        CRASH("Invalid duration/notes_count combination");
     }
 
     const std::vector<int>& durations_used = __notes_durations;
@@ -109,7 +109,7 @@ melody::melody(int duration, int notes_count)
                 // if we are already at the limit of available durations
                 if (next_duration_to_exclude == duration_to_exclude)
                 {
-                    CRASHLOG("Loosening duration exclusions not sufficient to fit duration/notes_count combination");
+                    CRASH("Loosening duration exclusions not sufficient to fit duration/notes_count combination");
                 }
                 else
                 {
@@ -155,6 +155,124 @@ int melody::get_total_duration() const
         });
 
     return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void melody::resize(int target_duration)
+{
+    if ((target_duration - get_total_duration()) > 0)
+    {
+        extend(target_duration);
+    }
+    else
+    {
+        shrink(target_duration);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void melody::shrink(int target_duration)
+{
+    int duration = get_total_duration();
+
+    if (target_duration > duration)
+    {
+        CRASH("Cannot shrink to a longer duration");
+    }
+
+    // the last note of the melody is removed until we reach the
+    // target duration, then the last note is ajusted
+
+    switch (random::range(0, 1))
+    {
+    case 0:
+ 
+        // extend last note once melody is too short
+ 
+        while (duration > target_duration && _notes.size() > 1)
+        {
+            duration -= _notes.back().get_duration();
+            _notes.pop_back();
+        }
+
+        _notes.back().extend_duration(target_duration - duration);
+
+        break;
+
+    case 1:
+
+        // shrink last overflowing note
+
+        while (_notes.size() > 0)
+        {
+            int next_duration = get_total_duration() - _notes.back().get_duration();
+
+            if (next_duration < target_duration)
+            {
+                _notes.back().set_duration(target_duration - next_duration);
+                return;
+            }
+            else
+            {
+                _notes.pop_back();
+                if (next_duration == target_duration)
+                {
+                    return;
+                }
+            }
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void melody::extend(int target_duration)
+{
+    int duration = get_total_duration();
+
+    if (target_duration < duration)
+    {
+        CRASH("Cannot extend to a shorter duration");
+    }
+
+    int note_index = 0;
+    int melody_size = _notes.size();
+
+    switch (random::range(0, 1))
+    {
+    case 0:
+
+        // repeat from beginning
+
+        while (duration < target_duration)
+        {
+            _notes.push_back(_notes[note_index++ % melody_size]);
+            duration += _notes.back().get_duration();
+        }
+
+        break;
+
+    case 1:
+
+        // repeat backwards (mirror)
+        int last_index = melody_size - 1;
+
+        while (duration < target_duration)
+        {
+            _notes.push_back(_notes[last_index - (note_index++ % melody_size)]);
+            duration += _notes.back().get_duration();
+        }
+
+        break;
+    }
+
+    // fix duration overflow
+    if (duration > target_duration)
+    {
+        shrink(target_duration);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

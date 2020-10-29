@@ -19,7 +19,12 @@ public:
 
     int get_total_duration() const;
 
+    void resize(int target_duration);
+
 private:
+
+    void shrink(int target_duration);
+    void extend(int target_duration);
 
     std::vector<note> _notes;
 
