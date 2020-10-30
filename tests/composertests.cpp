@@ -44,9 +44,9 @@ TEST_F(composer_should, be_buildable)
     // Act
     // Assert
     c.set_mode(&m)
-        .add_phrase(0, phrase(4))
-        .add_phrase(1, phrase())
-        .add_phrase(2, phrase())
+        .add_phrase(0, phrase_t(4))
+        .add_phrase(1, phrase_t())
+        .add_phrase(2, phrase_t())
         .set_phrase_sequence({ 0, 1, 1, 0, 2 });
 }
 
@@ -59,9 +59,9 @@ TEST_F(composer_should, DISABLED_be_executable)
     // Act
     // Assert
     c.set_mode(&m)
-        .add_phrase(0, phrase())
-        .add_phrase(1, phrase())
-        .add_phrase(2, phrase())
+        .add_phrase(0, phrase_t())
+        .add_phrase(1, phrase_t())
+        .add_phrase(2, phrase_t())
         .set_phrase_sequence({ 0, 1, 1, 0, 2 })
         .execute();
 }

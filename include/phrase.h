@@ -9,13 +9,13 @@
 namespace dryad
 {
 
-class phrase : dryad_info<phrase>
+class phrase_t : dryad_info<phrase_t>
 {
 public:
 
-    phrase(size_t bar_count = 4);
+    phrase_t(size_t bar_count = 4);
 
-    void add_melody(const melody& melody);
+    void add_melody(const melody_t& melody);
 
     inline void set_progression(const progression& progression) { _progression = progression; }
     inline const progression& get_progression() const { return _progression; }
@@ -23,13 +23,15 @@ public:
     void fit_progression(fitting_strategy strategy = fitting_strategy::even_compact_right);
     void fit_melodies(fitting_strategy strategy = fitting_strategy::random);
 
-    bar& operator[](size_t index);
+    bar_t& operator[](size_t index);
     inline size_t size() { return _bars.size(); }
 
 private:
 
-    std::vector<bar> _bars;
-    std::vector<melody> _melodies;
+    void add_note(const note_t& note);
+
+    std::vector<bar_t> _bars;
+    std::vector<melody_t> _melodies;
     progression _progression;
 
 };

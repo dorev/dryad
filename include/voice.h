@@ -6,16 +6,18 @@
 
 namespace dryad
 {
-    class voice : dryad_info<voice>
+    class voice_t : dryad_info<voice_t>
     {
     public:
 
-        void add_note(note note);
+        void add_note(note_t note);
         void add_note(int offset, int duration);
+
+        int get_total_duration();
 
     private:
 
-        std::vector<note> _notes;
+        std::vector<note_t> _notes;
     };
 
 }

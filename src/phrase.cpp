@@ -6,14 +6,14 @@ namespace dryad
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-phrase::phrase(size_t bar_count)
+phrase_t::phrase_t(size_t bar_count)
     : _bars(bar_count)
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void phrase::fit_progression(fitting_strategy strategy)
+void phrase_t::fit_progression(fitting_strategy strategy)
 {
     size_t prog_size = _progression.size();
     size_t phrase_size = _bars.capacity();
@@ -123,10 +123,10 @@ InsertChords:
 
     for_range(i, phrase_size)
     {
-        // for the number of chords in that measure
+        // For the number of chords in that measure
         while (degrees_per_bar[i]--)
         {
-            // insert the next chord of the progression in that measure
+            // Insert the next chord of the progression in that measure
             _bars[i].insert_degree(_progression[prog_index++]);
         }
     }
@@ -134,36 +134,37 @@ InsertChords:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void phrase::add_melody(const melody& melody)
+void phrase_t::add_melody(const melody_t& melody)
 {
     _melodies.push_back(melody);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void phrase::fit_melodies(fitting_strategy /*strategy*/)
+void phrase_t::fit_melodies(fitting_strategy /*strategy*/)
 {
-    // if we have a single melody
+    // If we have a single melody
     if (_melodies.size() == 1)
     {
-        melody& melody = _melodies[0];
+        melody_t& melody = _melodies[0];
+        int melody_duration = melody.get_total_duration();
+        //int bar_duration = _bars[0].get_duration();
 
-        if (melody.get_total_duration() == _bars[0].duration())
+        // Resize melody to fit the closest bar count
+        bool round_up = melody_duration % WHOLE > HALF;
+        int target_duration = int(melody_duration / WHOLE) + round_up ? 1 : 0;
+
+        melody_t melody_clone(melody);
+        melody_clone.resize(target_duration);
+
+        while (1) // until all the bars are filled
         {
-            // write melody notes to the bars
-
         }
-        else
-        {
-            // if it is smaller or bigger
-                // write an altered version to fit the size of PROGRESSION CHORD (could make a feature switch later to fit the bar rather than the chords)
-        }
-
     }
     else if (_melodies.size() > 1)
     {
         int combined_melodies_duration = std::reduce(_melodies.begin(), _melodies.end(), 0,
-            [](int acc, const melody& melody)
+            [](int acc, const melody_t& melody)
             {
                 return acc + melody.get_total_duration();
             });
@@ -171,13 +172,13 @@ void phrase::fit_melodies(fitting_strategy /*strategy*/)
 
         if (is_power_of_2(combined_melodies_duration))
         {
-            // write melody notes to the bars
+            // Write melody notes to the bars
 
         }
         else
         {
-            // if it is smaller or bigger
-                // write an altered version to fit the size of PROGRESSION CHORD (could make a feature switch later to fit the bar rather than the chords)
+            // If it is smaller or bigger
+                // Write an altered version to fit the size of PROGRESSION CHORD (could make a feature switch later to fit the bar rather than the chords)
         }
 
     }
@@ -189,7 +190,40 @@ void phrase::fit_melodies(fitting_strategy /*strategy*/)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bar& phrase::operator[](size_t index)
+void phrase_t::add_note(const note_t& note)
+{
+    for (int i = 0; i < _bars.size(); ++i)
+    {
+        bar_t& bar = _bars[i];
+        int voice_duration = bar.get_voice().get_total_duration();
+        int bar_duration = bar.get_duration();
+
+        if (voice_duration < bar_duration)
+        {
+            int delta = bar_duration - voice_duration;
+            int note_duration = note.get_duration();
+
+            if (note_duration <= delta)
+            {
+                bar.get_voice().add_note(note);
+            }
+            else
+            {
+                int duration_overflow = note_duration - delta;
+                bar.get_voice().add_note(note.get_offset(), delta);
+
+                if (i < (_bars.size() - 1))
+                {
+                    _bars[i + 1].get_voice().add_note(note.get_offset(), duration_overflow);
+                }
+            }
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bar_t& phrase_t::operator[](size_t index)
 {
     if (index > _bars.size() - 1)
     {

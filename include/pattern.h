@@ -5,7 +5,7 @@
 namespace dryad
 {
 
-class phrase;
+class phrase_t;
 
 class pattern
 {

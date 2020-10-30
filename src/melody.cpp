@@ -4,7 +4,7 @@ namespace dryad
 {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-melody::melody(int duration, int notes_count)
+melody_t::melody_t(int duration, int notes_count)
 {
     // validate duration/notes_count combination
     if (notes_count * __max_duration < duration || notes_count * __min_duration > duration)
@@ -145,11 +145,11 @@ duration_is_valid:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int melody::get_total_duration() const
+int melody_t::get_total_duration() const
 {
     int result =  std::reduce(
         _notes.begin(), _notes.end(), 0,
-        [](int acc, const note& note)
+        [](int acc, const note_t& note)
         {
             return acc + note.get_duration();
         });
@@ -159,7 +159,7 @@ int melody::get_total_duration() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void melody::resize(int target_duration)
+void melody_t::resize(int target_duration)
 {
     if ((target_duration - get_total_duration()) > 0)
     {
@@ -173,7 +173,7 @@ void melody::resize(int target_duration)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void melody::shrink(int target_duration)
+void melody_t::shrink(int target_duration)
 {
     int duration = get_total_duration();
 
@@ -228,7 +228,7 @@ void melody::shrink(int target_duration)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void melody::extend(int target_duration)
+void melody_t::extend(int target_duration)
 {
     int duration = get_total_duration();
 
@@ -238,7 +238,7 @@ void melody::extend(int target_duration)
     }
 
     int note_index = 0;
-    int melody_size = _notes.size();
+    int melody_size = int(_notes.size());
 
     switch (random::range(0, 1))
     {

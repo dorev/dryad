@@ -4,11 +4,11 @@
 
 namespace dryad
 {
-    class note
+    class note_t
     {
     public:
 
-        note(int offset = 0, int duration = QUARTER)
+        note_t(int offset = 0, int duration = QUARTER)
             : _offset(offset)
             , _duration(duration)
         {}

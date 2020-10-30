@@ -84,10 +84,9 @@ class crtp_helper
     sub_class& get_child() { return static_cast<sub_class&>(*this); }
 
     // Private constructor resolves the ambiguity if more than once class implement the same crtp_class
-    crtp_helper() {}
-
     // Solves the diamond problem if a class inherits from multiple crtp_class
     friend crtp_class<sub_class>;
+    crtp_helper() {}
 };
 
 }

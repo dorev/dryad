@@ -9,22 +9,24 @@ namespace dryad
 
 class degree_node;
 
-class bar : dryad_info<bar>
+class bar_t : dryad_info<bar_t>
 {
 public:
 
-    bar();
+    bar_t();
 
-    inline void insert_degree(degree_node* degree) { _progression.push_back(degree); }
-    inline size_t progression_size() { return _progression.size(); }
-    inline int duration() { return WHOLE; }
+    inline int get_duration() { return WHOLE; }
+    inline voice_t& get_voice() { return _voice; }
+    inline int get_chords_count() { return int(_progression.size()); }
 
     void insert_note(int offset, int duration);
+    void insert_note(const note_t& single_note);
+    inline void insert_degree(degree_node* degree) { _progression.push_back(degree); }
 
 private:
 
     progression _progression;
-    voice _voice;
+    voice_t _voice;
 };
 
 }

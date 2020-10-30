@@ -55,7 +55,7 @@ TEST_F(melody_should, have_the_specified_duration)
         {
             // Act
             timer.reset();
-            melody m(requested_duration, requested_notes_count);
+            melody_t m(requested_duration, requested_notes_count);
             double time = timer.stop_ms();
             times.push_back(time);
             if (time > max_time) { max_time = time; }
@@ -88,7 +88,7 @@ TEST_F(melody_should, successfully_extend)
                 // Arrange
                 int initial_duration = initial_durations[i];
                 int target_duration = target_durations[j];
-                melody m(initial_duration, random::range(4, 8));
+                melody_t m(initial_duration, random::range(4, 8));
 
                 // Act
                 m.resize(target_duration);
@@ -123,7 +123,7 @@ TEST_F(melody_should, successfully_shrink)
                 int initial_duration = initial_durations[i];
                 int target_duration = target_durations[j];
 
-                melody m(initial_duration, random::range(4, 8));
+                melody_t m(initial_duration, random::range(4, 8));
 
                 // Act
                 m.resize(target_duration);

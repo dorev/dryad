@@ -22,7 +22,7 @@ composer& composer::set_mode(mode_graph* mode)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-composer& composer::add_phrase(int id, phrase phrase)
+composer& composer::add_phrase(int id, phrase_t phrase)
 {
     if (_phrases.find(id) != _phrases.end())
     {
@@ -56,7 +56,7 @@ composer& composer::add_melody(int id, std::initializer_list<int> phrase_list)
 {
     static std::vector<int> melody_durations = { HALF, HALF_DOTTED, WHOLE, 2 * WHOLE};
 
-    _melodies[id] = melody(random::in(melody_durations), random::range(4, 12));
+    _melodies[id] = melody_t(random::in(melody_durations), random::range(4, 12));
 
     for (int phrase : phrase_list)
     {
