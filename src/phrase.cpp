@@ -23,7 +23,7 @@ void phrase_t::fit_progression(fitting_strategy strategy)
         CRASH("A phrase should be a power of 2");
     }
 
-    // Perfect fit!
+    // Perfect fit! Easy dispatch
     if (prog_size == phrase_size)
     {
         for_range(i, prog_size)
@@ -33,89 +33,91 @@ void phrase_t::fit_progression(fitting_strategy strategy)
         return;
     }
 
-    size_t base_degrees_per_bar = prog_size / phrase_size;
-    std::vector<size_t> degrees_per_bar(phrase_size, base_degrees_per_bar);
+    // Initialize distribution vector
+    std::vector<size_t> degrees_per_bar(phrase_size, 0);
 
     // Sad values that cannot be initialized in the switch case
-    size_t last_bar = phrase_size - 1;
-    size_t n = 0;
+    size_t chords_to_fit = prog_size;
+    size_t offset = phrase_size;
     size_t bar = 0;
-    
-    // If we have more chords than measures, apply shrinking version of fitting strategy
-    if (prog_size > phrase_size)
+
+    switch (strategy)
     {
-        size_t exceeding_chords = prog_size % phrase_size;
-        size_t bars_to_fill     = phrase_size;
+    case fitting_strategy::even_compact_left:
+    case fitting_strategy::even_compact_right:
 
-        switch (strategy)
+        for (size_t n = 0; n < chords_to_fit; ++n)
         {
-        case fitting_strategy::even_compact_right:
+            offset = phrase_size;
+            bar = 0;
 
-            for (n; n < exceeding_chords; ++n)
+            for_range(bit, log2(phrase_size))
             {
-                size_t offset = phrase_size;
-                bar = 0;
+                offset >>= 1;
 
-                for_range(bit, log2(phrase_size))
+                bool bit_of_n_is_off = !((1ULL << bit) & n);
+
+                if (bit_of_n_is_off)
                 {
-                    offset /= 2;
-
-                    bool bit_of_n_is_off = !((1ULL << bit) & n);
-
-                    if (bit_of_n_is_off)
-                    {
-                        bar += offset;
-                    }
+                    bar += offset;
                 }
+            }
 
+            if (prog_size < phrase_size || strategy == fitting_strategy::even_compact_left)
+            {
+                ++degrees_per_bar[(phrase_size - 1) - bar];
+            }
+            else if (strategy == fitting_strategy::even_compact_right)
+            {
                 ++degrees_per_bar[bar];
             }
-
-            goto InsertChords;
-
-        case fitting_strategy::compact_left:
-
-            while (exceeding_chords != 0)
+            else
             {
-                bars_to_fill /= 2;
+                CRASH("We should not reach this point")
+            }
+        }
 
-                for (bar = last_bar; bar >= (phrase_size - bars_to_fill); --bar)
+        goto InsertChords;
+
+    case fitting_strategy::compact_left:
+    case fitting_strategy::compact_right:
+
+        while (chords_to_fit != 0)
+        {
+            for (bar = phrase_size; bar > (phrase_size - offset); --bar)
+            {
+                if (prog_size < phrase_size || strategy == fitting_strategy::compact_left)
                 {
-                    ++degrees_per_bar[bar];
-                    if (!--exceeding_chords)
-                    {
-                        goto InsertChords;
-                    }
+                    ++degrees_per_bar[phrase_size - bar];
+                }
+                else if (strategy == fitting_strategy::compact_right)
+                {
+                    ++degrees_per_bar[bar - 1];
+                }
+                else
+                {
+                    CRASH("We should not reach this point")
+                }
+
+                if (--chords_to_fit == 0)
+                {
+                    goto InsertChords;
                 }
             }
-            break;
 
-        case fitting_strategy::compact_right:
-        case fitting_strategy::even_compact_left:
-        default:
-            break;
-        }
-    }
-    // If we have less chords than measures, apply expanding version of fitting strategy
-    else if (prog_size < phrase_size)
-    {
-        switch (strategy)
-        {
-        case fitting_strategy::even_compact_right:
+            offset >>= 1;
 
-        case fitting_strategy::compact_left:
-        case fitting_strategy::compact_right:
-        case fitting_strategy::symmetric_far:
-        case fitting_strategy::symmetric_close:
-        case fitting_strategy::even_compact_left:
-        case fitting_strategy::even_symmetric_far:
-        case fitting_strategy::even_symmetric_close:
-        default:
-            break;
+            if (offset == 0)
+            {
+                offset = phrase_size;
+            }
         }
+
+    default:
+        break;
     }
 
-    CRASH("Not implemented yet!");
+    CRASH("We should not reach this point");
 
 InsertChords:
 
@@ -146,55 +148,44 @@ void phrase_t::fit_melodies(fitting_strategy /*strategy*/)
     // If we have a single melody
     if (_melodies.size() == 1)
     {
-        melody_t& melody = _melodies[0];
-        int melody_duration = melody.get_total_duration();
-        //int bar_duration = _bars[0].get_duration();
+        melody_t& melody    = _melodies[0];
+        int note_index      = 0;
+        int melody_size     = melody.size();
 
-        // Resize melody to fit the closest bar count
-        bool round_up = melody_duration % WHOLE > HALF;
-        int target_duration = int(melody_duration / WHOLE) + round_up ? 1 : 0;
+        // currently completely disregarding the delta between the melody duration and the bar duration
 
-        melody_t melody_clone(melody);
-        melody_clone.resize(target_duration);
-
-        while (1) // until all the bars are filled
-        {
-        }
+        while (add_note(melody[note_index++ % melody_size]));
     }
     else if (_melodies.size() > 1)
     {
-        int combined_melodies_duration = std::reduce(_melodies.begin(), _melodies.end(), 0,
-            [](int acc, const melody_t& melody)
+        std::vector<int> melody_sizes;
+
+        while (1)
+        {
+            for (auto& melody : _melodies)
             {
-                return acc + melody.get_total_duration();
-            });
-
-
-        if (is_power_of_2(combined_melodies_duration))
-        {
-            // Write melody notes to the bars
-
+                for (const auto& note : melody)
+                {
+                    if (!add_note(note))
+                    {
+                        return;
+                    }
+                }
+            }
         }
-        else
-        {
-            // If it is smaller or bigger
-                // Write an altered version to fit the size of PROGRESSION CHORD (could make a feature switch later to fit the bar rather than the chords)
-        }
-
-    }
-    else // (_melodies.size() < 1)
-    {
-        CRASH("Invalid phrase melodies size");
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void phrase_t::add_note(const note_t& note)
+bool phrase_t::add_note(const note_t& note)
 {
-    for (int i = 0; i < _bars.size(); ++i)
+    int bar_index = 0;
+    bar_t& bar = _bars[bar_index];
+
+    for (; bar_index < _bars.size(); ++bar_index)
     {
-        bar_t& bar = _bars[i];
+        bar = _bars[bar_index];
         int voice_duration = bar.get_voice().get_total_duration();
         int bar_duration = bar.get_duration();
 
@@ -212,13 +203,26 @@ void phrase_t::add_note(const note_t& note)
                 int duration_overflow = note_duration - delta;
                 bar.get_voice().add_note(note.get_offset(), delta);
 
-                if (i < (_bars.size() - 1))
+                if (bar_index < (_bars.size() - 1))
                 {
-                    _bars[i + 1].get_voice().add_note(note.get_offset(), duration_overflow);
+                    _bars[bar_index + 1].get_voice().add_note(note.get_offset(), duration_overflow);
+                }
+                else
+                {
+                    // There is no next bar and this one is full
+                    return false;
                 }
             }
+
+            break;
         }
     }
+
+    // Return false if the current bar is full and it's the last bar
+    return !(
+        bar.get_voice().get_total_duration() >= bar.get_duration() &&
+        bar_index >= (_bars.size() - 1)
+    );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

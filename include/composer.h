@@ -16,7 +16,7 @@ public:
     composer();
 
     composer& set_mode(mode_graph* mode);
-    composer& add_phrase(int id, phrase_t phrase);
+    composer& add_phrase(int id, phrase_t phrase = phrase_t());
     composer& add_melody(int id, std::initializer_list<int> phrase_list);
     composer& set_phrase_sequence(std::initializer_list<int> phrase_list);
 

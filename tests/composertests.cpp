@@ -45,25 +45,32 @@ TEST_F(composer_should, be_buildable)
     // Assert
     c.set_mode(&m)
         .add_phrase(0, phrase_t(4))
-        .add_phrase(1, phrase_t())
-        .add_phrase(2, phrase_t())
+        .add_phrase(1)
+        .add_phrase(2)
         .set_phrase_sequence({ 0, 1, 1, 0, 2 });
 }
 
-TEST_F(composer_should, DISABLED_be_executable)
+TEST_F(composer_should, be_executable)
 {
-    // Arrange
-    composer c;
-    major_mode m;
+    int epochs = 20;
 
-    // Act
-    // Assert
-    c.set_mode(&m)
-        .add_phrase(0, phrase_t())
-        .add_phrase(1, phrase_t())
-        .add_phrase(2, phrase_t())
-        .set_phrase_sequence({ 0, 1, 1, 0, 2 })
-        .execute();
+    std::cout << "Running " << epochs << " epochs of test\n";
+
+    while (epochs--)
+    {
+        // Arrange
+        composer c;
+        major_mode m;
+
+        // Act
+        // Assert
+        c.set_mode(&m)
+            .add_phrase(0)
+            .add_phrase(1)
+            .add_phrase(2)
+            .set_phrase_sequence({ 0, 1, 1, 0, 2 })
+            .execute();
+    }
 }
 
 

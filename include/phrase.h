@@ -28,7 +28,7 @@ public:
 
 private:
 
-    void add_note(const note_t& note);
+    bool add_note(const note_t& note);
 
     std::vector<bar_t> _bars;
     std::vector<melody_t> _melodies;

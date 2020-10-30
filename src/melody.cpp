@@ -240,6 +240,9 @@ void melody_t::extend(int target_duration)
     int note_index = 0;
     int melody_size = int(_notes.size());
 
+    // TODO :   Add a something to have a shift between the repetitions and
+    //          the original to give a sense of movement
+
     switch (random::range(0, 1))
     {
     case 0:
@@ -276,5 +279,7 @@ void melody_t::extend(int target_duration)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 }

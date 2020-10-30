@@ -66,7 +66,7 @@ TEST_F(phrase_should, fit_perfectly_progression_of_same_size_8)
     }
 }
 
-TEST_F(phrase_should, compact_even_right_with_bigger_prog_4)
+TEST_F(phrase_should, even_compact_right_with_bigger_prog)
 {
     // Arrange
     major_mode m;
@@ -76,7 +76,7 @@ TEST_F(phrase_should, compact_even_right_with_bigger_prog_4)
 
     // Act
     ph.set_progression(prog);
-    ph.fit_progression();
+    ph.fit_progression(fitting_strategy::even_compact_right);
 
     // Assert
     EXPECT_EQ(ph[0].get_chords_count(), 1);
@@ -85,27 +85,141 @@ TEST_F(phrase_should, compact_even_right_with_bigger_prog_4)
     EXPECT_EQ(ph[3].get_chords_count(), 2);
 }
 
-TEST_F(phrase_should, compact_even_right_with_bigger_prog_8)
+TEST_F(phrase_should, even_compact_left_with_bigger_prog)
 {
     // Arrange
     major_mode m;
     m.generate_permutations(0);
-    progression prog = m.random_prog(10, 10);
-    phrase_t ph(8);
+    progression prog = m.random_prog(6, 6);
+    phrase_t ph(4);
 
     // Act
     ph.set_progression(prog);
-    ph.fit_progression();
+    ph.fit_progression(fitting_strategy::even_compact_left);
+
+    // Assert
+    EXPECT_EQ(ph[0].get_chords_count(), 2);
+    EXPECT_EQ(ph[1].get_chords_count(), 1);
+    EXPECT_EQ(ph[2].get_chords_count(), 2);
+    EXPECT_EQ(ph[3].get_chords_count(), 1);
+}
+
+TEST_F(phrase_should, even_compact_right_with_smaller_prog)
+{
+    // Arrange
+    major_mode m;
+    m.generate_permutations(0);
+    progression prog = m.random_prog(2, 2);
+    phrase_t ph(4);
+
+    // Act
+    ph.set_progression(prog);
+    ph.fit_progression(fitting_strategy::even_compact_right);
+
+    // !! Should behave like even_compact_left because we can't
+    // !! leave a measure empty at the beginning of the phrase
+    // Assert
+    EXPECT_EQ(ph[0].get_chords_count(), 1);
+    EXPECT_EQ(ph[1].get_chords_count(), 0);
+    EXPECT_EQ(ph[2].get_chords_count(), 1);
+    EXPECT_EQ(ph[3].get_chords_count(), 0);
+}
+
+TEST_F(phrase_should, even_compact_left_with_smaller_prog)
+{
+    // Arrange
+    major_mode m;
+    m.generate_permutations(0);
+    progression prog = m.random_prog(2, 2);
+    phrase_t ph(4);
+
+    // Act
+    ph.set_progression(prog);
+    ph.fit_progression(fitting_strategy::even_compact_left);
+
+    // Assert
+    EXPECT_EQ(ph[0].get_chords_count(), 1);
+    EXPECT_EQ(ph[1].get_chords_count(), 0);
+    EXPECT_EQ(ph[2].get_chords_count(), 1);
+    EXPECT_EQ(ph[3].get_chords_count(), 0);
+}
+
+TEST_F(phrase_should, compact_right_with_bigger_prog)
+{
+    // Arrange
+    major_mode m;
+    m.generate_permutations(0);
+    progression prog = m.random_prog(6, 6);
+    phrase_t ph(4);
+
+    // Act
+    ph.set_progression(prog);
+    ph.fit_progression(fitting_strategy::compact_right);
 
     // Assert
     EXPECT_EQ(ph[0].get_chords_count(), 1);
     EXPECT_EQ(ph[1].get_chords_count(), 1);
-    EXPECT_EQ(ph[2].get_chords_count(), 1);
+    EXPECT_EQ(ph[2].get_chords_count(), 2);
     EXPECT_EQ(ph[3].get_chords_count(), 2);
-    EXPECT_EQ(ph[4].get_chords_count(), 1);
-    EXPECT_EQ(ph[5].get_chords_count(), 1);
-    EXPECT_EQ(ph[6].get_chords_count(), 1);
-    EXPECT_EQ(ph[7].get_chords_count(), 2);
+}
+
+TEST_F(phrase_should, compact_left_with_bigger_prog)
+{
+    // Arrange
+    major_mode m;
+    m.generate_permutations(0);
+    progression prog = m.random_prog(6, 6);
+    phrase_t ph(4);
+
+    // Act
+    ph.set_progression(prog);
+    ph.fit_progression(fitting_strategy::compact_left);
+
+    // Assert
+    EXPECT_EQ(ph[0].get_chords_count(), 2);
+    EXPECT_EQ(ph[1].get_chords_count(), 2);
+    EXPECT_EQ(ph[2].get_chords_count(), 1);
+    EXPECT_EQ(ph[3].get_chords_count(), 1);
+}
+
+TEST_F(phrase_should, compact_right_with_smaller_prog)
+{
+    // Arrange
+    major_mode m;
+    m.generate_permutations(0);
+    progression prog = m.random_prog(2, 2);
+    phrase_t ph(4);
+
+    // Act
+    ph.set_progression(prog);
+    ph.fit_progression(fitting_strategy::compact_right);
+
+    // !! Should behave like compact_left because we can't
+    // !! leave a measure empty at the beginning of the phrase
+    // Assert
+    EXPECT_EQ(ph[0].get_chords_count(), 1);
+    EXPECT_EQ(ph[1].get_chords_count(), 1);
+    EXPECT_EQ(ph[2].get_chords_count(), 0);
+    EXPECT_EQ(ph[3].get_chords_count(), 0);
+}
+
+TEST_F(phrase_should, compact_left_with_smaller_prog)
+{
+    // Arrange
+    major_mode m;
+    m.generate_permutations(0);
+    progression prog = m.random_prog(2, 2);
+    phrase_t ph(4);
+
+    // Act
+    ph.set_progression(prog);
+    ph.fit_progression(fitting_strategy::compact_left);
+
+    // Assert
+    EXPECT_EQ(ph[0].get_chords_count(), 1);
+    EXPECT_EQ(ph[1].get_chords_count(), 1);
+    EXPECT_EQ(ph[2].get_chords_count(), 0);
+    EXPECT_EQ(ph[3].get_chords_count(), 0);
 }
 
 }

@@ -5,7 +5,7 @@
 namespace dryad
 {
 
-constexpr size_t MAX_PROG_LENGTH      = 128;
+constexpr size_t MAX_PROG_LENGTH      = 16;
 constexpr size_t MAX_CHORDS_BY_BAR    = 4;
 
 // Durations
@@ -71,12 +71,8 @@ enum class fitting_strategy
     random,
     compact_left,
     compact_right,
-    symmetric_far,
-    symmetric_close,
     even_compact_left,
     even_compact_right,
-    even_symmetric_far,
-    even_symmetric_close,
 };
 
 }
