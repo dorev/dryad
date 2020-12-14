@@ -77,6 +77,7 @@ void composer::execute()
         CRASH("Missing elements to execute composer");
     }
 
+    // this could happen only once when composer is initialized
     _mode->generate_permutations();
 
     for (auto& [id, phrase] : _phrases)
@@ -96,6 +97,13 @@ void composer::execute()
     {
         _song.push_back(_phrases[phrase_id]);
     }
+
+    // apply notes on progressions and offsets of song
+    for (phrase_t& phrase : _song)
+    {
+        phrase.apply_scale(_mode->get_scale(), C4);
+    }
+
 
 }
 

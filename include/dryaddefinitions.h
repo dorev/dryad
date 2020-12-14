@@ -5,6 +5,16 @@
 namespace dryad
 {
 
+using u8 = char;
+using u16 = short unsigned;
+using u32 = unsigned;
+using u64 = unsigned long long;
+
+class degree_node;
+using progression_t = std::vector<degree_node*>;
+using scale_t = std::vector<u8>;
+
+
 constexpr size_t MAX_PROG_LENGTH      = 16;
 constexpr size_t MAX_CHORDS_BY_BAR    = 4;
 
@@ -74,5 +84,42 @@ enum class fitting_strategy
     even_compact_left,
     even_compact_right,
 };
+
+#define MAKE_MIDI_OCTAVE(octave)                  \
+constexpr u8 C##octave     = octave * 12;       \
+constexpr u8 Cs##octave    = octave * 12 + 1;   \
+constexpr u8 Df##octave    = octave * 12 + 1;   \
+constexpr u8 D##octave     = octave * 12 + 2;   \
+constexpr u8 Ds##octave    = octave * 12 + 3;   \
+constexpr u8 Ef##octave    = octave * 12 + 3;   \
+constexpr u8 E##octave     = octave * 12 + 4;   \
+constexpr u8 F##octave     = octave * 12 + 5;   \
+constexpr u8 Fs##octave    = octave * 12 + 6;   \
+constexpr u8 Gf##octave    = octave * 12 + 6;   \
+constexpr u8 G##octave     = octave * 12 + 7;   \
+constexpr u8 Gs##octave    = octave * 12 + 8;   \
+constexpr u8 Af##octave    = octave * 12 + 8;   \
+constexpr u8 A##octave     = octave * 12 + 9;   \
+constexpr u8 As##octave    = octave * 12 + 10;  \
+constexpr u8 Bf##octave    = octave * 12 + 10;  \
+constexpr u8 B##octave     = octave * 12 + 11;
+
+MAKE_MIDI_OCTAVE(0)
+MAKE_MIDI_OCTAVE(1)
+MAKE_MIDI_OCTAVE(2)
+MAKE_MIDI_OCTAVE(3)
+MAKE_MIDI_OCTAVE(4)
+MAKE_MIDI_OCTAVE(5)
+MAKE_MIDI_OCTAVE(6)
+MAKE_MIDI_OCTAVE(7)
+MAKE_MIDI_OCTAVE(8)
+MAKE_MIDI_OCTAVE(9)
+
+#undef MAKE_MIDI_OCTAVE
+
+
+
+
+
 
 }

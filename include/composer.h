@@ -25,11 +25,11 @@ public:
 private:
 
     mode_graph*                      _mode;
-    std::map<int, phrase_t>            _phrases;
+    std::map<int, phrase_t>          _phrases;
     std::vector<int>                 _phrase_sequence;
-    std::map<int, melody_t>            _melodies;
+    std::map<int, melody_t>          _melodies;
     std::map<int, std::vector<int>>  _melodies_of_phrases;
-    std::vector<phrase_t>              _song;
+    std::vector<phrase_t>            _song;
 
 };
 

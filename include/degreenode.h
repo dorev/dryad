@@ -18,7 +18,7 @@ public:
     inline bool   is_prog_entry() const                         { return _prog_entry; }
     inline bool   is_prog_exit() const                          { return _prog_exit; }
     inline const  std::string& get_name() const                 { return _name; }
-    inline const  std::vector<degree_node*>& get_edges() const  { return _edges; }
+    inline const  progression_t& get_edges() const  { return _edges; }
 
     inline void set_id(int value)           { _id = value; }
     inline void set_max_visit(int value)    { _max_visit = value; }
@@ -39,7 +39,7 @@ private:
     size_t                      _visit_count;
     size_t                      _max_visit;
     std::string                 _name;
-    std::vector<degree_node*>   _edges;
+    progression_t   _edges;
 
     void build_name();
 

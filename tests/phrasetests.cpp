@@ -32,7 +32,7 @@ TEST_F(phrase_should, fit_perfectly_progression_of_same_size_4)
     size_t phrase_size = 4;
     major_mode m;
     m.generate_permutations(0);
-    progression prog = m.random_prog(phrase_size, phrase_size);
+    progression_t prog = m.random_prog(phrase_size, phrase_size);
     phrase_t ph(phrase_size);
 
     // Act
@@ -52,7 +52,7 @@ TEST_F(phrase_should, fit_perfectly_progression_of_same_size_8)
     size_t phrase_size = 8;
     major_mode m;
     m.generate_permutations(0);
-    progression prog = m.random_prog(phrase_size, phrase_size);
+    progression_t prog = m.random_prog(phrase_size, phrase_size);
     phrase_t ph(phrase_size);
 
     // Act
@@ -71,7 +71,7 @@ TEST_F(phrase_should, even_compact_right_with_bigger_prog)
     // Arrange
     major_mode m;
     m.generate_permutations(0);
-    progression prog = m.random_prog(6, 6);
+    progression_t prog = m.random_prog(6, 6);
     phrase_t ph(4);
 
     // Act
@@ -90,7 +90,7 @@ TEST_F(phrase_should, even_compact_left_with_bigger_prog)
     // Arrange
     major_mode m;
     m.generate_permutations(0);
-    progression prog = m.random_prog(6, 6);
+    progression_t prog = m.random_prog(6, 6);
     phrase_t ph(4);
 
     // Act
@@ -109,7 +109,7 @@ TEST_F(phrase_should, even_compact_right_with_smaller_prog)
     // Arrange
     major_mode m;
     m.generate_permutations(0);
-    progression prog = m.random_prog(2, 2);
+    progression_t prog = m.random_prog(2, 2);
     phrase_t ph(4);
 
     // Act
@@ -130,7 +130,7 @@ TEST_F(phrase_should, even_compact_left_with_smaller_prog)
     // Arrange
     major_mode m;
     m.generate_permutations(0);
-    progression prog = m.random_prog(2, 2);
+    progression_t prog = m.random_prog(2, 2);
     phrase_t ph(4);
 
     // Act
@@ -149,7 +149,7 @@ TEST_F(phrase_should, compact_right_with_bigger_prog)
     // Arrange
     major_mode m;
     m.generate_permutations(0);
-    progression prog = m.random_prog(6, 6);
+    progression_t prog = m.random_prog(6, 6);
     phrase_t ph(4);
 
     // Act
@@ -168,7 +168,7 @@ TEST_F(phrase_should, compact_left_with_bigger_prog)
     // Arrange
     major_mode m;
     m.generate_permutations(0);
-    progression prog = m.random_prog(6, 6);
+    progression_t prog = m.random_prog(6, 6);
     phrase_t ph(4);
 
     // Act
@@ -187,7 +187,7 @@ TEST_F(phrase_should, compact_right_with_smaller_prog)
     // Arrange
     major_mode m;
     m.generate_permutations(0);
-    progression prog = m.random_prog(2, 2);
+    progression_t prog = m.random_prog(2, 2);
     phrase_t ph(4);
 
     // Act
@@ -208,7 +208,7 @@ TEST_F(phrase_should, compact_left_with_smaller_prog)
     // Arrange
     major_mode m;
     m.generate_permutations(0);
-    progression prog = m.random_prog(2, 2);
+    progression_t prog = m.random_prog(2, 2);
     phrase_t ph(4);
 
     // Act

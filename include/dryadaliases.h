@@ -4,10 +4,7 @@
 
 namespace dryad
 {
-
-class degree_node;
-using progression = std::vector<degree_node*>;
-
+using midi = char;
 using u64 = unsigned long long;
 
 }

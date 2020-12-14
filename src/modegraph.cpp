@@ -6,7 +6,7 @@ namespace dryad
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-mode_graph::mode_graph(std::vector<int> scale) 
+mode_graph::mode_graph(scale_t scale) 
     : _scale(scale) 
 {
 }
@@ -23,14 +23,14 @@ void mode_graph::generate_permutations(size_t max_prog_length)
         ? max_prog_length
         : MAX_PROG_LENGTH;
 
-    // This vector will contain the progression created while exploring the graph
+    // This vector will contain the progression_t created while exploring the graph
     // During graph exploration, nodes will be added and removed and copies of valid
     // progressions will be submitted to the _permutations vector.
-    std::vector<degree_node*> current_prog;
+    progression_t current_prog;
     current_prog.reserve(effective_max_prog_length);
 
     // Lambda called when visiting a node
-    // Incrementing the node visit_count and push it on current progression
+    // Incrementing the node visit_count and push it on current progression_t
     auto visit = [&](degree_node* node) mutable
     {
         node->visit();
@@ -38,7 +38,7 @@ void mode_graph::generate_permutations(size_t max_prog_length)
     };
 
     // Lambda called when leaving a node
-    // Decrement the node visit_count and pop it from current progression
+    // Decrement the node visit_count and pop it from current progression_t
     auto leave_node = [&](degree_node* node) mutable
     {
         node->leave();
@@ -74,7 +74,7 @@ void mode_graph::generate_permutations(size_t max_prog_length)
     };
     
     LOG("Generating permutations with parameters\n"
-        "Max progression length : " << effective_max_prog_length);
+        "Max progression_t length : " << effective_max_prog_length);
 
     PROFILE(dryad_timer timer;)
 
@@ -97,10 +97,10 @@ void mode_graph::print_permutations()
 
     int prog_counter = 0;
 
-    for (std::vector<degree_node*>& progression : _progs)
+    for (progression_t& progression_t : _progs)
     {
         std::cout << std::setw(5) << ++prog_counter << " : ";
-        for (degree_node* degree : progression)
+        for (degree_node* degree : progression_t)
         {
             std::cout << degree->get_name().c_str() << " ";
         }
@@ -110,11 +110,11 @@ void mode_graph::print_permutations()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const progression& mode_graph::random_prog(size_t min_length, size_t max_length)
+const progression_t& mode_graph::random_prog(size_t min_length, size_t max_length)
 {
     if (min_length != 0 && max_length != 0)
     {
-        auto end_itr = std::partition(_progs.begin(), _progs.end(),[&](const progression& p)
+        auto end_itr = std::partition(_progs.begin(), _progs.end(),[&](const progression_t& p)
         {
             return p.size() >= min_length && p.size() <= max_length;
         });

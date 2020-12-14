@@ -7,7 +7,7 @@ namespace dryad
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 phrase_t::phrase_t(size_t bar_count)
-    : _bars(bar_count)
+    : _measures(bar_count)
 {
 }
 
@@ -16,7 +16,7 @@ phrase_t::phrase_t(size_t bar_count)
 void phrase_t::fit_progression(fitting_strategy strategy)
 {
     size_t prog_size = _progression.size();
-    size_t phrase_size = _bars.capacity();
+    size_t phrase_size = _measures.capacity();
 
     if (!is_power_of_2(phrase_size))
     {
@@ -28,18 +28,18 @@ void phrase_t::fit_progression(fitting_strategy strategy)
     {
         for_range(i, prog_size)
         {
-            _bars[i].insert_degree(_progression[i]);
+            _measures[i].insert_degree(_progression[i]);
         }
         return;
     }
 
     // Initialize distribution vector
-    std::vector<size_t> degrees_per_bar(phrase_size, 0);
+    std::vector<size_t> degrees_per_measure(phrase_size, 0);
 
     // Sad values that cannot be initialized in the switch case
     size_t chords_to_fit = prog_size;
     size_t offset = phrase_size;
-    size_t bar = 0;
+    size_t measure = 0;
 
     switch (strategy)
     {
@@ -49,7 +49,7 @@ void phrase_t::fit_progression(fitting_strategy strategy)
         for (size_t n = 0; n < chords_to_fit; ++n)
         {
             offset = phrase_size;
-            bar = 0;
+            measure = 0;
 
             for_range(bit, log2(phrase_size))
             {
@@ -59,17 +59,17 @@ void phrase_t::fit_progression(fitting_strategy strategy)
 
                 if (bit_of_n_is_off)
                 {
-                    bar += offset;
+                    measure += offset;
                 }
             }
 
             if (prog_size < phrase_size || strategy == fitting_strategy::even_compact_left)
             {
-                ++degrees_per_bar[(phrase_size - 1) - bar];
+                ++degrees_per_measure[(phrase_size - 1) - measure];
             }
             else if (strategy == fitting_strategy::even_compact_right)
             {
-                ++degrees_per_bar[bar];
+                ++degrees_per_measure[measure];
             }
             else
             {
@@ -84,15 +84,15 @@ void phrase_t::fit_progression(fitting_strategy strategy)
 
         while (chords_to_fit != 0)
         {
-            for (bar = phrase_size; bar > (phrase_size - offset); --bar)
+            for (measure = phrase_size; measure > (phrase_size - offset); --measure)
             {
                 if (prog_size < phrase_size || strategy == fitting_strategy::compact_left)
                 {
-                    ++degrees_per_bar[phrase_size - bar];
+                    ++degrees_per_measure[phrase_size - measure];
                 }
                 else if (strategy == fitting_strategy::compact_right)
                 {
-                    ++degrees_per_bar[bar - 1];
+                    ++degrees_per_measure[measure - 1];
                 }
                 else
                 {
@@ -126,10 +126,10 @@ InsertChords:
     for_range(i, phrase_size)
     {
         // For the number of chords in that measure
-        while (degrees_per_bar[i]--)
+        while (degrees_per_measure[i]--)
         {
-            // Insert the next chord of the progression in that measure
-            _bars[i].insert_degree(_progression[prog_index++]);
+            // Insert the next chord of the progression_t in that measure
+            _measures[i].insert_degree(_progression[prog_index++]);
         }
     }
 }
@@ -152,6 +152,7 @@ void phrase_t::fit_melodies(fitting_strategy /*strategy*/)
         int note_index      = 0;
         int melody_size     = melody.size();
 
+        // NOTE
         // currently completely disregarding the delta between the melody duration and the bar duration
 
         while (add_note(melody[note_index++ % melody_size]));
@@ -160,7 +161,7 @@ void phrase_t::fit_melodies(fitting_strategy /*strategy*/)
     {
         std::vector<int> melody_sizes;
 
-        while (1)
+        for(;;)
         {
             for (auto& melody : _melodies)
             {
@@ -180,32 +181,32 @@ void phrase_t::fit_melodies(fitting_strategy /*strategy*/)
 
 bool phrase_t::add_note(const note_t& note)
 {
-    int bar_index = 0;
-    bar_t& bar = _bars[bar_index];
+    int measure_index = 0;
+    measure_t& measure = _measures[measure_index];
 
-    for (; bar_index < _bars.size(); ++bar_index)
+    for (; measure_index < _measures.size(); ++measure_index)
     {
-        bar = _bars[bar_index];
-        int voice_duration = bar.get_voice().get_total_duration();
-        int bar_duration = bar.get_duration();
+        measure = _measures[measure_index];
+        int voice_duration = measure.get_voice().get_total_duration();
+        int measure_duration = measure.get_duration();
 
-        if (voice_duration < bar_duration)
+        if (voice_duration < measure_duration)
         {
-            int delta = bar_duration - voice_duration;
+            int delta = measure_duration - voice_duration;
             int note_duration = note.get_duration();
 
             if (note_duration <= delta)
             {
-                bar.get_voice().add_note(note);
+                measure.get_voice().add_note(note);
             }
             else
             {
                 int duration_overflow = note_duration - delta;
-                bar.get_voice().add_note(note.get_offset(), delta);
+                measure.get_voice().add_note(note.get_offset(), delta);
 
-                if (bar_index < (_bars.size() - 1))
+                if (measure_index < (_measures.size() - 1))
                 {
-                    _bars[bar_index + 1].get_voice().add_note(note.get_offset(), duration_overflow);
+                    _measures[measure_index + 1].get_voice().add_note(note.get_offset(), duration_overflow);
                 }
                 else
                 {
@@ -220,21 +221,31 @@ bool phrase_t::add_note(const note_t& note)
 
     // Return false if the current bar is full and it's the last bar
     return !(
-        bar.get_voice().get_total_duration() >= bar.get_duration() &&
-        bar_index >= (_bars.size() - 1)
+        measure.get_voice().get_total_duration() >= measure.get_duration() &&
+        measure_index >= (_measures.size() - 1)
     );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bar_t& phrase_t::operator[](size_t index)
+measure_t& phrase_t::operator[](size_t index)
 {
-    if (index > _bars.size() - 1)
+    if (index > _measures.size() - 1)
     {
         CRASH("Out of bound");
     }
 
-    return _bars[index];
+    return _measures[index];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void phrase_t::apply_scale(const scale_t& scale, midi root)
+{
+    for (measure_t& measure : _measures)
+    {
+        measure.apply_scale(scale, root);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
