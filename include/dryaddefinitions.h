@@ -10,8 +10,8 @@ using u16 = short unsigned;
 using u32 = unsigned;
 using u64 = unsigned long long;
 
-class degree_node;
-using progression_t = std::vector<degree_node*>;
+class degree_t;
+using progression_t = std::vector<degree_t*>;
 using scale_t = std::vector<u8>;
 
 
@@ -63,7 +63,9 @@ enum class accidental
 {
     none,
     sharp,
+    double_sharp,
     flat,
+    double_flat,
 };
 
 enum class triad

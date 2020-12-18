@@ -31,7 +31,7 @@ void mode_graph::generate_permutations(size_t max_prog_length)
 
     // Lambda called when visiting a node
     // Incrementing the node visit_count and push it on current progression_t
-    auto visit = [&](degree_node* node) mutable
+    auto visit = [&](degree_t* node) mutable
     {
         node->visit();
         current_prog.push_back(node);
@@ -39,7 +39,7 @@ void mode_graph::generate_permutations(size_t max_prog_length)
 
     // Lambda called when leaving a node
     // Decrement the node visit_count and pop it from current progression_t
-    auto leave_node = [&](degree_node* node) mutable
+    auto leave_node = [&](degree_t* node) mutable
     {
         node->leave();
 
@@ -51,7 +51,7 @@ void mode_graph::generate_permutations(size_t max_prog_length)
 
     // Lambda called recursively to explore graph
     // Submits valid progressions to the _permutations vector
-    std::function<void(degree_node*)> explore_node = [&](degree_node* node) mutable
+    std::function<void(degree_t*)> explore_node = [&](degree_t* node) mutable
     {
         visit(node);
 
@@ -62,7 +62,7 @@ void mode_graph::generate_permutations(size_t max_prog_length)
             _progs.push_back(current_prog); 
         }
         
-        for (degree_node* next_node : node->get_edges())
+        for (degree_t* next_node : node->get_edges())
         {
             if (next_node->is_visitable())
             {
@@ -78,7 +78,7 @@ void mode_graph::generate_permutations(size_t max_prog_length)
 
     PROFILE(dryad_timer timer;)
 
-    for (degree_node* node : _degrees)
+    for (degree_t* node : _degrees)
     {
         if (node->is_prog_entry())
         {
@@ -100,7 +100,7 @@ void mode_graph::print_permutations()
     for (progression_t& progression_t : _progs)
     {
         std::cout << std::setw(5) << ++prog_counter << " : ";
-        for (degree_node* degree : progression_t)
+        for (degree_t* degree : progression_t)
         {
             std::cout << degree->get_name().c_str() << " ";
         }

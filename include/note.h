@@ -20,7 +20,7 @@ namespace dryad
         void set_duration(int duration) { _duration = duration; }
         void reduce_duration(int reduction) { _duration -= reduction; }
         void extend_duration(int extension) { _duration += extension; }
-        void set_pitch(scale_t scale, degree_node* degree, int root);
+        inline void set_pitch(int pitch) { _pitch = pitch; }
 
     private:
 

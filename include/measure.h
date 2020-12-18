@@ -7,7 +7,7 @@
 namespace dryad
 {
 
-class degree_node;
+class degree_t;
 
 class measure_t : dryad_info<measure_t>
 {
@@ -21,9 +21,9 @@ public:
 
     void insert_note(int offset, int duration);
     void insert_note(const note_t& single_note);
-    inline void insert_degree(degree_node* degree) { _progression.push_back(degree); }
+    inline void insert_degree(degree_t* degree) { _progression.push_back(degree); }
 
-    void apply_scale(const scale_t& scale_intervals, size_t root);
+    void apply_scale(const scale_t& scale_intervals, int root);
 
 private:
 

@@ -5,12 +5,12 @@
 namespace dryad
 {
 
-class degree_node
+class degree_t
 {
 
 public:
 
-    degree_node(int number, triad triad, accidental accidental = accidental::none);
+    degree_t(int number, triad triad, accidental accidental = accidental::none);
 
     inline int    get_id() const                                { return _id; }
     inline size_t get_visit_count() const                       { return _visit_count; }
@@ -24,9 +24,12 @@ public:
     inline void set_max_visit(int value)    { _max_visit = value; }
     void visit();
     void leave();
-    degree_node& mark_as_entry(bool value = true);
-    degree_node& mark_as_exit(bool value = true);
-    degree_node& add_edge(std::initializer_list<degree_node*> nodes);
+    degree_t& mark_as_entry(bool value = true);
+    degree_t& mark_as_exit(bool value = true);
+    degree_t& add_edge(std::initializer_list<degree_t*> nodes);
+
+    inline int get_degree() const { return _degree; }
+    int get_accidental_value() const;
 
 private:
 

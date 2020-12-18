@@ -16,13 +16,13 @@ public:
 
 private:
 
-    degree_node _I;
-    degree_node _ii;
-    degree_node _iii;
-    degree_node _IV;
-    degree_node _V;
-    degree_node _vi;
-    degree_node _viid;
+    degree_t _I;
+    degree_t _ii;
+    degree_t _iii;
+    degree_t _IV;
+    degree_t _V;
+    degree_t _vi;
+    degree_t _viid;
 };
 
 }

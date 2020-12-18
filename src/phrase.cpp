@@ -77,13 +77,15 @@ void phrase_t::fit_progression(fitting_strategy strategy)
             }
         }
 
-        goto InsertChords;
+        break;
 
     case fitting_strategy::compact_left:
     case fitting_strategy::compact_right:
 
         while (chords_to_fit != 0)
         {
+            bool break_while = false;
+
             for (measure = phrase_size; measure > (phrase_size - offset); --measure)
             {
                 if (prog_size < phrase_size || strategy == fitting_strategy::compact_left)
@@ -101,8 +103,14 @@ void phrase_t::fit_progression(fitting_strategy strategy)
 
                 if (--chords_to_fit == 0)
                 {
-                    goto InsertChords;
+                    break_while = true;
+                    break;
                 }
+            }
+            
+            if (break_while)
+            {
+                break;
             }
 
             offset >>= 1;
@@ -116,10 +124,6 @@ void phrase_t::fit_progression(fitting_strategy strategy)
     default:
         break;
     }
-
-    CRASH("We should not reach this point");
-
-InsertChords:
 
     size_t prog_index = 0;
 

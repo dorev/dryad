@@ -5,7 +5,7 @@ namespace dryad
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-degree_node::degree_node(int number, triad triad, accidental accidental)
+degree_t::degree_t(int number, triad triad, accidental accidental)
     : _degree(number)
     , _triad(triad)
     , _accidental(accidental)
@@ -25,7 +25,7 @@ degree_node::degree_node(int number, triad triad, accidental accidental)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void degree_node::build_name()
+void degree_t::build_name()
 {
     switch (_degree)
     {
@@ -85,7 +85,7 @@ void degree_node::build_name()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-degree_node& degree_node::add_edge(std::initializer_list<degree_node*> nodes)
+degree_t& degree_t::add_edge(std::initializer_list<degree_t*> nodes)
 {
     _edges.insert(_edges.end(), nodes);
     return *this;
@@ -93,7 +93,7 @@ degree_node& degree_node::add_edge(std::initializer_list<degree_node*> nodes)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void degree_node::visit()
+void degree_t::visit()
 {
     if (!is_visitable())
     {
@@ -105,7 +105,7 @@ void degree_node::visit()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void degree_node::leave()
+void degree_t::leave()
 {
     if (_visit_count - 1 < 0)
     {
@@ -117,7 +117,7 @@ void degree_node::leave()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-degree_node& degree_node::mark_as_entry(bool value)
+degree_t& degree_t::mark_as_entry(bool value)
 {
     _prog_entry = value;
     return *this;
@@ -125,12 +125,25 @@ degree_node& degree_node::mark_as_entry(bool value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-degree_node& degree_node::mark_as_exit(bool value)
+degree_t& degree_t::mark_as_exit(bool value)
 {
     _prog_exit = value;
     return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int degree_t::get_accidental_value() const
+{
+    switch (_accidental)
+    {
+        default:
+        case accidental::none:          return 0;
+        case accidental::sharp:         return 1;
+        case accidental::double_sharp:  return 2;
+        case accidental::flat:          return -1;
+        case accidental::double_flat:   return -2;
+    }
+}
 
 }
