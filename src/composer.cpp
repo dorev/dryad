@@ -29,7 +29,9 @@ composer& composer::add_phrase(int id, phrase_t phrase)
         CRASH("Attempting to overwrite existing phrase");
     }
 
+    phrase.set_parent(&_song);
     _phrases[id] = phrase;
+
     return *this;
 }
 

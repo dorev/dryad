@@ -11,8 +11,10 @@ using u32 = unsigned;
 using u64 = unsigned long long;
 
 class degree_t;
+class phrase_t;
 using progression_t = std::vector<degree_t*>;
 using scale_t = std::vector<u8>;
+using song_t = std::vector<phrase_t>;
 
 
 constexpr size_t MAX_PROG_LENGTH      = 16;

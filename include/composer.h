@@ -29,7 +29,7 @@ private:
     std::vector<int>                 _phrase_sequence;
     std::map<int, melody_t>          _melodies;
     std::map<int, std::vector<int>>  _melodies_of_phrases;
-    std::vector<phrase_t>            _song;
+    song_t                           _song;
 
 };
 
