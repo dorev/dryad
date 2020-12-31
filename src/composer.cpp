@@ -1,6 +1,7 @@
 #include "composer.h"
 #include "dryadutils.h"
 #include "modegraph.h"
+#include "musicxmlwriter.h"
 
 namespace dryad
 {
@@ -70,7 +71,7 @@ composer& composer::add_melody(int id, std::initializer_list<int> phrase_list)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void composer::execute()
+std::string composer::execute()
 {
     if (_mode == nullptr ||
         _phrases.empty() ||
@@ -106,7 +107,8 @@ void composer::execute()
         phrase.apply_scale(_mode->get_scale(), C4);
     }
 
-
+    // render musicxml
+    return musicxml_writer::render(&_song);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

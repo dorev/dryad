@@ -158,19 +158,30 @@ void phrase_t::fit_melodies(fitting_strategy /*strategy*/)
     if (_melodies.size() == 1)
     {
         melody_t& melody    = _melodies[0];
-        int note_index      = 0;
-        int melody_size     = melody.size();
+        //int note_index      = 0;
+        //int melody_size     = melody.size();
 
         // NOTE
         // currently completely disregarding the delta between the melody duration and the bar duration
 
-        while (add_note(melody[note_index++ % melody_size]));
+        //while (add_note(melody[note_index++ % melody_size]));
+        // something is wrong in there!!
+        for (;;)
+        {
+            for (const auto& note : melody)
+            {
+                if (!add_note(note))
+                {
+                    return;
+                }
+            }
+        }
     }
     else if (_melodies.size() > 1)
     {
         std::vector<int> melody_sizes;
 
-        for(;;)
+        for (;;)
         {
             for (auto& melody : _melodies)
             {
@@ -191,28 +202,33 @@ void phrase_t::fit_melodies(fitting_strategy /*strategy*/)
 bool phrase_t::add_note(const note_t& note)
 {
     int measure_index = 0;
-    measure_t& measure = _measures[measure_index];
 
+    // Go through each measure to find the last position
     for (; measure_index < _measures.size(); ++measure_index)
     {
-        measure = _measures[measure_index];
+        measure_t& measure = _measures[measure_index];
+        //measure = _measures[measure_index];
         int voice_duration = measure.get_voice().get_total_duration();
         int measure_duration = measure.get_duration();
 
+        // If the current measure is not already fully filled
         if (voice_duration < measure_duration)
         {
             int delta = measure_duration - voice_duration;
             int note_duration = note.get_duration();
 
+            // Add the note if it fits completely in this measure
             if (note_duration <= delta)
             {
                 measure.get_voice().add_note(note);
             }
+            // Otherwise add as much as possible in this measure
             else
             {
                 int duration_overflow = note_duration - delta;
                 measure.get_voice().add_note(note.get_offset(), delta);
 
+                // Put the remaining duration of the note in the next measure
                 if (measure_index < (_measures.size() - 1))
                 {
                     _measures[measure_index + 1].get_voice().add_note(note.get_offset(), duration_overflow);
@@ -226,13 +242,21 @@ bool phrase_t::add_note(const note_t& note)
 
             break;
         }
+
     }
 
     // Return false if the current bar is full and it's the last bar
-    return !(
-        measure.get_voice().get_total_duration() >= measure.get_duration() &&
-        measure_index >= (_measures.size() - 1)
-    );
+    // next of measure seems to be 0xcdcdcdcd (uninitialized)
+    // something is wrong with measure index, like if we were always coming back at 0....
+    // THERE IS NOTHING TO TEST THAT METHOD!
+
+    measure_t& last_measure = _measures[_measures.size() - 1];
+    return !(last_measure.get_voice().get_total_duration() >= last_measure.get_duration());
+
+    //return !(
+    //    measure.get_voice().get_total_duration() >= measure.get_duration() &&
+    //    measure_index >= (_measures.size() - 1)
+    //);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

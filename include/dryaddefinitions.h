@@ -5,7 +5,6 @@
 namespace dryad
 {
 
-using u8 = char;
 using u16 = short unsigned;
 using u32 = unsigned;
 using u64 = unsigned long long;
@@ -13,7 +12,7 @@ using u64 = unsigned long long;
 class degree_t;
 class phrase_t;
 using progression_t = std::vector<degree_t*>;
-using scale_t = std::vector<u8>;
+using scale_t = std::vector<int>;
 using song_t = std::vector<phrase_t>;
 
 
@@ -90,23 +89,23 @@ enum class fitting_strategy
 };
 
 #define MAKE_MIDI_OCTAVE(octave)                  \
-constexpr u8 C##octave     = octave * 12;       \
-constexpr u8 Cs##octave    = octave * 12 + 1;   \
-constexpr u8 Df##octave    = octave * 12 + 1;   \
-constexpr u8 D##octave     = octave * 12 + 2;   \
-constexpr u8 Ds##octave    = octave * 12 + 3;   \
-constexpr u8 Ef##octave    = octave * 12 + 3;   \
-constexpr u8 E##octave     = octave * 12 + 4;   \
-constexpr u8 F##octave     = octave * 12 + 5;   \
-constexpr u8 Fs##octave    = octave * 12 + 6;   \
-constexpr u8 Gf##octave    = octave * 12 + 6;   \
-constexpr u8 G##octave     = octave * 12 + 7;   \
-constexpr u8 Gs##octave    = octave * 12 + 8;   \
-constexpr u8 Af##octave    = octave * 12 + 8;   \
-constexpr u8 A##octave     = octave * 12 + 9;   \
-constexpr u8 As##octave    = octave * 12 + 10;  \
-constexpr u8 Bf##octave    = octave * 12 + 10;  \
-constexpr u8 B##octave     = octave * 12 + 11;
+constexpr int C##octave     = octave * 12;       \
+constexpr int Cs##octave    = octave * 12 + 1;   \
+constexpr int Df##octave    = octave * 12 + 1;   \
+constexpr int D##octave     = octave * 12 + 2;   \
+constexpr int Ds##octave    = octave * 12 + 3;   \
+constexpr int Ef##octave    = octave * 12 + 3;   \
+constexpr int E##octave     = octave * 12 + 4;   \
+constexpr int F##octave     = octave * 12 + 5;   \
+constexpr int Fs##octave    = octave * 12 + 6;   \
+constexpr int Gf##octave    = octave * 12 + 6;   \
+constexpr int G##octave     = octave * 12 + 7;   \
+constexpr int Gs##octave    = octave * 12 + 8;   \
+constexpr int Af##octave    = octave * 12 + 8;   \
+constexpr int A##octave     = octave * 12 + 9;   \
+constexpr int As##octave    = octave * 12 + 10;  \
+constexpr int Bf##octave    = octave * 12 + 10;  \
+constexpr int B##octave     = octave * 12 + 11;
 
 MAKE_MIDI_OCTAVE(0)
 MAKE_MIDI_OCTAVE(1)

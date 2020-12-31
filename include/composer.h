@@ -20,7 +20,7 @@ public:
     composer& add_melody(int id, std::initializer_list<int> phrase_list);
     composer& set_phrase_sequence(std::initializer_list<int> phrase_list);
 
-    void execute();
+    std::string execute();
 
 private:
 

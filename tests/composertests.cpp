@@ -74,4 +74,23 @@ TEST_F(composer_should, be_executable)
 }
 
 
+TEST_F(composer_should, print_musicxml)
+{
+    // Arrange
+    composer c;
+    major_mode m;
+
+    // Act
+    // Assert
+    std::cout << c.set_mode(&m)
+        .add_phrase(0)
+        .add_phrase(1)
+        .add_phrase(2)
+        .add_melody(0, {0, 1, 2})
+        .add_melody(1, {1, 2})
+        .set_phrase_sequence({ 0, 1, 1, 0, 2 })
+            .execute();
+}
+
+
 }

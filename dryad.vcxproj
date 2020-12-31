@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="extern\pugixml\pugixml.cpp" />
     <ClCompile Include="src\measure.cpp" />
     <ClCompile Include="src\composer.cpp" />
     <ClCompile Include="src\degreenode.cpp" />
@@ -27,11 +28,15 @@
     <ClCompile Include="src\majormode.cpp" />
     <ClCompile Include="src\melody.cpp" />
     <ClCompile Include="src\modegraph.cpp" />
+    <ClCompile Include="src\musicxmlwriter.cpp" />
     <ClCompile Include="src\pattern.cpp" />
     <ClCompile Include="src\phrase.cpp" />
+    <ClCompile Include="src\pitch.cpp" />
     <ClCompile Include="src\voice.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="extern\pugixml\pugiconfig.hpp" />
+    <ClInclude Include="extern\pugixml\pugixml.hpp" />
     <ClInclude Include="include\composer.h" />
     <ClInclude Include="include\dryadaliases.h" />
     <ClInclude Include="include\dryadinfo.h" />
@@ -45,9 +50,11 @@
     <ClInclude Include="include\modegraph.h" />
     <ClInclude Include="include\majormode.h" />
     <ClInclude Include="include\measure.h" />
+    <ClInclude Include="include\musicxmlwriter.h" />
     <ClInclude Include="include\note.h" />
     <ClInclude Include="include\pattern.h" />
     <ClInclude Include="include\phrase.h" />
+    <ClInclude Include="include\pitch.h" />
     <ClInclude Include="include\voice.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
