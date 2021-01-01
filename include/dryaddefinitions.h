@@ -35,21 +35,21 @@ constexpr int SIXTEENTH_TRIPLET    = 4;
 constexpr int THIRTYSECOND         = 3;
 constexpr int THIRTYSECOND_TRIPLET = 2;
 
-static const int __min_duration = THIRTYSECOND;
-static const int __max_duration = WHOLE;
-
 static const std::vector<int> __notes_durations
 ({
-    THIRTYSECOND,
-    SIXTEENTH,
+//    THIRTYSECOND,
+//    SIXTEENTH,
     EIGHTH,
-    EIGHTH_DOTTED,
+//    EIGHTH_DOTTED,
     QUARTER,
     QUARTER_DOTTED,
     HALF,
-    HALF_DOTTED,
-    WHOLE
+//    HALF_DOTTED,
+//    WHOLE
 });
+
+static const int __min_duration = EIGHTH;
+static const int __max_duration = HALF;
 
 static const std::vector<int> __triplets_durations
 ({

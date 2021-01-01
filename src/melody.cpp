@@ -14,8 +14,6 @@ melody_t::melody_t(int duration, int notes_count)
 
     const std::vector<int>& durations_used = __notes_durations;
 
-    PROFILE(dryad_timer timer;)
-
     std::deque<int> notes_pattern = { 0 };
     std::deque<int> durations_pattern;
 
@@ -140,7 +138,6 @@ duration_is_valid:
         _notes.emplace_back(notes_pattern[i], durations_pattern[i]);
     }
 
-    PROFILE(LOG("Melody generation took " << timer.stop().c_str());)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

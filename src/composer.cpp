@@ -59,7 +59,7 @@ composer& composer::add_melody(int id, std::initializer_list<int> phrase_list)
 {
     static std::vector<int> melody_durations = { HALF, HALF_DOTTED, WHOLE, 2 * WHOLE};
 
-    _melodies[id] = melody_t(random::in(melody_durations), random::range(4, 12));
+    _melodies[id] = melody_t(random::in(melody_durations), random::range(2, 6));
 
     for (int phrase : phrase_list)
     {

@@ -67,8 +67,6 @@ std::string musicxml_writer::render(song_t* song)
                 clef.append_child("line").append_child(node_pcdata).set_value("2");
             }
 
-            int note_id = 0;
-
             for (note_t& note : measure.get_voice())
             {
                 xml_node note_node = measure_node.append_child("note");

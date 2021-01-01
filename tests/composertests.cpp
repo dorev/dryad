@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "composer.h"
 #include "majormode.h"
+#include <fstream>
 
 namespace dryad
 {
@@ -82,14 +83,18 @@ TEST_F(composer_should, print_musicxml)
 
     // Act
     // Assert
-    std::cout << c.set_mode(&m)
+    std::ofstream file(R"(C:\Users\Vincent\Desktop\Untitled-1.xml)");
+
+    file << c.set_mode(&m)
         .add_phrase(0)
         .add_phrase(1)
         .add_phrase(2)
-        .add_melody(0, {0, 1, 2})
+        .add_melody(0, {0, 1})
         .add_melody(1, {1, 2})
-        .set_phrase_sequence({ 0, 1, 1, 0, 2 })
+        .set_phrase_sequence({ 0, 1, 0, 2 })
             .execute();
+
+    file.close();
 }
 
 

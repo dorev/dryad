@@ -50,6 +50,7 @@
     <ClInclude Include="include\modegraph.h" />
     <ClInclude Include="include\majormode.h" />
     <ClInclude Include="include\measure.h" />
+    <ClInclude Include="include\motif.h" />
     <ClInclude Include="include\musicxmlwriter.h" />
     <ClInclude Include="include\note.h" />
     <ClInclude Include="include\pattern.h" />

@@ -17,7 +17,7 @@ void uppercase(std::string& s)
 
 int step_down_duration(int duration, const std::vector<int>& duration_vector)
 {
-    size_t i = 0;
+    int i = 0;
 
     for (i; i < duration_vector.size(); ++i)
     {
@@ -27,19 +27,27 @@ int step_down_duration(int duration, const std::vector<int>& duration_vector)
         }
     }
 
+    /*
     if (i >= duration_vector.size())
     {
         CRASH("Illegal duration");
     }
 
     return duration_vector[i > 0 ? --i : 0];
+    */
+
+    int duration_index = i > 0
+        ? --i 
+        : 0;
+
+    return duration_vector[duration_index];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int step_up_duration(int duration, const std::vector<int>& duration_vector)
 {
-    size_t i = 0;
+    int i = 0;
 
     for (i; i < duration_vector.size(); ++i)
     {
@@ -49,12 +57,21 @@ int step_up_duration(int duration, const std::vector<int>& duration_vector)
         }
     }
 
+    /*
     if (i >= duration_vector.size())
     {
         CRASH("Illegal duration");
     }
-
+    
     return duration_vector[i < duration_vector.size() - 1 ? ++i : duration_vector.size() - 1];
+    */
+    
+    int duration_index = i < duration_vector.size() - 1 
+        ? ++i 
+        : static_cast<int>(duration_vector.size() - 1);
+
+    return duration_vector[duration_index];
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -119,12 +136,10 @@ const char* duration_to_note_type(int duration)
     default:
     case WHOLE:
         return "whole";
-
     case HALF_DOTTED:
     case HALF:
     case HALF_TRIPLET:
         return "half";
-
     case QUARTER_DOTTED:
     case QUARTER:
     case QUARTER_TRIPLET:
@@ -133,11 +148,9 @@ const char* duration_to_note_type(int duration)
     case EIGHTH:
     case EIGHTH_TRIPLET:
         return "eighth";
-
     case SIXTEENTH:
     case SIXTEENTH_TRIPLET:
         return "16th";
-
     case THIRTYSECOND:
     case THIRTYSECOND_TRIPLET:
         return "32nd";
