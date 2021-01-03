@@ -1,19 +1,18 @@
 #pragma once
 
-#include "includes.h"
+#include "model_definitions.h"
 
 namespace dryad
 {
 namespace model
 {
 
-struct degree;
+struct degree_t;
 
-struct scale
+struct scale_t
 {
-    // Members
-    std::vector<int> intervals;
-    std::vector<degree> degrees;
+    std::string name;
+    std::vector<degree_ptr> degrees;
 };
 
 } // namespace model

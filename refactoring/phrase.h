@@ -1,24 +1,23 @@
 #pragma once
 
-#include "includes.h"
+#include "model_definitions.h"
 
 namespace dryad
 {
 namespace model
 {
 
-struct degree;
-struct measure;
-struct score;
+struct degree_t;
+struct measure_t;
+struct score_t;
 
-struct phrase
+struct phrase_t
 {
-    // Members
-    std::vector<measure> mesures;
-
-    // References
-    std::vector<std::shared_ptr<degree>> associated_degrees;
-    std::shared_ptr<score> parent_score;
+    std::vector<measure_ptr> measures;
+    std::vector<degree_ptr> associated_degrees;
+    score_weak_ptr parent_score;
+    phrase_weak_ptr next;
+    phrase_weak_ptr prev;
 };
 
 } // namespace model

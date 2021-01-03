@@ -1,26 +1,22 @@
 #pragma once
 
-#include "includes.h"
+#include "model_definitions.h"
 
 namespace dryad
 {
 namespace model
 {
 
-struct motif;
-struct phrase;
-struct session;
-struct voice;
+struct motif_t;
+struct phrase_t;
+struct voice_t;
 
-struct score
+struct score_t
 {
-    // Members
-    std::vector<motif> motifs;
-    std::vector<voice> voices;
-    std::vector<phrase> phrases;
-
-    // References
-    std::shared_ptr<session> parent_session;
+    std::vector<motif_ptr> motifs;
+    std::vector<voice_ptr> voices;
+    std::vector<phrase_ptr> phrases;
+    harmony_graph_ptr graph;
 };
 
 } // namespace model

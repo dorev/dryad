@@ -155,7 +155,6 @@
     <ClInclude Include="refactoring\position.h" />
     <ClInclude Include="refactoring\scale.h" />
     <ClInclude Include="refactoring\score.h" />
-    <ClInclude Include="refactoring\session.h" />
     <ClInclude Include="refactoring\voice.h" />
   </ItemGroup>
   <ItemGroup>

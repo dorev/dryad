@@ -1,18 +1,18 @@
 #pragma once
 
-#include "includes.h"
+#include "model_definitions.h"
 
 namespace dryad
 {
 namespace model
 {
 
-struct motif_variation;
+struct motif_variation_t;
 
-struct motif
+struct motif_t
 {
-    // Members
-    std::vector<motif_variation> variations;
+    motif_variation_ptr variations;
+    score_weak_ptr parent_score;
 };
 
 } // namespace model

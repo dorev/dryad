@@ -1,18 +1,18 @@
 #pragma once
 
-#include "includes.h"
+#include "model_definitions.h"
 
 namespace dryad
 {
 namespace model
 {
 
-struct scale;
+struct scale_t;
 
-struct degree
+struct degree_t
 {
-    // References
-    std::shared_ptr<scale> parent_scale;
+    int interval_from_root;
+    scale_weak_ptr parent_scale;
 };
 
 } // namespace model

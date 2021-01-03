@@ -1,6 +1,5 @@
 #pragma once
 
-#include "includes.h"
 #include "model_definitions.h"
 
 namespace dryad
@@ -8,13 +7,13 @@ namespace dryad
 namespace model
 {
 
-struct harmony_node;
+struct harmony_node_t;
 
-struct harmony_graph
+struct harmony_graph_t
 {
-    // Members
-    std::vector<harmony_node> nodes;
-    std::vector<std::vector<degree_ptr>> progressions;
+    std::vector<harmony_node_ptr> nodes;
+    std::vector<std::vector<harmony_node_ptr>> progressions;
+    score_weak_ptr parent_score;
 };
 
 } // namespace model

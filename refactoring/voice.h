@@ -1,21 +1,18 @@
 #pragma once
 
-#include "includes.h"
+#include "model_definitions.h"
 
 namespace dryad
 {
 namespace model
 {
 
-struct score;
+struct score_t;
 
-struct voice
+struct voice_t
 {
-    // Members
     std::string name;
-
-    // References
-    std::shared_ptr<score> parent_score;
+    score_weak_ptr parent_score;
 };
 
 } // namespace model

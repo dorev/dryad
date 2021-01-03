@@ -1,29 +1,34 @@
 #pragma once
 
-#include "includes.h"
+#include "model_definitions.h"
 
 namespace dryad
 {
 namespace model
 {
 
-struct position;
-struct voice;
-struct motif;
+struct position_t;
+struct voice_t;
+struct motif_t;
 
-struct note
+struct note_t
 {
-    // Members
+    note_t()
+        : offset(0)
+        , duration(0)
+        , alteration(0)
+        , octave(0)
+        , step("C")
+    {}
+
     int offset;
     int duration;
     int alteration;
     int octave;
     const char* step;
-
-    // References
-    std::shared_ptr<voice> associated_voice;
-    std::shared_ptr<motif> associated_motif;
-    std::shared_ptr<position> parent_position;
+    voice_ptr associated_voice;
+    motif_ptr associated_motif;
+    position_weak_ptr parent_position;
 };
 
 } // namespace model
