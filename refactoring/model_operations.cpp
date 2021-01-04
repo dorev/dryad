@@ -44,14 +44,30 @@ void set_modulation(harmony_node_ptr node, int modulation)
     node->modulation = modulation;
 }
 
-void mark_as_entry(harmony_node_ptr node)
+void mark_as_entry(harmony_node_ptr node, bool value)
 {
-    node->is_entry = true;
+    node->is_entry = value;
 }
 
-void mark_as_exit(harmony_node_ptr node)
+void mark_as_entry(std::initializer_list<harmony_node_ptr> nodes, bool value)
 {
-    node->is_exit = true;
+    for (harmony_node_ptr node : nodes)
+    {
+        node->is_entry = value;
+    }
+}
+
+void mark_as_exit(harmony_node_ptr node, bool value)
+{
+   node->is_exit = value;
+}
+
+void mark_as_exit(std::initializer_list<harmony_node_ptr> nodes, bool value)
+{
+    for (harmony_node_ptr node : nodes)
+    {
+        node->is_exit = value;
+    }
 }
 
 void set_max_visit(harmony_node_ptr node, int max_visit)
@@ -177,6 +193,43 @@ void add_nodes(harmony_graph_ptr graph, std::initializer_list<harmony_node_ptr> 
     }
 }
 
+void add_degree(scale_ptr scale, degree_ptr added_degree)
+{
+    for (const degree_ptr& existing_degree : scale->degrees)
+    {
+        if (existing_degree == added_degree)
+        {
+            return;
+        }
+    }
+
+    scale->degrees.push_back(added_degree);
+}
+
+void add_degrees(scale_ptr scale, std::initializer_list<degree_ptr> added_degrees)
+{
+    for (degree_ptr degree : added_degrees)
+    {
+        bool skip = false;
+
+        for (const degree_ptr& existing_degree : scale->degrees)
+        {
+            if (existing_degree == degree)
+            {
+                skip = true;
+                break;
+            }
+        }
+
+        if (skip)
+        {
+            continue;
+        }
+
+        scale->degrees.push_back(degree);
+    }
+}
+
 // Score construction
 void apply_harmony(note_ptr note, harmony_node_ptr node)
 {
@@ -191,8 +244,6 @@ void apply_scale(score_ptr score, scale_ptr scale)
 void render_musicxml(score_t* score)
 {
 }
-
-
 
 } // namespace model
 } // namespace dryad

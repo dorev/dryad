@@ -7,10 +7,10 @@ namespace dryad
 namespace model
 {
 
-class note_t;
-class motif_t;
+struct note_t;
+struct motif_t;
 
-class motif_variation_t
+struct motif_variation_t
 {
     motif_weak_ptr parent_motif;
     std::vector<note_ptr> notes;

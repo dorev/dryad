@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{12caff1e-892b-40c7-83c9-e7de02957732}</ProjectGuid>
-    <RootNamespace>dryadrefactor</RootNamespace>
+    <ProjectGuid>{e27dd04c-284c-44d7-9808-d555346c649d}</ProjectGuid>
+    <RootNamespace>dryadrefactortests</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -40,7 +40,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>ClangCL</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -78,6 +78,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -120,10 +121,13 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>./extern;./extern/gtest;./extern/gtest/include;.\refactoring;.\refactoring_tests</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>D:\Git\dryad\x64\dryad_refactor\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dryad_refactor.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -143,27 +147,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="refactoring\dryad.h" />
-    <ClInclude Include="refactoring\harmony_operations.h" />
-    <ClInclude Include="refactoring\degree.h" />
-    <ClInclude Include="refactoring\harmony_graph.h" />
-    <ClInclude Include="refactoring\harmony_node.h" />
-    <ClInclude Include="refactoring\includes.h" />
-    <ClInclude Include="refactoring\measure.h" />
-    <ClInclude Include="refactoring\model_definitions.h" />
-    <ClInclude Include="refactoring\motif.h" />
-    <ClInclude Include="refactoring\motif_variation.h" />
-    <ClInclude Include="refactoring\note.h" />
-    <ClInclude Include="refactoring\model_operations.h" />
-    <ClInclude Include="refactoring\phrase.h" />
-    <ClInclude Include="refactoring\position.h" />
-    <ClInclude Include="refactoring\scale.h" />
-    <ClInclude Include="refactoring\score.h" />
-    <ClInclude Include="refactoring\voice.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="refactoring\harmony_operations.cpp" />
-    <ClCompile Include="refactoring\model_operations.cpp" />
+    <ClCompile Include="refactoring_tests\harmony_tests.cpp" />
+    <ClCompile Include="refactoring_tests\main.cpp" />
+    <ClCompile Include="refactoring_tests\model_tests.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

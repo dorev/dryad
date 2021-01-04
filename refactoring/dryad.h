@@ -1,0 +1,17 @@
+#pragma once
+
+#include "degree.h"
+#include "harmony_graph.h"
+#include "harmony_node.h"
+#include "harmony_operations.h"
+#include "measure.h"
+#include "model_definitions.h"
+#include "model_operations.h"
+#include "motif.h"
+#include "motif_variation.h"
+#include "note.h"
+#include "phrase.h"
+#include "position.h"
+#include "scale.h"
+#include "score.h"
+#include "voice.h"

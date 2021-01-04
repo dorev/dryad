@@ -18,8 +18,9 @@ struct harmony_node_t
         , max_visit_count(1)
         , modulation(0)
         , visit_count(0)
-        , is_entry(0)
-        , is_exit()
+        , is_entry(false)
+        , is_exit(false)
+        , name("")
     {}
     
     int alteration;
@@ -29,6 +30,7 @@ struct harmony_node_t
     int visit_count;
     bool is_entry;
     bool is_exit;
+    std::string name;
     std::vector<harmony_node_ptr> edges;
     harmony_graph_weak_ptr parent_harmony_graph;
     degree_ptr associated_degree;
