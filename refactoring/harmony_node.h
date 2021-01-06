@@ -1,10 +1,8 @@
 #pragma once
 
-#include "model_definitions.h"
+#include "definitions.h"
 
 namespace dryad
-{
-namespace model
 {
 
 struct degree_t;
@@ -36,5 +34,4 @@ struct harmony_node_t
     degree_ptr associated_degree;
 };
 
-} // namespace model
 } // namespace dryad

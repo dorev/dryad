@@ -1,10 +1,8 @@
 #pragma once
 
-#include "model_definitions.h"
+#include "definitions.h"
 
 namespace dryad
-{
-namespace model
 {
 
 struct note_t;
@@ -16,5 +14,4 @@ struct motif_variation_t
     std::vector<note_ptr> notes;
 };
 
-} // namespace model
 } // namespace dryad

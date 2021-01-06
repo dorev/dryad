@@ -1,10 +1,8 @@
 #pragma once
 
-#include "model_definitions.h"
+#include "definitions.h"
 
 namespace dryad
-{
-namespace model
 {
 
 struct motif_t;
@@ -19,5 +17,4 @@ struct score_t
     harmony_graph_ptr graph;
 };
 
-} // namespace model
 } // namespace dryad

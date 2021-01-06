@@ -3,8 +3,6 @@
 
 namespace dryad
 {
-namespace model
-{
 
 class model_tests : public ::testing::Test
 {
@@ -33,6 +31,4 @@ TEST_F(model_tests, create_a_valid_score)
     // Act
     // Assert
 }
-
-} // namespace model
 } // namespace dryad

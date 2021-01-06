@@ -144,17 +144,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="refactoring\dryad.h" />
-    <ClInclude Include="refactoring\harmony_operations.h" />
     <ClInclude Include="refactoring\degree.h" />
     <ClInclude Include="refactoring\harmony_graph.h" />
     <ClInclude Include="refactoring\harmony_node.h" />
     <ClInclude Include="refactoring\includes.h" />
     <ClInclude Include="refactoring\measure.h" />
-    <ClInclude Include="refactoring\model_definitions.h" />
+    <ClInclude Include="refactoring\definitions.h" />
     <ClInclude Include="refactoring\motif.h" />
     <ClInclude Include="refactoring\motif_variation.h" />
     <ClInclude Include="refactoring\note.h" />
-    <ClInclude Include="refactoring\model_operations.h" />
+    <ClInclude Include="refactoring\operations.h" />
     <ClInclude Include="refactoring\phrase.h" />
     <ClInclude Include="refactoring\position.h" />
     <ClInclude Include="refactoring\scale.h" />
@@ -162,8 +161,7 @@
     <ClInclude Include="refactoring\voice.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="refactoring\harmony_operations.cpp" />
-    <ClCompile Include="refactoring\model_operations.cpp" />
+    <ClCompile Include="refactoring\operations.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

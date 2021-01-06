@@ -1,10 +1,8 @@
 #pragma once
 
-#include "model_definitions.h"
+#include "definitions.h"
 
 namespace dryad
-{
-namespace model
 {
 
 struct degree_t;
@@ -20,5 +18,4 @@ struct phrase_t
     phrase_weak_ptr prev;
 };
 
-} // namespace model
 } // namespace dryad

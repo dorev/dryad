@@ -1,10 +1,8 @@
 #pragma once
 
-#include "model_definitions.h"
+#include "definitions.h"
 
 namespace dryad
-{
-namespace model
 {
 
 struct position_t;
@@ -13,8 +11,8 @@ struct motif_t;
 
 struct note_t
 {
-    note_t()
-        : offset(0)
+    note_t(int offset = 0)
+        : offset(offset)
         , duration(0)
         , alteration(0)
         , octave(0)
@@ -31,5 +29,4 @@ struct note_t
     position_weak_ptr parent_position;
 };
 
-} // namespace model
 } // namespace dryad

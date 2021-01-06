@@ -58,7 +58,7 @@ TEST_F(mode_graph_should, print_max_permutations)
 {
     major_mode m;
     m.generate_permutations(0);
-    //m.print_permutations();
+    m.print_permutations();
 
     // Arrange
     // Act

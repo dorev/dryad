@@ -1,10 +1,8 @@
 #pragma once
 
-#include "model_definitions.h"
+#include "definitions.h"
 
 namespace dryad
-{
-namespace model
 {
 
 struct harmony_node_t;
@@ -17,5 +15,4 @@ struct harmony_graph_t
     std::vector<std::vector<harmony_node_ptr>> progressions;
 };
 
-} // namespace model
 } // namespace dryad

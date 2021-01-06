@@ -1,9 +1,7 @@
 #pragma once
 
-#include "model_definitions.h"
+#include "definitions.h"
 namespace dryad
-{
-namespace model
 {
 
 struct position_t;
@@ -19,5 +17,4 @@ struct measure_t
     measure_weak_ptr prev;
 };
 
-} // namespace model
 } // namespace dryad

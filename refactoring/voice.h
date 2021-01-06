@@ -1,10 +1,8 @@
 #pragma once
 
-#include "model_definitions.h"
+#include "definitions.h"
 
 namespace dryad
-{
-namespace model
 {
 
 struct score_t;
@@ -15,5 +13,4 @@ struct voice_t
     score_weak_ptr parent_score;
 };
 
-} // namespace model
 } // namespace dryad
