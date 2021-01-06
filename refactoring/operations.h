@@ -34,6 +34,7 @@ void generate_progressions(harmony_graph_ptr graph);
 scale_ptr create_major_scale();
 void add_degree(scale_ptr scale, degree_ptr degree);
 void add_degrees(scale_ptr scale, std::initializer_list<degree_ptr> degrees);
+const std::vector<int>& get_chord_interval(degree_ptr degree);
 
 // Score construction
 void apply_harmony(note_ptr note, harmony_node_ptr node);
@@ -48,24 +49,21 @@ void spend_rhythmic_energy(motif_variation_ptr motif, motif_config_ptr motif_con
 void generate_motif(motif_variation_ptr motif, motif_config_ptr motif_config);
 void generate_motif(motif_ptr motif, motif_config_ptr motif_config);
 
+// Phrase
+void apply_progression(phrase_ptr phrase, std::vector<harmony_node_ptr>& progression, fitting_mode_e fitting_mode);
+void apply_motif(phrase_ptr phrase, motif_ptr motif);
+void apply_motif(phrase_ptr phrase, motif_variation_ptr motif_variation);
 
-// Detect "next" member and returns its value
-template <class, class = void> struct has_next : std::false_type {};
-template <class T> struct has_next<T, std::void_t<decltype(T::next)>> : std::true_type {};
 
 template <class T>
-typename std::enable_if<has_next<T>::value, std::shared_ptr<T>>::type
+typename std::enable_if<std::is_same<std::weak_ptr<T>, decltype(T::next)>::value, std::shared_ptr<T>>::type
 next(std::shared_ptr<T> item)
 {
     return item->next.lock();
 }
 
-// Detect "prev" member and returns its value
-template <class, class = void> struct has_prev : std::false_type {};
-template <class T> struct has_prev<T, std::void_t<decltype(T::prev)>> : std::true_type {};
-
 template <class T>
-typename std::enable_if<has_prev<T>::value, std::shared_ptr<T>>::type
+typename std::enable_if<std::is_same<std::weak_ptr<T>, decltype(T::prev)>::value, std::shared_ptr<T>>::type
 prev(std::shared_ptr<T> item)
 {
     return item->prev.lock();

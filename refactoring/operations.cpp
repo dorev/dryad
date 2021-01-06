@@ -28,7 +28,7 @@ score_ptr create_score()
 
 void set_degree(harmony_node_ptr node, degree_ptr degree)
 {
-    node->associated_degree = degree;
+    node->degree = degree;
 }
 
 void set_alteration(harmony_node_ptr node, int alteration)
@@ -134,7 +134,7 @@ void visit(harmony_node_ptr node, std::vector<harmony_node_ptr>& progression)
         }
         else
         {
-            throw "harmony_graph has been deallocated before its nodes";
+            DEBUG_BREAK("harmony_graph has been deallocated before its nodes");
         }
     }
 
@@ -153,14 +153,14 @@ void leave(harmony_node_ptr node, std::vector<harmony_node_ptr>& progression)
 {
     if (node->visit_count == 0)
     {
-        throw "harmony_node is left more than it was visited";
+        DEBUG_BREAK("harmony_node is left more than it was visited");
     }
 
     node->visit_count--;
 
     if (progression.empty())
     {
-        throw "a progression cannot be empty if a node has been visited";
+        DEBUG_BREAK("a progression cannot be empty if a node has been visited");
     }
 
     progression.pop_back();
@@ -256,6 +256,85 @@ scale_ptr create_major_scale()
     return major_scale;
 }
 
+const std::vector<int>& get_chord_interval(degree_ptr degree)
+{
+    if (degree->chord_intervals.size() > 0)
+    {
+        return degree->chord_intervals;
+    }
+
+    degree_ptr third = next(next(degree));
+    degree_ptr fifth = next(next(third));
+    degree_ptr seventh = next(next(fifth));
+
+    int root = degree->interval_from_root;
+
+    int third_interval = third->interval_from_root < root
+        ? third->interval_from_root + 12 - root
+        : third->interval_from_root - root;
+
+    if (third_interval != 3 && third_interval != 4)
+    {
+        DEBUG_BREAK("unsupported third chord interval");
+    }
+
+    int fifth_interval = fifth->interval_from_root < root
+        ? fifth->interval_from_root + 12 - root
+        : fifth->interval_from_root - root;
+
+    if (fifth_interval != 7)
+    {
+        if (fifth_interval == 6 && third_interval == 3)
+        {
+            degree->chord_intervals = _dim_;
+            return degree->chord_intervals;
+        }
+        else if (fifth_interval == 8 && third_interval == 4)
+        {
+            degree->chord_intervals = _aug_;
+            return degree->chord_intervals;
+        }
+
+        DEBUG_BREAK("unsupported fifth chord interval");
+    }
+
+    int seventh_interval = seventh->interval_from_root < root
+        ? seventh->interval_from_root + 12 - root
+        : seventh->interval_from_root - root;
+
+    if (seventh_interval != 10 && third_interval != 11)
+    {
+        DEBUG_BREAK("unsupported seventh chord interval");
+    }
+
+    if (third_interval == 3)
+    {
+        if (seventh_interval == 10)
+        {
+            degree->chord_intervals = _m7_;
+        }
+        else
+        {
+            degree->chord_intervals = _mM7_;
+        }
+
+        return degree->chord_intervals;
+    }
+    else
+    {
+        if (seventh_interval == 10)
+        {
+            degree->chord_intervals = _M7_;
+        }
+        else
+        {
+            degree->chord_intervals = _MM7_;
+        }
+
+        return degree->chord_intervals;
+    }
+}
+
 harmony_graph_ptr create_major_graph()
 {
     harmony_graph_ptr graph = std::make_shared<harmony_graph_t>();
@@ -264,7 +343,7 @@ harmony_graph_ptr create_major_graph()
     for (int i = 0; i < 7; ++i)
     {
         harmony_node_ptr node = std::make_shared<harmony_node_t>();
-        node->associated_degree = graph->scale->degrees[i];
+        node->degree = graph->scale->degrees[i];
         node->parent_harmony_graph = graph;
         add_node(graph, node);
     }
@@ -314,7 +393,7 @@ void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_conf
 {
     if (motif->notes.size() == 0)
     {
-        throw "no notes to spend melodic energy on";
+        DEBUG_BREAK("no notes to spend melodic energy on");
     }
 
     int energy_left = motif_config->melodic_energy;
@@ -438,7 +517,7 @@ void spend_rhythmic_energy(motif_variation_ptr motif, motif_config_ptr motif_con
         }
         else
         {
-            throw "reached unsupported rhythmic fraction during rhythmic energy spending";
+            DEBUG_BREAK("reached unsupported rhythmic fraction during rhythmic energy spending");
         }
     }
 
@@ -452,11 +531,11 @@ void generate_motif(motif_variation_ptr motif, motif_config_ptr motif_config)
 {
     if (motif_config->duration % _quarter_)
     {
-        throw "motif duration should be a factor of quarter notes";
+        DEBUG_BREAK("motif duration should be a factor of quarter notes");
     }
     if (motif_config->duration > 2 * _whole_)
     {
-        throw "request motif duration is too long";
+        DEBUG_BREAK("request motif duration is too long");
     }
 
     spend_rhythmic_energy(motif, motif_config);
@@ -467,11 +546,11 @@ void generate_motif(motif_ptr motif, motif_config_ptr motif_config)
 {
     if (motif_config->duration % _quarter_)
     {
-        throw "motif duration should be a factor of quarter notes";
+        DEBUG_BREAK("motif duration should be a factor of quarter notes");
     }
     if (motif_config->duration > 2 * _whole_)
     {
-        throw "request motif duration is too long";
+        DEBUG_BREAK("request motif duration is too long");
     }
 
     if (motif->variations.size() == 0)
@@ -481,7 +560,7 @@ void generate_motif(motif_ptr motif, motif_config_ptr motif_config)
         return;
     }
 
-    throw "generate_motif should not be called on a motif already containing variations";
+    DEBUG_BREAK("generate_motif should not be called on a motif already containing variations");
 }
 
 

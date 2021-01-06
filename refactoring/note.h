@@ -24,8 +24,8 @@ struct note_t
     int alteration;
     int octave;
     const char* step;
-    voice_ptr associated_voice;
-    motif_ptr associated_motif;
+    voice_ptr voice;
+    motif_variation_ptr motif;
     position_weak_ptr parent_position;
 };
 

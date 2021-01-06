@@ -2,6 +2,13 @@
 
 #include "includes.h"
 
+#define DEBUG_BREAK(x) \
+{ \
+    std::cout << "\n\n" << x << "\n --> " << __FILE__ << " l." << __LINE__ << "\n\n"; \
+    *(reinterpret_cast<unsigned int*>(0xBAADD00DBAADD00D)) = 0U; \
+    throw; \
+}
+
 namespace dryad
 {
 
@@ -54,21 +61,21 @@ using session_weak_ptr           = std::weak_ptr<session>;
 using voice_weak_ptr             = std::weak_ptr<voice_t>;
 
 // Durations
-constexpr int _whole_dotted_         = 144;
-constexpr int _whole_                = 96;
-constexpr int _half_dotted_          = 72;
-constexpr int _half_                 = 48;
-constexpr int _quarter_dotted_       = 36;
-constexpr int _half_triplet_         = 32;
-constexpr int _quarter_              = 24;
-constexpr int _eighth_dotted_        = 18;
-constexpr int _quarter_triplet_      = 16;
-constexpr int _eighth_               = 12;
-constexpr int _eighth_triplet_       = 8;
-constexpr int _sixteenth_            = 6;
-constexpr int _sixteenth_triplet_    = 4;
-constexpr int _thirtysecond_         = 3;
-constexpr int _thirtysecond_triplet_ = 2;
+[[maybe_unused]] constexpr int _whole_dotted_         = 144;
+[[maybe_unused]] constexpr int _whole_                = 96;
+[[maybe_unused]] constexpr int _half_dotted_          = 72;
+[[maybe_unused]] constexpr int _half_                 = 48;
+[[maybe_unused]] constexpr int _quarter_dotted_       = 36;
+[[maybe_unused]] constexpr int _half_triplet_         = 32;
+[[maybe_unused]] constexpr int _quarter_              = 24;
+[[maybe_unused]] constexpr int _eighth_dotted_        = 18;
+[[maybe_unused]] constexpr int _quarter_triplet_      = 16;
+[[maybe_unused]] constexpr int _eighth_               = 12;
+[[maybe_unused]] constexpr int _eighth_triplet_       = 8;
+[[maybe_unused]] constexpr int _sixteenth_            = 6;
+[[maybe_unused]] constexpr int _sixteenth_triplet_    = 4;
+[[maybe_unused]] constexpr int _thirtysecond_         = 3;
+[[maybe_unused]] constexpr int _thirtysecond_triplet_ = 2;
 
 const static std::vector<int> allowed_rhythmic_fractions =
 {
@@ -83,24 +90,33 @@ const static std::vector<int> allowed_rhythmic_fractions =
 };
 
 // Intervals
-constexpr int _minor_second_        = 1;
-constexpr int _second_              = 2;
-constexpr int _minor_third_         = 3;
-constexpr int _third_               = 4;
-constexpr int _fourth_              = 5;
-constexpr int _augmented_fourth_    = 6;
-constexpr int _fifth_               = 7;
-constexpr int _minor_sixth_         = 8;
-constexpr int _sixth_               = 9;
-constexpr int _seventh_             = 10;
-constexpr int _major_seventh_       = 11;
+[[maybe_unused]] constexpr int _minor_second_        = 1;
+[[maybe_unused]] constexpr int _second_              = 2;
+[[maybe_unused]] constexpr int _minor_third_         = 3;
+[[maybe_unused]] constexpr int _third_               = 4;
+[[maybe_unused]] constexpr int _fourth_              = 5;
+[[maybe_unused]] constexpr int _augmented_fourth_    = 6;
+[[maybe_unused]] constexpr int _fifth_               = 7;
+[[maybe_unused]] constexpr int _minor_sixth_         = 8;
+[[maybe_unused]] constexpr int _sixth_               = 9;
+[[maybe_unused]] constexpr int _seventh_             = 10;
+[[maybe_unused]] constexpr int _major_seventh_       = 11;
+
+// Progression fitting modes
+enum class fitting_mode_e
+{
+    power_of_2_left,
+    power_of_2_right,
+    compact_left,
+    compact_right
+};
 
 // Chord
-static const std::vector<int> _M7_  = { 0, 4, 7, 10 };
-static const std::vector<int> _MM7_ = { 0, 4, 7, 11 };
-static const std::vector<int> _m7_  = { 0, 3, 7, 10 };
-static const std::vector<int> _mM7_ = { 0, 3, 7, 10 };
-static const std::vector<int> _dim_ = { 0, 3, 6 };
-static const std::vector<int> _aug_ = { 0, 4, 8 };
+static const std::vector<int> _M7_  = { 4, 7, 10 };
+static const std::vector<int> _MM7_ = { 4, 7, 11 };
+static const std::vector<int> _m7_  = { 3, 7, 10 };
+static const std::vector<int> _mM7_ = { 3, 7, 11 };
+static const std::vector<int> _dim_ = { 3, 6 };
+static const std::vector<int> _aug_ = { 4, 8 };
 
 } // namespace dryad

@@ -31,7 +31,7 @@ struct harmony_node_t
     std::string name;
     std::vector<harmony_node_ptr> edges;
     harmony_graph_weak_ptr parent_harmony_graph;
-    degree_ptr associated_degree;
+    degree_ptr degree;
 };
 
 } // namespace dryad

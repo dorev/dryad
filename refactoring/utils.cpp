@@ -28,7 +28,7 @@ void get_equivalent_duration_pairs(int duration, std::vector<std::pair<int, int>
 
     if (solutions.empty())
     {
-        throw "unable to split requested duration";
+        DEBUG_BREAK("unable to split requested duration");
     }
 }
 
