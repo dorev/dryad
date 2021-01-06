@@ -3,13 +3,13 @@
 #include "harmony_node.h"
 #include "measure.h"
 #include "motif.h"
-#include "motif_energy.h"
+#include "motif_config.h"
 #include "motif_variation.h"
 #include "operations.h"
 #include "note.h"
 #include "phrase.h"
 #include "position.h"
-#include "random.h"
+#include "utils.h"
 #include "scale.h"
 #include "score.h"
 
@@ -310,50 +310,178 @@ void render_musicxml(score_t* score)
 {
 }
 
-void spend_melodic_energy(motif_variation_ptr motif, motif_energy_ptr motif_energy)
+void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_config)
 {
-    int duration = motif_energy->duration;
-    int energy = motif_energy->melodic_energy;
-    int max = motif_energy->max_melodic_energy;
-    int min = motif_energy->min_melodic_energy;
-
-    std::vector<int> energy_distribution(motif->notes.size());
-
-    while(energy--)
+    if (motif->notes.size() == 0)
     {
-        
+        throw "no notes to spend melodic energy on";
+    }
+
+    int energy_left = motif_config->melodic_energy;
+    int max = motif_config->max_melodic_energy;
+    int min = motif_config->min_melodic_energy;
+
+    std::vector<int> energy_distribution(motif->notes.size(), 0);
+
+    while(energy_left != 0)
+    {
+        int targeted_note = random::range(0ULL, energy_distribution.size() - 1);
+        int energy_given = 0;
+
+        if (energy_distribution[targeted_note] < max)
+        {
+            if (energy_left >= min)
+            {
+                energy_given = min;
+            }
+            else
+            {
+                energy_given = energy_left;
+            }
+        }
+        else
+        {
+            // Find another note to give energy too
+            std::vector<int> candidate_indices;
+
+            for (int i = 0; i < (int)motif->notes.size(); ++i)
+            {
+                if (energy_distribution[i] < max)
+                {
+                    candidate_indices.emplace_back(i);
+                }
+            }
+            
+            if (candidate_indices.empty())
+            {
+                // all notes are maxed on energy, unable to spend anymore energy
+                break;
+            }
+
+            targeted_note = random::in(candidate_indices);
+
+            if (energy_left >= min)
+            {
+                energy_given = min;
+            }
+            else
+            {
+                energy_given = energy_left;
+            }
+        }
+
+        if (energy_distribution[targeted_note] + energy_given > max)
+        {
+            energy_given = max - energy_distribution[targeted_note];
+        }
+
+        energy_distribution[targeted_note] += energy_given;
+        energy_left -= energy_given;
+    }
+
+    for (int i = 0; i < int(energy_distribution.size()); ++i)
+    {
+        if (random::coin_flip())
+        {
+            // Give a negative direction to energy
+            energy_distribution[i] -= 2 * energy_distribution[i];
+        }
+
+        motif->notes[i]->offset = energy_distribution[i];
     }
 }
 
-void spend_rhythmic_energy(motif_variation_ptr motif, motif_energy_ptr motif_energy)
+void spend_rhythmic_energy(motif_variation_ptr motif, motif_config_ptr motif_config)
 {
-    int duration = motif_energy->duration;
-    int energy = motif_energy->rhythmic_energy;
-    int max = motif_energy->max_rhythmic_energy;
-    int min = motif_energy->min_rhythmic_energy;
+    int duration = motif_config->duration;
+    int energy_left = motif_config->rhythmic_energy;
 
-    while(energy--)
+    std::vector<int> notes_durations({ duration });
+    std::vector<std::pair<int, int>> solutions;
+
+    while(energy_left--)
     {
-        
+        int targeted_note = random::range(0, static_cast<int>(notes_durations.size() - 1));
+        int note_duration = notes_durations[targeted_note];
+
+        if (note_duration > _sixteenth_)
+        {
+            get_equivalent_duration_pairs(note_duration, solutions);
+            const std::pair<int, int>& selected_solution = random::in(solutions);
+            notes_durations[targeted_note] = selected_solution.first;
+            notes_durations.insert(notes_durations.begin() + targeted_note, selected_solution.second);
+        }
+        else if (note_duration == _sixteenth_)
+        {
+            // Find another note to split
+            std::vector<int> candidate_indices;
+
+            for (int i = 0; i < (int)notes_durations.size(); ++i)
+            {
+                if (notes_durations[i] > _sixteenth_)
+                {
+                    candidate_indices.emplace_back(i);
+                }
+            }
+
+            if (candidate_indices.empty())
+            {
+                // notes_durations vector contains only sixteenth, unable to spend anymore energy
+                break;
+            }
+
+            int new_targeted_note = random::in(candidate_indices);
+            get_equivalent_duration_pairs(notes_durations[new_targeted_note], solutions);
+            const std::pair<int, int>& selected_solution = random::in(solutions);
+            notes_durations[new_targeted_note] = selected_solution.first;
+            notes_durations.insert(notes_durations.begin() + new_targeted_note, selected_solution.second);
+        }
+        else
+        {
+            throw "reached unsupported rhythmic fraction during rhythmic energy spending";
+        }
+    }
+
+    for(int i = 0; i < (int)notes_durations.size(); ++i)
+    {
+        motif->notes.emplace_back(std::make_shared<note_t>())->duration = duration;
     }
 }
 
-void generate_motif(motif_variation_ptr motif, motif_energy_ptr motif_energy)
+void generate_motif(motif_variation_ptr motif, motif_config_ptr motif_config)
 {
-    spend_rhythmic_energy(motif, motif_energy);
-    spend_melodic_energy(motif, motif_energy);
+    if (motif_config->duration % _quarter_)
+    {
+        throw "motif duration should be a factor of quarter notes";
+    }
+    if (motif_config->duration > 2 * _whole_)
+    {
+        throw "request motif duration is too long";
+    }
+
+    spend_rhythmic_energy(motif, motif_config);
+    spend_melodic_energy(motif, motif_config);
 }
 
-void generate_motif(motif_ptr motif, motif_energy_ptr motif_energy)
+void generate_motif(motif_ptr motif, motif_config_ptr motif_config)
 {
+    if (motif_config->duration % _quarter_)
+    {
+        throw "motif duration should be a factor of quarter notes";
+    }
+    if (motif_config->duration > 2 * _whole_)
+    {
+        throw "request motif duration is too long";
+    }
+
     if (motif->variations.size() == 0)
     {
-        motif->variations.emplace_back();
-        generate_motif(motif->variations[0], motif_energy);
+        motif->variations.emplace_back(std::make_shared<motif_variation_t>());
+        generate_motif(motif->variations[0], motif_config);
         return;
     }
 
-    throw "generate_motif should not be called on a non-empty motif";
+    throw "generate_motif should not be called on a motif already containing variations";
 }
 
 

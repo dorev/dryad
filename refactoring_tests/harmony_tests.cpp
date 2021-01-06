@@ -52,6 +52,89 @@ TEST_F(harmony_tests, generate_major_graph_progressions)
     harmony_graph_ptr graph = create_major_graph();
     generate_progressions(graph);
 
-    EXPECT_EQ(graph->progressions.size(), 1384) << "1384 permutarions are expected from default major mode";
+    EXPECT_EQ(graph->progressions.size(), 1384) << "1384 permutations are expected from default major mode";
 }
+
+TEST_F(harmony_tests, spend_melodic_energy_correctly)
+{
+    motif_ptr motif = std::make_shared<motif_t>();
+    motif_config_ptr motif_config = std::make_shared<motif_config_t>();
+
+    int epoch = 100;
+    int note_count = 8;
+
+    for (int n = 0; n < epoch; ++n)
+    {
+        motif->variations.emplace_back(std::make_shared<motif_variation_t>());
+        motif_variation_ptr variation = motif->variations[n];
+
+        motif_config->duration = 2 * _whole_;
+        int min_energy = motif_config->min_melodic_energy = random::range(1, 3);
+        int max_energy = motif_config->max_melodic_energy = random::range(min_energy + 1, 12);
+
+        int total_energy = motif_config->melodic_energy = random::range(note_count * min_energy / 2, (int)(note_count * max_energy * 1.25));
+
+        for (int i = 0; i < note_count; ++i)
+        {
+            variation->notes.emplace_back(std::make_shared<note_t>())->duration = _quarter_;
+        }
+
+        spend_melodic_energy(variation, motif_config);
+
+        int spent_energy =
+            std::reduce
+            (
+                variation->notes.begin(),
+                variation->notes.end(),
+                0,
+                [](int acc, const note_ptr& note)
+                {
+                    return acc + std::abs(note->offset);
+                }
+            );
+
+        int expected_energy_spent = std::min(total_energy, note_count * max_energy);
+
+        if (spent_energy != expected_energy_spent)
+        {
+            FAIL() << "failed during epoch " << n << ": energy spent is " << spent_energy << " while expected spending was " << expected_energy_spent;
+        }
+    }
+}
+
+TEST_F(harmony_tests, spend_rhythmic_energy_correctly)
+{
+    motif_ptr motif = std::make_shared<motif_t>();
+    motif_config_ptr motif_config = std::make_shared<motif_config_t>();
+
+    int epoch = 100;
+    int note_count = 8;
+
+    for (int n = 0; n < epoch; ++n)
+    {
+        motif->variations.emplace_back(std::make_shared<motif_variation_t>());
+        motif_variation_ptr variation = motif->variations[n];
+
+        motif_config->duration = 2 * _whole_;
+        int max_notes = motif_config->duration / _sixteenth_;
+
+        int rhythmic_energy = motif_config->rhythmic_energy = random::range(0, max_notes);
+
+        spend_rhythmic_energy(variation, motif_config);
+
+        int expected_note_count = std::min(rhythmic_energy + 1, max_notes);
+        int actual_note_count = (int)variation->notes.size();
+
+        if (actual_note_count != expected_note_count)
+        {
+            FAIL() << "failed during epoch " << n << ": should have splitted motif in " << expected_note_count << " notes but made " << actual_note_count;
+        }
+    }
+}
+
+TEST_F(harmony_tests, empty_test)
+{
+
+}
+
 } // namespace dryad

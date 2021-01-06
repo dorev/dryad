@@ -43,10 +43,10 @@ void apply_scale(score_ptr score, scale_ptr scale);
 void render_musicxml(score_t* score);
 
 // Motif
-void spend_melodic_energy(motif_variation_ptr motif, motif_energy_ptr motif_energy);
-void spend_rhythmic_energy(motif_variation_ptr motif, motif_energy_ptr motif_energy);
-void generate_motif(motif_variation_ptr motif, motif_energy_ptr motif_energy);
-void generate_motif(motif_ptr motif, motif_energy_ptr motif_energy);
+void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_config);
+void spend_rhythmic_energy(motif_variation_ptr motif, motif_config_ptr motif_config);
+void generate_motif(motif_variation_ptr motif, motif_config_ptr motif_config);
+void generate_motif(motif_ptr motif, motif_config_ptr motif_config);
 
 
 // Detect "next" member and returns its value

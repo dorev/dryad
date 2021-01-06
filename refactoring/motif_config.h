@@ -5,16 +5,14 @@
 namespace dryad
 {
 
-struct motif_energy_t
+struct motif_config_t
 {
-    motif_energy_t(int duration, int melodic_energy, int rhythmic_energy)
+    motif_config_t(int duration = 0, int melodic_energy = 0, int rhythmic_energy = 0)
         : duration(duration)
         , melodic_energy(melodic_energy)
-        , min_melodic_energy(0)
-        , max_melodic_energy(_fifth_)
+        , min_melodic_energy(1)
+        , max_melodic_energy(8)
         , rhythmic_energy(rhythmic_energy)
-        , min_rhythmic_energy(0)
-        , max_rhythmic_energy(_fifth_)
     {}
 
     int duration;
@@ -22,8 +20,6 @@ struct motif_energy_t
     int min_melodic_energy;
     int max_melodic_energy;
     int rhythmic_energy;
-    int min_rhythmic_energy;
-    int max_rhythmic_energy;
 };
 
 } // namespace dryad

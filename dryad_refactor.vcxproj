@@ -78,8 +78,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>./tmp/bin/</OutDir>
+    <IntDir>./tmp/objs/dryad_refactor/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -151,17 +151,20 @@
     <ClInclude Include="refactoring\measure.h" />
     <ClInclude Include="refactoring\definitions.h" />
     <ClInclude Include="refactoring\motif.h" />
+    <ClInclude Include="refactoring\motif_config.h" />
     <ClInclude Include="refactoring\motif_variation.h" />
     <ClInclude Include="refactoring\note.h" />
     <ClInclude Include="refactoring\operations.h" />
     <ClInclude Include="refactoring\phrase.h" />
     <ClInclude Include="refactoring\position.h" />
+    <ClInclude Include="refactoring\utils.h" />
     <ClInclude Include="refactoring\scale.h" />
     <ClInclude Include="refactoring\score.h" />
     <ClInclude Include="refactoring\voice.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="refactoring\operations.cpp" />
+    <ClCompile Include="refactoring\utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
