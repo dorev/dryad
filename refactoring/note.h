@@ -16,7 +16,7 @@ struct note_t
         , duration(0)
         , alteration(0)
         , octave(0)
-        , step("C")
+        , step("")
     {}
 
     int offset;

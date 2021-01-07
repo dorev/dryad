@@ -36,12 +36,6 @@ void add_degree(scale_ptr scale, degree_ptr degree);
 void add_degrees(scale_ptr scale, std::initializer_list<degree_ptr> degrees);
 const std::vector<int>& get_chord_interval(degree_ptr degree);
 
-// Score construction
-void apply_harmony(note_ptr note, harmony_node_ptr node);
-void apply_scale(score_ptr score, scale_ptr scale);
-
-// Score rendering
-void render_musicxml(score_t* score);
 
 // Motif
 void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_config);
@@ -51,8 +45,13 @@ void generate_motif(motif_ptr motif, motif_config_ptr motif_config);
 
 // Phrase
 void apply_progression(phrase_ptr phrase, std::vector<harmony_node_ptr>& progression, fitting_mode_e fitting_mode);
-void apply_motif(phrase_ptr phrase, motif_ptr motif);
-void apply_motif(phrase_ptr phrase, motif_variation_ptr motif_variation);
+void apply_motif(phrase_ptr phrase, motif_variation_ptr motif_variation, voice_ptr voice);
+void append_note(measure_ptr measure, note_ptr note);
+
+// Measure
+int get_total_voice_duration(measure_ptr measure, voice_ptr voice);
+position_ptr get_position_at_time(measure_ptr measure, int time);
+position_ptr insert_position_at_time(measure_ptr measure, int time);
 
 
 template <class T>
@@ -69,5 +68,11 @@ prev(std::shared_ptr<T> item)
     return item->prev.lock();
 }
 
+// Score construction
+void apply_harmony(note_ptr note, harmony_node_ptr node);
+void apply_scale(score_ptr score, scale_ptr scale);
+
+// Score rendering
+void render_musicxml(score_t* score);
 
 } // namespace dryad

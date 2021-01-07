@@ -37,6 +37,29 @@ struct random
 };
 
 template <class T>
+typename std::enable_if<std::is_integral<T>::value, bool>::type
+is_power_of_2(T integer)
+{
+    uint64_t set_bits = 0;
+
+    if (integer < 0)
+    {
+        integer = std::abs(integer);
+    }
+
+    for (uint64_t bit = 0; bit < (sizeof(T) * 8); ++bit)
+    {
+        if (static_cast<uint64_t>(integer) & (1ULL << bit) && set_bits++)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+template <class T>
 typename std::enable_if<std::is_arithmetic<T>::value, T>::type
 reduce_vector(const std::vector<T>& vector)
 {

@@ -11,6 +11,11 @@ struct note_t;
 
 struct position_t
 {
+    position_t()
+        : measure_time(0)
+    {}
+
+    int measure_time;
     std::vector<note_ptr> notes;
     harmony_node_ptr harmony_node;
     measure_weak_ptr parent_measure;

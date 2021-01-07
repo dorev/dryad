@@ -10,6 +10,11 @@ struct harmony_node_t;
 
 struct measure_t
 {
+    measure_t(int duration = _whole_)
+        : duration(duration)
+    {}
+
+    int duration;
     std::vector<position_ptr> positions;
     std::vector<harmony_node_ptr> progression;
     phrase_weak_ptr parent_phrase;

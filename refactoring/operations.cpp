@@ -563,6 +563,280 @@ void generate_motif(motif_ptr motif, motif_config_ptr motif_config)
     DEBUG_BREAK("generate_motif should not be called on a motif already containing variations");
 }
 
+void apply_progression(phrase_ptr phrase, std::vector<harmony_node_ptr>& progression, fitting_mode_e fitting_mode)
+{
+    std::vector<measure_ptr>& measures = phrase->measures;
+    int progression_size = static_cast<int>(progression.size());
+    int phrase_size = static_cast<int>(measures.size());
 
+    if (!is_power_of_2(phrase_size))
+    {
+        DEBUG_BREAK("A phrase should be a power of 2");
+    }
+
+    // Perfect fit! Easy dispatch
+    if (progression_size == phrase_size)
+    {
+        for (int i = 0; i < phrase_size; ++i)
+        {
+            measures[i] = phrase->progression[i];
+        }
+        return;
+    }
+
+    std::vector<int> degrees_distribution(phrase_size, 0);
+
+    // Values that cannot be initialized in the switch case
+    int chords_to_fit = progression_size;
+    int offset = phrase_size;
+    int measure = 0;
+
+    switch (fitting_mode)
+    {
+    case fitting_mode_e::power_of_2_left:
+    case fitting_mode_e::power_of_2_right:
+
+        for (int n = 0; n < chords_to_fit; ++n)
+        {
+            offset = phrase_size;
+            measure = 0;
+
+            for(int bit = 0; bit < std::log2(phrase_size); ++bit)
+            {
+                offset >>= 1;
+
+                bool bit_of_n_is_off = !((1 << bit) & n);
+
+                if (bit_of_n_is_off)
+                {
+                    measure += offset;
+                }
+            }
+
+            if (progression_size < phrase_size ||
+                fitting_mode == fitting_mode_e::power_of_2_left)
+            {
+                ++degrees_distribution[(phrase_size - 1) - measure];
+            }
+            else if (fitting_mode == fitting_mode_e::power_of_2_right)
+            {
+                ++degrees_distribution[measure];
+            }
+            else
+            {
+                DEBUG_BREAK("We should not reach this point");
+            }
+        }
+
+        break;
+
+    case fitting_mode_e::compact_left:
+    case fitting_mode_e::compact_right:
+
+        while (chords_to_fit != 0)
+        {
+            bool break_while = false;
+
+            for (measure = phrase_size; measure > (phrase_size - offset); --measure)
+            {
+                if (progression_size < phrase_size ||
+                    fitting_mode == fitting_mode_e::compact_left)
+                {
+                    ++degrees_distribution[phrase_size - measure];
+                }
+                else if (fitting_mode == fitting_mode_e::compact_right)
+                {
+                    ++degrees_distribution[measure - 1];
+                }
+                else
+                {
+                    DEBUG_BREAK("We should not reach this point");
+                }
+
+                if (--chords_to_fit == 0)
+                {
+                    break_while = true;
+                    break;
+                }
+            }
+            
+            if (break_while)
+            {
+                break;
+            }
+
+            offset >>= 1;
+
+            if (offset == 0)
+            {
+                offset = phrase_size;
+            }
+        }
+
+    default:
+        break;
+    }
+
+    int progression_index = 0;
+
+    for(int i = 0; i < phrase_size; ++i)
+    {
+        // For the number of chords in that measure
+        while (degrees_distribution[i]--)
+        {
+            measures[i] = phrase->progression[progression_index++];
+        }
+    }
+}
+
+void apply_motif(phrase_ptr phrase, motif_variation_ptr motif_variation, voice_ptr voice)
+{
+    // Append the motif in loop until the phrase is fully filled
+    for (;;)
+    {
+        // For each note of the motif
+        for (note_ptr note : motif_variation->notes)
+        {
+            // Find the last measure with room for the target voice
+            for (measure_ptr measure : phrase->measures)
+            {
+                int voice_duration = get_total_voice_duration(measure, voice);
+                
+                if (voice_duration < measure->duration)
+                {
+                    note_ptr cloned_note = std::make_shared<note_t>(*note);
+                    cloned_note->voice = voice;
+                    append_note(measure, cloned_note);
+
+                    // Append next note
+                    break;
+                }
+                else if (next(measure) == nullptr)
+                {
+                    // Whole phrase has been covered
+                    return;
+                }
+            }
+        }
+    }
+}
+
+void append_note(measure_ptr measure, note_ptr note)
+{
+    int voice_duration = get_total_voice_duration(measure, note->voice);
+
+    if (voice_duration >= measure->duration)
+    {
+        // Try to append on next measure
+        if (measure_ptr next_measure = next(measure))
+        {
+            append_note(next_measure, note);
+        }
+        else
+        {
+            DEBUG_BREAK("attempted to append a note in a measure already full, with no following measure to fallback");
+        }
+
+        return;
+    }
+
+    position_ptr note_position = get_position_at_time(measure, voice_duration);
+
+    if (note_position == nullptr)
+    {
+        note_position = insert_position_at_time(measure, voice_duration);
+    }
+
+    note_position->notes.emplace_back(note);
+}
+
+position_ptr get_position_at_time(measure_ptr measure, int time)
+{
+    for (position_ptr position : measure->positions)
+    {
+        if (position->measure_time == time)
+        {
+            return position;
+        }
+    }
+
+    return nullptr;
+}
+
+position_ptr insert_position_at_time(measure_ptr measure, int time)
+{
+    position_ptr position_before = nullptr;
+    position_ptr position_after = nullptr;
+
+    for (position_ptr position : measure->positions)
+    {
+        int position_time = position->measure_time;
+
+        if (position_time == time)
+        {
+            return position;
+        }
+        else if (position_time > time)
+        {
+            position_after = position;
+            break;
+        }
+
+        position_before = position;
+    }
+
+    if (position_before == nullptr)
+    {
+        position_ptr new_position = measure->positions.emplace_back(std::make_shared<position_t>());
+        new_position->measure_time = time;
+        new_position->parent_measure = measure;
+        return;
+    }
+
+    // TODO: insert position in vector in correct place and relink next/prev
+}
+
+int get_total_voice_duration(measure_ptr measure, voice_ptr voice)
+{
+    int total_duration = 0;
+
+    if (measure->positions.size() == 0)
+    {
+        return 0;
+    }
+
+    bool voice_exists_in_measure = false;
+
+    for (note_ptr note : measure->positions[0]->notes)
+    {
+        if (note->voice == voice)
+        {
+            voice_exists_in_measure = true;
+            break;
+        }
+    }
+
+    if (!voice_exists_in_measure)
+    {
+        return 0;
+    }
+
+    for (position_ptr position : measure->positions)
+    {
+        for (note_ptr note : position->notes)
+        {
+            if (note->voice == voice)
+            {
+                total_duration += note->duration;
+
+                // It is assumed that there can only be
+                // one note of a voice in a position
+                break;
+            }
+        }
+    }
+
+    return total_duration;
+}
 
 } // namespace dryad
