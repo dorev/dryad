@@ -58,7 +58,6 @@ is_power_of_2(T integer)
     return true;
 }
 
-
 template <class T>
 typename std::enable_if<std::is_arithmetic<T>::value, T>::type
 reduce_vector(const std::vector<T>& vector)
@@ -69,6 +68,26 @@ reduce_vector(const std::vector<T>& vector)
         {
             return acc + value;
         });
+}
+
+template <class T>
+typename std::enable_if<std::is_same<std::weak_ptr<T>, decltype(T::next)>::value, std::shared_ptr<T>>::type
+next(std::shared_ptr<T> item)
+{
+    return item->next.lock();
+}
+
+template <class T>
+typename std::enable_if<std::is_same<std::weak_ptr<T>, decltype(T::prev)>::value, std::shared_ptr<T>>::type
+prev(std::shared_ptr<T> item)
+{
+    return item->prev.lock();
+}
+
+template <class T>
+std::shared_ptr<T> clone(std::shared_ptr<T> item)
+{
+    return std::make_shared<T>(*item);
 }
 
 void get_equivalent_duration_pairs(int duration, std::vector<std::pair<int, int>>& solutions);

@@ -12,6 +12,7 @@
 #include "utils.h"
 #include "scale.h"
 #include "score.h"
+#include "utils.h"
 
 namespace dryad
 {
@@ -19,8 +20,8 @@ namespace dryad
 // Creates an empty score with an empty harmony graph
 score_ptr create_score()
 {
-    score_ptr score = std::make_shared<score_t>();
-    score->graph = std::make_shared<harmony_graph_t>();
+    score_ptr score = make_score();
+    score->graph = make_harmony_graph();
     score->graph->parent_score = score;
 
     return score;
@@ -234,17 +235,17 @@ void add_degrees(scale_ptr scale, std::initializer_list<degree_ptr> added_degree
 
 scale_ptr create_major_scale()
 {
-    scale_ptr major_scale = std::make_shared<scale_t>();
+    scale_ptr major_scale = make_scale();
 
     add_degrees(major_scale, 
     {
-        std::make_shared<degree_t>(0, major_scale),
-        std::make_shared<degree_t>(2, major_scale),
-        std::make_shared<degree_t>(4, major_scale),
-        std::make_shared<degree_t>(5, major_scale),
-        std::make_shared<degree_t>(7, major_scale),
-        std::make_shared<degree_t>(9, major_scale),
-        std::make_shared<degree_t>(11, major_scale),
+        make_degree(0, major_scale),
+        make_degree(2, major_scale),
+        make_degree(4, major_scale),
+        make_degree(5, major_scale),
+        make_degree(7, major_scale),
+        make_degree(9, major_scale),
+        make_degree(11, major_scale),
     });
 
     for (int i = 0; i < 7; ++i)
@@ -337,12 +338,12 @@ const std::vector<int>& get_chord_interval(degree_ptr degree)
 
 harmony_graph_ptr create_major_graph()
 {
-    harmony_graph_ptr graph = std::make_shared<harmony_graph_t>();
+    harmony_graph_ptr graph = make_harmony_graph();
     graph->scale = create_major_scale();
 
     for (int i = 0; i < 7; ++i)
     {
-        harmony_node_ptr node = std::make_shared<harmony_node_t>();
+        harmony_node_ptr node = make_harmony_node();
         node->degree = graph->scale->degrees[i];
         node->parent_harmony_graph = graph;
         add_node(graph, node);
@@ -523,7 +524,10 @@ void spend_rhythmic_energy(motif_variation_ptr motif, motif_config_ptr motif_con
 
     for(int i = 0; i < (int)notes_durations.size(); ++i)
     {
-        motif->notes.emplace_back(std::make_shared<note_t>())->duration = duration;
+        note_ptr new_note = make_note();
+        new_note->duration = duration;
+        new_note->motif = motif;
+        motif->notes.emplace_back(new_note);
     }
 }
 
@@ -535,7 +539,7 @@ void generate_motif(motif_variation_ptr motif, motif_config_ptr motif_config)
     }
     if (motif_config->duration > 2 * _whole_)
     {
-        DEBUG_BREAK("request motif duration is too long");
+        DEBUG_BREAK("requested motif duration is too long");
     }
 
     spend_rhythmic_energy(motif, motif_config);
@@ -550,12 +554,12 @@ void generate_motif(motif_ptr motif, motif_config_ptr motif_config)
     }
     if (motif_config->duration > 2 * _whole_)
     {
-        DEBUG_BREAK("request motif duration is too long");
+        DEBUG_BREAK("requested motif duration is too long");
     }
 
     if (motif->variations.size() == 0)
     {
-        motif->variations.emplace_back(std::make_shared<motif_variation_t>());
+        motif->variations.emplace_back(make_motif_variation());
         generate_motif(motif->variations[0], motif_config);
         return;
     }
@@ -563,7 +567,7 @@ void generate_motif(motif_ptr motif, motif_config_ptr motif_config)
     DEBUG_BREAK("generate_motif should not be called on a motif already containing variations");
 }
 
-void apply_progression(phrase_ptr phrase, std::vector<harmony_node_ptr>& progression, fitting_mode_e fitting_mode)
+void apply_progression(phrase_ptr phrase, const std::vector<harmony_node_ptr>& progression, fitting_mode_e fitting_mode)
 {
     std::vector<measure_ptr>& measures = phrase->measures;
     int progression_size = static_cast<int>(progression.size());
@@ -579,7 +583,7 @@ void apply_progression(phrase_ptr phrase, std::vector<harmony_node_ptr>& progres
     {
         for (int i = 0; i < phrase_size; ++i)
         {
-            measures[i] = phrase->progression[i];
+            measures[i]->progression.emplace_back(phrase->progression[i]);
         }
         return;
     }
@@ -684,7 +688,7 @@ void apply_progression(phrase_ptr phrase, std::vector<harmony_node_ptr>& progres
         // For the number of chords in that measure
         while (degrees_distribution[i]--)
         {
-            measures[i] = phrase->progression[progression_index++];
+            measures[i]->progression.emplace_back(phrase->progression[progression_index++]);
         }
     }
 }
@@ -704,7 +708,7 @@ void apply_motif(phrase_ptr phrase, motif_variation_ptr motif_variation, voice_p
                 
                 if (voice_duration < measure->duration)
                 {
-                    note_ptr cloned_note = std::make_shared<note_t>(*note);
+                    note_ptr cloned_note = clone(note);
                     cloned_note->voice = voice;
                     append_note(measure, cloned_note);
 
@@ -732,10 +736,6 @@ void append_note(measure_ptr measure, note_ptr note)
         {
             append_note(next_measure, note);
         }
-        else
-        {
-            DEBUG_BREAK("attempted to append a note in a measure already full, with no following measure to fallback");
-        }
 
         return;
     }
@@ -747,6 +747,25 @@ void append_note(measure_ptr measure, note_ptr note)
         note_position = insert_position_at_time(measure, voice_duration);
     }
 
+    if( (note->duration + note_position->measure_time) > measure->duration)
+    {
+        // Overflow note duration to next measure
+        // TODO: liaisons
+        int duration_this_measure = measure->duration - note_position->measure_time;
+
+        // Try to append on next measure
+        if (measure_ptr next_measure = next(measure))
+        {
+            int duration_next_measure = note->duration - duration_this_measure;
+            note_ptr next_measure_cloned_note = clone(note);
+            next_measure_cloned_note->duration = duration_next_measure;
+            append_note(next_measure, next_measure_cloned_note);
+        }
+
+        note->duration = duration_this_measure;
+    }
+
+    note->parent_position = note_position;
     note_position->notes.emplace_back(note);
 }
 
@@ -767,8 +786,9 @@ position_ptr insert_position_at_time(measure_ptr measure, int time)
 {
     position_ptr position_before = nullptr;
     position_ptr position_after = nullptr;
+    std::vector<position_ptr>& positions = measure->positions;
 
-    for (position_ptr position : measure->positions)
+    for (position_ptr position : positions)
     {
         int position_time = position->measure_time;
 
@@ -787,13 +807,37 @@ position_ptr insert_position_at_time(measure_ptr measure, int time)
 
     if (position_before == nullptr)
     {
-        position_ptr new_position = measure->positions.emplace_back(std::make_shared<position_t>());
+        position_ptr new_position = make_position();
+        positions.emplace_back(new_position);
         new_position->measure_time = time;
         new_position->parent_measure = measure;
-        return;
+        return new_position;
     }
 
-    // TODO: insert position in vector in correct place and relink next/prev
+    for(auto it = positions.begin(); it != positions.end(); ++it)
+    {
+        if (*it == position_before)
+        {
+            position_ptr new_position = make_position();
+            new_position->measure_time = time;
+            new_position->parent_measure = measure;
+            positions.insert(it, new_position);
+
+            position_before->next = new_position;
+            new_position->prev = position_before;
+
+            if (position_after != nullptr)
+            {
+                new_position->next = position_after;
+                position_after->prev = new_position;
+            }
+
+            return new_position;
+        }
+    }
+
+    DEBUG_BREAK("this section should never be reached");
+    return nullptr;
 }
 
 int get_total_voice_duration(measure_ptr measure, voice_ptr voice)
