@@ -5,9 +5,6 @@
 namespace dryad
 {
 
-// Score
-score_ptr create_score();
-
 #define MAKE_FUNCTION(type) \
 template <class... types> \
 type##_ptr make_##type(types... args) \
@@ -70,6 +67,7 @@ void generate_motif(motif_ptr motif, motif_config_ptr motif_config);
 void apply_progression(phrase_ptr phrase, const std::vector<harmony_node_ptr>& progression, fitting_mode_e fitting_mode = fitting_mode_e::power_of_2_right);
 void apply_motif(phrase_ptr phrase, motif_variation_ptr motif_variation, voice_ptr voice);
 void append_note(measure_ptr measure, note_ptr note);
+void append_measure(phrase_ptr phrase, measure_ptr measure);
 
 // Measure
 int get_total_voice_duration(measure_ptr measure, voice_ptr voice);
@@ -77,8 +75,13 @@ position_ptr get_position_at_time(measure_ptr measure, int time);
 position_ptr insert_position_at_time(measure_ptr measure, int time);
 
 // Score construction
-void apply_harmony(note_ptr note, harmony_node_ptr node);
-void apply_scale(score_ptr score, scale_ptr scale);
+score_ptr create_score();
+void relink_all_elements(score_ptr score);
+void apply_scale(score_ptr score, scale_ptr scale, int scale_root);
+void apply_scale(note_ptr note, scale_ptr scale, int scale_root);
+harmony_node_ptr resolve_harmony_node(position_ptr position);
+void resolve_note(note_ptr note, int midi);
+
 
 // Score rendering
 void render_musicxml(score_t* score);

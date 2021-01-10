@@ -24,6 +24,7 @@ struct note_t;
 struct phrase_t;
 struct position_t;
 struct scale_t;
+struct scale_config_t;
 struct score_t;
 struct session;
 struct voice_t;
@@ -40,6 +41,7 @@ using note_ptr              = std::shared_ptr<note_t>;
 using phrase_ptr            = std::shared_ptr<phrase_t>;
 using position_ptr          = std::shared_ptr<position_t>;
 using scale_ptr             = std::shared_ptr<scale_t>;
+using scale_config_ptr      = std::shared_ptr<scale_config_t>;
 using score_ptr             = std::shared_ptr<score_t>;
 using session_ptr           = std::shared_ptr<session>;
 using voice_ptr             = std::shared_ptr<voice_t>;
@@ -56,6 +58,7 @@ using note_weak_ptr              = std::weak_ptr<note_t>;
 using phrase_weak_ptr            = std::weak_ptr<phrase_t>;
 using position_weak_ptr          = std::weak_ptr<position_t>;
 using scale_weak_ptr             = std::weak_ptr<scale_t>;
+using scale_config_weak_ptr      = std::weak_ptr<scale_config_t>;
 using score_weak_ptr             = std::weak_ptr<score_t>;
 using session_weak_ptr           = std::weak_ptr<session>;
 using voice_weak_ptr             = std::weak_ptr<voice_t>;
@@ -111,12 +114,40 @@ enum class fitting_mode_e
     compact_right
 };
 
+enum class accidental_e
+{
+    none,
+    sharp,
+    flat
+};
+
+// Notes
+const char* _C_     = "C";
+const char* _Cs_    = "C#";
+const char* _Df_    = "Db";
+const char* _D_     = "D";
+const char* _Ds_    = "D#";
+const char* _Ef_    = "Eb";
+const char* _E_     = "E";
+const char* _F_     = "F";
+const char* _Fs_    = "F#";
+const char* _Gf_    = "Gb";
+const char* _G_     = "G";
+const char* _Gs_    = "G#";
+const char* _Af_    = "Ab";
+const char* _A_     = "A";
+const char* _As_    = "A#";
+const char* _Bf_    = "Bb";
+const char* _B_     = "B";
+
+const std::vector<int> _base_notes_ = {0, 2, 4, 5, 7, 9, 11};
+
 // Chord
-static const std::vector<int> _M7_  = { 4, 7, 10 };
-static const std::vector<int> _MM7_ = { 4, 7, 11 };
-static const std::vector<int> _m7_  = { 3, 7, 10 };
-static const std::vector<int> _mM7_ = { 3, 7, 11 };
-static const std::vector<int> _dim_ = { 3, 6 };
-static const std::vector<int> _aug_ = { 4, 8 };
+const std::vector<int> _M7_  = { 4, 7, 10 };
+const std::vector<int> _MM7_ = { 4, 7, 11 };
+const std::vector<int> _m7_  = { 3, 7, 10 };
+const std::vector<int> _mM7_ = { 3, 7, 11 };
+const std::vector<int> _dim_ = { 3, 6 };
+const std::vector<int> _aug_ = { 4, 8 };
 
 } // namespace dryad

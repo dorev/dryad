@@ -1,6 +1,7 @@
 #pragma once
 
 #include "definitions.h"
+#include "monitoring.h"
 
 namespace dryad
 {
@@ -8,7 +9,7 @@ namespace dryad
 struct degree_t;
 struct harmony_graph_t;
 
-struct harmony_node_t
+struct harmony_node_t : monitor_count<harmony_node_t>
 {
     harmony_node_t()
         : alteration(0)

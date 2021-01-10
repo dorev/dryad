@@ -27,6 +27,8 @@ protected:
 
 TEST_F(harmony_tests, create_a_valid_major_scale)
 {
+    EXPECT_EQ(0ULL, degree_t::get_count());
+
     scale_ptr scale = create_major_scale();
     EXPECT_EQ(scale->degrees.size(), 7) << "Scale has wrong size";
 
@@ -43,8 +45,10 @@ TEST_F(harmony_tests, create_a_valid_major_scale)
     EXPECT_EQ(I, I_again) << "Degrees are not linked correctly";
 
     degree_ptr ii = scale->degrees[1];
-    degree_ptr ii_again = prev(prev(prev(prev(prev(prev(prev(ii)))))));
+    degree_ptr ii_again = previous(previous(previous(previous(previous(previous(previous(ii)))))));
+
     EXPECT_EQ(ii, ii_again) << "Degrees are not linked correctly";
+    EXPECT_EQ(7ULL, degree_t::get_count());
 }
 
 TEST_F(harmony_tests, generate_major_graph_progressions)
@@ -57,15 +61,15 @@ TEST_F(harmony_tests, generate_major_graph_progressions)
 
 TEST_F(harmony_tests, spend_melodic_energy_correctly)
 {
-    motif_ptr motif = std::make_shared<motif_t>();
-    motif_config_ptr motif_config = std::make_shared<motif_config_t>();
+    motif_ptr motif = make_motif();
+    motif_config_ptr motif_config = make_motif_config();
 
-    int epoch = 100;
+    int epoch = 1000;
     int note_count = 8;
 
     for (int n = 0; n < epoch; ++n)
     {
-        motif->variations.emplace_back(std::make_shared<motif_variation_t>());
+        motif->variations.emplace_back(make_motif_variation());
         motif_variation_ptr variation = motif->variations[n];
 
         motif_config->duration = 2 * _whole_;
@@ -76,7 +80,7 @@ TEST_F(harmony_tests, spend_melodic_energy_correctly)
 
         for (int i = 0; i < note_count; ++i)
         {
-            variation->notes.emplace_back(std::make_shared<note_t>())->duration = _quarter_;
+            variation->notes.emplace_back(make_note())->duration = _quarter_;
         }
 
         spend_melodic_energy(variation, motif_config);
@@ -104,15 +108,14 @@ TEST_F(harmony_tests, spend_melodic_energy_correctly)
 
 TEST_F(harmony_tests, spend_rhythmic_energy_correctly)
 {
-    motif_ptr motif = std::make_shared<motif_t>();
-    motif_config_ptr motif_config = std::make_shared<motif_config_t>();
+    motif_ptr motif = make_motif();
+    motif_config_ptr motif_config = make_motif_config();
 
     int epoch = 100;
-    int note_count = 8;
 
     for (int n = 0; n < epoch; ++n)
     {
-        motif->variations.emplace_back(std::make_shared<motif_variation_t>());
+        motif->variations.emplace_back(make_motif_variation());
         motif_variation_ptr variation = motif->variations[n];
 
         motif_config->duration = 2 * _whole_;

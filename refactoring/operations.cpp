@@ -11,8 +11,10 @@
 #include "position.h"
 #include "utils.h"
 #include "scale.h"
+#include "scale_config.h"
 #include "score.h"
 #include "utils.h"
+#include "voice.h"
 
 namespace dryad
 {
@@ -251,7 +253,7 @@ scale_ptr create_major_scale()
     for (int i = 0; i < 7; ++i)
     {
         major_scale->degrees[i]->next = major_scale->degrees[(i + 1) % 7];
-        major_scale->degrees[(i + 1) % 7]->prev = major_scale->degrees[i];
+        major_scale->degrees[(i + 1) % 7]->previous = major_scale->degrees[i];
     }
 
     return major_scale;
@@ -376,20 +378,6 @@ harmony_graph_ptr create_major_graph()
     return graph;
 }
 
-// Score construction
-void apply_harmony(note_ptr note, harmony_node_ptr node)
-{
-}
-
-void apply_scale(score_ptr score, scale_ptr scale)
-{
-}
-
-// Score rendering
-void render_musicxml(score_t* score)
-{
-}
-
 void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_config)
 {
     if (motif->notes.size() == 0)
@@ -412,7 +400,7 @@ void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_conf
         {
             if (energy_left >= min)
             {
-                energy_given = min;
+                energy_given = min == 0 ? 1 : min;
             }
             else
             {
@@ -442,7 +430,7 @@ void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_conf
 
             if (energy_left >= min)
             {
-                energy_given = min;
+                energy_given = min == 0 ? 1 : min;
             }
             else
             {
@@ -583,7 +571,7 @@ void apply_progression(phrase_ptr phrase, const std::vector<harmony_node_ptr>& p
     {
         for (int i = 0; i < phrase_size; ++i)
         {
-            measures[i]->progression.emplace_back(phrase->progression[i]);
+            measures[i]->progression.emplace_back(progression[i]);
         }
         return;
     }
@@ -688,7 +676,7 @@ void apply_progression(phrase_ptr phrase, const std::vector<harmony_node_ptr>& p
         // For the number of chords in that measure
         while (degrees_distribution[i]--)
         {
-            measures[i]->progression.emplace_back(phrase->progression[progression_index++]);
+            measures[i]->progression.emplace_back(progression[progression_index++]);
         }
     }
 }
@@ -723,6 +711,20 @@ void apply_motif(phrase_ptr phrase, motif_variation_ptr motif_variation, voice_p
             }
         }
     }
+}
+
+void append_measure(phrase_ptr phrase, measure_ptr measure)
+{
+    std::vector<measure_ptr>& measures = phrase->measures;
+
+    if (!measures.empty())
+    {
+        measure_ptr& last_measure = measures.back();
+        last_measure->next = measure;
+        measure->previous = last_measure;
+    }
+
+    measures.emplace_back(measure);
 }
 
 void append_note(measure_ptr measure, note_ptr note)
@@ -807,10 +809,20 @@ position_ptr insert_position_at_time(measure_ptr measure, int time)
 
     if (position_before == nullptr)
     {
-        position_ptr new_position = make_position();
+        position_ptr new_position = make_position(measure, time);
+
+        if (time != 0)
+        {
+            // Add initial position with a rest
+            position_ptr zero_position = make_position(measure);
+            resolve_harmony_node(zero_position);
+            new_position->previous = zero_position;
+            zero_position->next = new_position;
+            positions.emplace_back(zero_position);
+        }
+
         positions.emplace_back(new_position);
-        new_position->measure_time = time;
-        new_position->parent_measure = measure;
+        resolve_harmony_node(new_position);
         return new_position;
     }
 
@@ -824,14 +836,15 @@ position_ptr insert_position_at_time(measure_ptr measure, int time)
             positions.insert(it, new_position);
 
             position_before->next = new_position;
-            new_position->prev = position_before;
+            new_position->previous = position_before;
 
             if (position_after != nullptr)
             {
                 new_position->next = position_after;
-                position_after->prev = new_position;
+                position_after->previous = new_position;
             }
 
+            resolve_harmony_node(new_position);
             return new_position;
         }
     }
@@ -842,8 +855,6 @@ position_ptr insert_position_at_time(measure_ptr measure, int time)
 
 int get_total_voice_duration(measure_ptr measure, voice_ptr voice)
 {
-    int total_duration = 0;
-
     if (measure->positions.size() == 0)
     {
         return 0;
@@ -865,6 +876,8 @@ int get_total_voice_duration(measure_ptr measure, voice_ptr voice)
         return 0;
     }
 
+    int total_duration = 0;
+
     for (position_ptr position : measure->positions)
     {
         for (note_ptr note : position->notes)
@@ -881,6 +894,194 @@ int get_total_voice_duration(measure_ptr measure, voice_ptr voice)
     }
 
     return total_duration;
+}
+
+void relink_all_elements(score_ptr score)
+{
+    std::vector<phrase_ptr>& phrases = score->phrases;
+    int phrase_count = static_cast<int>(phrases.size());
+
+    for (int phrase_index = 0; phrase_index < phrase_count; ++phrase_index)
+    {
+        phrase_ptr phrase = phrases[phrase_index];
+        phrase->parent_score = score;
+
+        if (phrase_index != 0)
+        {
+            phrase->previous = phrases[phrase_index - 1];
+        }
+
+        if (phrase_index < (phrase_count - 1))
+        {
+            phrase->next = phrases[phrase_index + 1];
+        }
+
+        std::vector<measure_ptr>& measures = phrase->measures;
+        int measure_count = static_cast<int>(measures.size());
+
+        for (int measure_index = 0; measure_index < measure_count; ++measure_index)
+        {
+            measure_ptr measure = measures[measure_index];
+            measure->parent_phrase = phrase;
+
+            if (measure_index == 0 &&
+                phrase_index != 0)
+            {
+                phrase_ptr previous_phrase = previous(phrase);
+                measure_ptr previous_measure = last(previous_phrase->measures);
+                measure->previous = previous_measure;
+                previous_measure->next = measure;
+            }
+
+            if (measure_index != 0)
+            {
+                measure->previous = measures[measure_index - 1];
+            }
+
+            if (measure_index < (measure_count - 1))
+            {
+                measure->next = measures[measure_index + 1];
+            }
+
+            std::vector<position_ptr>& positions = measure->positions;
+            int position_count = static_cast<int>(positions.size());
+
+            for (int position_index = 0; position_index < position_count; ++position_index)
+            {
+                position_ptr position = positions[position_index];
+                position->parent_measure = measure;
+
+                if (position_index == 0 &&
+                    measure_index != 0 &&
+                    phrase_index != 0)
+                {
+                    measure_ptr previous_measure = previous(measure);
+                    position_ptr previous_position = last(previous_measure->positions);
+
+                    position->previous = previous_position;
+                    previous_position->next = position;
+                }
+
+                if (position_index != 0)
+                {
+                    position->previous = positions[position_index - 1];
+                }
+
+                if (position_index < (position_count - 1))
+                {
+                    position->next = positions[position_index + 1];
+                }
+            }
+        }
+    }
+}
+
+void resolve_note(note_ptr note, int midi_value)
+{
+    note->midi = midi_value;
+    note->octave = midi_value / 12;
+
+    int absolute_note = midi_value % 12;
+
+
+
+    // NAAAH SET ACCIDENTAL BASED ON MIDI!
+
+    switch (note->accidental)
+    {
+        default:
+        case accidental_e::none:
+
+            if (is_not_in(absolute_note, _base_notes_))
+            {
+                DEBUG_BREAK("note without accidental has ")
+            }
+
+            break;
+
+        case accidental_e::sharp:
+            break;
+
+        case accidental_e::flat:
+            break;
+    }
+}
+
+void apply_scale(note_ptr note, scale_ptr scale, scale_config_ptr scale_config)
+{
+    position_ptr position = note->parent_position.lock();
+
+    if (position == nullptr)
+    {
+        DEBUG_BREAK("note has no parent_position assigned");
+    }
+
+    harmony_node_ptr harmony_node = position->harmony_node;
+
+    int midi_value = scale_config->root +
+        harmony_node->degree->interval_from_root +
+        harmony_node->alteration +
+        harmony_node->modulation +
+        (12 * note->voice->octave);
+
+    resolve_note(note, midi_value);
+
+    DEBUG_BREAK("not implemented yet");
+}
+
+// Score construction
+void apply_scale(score_ptr score, scale_ptr scale, scale_config_ptr scale_config)
+{
+    relink_all_elements(score);
+
+    for (phrase_ptr phrase : score->phrases)
+    {
+        for (measure_ptr measure : phrase->measures)
+        {
+            for (position_ptr position : measure->positions)
+            {
+                for (note_ptr note : position->notes)
+                {
+                    apply_scale(note, scale, scale_config);
+                }
+            }
+        }
+    }
+}
+
+harmony_node_ptr resolve_harmony_node(position_ptr position)
+{
+    measure_ptr measure = position->parent_measure.lock();
+
+    if (measure == nullptr)
+    {
+        position->harmony_node = nullptr;
+        return nullptr;
+    }
+
+    int progression_size = static_cast<int>(measure->progression.size());
+
+    if (progression_size == 0)
+    {
+        position->harmony_node = nullptr;
+        return nullptr;
+    }
+    else if (progression_size == 1)
+    {
+        position->harmony_node = measure->progression[0];
+        return position->harmony_node;
+    }
+
+    int chord_duration = measure->duration / progression_size;
+
+    int good_node_index = position->measure_time / chord_duration;
+    position->harmony_node = measure->progression[good_node_index];
+    return position->harmony_node;
+}
+
+// Score rendering
+void render_musicxml(score_t* score)
+{
 }
 
 } // namespace dryad

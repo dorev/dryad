@@ -150,6 +150,7 @@
     <ClInclude Include="refactoring\includes.h" />
     <ClInclude Include="refactoring\measure.h" />
     <ClInclude Include="refactoring\definitions.h" />
+    <ClInclude Include="refactoring\monitoring.h" />
     <ClInclude Include="refactoring\motif.h" />
     <ClInclude Include="refactoring\motif_config.h" />
     <ClInclude Include="refactoring\motif_variation.h" />
@@ -157,6 +158,7 @@
     <ClInclude Include="refactoring\operations.h" />
     <ClInclude Include="refactoring\phrase.h" />
     <ClInclude Include="refactoring\position.h" />
+    <ClInclude Include="refactoring\scale_config.h" />
     <ClInclude Include="refactoring\utils.h" />
     <ClInclude Include="refactoring\scale.h" />
     <ClInclude Include="refactoring\score.h" />
