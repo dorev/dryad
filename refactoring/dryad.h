@@ -14,5 +14,6 @@
 #include "position.h"
 #include "utils.h"
 #include "scale.h"
+#include "scale_config.h"
 #include "score.h"
 #include "voice.h"

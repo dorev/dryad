@@ -72,7 +72,7 @@ is_power_of_2(T integer)
 }
 
 template <class T>
-bool is_in(const T& value, const std::vector<T>& vector)
+bool contains(const T& value, const std::vector<T>& vector)
 {
     for (size_t i = 0; i < vector.size(); ++i)
     {
@@ -83,12 +83,6 @@ bool is_in(const T& value, const std::vector<T>& vector)
     }
 
     return false;
-}
-
-template <class T>
-bool is_not_in(const T& value, const std::vector<T>& vector)
-{
-    return !is_in(std::forward<const T&>(value), std::forward<const std::vector<T>&>(vector));
 }
 
 template <class T>

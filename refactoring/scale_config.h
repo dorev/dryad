@@ -9,9 +9,9 @@ struct degree_t;
 
 struct scale_config_t
 {
-    scale_config_t()
-        : root(0)
-        , accidental(accidental_e::sharp)
+    scale_config_t(int root = 0, accidental_e accidental = accidental_e::sharp)
+        : root(root)
+        , accidental(accidental)
     {}
 
     int root;

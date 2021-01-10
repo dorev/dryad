@@ -29,31 +29,6 @@ score_ptr create_score()
     return score;
 }
 
-void set_degree(harmony_node_ptr node, degree_ptr degree)
-{
-    node->degree = degree;
-}
-
-void set_alteration(harmony_node_ptr node, int alteration)
-{
-    node->alteration = alteration;
-}
-
-void set_inversion(harmony_node_ptr node, int inversion)
-{
-    node->inversion = inversion;
-}
-
-void set_modulation(harmony_node_ptr node, int modulation)
-{
-    node->modulation = modulation;
-}
-
-void mark_as_entry(harmony_node_ptr node, bool value)
-{
-    node->is_entry = value;
-}
-
 void mark_as_entry(std::initializer_list<harmony_node_ptr> nodes, bool value)
 {
     for (harmony_node_ptr node : nodes)
@@ -62,22 +37,12 @@ void mark_as_entry(std::initializer_list<harmony_node_ptr> nodes, bool value)
     }
 }
 
-void mark_as_exit(harmony_node_ptr node, bool value)
-{
-   node->is_exit = value;
-}
-
 void mark_as_exit(std::initializer_list<harmony_node_ptr> nodes, bool value)
 {
     for (harmony_node_ptr node : nodes)
     {
         node->is_exit = value;
     }
-}
-
-void set_max_visit(harmony_node_ptr node, int max_visit)
-{
-    node->max_visit_count = max_visit;
 }
 
 void add_edge(harmony_node_ptr node, harmony_node_ptr other_node)
@@ -119,7 +84,7 @@ void add_edges(harmony_node_ptr node, std::initializer_list<harmony_node_ptr> ot
 
 bool is_visitable(harmony_node_ptr node)
 {
-    return node->visit_count < node->max_visit_count;
+    return node->visit_count < node->max_visit;
 }
 
 void visit(harmony_node_ptr node, std::vector<harmony_node_ptr>& progression)
@@ -238,6 +203,8 @@ void add_degrees(scale_ptr scale, std::initializer_list<degree_ptr> added_degree
 scale_ptr create_major_scale()
 {
     scale_ptr major_scale = make_scale();
+
+    major_scale->name = "Major Ionian scale";
 
     add_degrees(major_scale, 
     {
@@ -370,10 +337,10 @@ harmony_graph_ptr create_major_graph()
     add_edges(vi,   {ii, IV});
     add_edges(viid, {I, iii});
 
-    set_max_visit(I, 2);
-    set_max_visit(IV, 2);
-    set_max_visit(V, 2);
-    set_max_visit(vi, 2);
+    I->max_visit  = 2;
+    IV->max_visit = 2;
+    V->max_visit  = 2;
+    vi->max_visit = 2;
 
     return graph;
 }
@@ -683,6 +650,8 @@ void apply_progression(phrase_ptr phrase, const std::vector<harmony_node_ptr>& p
 
 void apply_motif(phrase_ptr phrase, motif_variation_ptr motif_variation, voice_ptr voice)
 {
+    relink_phrase(phrase);
+
     // Append the motif in loop until the phrase is fully filled
     for (;;)
     {
@@ -713,13 +682,29 @@ void apply_motif(phrase_ptr phrase, motif_variation_ptr motif_variation, voice_p
     }
 }
 
+void append_phrase(score_ptr score, phrase_ptr phrase)
+{
+    std::vector<phrase_ptr>& phrases = score->phrases;
+    phrase->parent_score = score;
+
+    if (!phrases.empty())
+    {
+        phrase_ptr last_phrase = last(phrases);
+        last_phrase->next = phrase;
+        phrase->previous = last_phrase;
+    }
+
+    phrases.emplace_back(phrase);
+}
+
 void append_measure(phrase_ptr phrase, measure_ptr measure)
 {
     std::vector<measure_ptr>& measures = phrase->measures;
+    measure->parent_phrase = phrase;
 
     if (!measures.empty())
     {
-        measure_ptr& last_measure = measures.back();
+        measure_ptr last_measure = last(measures);
         last_measure->next = measure;
         measure->previous = last_measure;
     }
@@ -810,14 +795,23 @@ position_ptr insert_position_at_time(measure_ptr measure, int time)
     if (position_before == nullptr)
     {
         position_ptr new_position = make_position(measure, time);
+        new_position->parent_measure = measure;
 
         if (time != 0)
         {
             // Add initial position with a rest
             position_ptr zero_position = make_position(measure);
+            zero_position->parent_measure = measure;
+
             resolve_harmony_node(zero_position);
             new_position->previous = zero_position;
             zero_position->next = new_position;
+
+            if (measure_ptr previous_measure = previous(measure))
+            {
+                zero_position->previous = last(previous_measure->positions);
+            }
+
             positions.emplace_back(zero_position);
         }
 
@@ -831,6 +825,8 @@ position_ptr insert_position_at_time(measure_ptr measure, int time)
         if (*it == position_before)
         {
             position_ptr new_position = make_position();
+            new_position->parent_measure = measure;
+
             new_position->measure_time = time;
             new_position->parent_measure = measure;
             positions.insert(it, new_position);
@@ -896,7 +892,58 @@ int get_total_voice_duration(measure_ptr measure, voice_ptr voice)
     return total_duration;
 }
 
-void relink_all_elements(score_ptr score)
+void relink_phrase(phrase_ptr phrase)
+{
+    std::vector<measure_ptr>& measures = phrase->measures;
+    int measure_count = static_cast<int>(measures.size());
+
+    for (int measure_index = 0; measure_index < measure_count; ++measure_index)
+    {
+        measure_ptr measure = measures[measure_index];
+        measure->parent_phrase = phrase;
+
+        if (measure_index != 0)
+        {
+            measure->previous = measures[measure_index - 1];
+        }
+
+        if (measure_index < (measure_count - 1))
+        {
+            measure->next = measures[measure_index + 1];
+        }
+
+        std::vector<position_ptr>& positions = measure->positions;
+        int position_count = static_cast<int>(positions.size());
+
+        for (int position_index = 0; position_index < position_count; ++position_index)
+        {
+            position_ptr position = positions[position_index];
+            position->parent_measure = measure;
+
+            if (position_index == 0 &&
+                measure_index != 0)
+            {
+                measure_ptr previous_measure = previous(measure);
+                position_ptr previous_position = last(previous_measure->positions);
+
+                position->previous = previous_position;
+                previous_position->next = position;
+            }
+
+            if (position_index != 0)
+            {
+                position->previous = positions[position_index - 1];
+            }
+
+            if (position_index < (position_count - 1))
+            {
+                position->next = positions[position_index + 1];
+            }
+        }
+    }
+}
+
+void relink_score(score_ptr score)
 {
     std::vector<phrase_ptr>& phrases = score->phrases;
     int phrase_count = static_cast<int>(phrases.size());
@@ -952,8 +999,7 @@ void relink_all_elements(score_ptr score)
                 position->parent_measure = measure;
 
                 if (position_index == 0 &&
-                    measure_index != 0 &&
-                    phrase_index != 0)
+                    measure_index != 0)
                 {
                     measure_ptr previous_measure = previous(measure);
                     position_ptr previous_position = last(previous_measure->positions);
@@ -976,37 +1022,6 @@ void relink_all_elements(score_ptr score)
     }
 }
 
-void resolve_note(note_ptr note, int midi_value)
-{
-    note->midi = midi_value;
-    note->octave = midi_value / 12;
-
-    int absolute_note = midi_value % 12;
-
-
-
-    // NAAAH SET ACCIDENTAL BASED ON MIDI!
-
-    switch (note->accidental)
-    {
-        default:
-        case accidental_e::none:
-
-            if (is_not_in(absolute_note, _base_notes_))
-            {
-                DEBUG_BREAK("note without accidental has ")
-            }
-
-            break;
-
-        case accidental_e::sharp:
-            break;
-
-        case accidental_e::flat:
-            break;
-    }
-}
-
 void apply_scale(note_ptr note, scale_ptr scale, scale_config_ptr scale_config)
 {
     position_ptr position = note->parent_position.lock();
@@ -1024,15 +1039,45 @@ void apply_scale(note_ptr note, scale_ptr scale, scale_config_ptr scale_config)
         harmony_node->modulation +
         (12 * note->voice->octave);
 
-    resolve_note(note, midi_value);
+    note->octave = midi_value / 12;
 
-    DEBUG_BREAK("not implemented yet");
+    int absolute_note = midi_value % 12;
+
+    if (contains(absolute_note, _base_notes_))
+    {
+        note->name = _note_names_sharp_[absolute_note];
+        note->accidental = accidental_e::none;
+    }
+    else
+    {
+        accidental_e scale_accidental = scale_config->accidental;
+
+        switch (scale_accidental)
+        {
+            default:
+            case accidental_e::none:
+                DEBUG_BREAK("this switch case should never process these enum values");
+                break;
+
+            case accidental_e::sharp:
+                note->accidental = accidental_e::sharp;
+                note->name = _note_names_sharp_[absolute_note];
+                note->step = _note_names_sharp_[absolute_note - 1];
+                break;
+
+            case accidental_e::flat:
+                note->accidental = accidental_e::flat;
+                note->name = _note_names_flat_[absolute_note];
+                note->step = _note_names_flat_[absolute_note + 1];
+                break;
+        }
+    }
 }
 
 // Score construction
 void apply_scale(score_ptr score, scale_ptr scale, scale_config_ptr scale_config)
 {
-    relink_all_elements(score);
+    relink_score(score);
 
     for (phrase_ptr phrase : score->phrases)
     {
@@ -1049,6 +1094,32 @@ void apply_scale(score_ptr score, scale_ptr scale, scale_config_ptr scale_config
     }
 }
 
+harmony_node_ptr find_latest_harmony_node(position_ptr position)
+{
+    measure_ptr measure = position->parent_measure.lock();
+
+    if (measure == nullptr)
+    {
+        DEBUG_BREAK("a position is always expected to have a parent_measure");
+    }
+
+    for (;;)
+    {
+        measure = previous(measure);
+
+        if (measure == nullptr)
+        {
+            return nullptr;
+            //DEBUG_BREAK("no previous measure to provide a harmony_node");
+        }
+
+        if(measure->progression.size() != 0)
+        {
+            return last(measure->progression);
+        }
+    }
+}
+
 harmony_node_ptr resolve_harmony_node(position_ptr position)
 {
     measure_ptr measure = position->parent_measure.lock();
@@ -1056,27 +1127,24 @@ harmony_node_ptr resolve_harmony_node(position_ptr position)
     if (measure == nullptr)
     {
         position->harmony_node = nullptr;
-        return nullptr;
+        DEBUG_BREAK("a position is always expected to have a parent_measure");
     }
 
     int progression_size = static_cast<int>(measure->progression.size());
 
     if (progression_size == 0)
     {
-        position->harmony_node = nullptr;
-        return nullptr;
+        return position->harmony_node = find_latest_harmony_node(position);
     }
     else if (progression_size == 1)
     {
-        position->harmony_node = measure->progression[0];
-        return position->harmony_node;
+        return position->harmony_node = measure->progression[0];
     }
 
     int chord_duration = measure->duration / progression_size;
-
     int good_node_index = position->measure_time / chord_duration;
-    position->harmony_node = measure->progression[good_node_index];
-    return position->harmony_node;
+
+    return position->harmony_node = measure->progression[good_node_index];
 }
 
 // Score rendering

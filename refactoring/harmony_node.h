@@ -14,7 +14,7 @@ struct harmony_node_t : monitor_count<harmony_node_t>
     harmony_node_t()
         : alteration(0)
         , inversion(0)
-        , max_visit_count(1)
+        , max_visit(1)
         , modulation(0)
         , visit_count(0)
         , is_entry(false)
@@ -24,7 +24,7 @@ struct harmony_node_t : monitor_count<harmony_node_t>
     
     int alteration;
     int inversion;
-    int max_visit_count;
+    int max_visit;
     int modulation;
     int visit_count;
     bool is_entry;

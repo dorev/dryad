@@ -64,23 +64,23 @@ using session_weak_ptr           = std::weak_ptr<session>;
 using voice_weak_ptr             = std::weak_ptr<voice_t>;
 
 // Durations
-[[maybe_unused]] constexpr int _whole_dotted_         = 144;
-[[maybe_unused]] constexpr int _whole_                = 96;
-[[maybe_unused]] constexpr int _half_dotted_          = 72;
-[[maybe_unused]] constexpr int _half_                 = 48;
-[[maybe_unused]] constexpr int _quarter_dotted_       = 36;
-[[maybe_unused]] constexpr int _half_triplet_         = 32;
-[[maybe_unused]] constexpr int _quarter_              = 24;
-[[maybe_unused]] constexpr int _eighth_dotted_        = 18;
-[[maybe_unused]] constexpr int _quarter_triplet_      = 16;
-[[maybe_unused]] constexpr int _eighth_               = 12;
-[[maybe_unused]] constexpr int _eighth_triplet_       = 8;
-[[maybe_unused]] constexpr int _sixteenth_            = 6;
-[[maybe_unused]] constexpr int _sixteenth_triplet_    = 4;
-[[maybe_unused]] constexpr int _thirtysecond_         = 3;
-[[maybe_unused]] constexpr int _thirtysecond_triplet_ = 2;
+constexpr int _whole_dotted_         = 144;
+constexpr int _whole_                = 96;
+constexpr int _half_dotted_          = 72;
+constexpr int _half_                 = 48;
+constexpr int _quarter_dotted_       = 36;
+constexpr int _half_triplet_         = 32;
+constexpr int _quarter_              = 24;
+constexpr int _eighth_dotted_        = 18;
+constexpr int _quarter_triplet_      = 16;
+constexpr int _eighth_               = 12;
+constexpr int _eighth_triplet_       = 8;
+constexpr int _sixteenth_            = 6;
+constexpr int _sixteenth_triplet_    = 4;
+constexpr int _thirtysecond_         = 3;
+constexpr int _thirtysecond_triplet_ = 2;
 
-const static std::vector<int> allowed_rhythmic_fractions =
+static const std::vector<int> allowed_rhythmic_fractions =
 {
     _sixteenth_,
     _eighth_,
@@ -93,17 +93,17 @@ const static std::vector<int> allowed_rhythmic_fractions =
 };
 
 // Intervals
-[[maybe_unused]] constexpr int _minor_second_        = 1;
-[[maybe_unused]] constexpr int _second_              = 2;
-[[maybe_unused]] constexpr int _minor_third_         = 3;
-[[maybe_unused]] constexpr int _third_               = 4;
-[[maybe_unused]] constexpr int _fourth_              = 5;
-[[maybe_unused]] constexpr int _augmented_fourth_    = 6;
-[[maybe_unused]] constexpr int _fifth_               = 7;
-[[maybe_unused]] constexpr int _minor_sixth_         = 8;
-[[maybe_unused]] constexpr int _sixth_               = 9;
-[[maybe_unused]] constexpr int _seventh_             = 10;
-[[maybe_unused]] constexpr int _major_seventh_       = 11;
+constexpr int _minor_second_        = 1;
+constexpr int _second_              = 2;
+constexpr int _minor_third_         = 3;
+constexpr int _third_               = 4;
+constexpr int _fourth_              = 5;
+constexpr int _augmented_fourth_    = 6;
+constexpr int _fifth_               = 7;
+constexpr int _minor_sixth_         = 8;
+constexpr int _sixth_               = 9;
+constexpr int _seventh_             = 10;
+constexpr int _major_seventh_       = 11;
 
 // Progression fitting modes
 enum class fitting_mode_e
@@ -122,32 +122,34 @@ enum class accidental_e
 };
 
 // Notes
-const char* _C_     = "C";
-const char* _Cs_    = "C#";
-const char* _Df_    = "Db";
-const char* _D_     = "D";
-const char* _Ds_    = "D#";
-const char* _Ef_    = "Eb";
-const char* _E_     = "E";
-const char* _F_     = "F";
-const char* _Fs_    = "F#";
-const char* _Gf_    = "Gb";
-const char* _G_     = "G";
-const char* _Gs_    = "G#";
-const char* _Af_    = "Ab";
-const char* _A_     = "A";
-const char* _As_    = "A#";
-const char* _Bf_    = "Bb";
-const char* _B_     = "B";
+static const char* _C_     = "C";
+static const char* _Cs_    = "C#";
+static const char* _Df_    = "Db";
+static const char* _D_     = "D";
+static const char* _Ds_    = "D#";
+static const char* _Ef_    = "Eb";
+static const char* _E_     = "E";
+static const char* _F_     = "F";
+static const char* _Fs_    = "F#";
+static const char* _Gf_    = "Gb";
+static const char* _G_     = "G";
+static const char* _Gs_    = "G#";
+static const char* _Af_    = "Ab";
+static const char* _A_     = "A";
+static const char* _As_    = "A#";
+static const char* _Bf_    = "Bb";
+static const char* _B_     = "B";
 
-const std::vector<int> _base_notes_ = {0, 2, 4, 5, 7, 9, 11};
+static const std::vector<int> _base_notes_ = {0, 2, 4, 5, 7, 9, 11};
+static const std::vector<const char*> _note_names_sharp_ = { _C_, _Cs_, _D_, _Ds_, _E_, _F_, _Fs_, _G_, _Gs_, _A_, _As_, _B_};
+static const std::vector<const char*> _note_names_flat_ = { _C_, _Df_, _D_, _Ef_, _E_, _F_, _Gf_, _G_, _Af_, _A_, _Bf_, _B_};
 
 // Chord
-const std::vector<int> _M7_  = { 4, 7, 10 };
-const std::vector<int> _MM7_ = { 4, 7, 11 };
-const std::vector<int> _m7_  = { 3, 7, 10 };
-const std::vector<int> _mM7_ = { 3, 7, 11 };
-const std::vector<int> _dim_ = { 3, 6 };
-const std::vector<int> _aug_ = { 4, 8 };
+static const std::vector<int> _M7_  = { 4, 7, 10 };
+static const std::vector<int> _MM7_ = { 4, 7, 11 };
+static const std::vector<int> _m7_  = { 3, 7, 10 };
+static const std::vector<int> _mM7_ = { 3, 7, 11 };
+static const std::vector<int> _dim_ = { 3, 6 };
+static const std::vector<int> _aug_ = { 4, 8 };
 
 } // namespace dryad

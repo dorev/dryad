@@ -124,9 +124,69 @@ TEST_F(model_tests, apply_motif_to_phrase)
     }
 }
 
+TEST_F(model_tests, apply_scale_to_score)
+{
+    int epoch = 1000;
+
+    score_ptr score = create_score();
+    score->graph = create_major_graph();
+    generate_progressions(score->graph);
+    scale_ptr scale = create_major_scale();
+
+    for (int n = 0; n < epoch; ++n)
+    {
+        std::vector<int> counts = {2, 4, 8, 16};
+        int phrase_count = random::in(counts);
+        int measures_by_phrase = random::in(counts);
+
+        for (int i = 0; i < phrase_count; ++i)
+        {
+            append_phrase(score, make_phrase());
+        }
+
+        motif_variation_ptr motif = make_motif_variation();
+
+        motif_config_ptr motif_config = make_motif_config();
+        int duration = motif_config->duration = random::in(std::vector<int>{_half_, _half_dotted_, _whole_, _whole_dotted_});
+        motif_config->rhythmic_energy = random::range(duration / _half_, duration / _sixteenth_);
+        motif_config->melodic_energy = random::range(0, 100);
+        int min = motif_config->min_melodic_energy = random::range(0, 4);
+        motif_config->max_melodic_energy = random::range(min, 16);
+
+        generate_motif(motif, motif_config);
+
+        voice_ptr voice = make_voice();
+
+        for (phrase_ptr phrase : score->phrases)
+        {
+            for (int i = 0; i < measures_by_phrase; ++i)
+            {
+                append_measure(phrase, make_measure());
+            }
+        }
+
+        for (phrase_ptr phrase : score->phrases)
+        {
+            apply_progression(phrase, random::in(score->graph->progressions));
+            apply_motif(phrase, motif, voice);
+        }
+
+        scale_config_ptr scale_config = make_scale_config(random::range(0,11), (accidental_e)random::range(0,2));
+
+        apply_scale(score, scale, scale_config);
+
+        if (false)
+        {
+            FAIL() << "failed during epoch " << n << ": ";
+        }
+
+        score->phrases.clear();
+    }
+}
+
 TEST_F(model_tests, empty_test)
 {
-    int epoch = 100;
+    int epoch = 1000;
 
     for (int n = 0; n < epoch; ++n)
     {
