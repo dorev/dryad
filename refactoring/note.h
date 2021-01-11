@@ -18,8 +18,8 @@ struct note_t : monitor_count<note_t>
         , midi(-1)
         , accidental(accidental_e::none)
         , octave(-1)
-        , step("")
-        , name("")
+        , step(nullptr)
+        , name(nullptr)
     {}
 
     int offset;

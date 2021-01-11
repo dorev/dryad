@@ -125,7 +125,18 @@ std::shared_ptr<T> last(const std::vector<std::shared_ptr<T>>& vector)
         return nullptr;
     }
 
-    return *vector.rbegin();
+    return vector.back();
+}
+
+template <class T>
+std::shared_ptr<T> first(const std::vector<std::shared_ptr<T>>& vector)
+{
+    if (vector.size() == 0)
+    {
+        return nullptr;
+    }
+
+    return vector.front();
 }
 
 void get_equivalent_duration_pairs(int duration, std::vector<std::pair<int, int>>& solutions);

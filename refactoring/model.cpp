@@ -5,7 +5,7 @@
 #include "motif.h"
 #include "motif_config.h"
 #include "motif_variation.h"
-#include "operations.h"
+#include "model.h"
 #include "note.h"
 #include "phrase.h"
 #include "position.h"
@@ -360,7 +360,7 @@ void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_conf
 
     while(energy_left != 0)
     {
-        int targeted_note = random::range(0ULL, energy_distribution.size() - 1);
+        int targeted_note = static_cast<int>(random::range(0ULL, energy_distribution.size() - 1));
         int energy_given = 0;
 
         if (energy_distribution[targeted_note] < max)
@@ -461,7 +461,8 @@ void spend_rhythmic_energy(motif_variation_ptr motif, motif_config_ptr motif_con
 
             if (candidate_indices.empty())
             {
-                // notes_durations vector contains only sixteenth, unable to spend anymore energy
+                // notes_durations vector contains only sixteenth,
+                // unable to spend anymore energy
                 break;
             }
 
@@ -632,6 +633,8 @@ void apply_progression(phrase_ptr phrase, const std::vector<harmony_node_ptr>& p
             }
         }
 
+        break;
+
     default:
         break;
     }
@@ -650,8 +653,6 @@ void apply_progression(phrase_ptr phrase, const std::vector<harmony_node_ptr>& p
 
 void apply_motif(phrase_ptr phrase, motif_variation_ptr motif_variation, voice_ptr voice)
 {
-    relink_phrase(phrase);
-
     // Append the motif in loop until the phrase is fully filled
     for (;;)
     {
@@ -672,7 +673,7 @@ void apply_motif(phrase_ptr phrase, motif_variation_ptr motif_variation, voice_p
                     // Append next note
                     break;
                 }
-                else if (next(measure) == nullptr)
+                else if (measure == last(phrase->measures))
                 {
                     // Whole phrase has been covered
                     return;
@@ -689,9 +690,11 @@ void append_phrase(score_ptr score, phrase_ptr phrase)
 
     if (!phrases.empty())
     {
-        phrase_ptr last_phrase = last(phrases);
-        last_phrase->next = phrase;
-        phrase->previous = last_phrase;
+        if (phrase_ptr last_phrase = last(phrases))
+        {
+            last_phrase->next = phrase;
+            phrase->previous = last_phrase;
+        }
     }
 
     phrases.emplace_back(phrase);
@@ -702,11 +705,40 @@ void append_measure(phrase_ptr phrase, measure_ptr measure)
     std::vector<measure_ptr>& measures = phrase->measures;
     measure->parent_phrase = phrase;
 
-    if (!measures.empty())
+    if (measures.empty())
     {
-        measure_ptr last_measure = last(measures);
-        last_measure->next = measure;
-        measure->previous = last_measure;
+        if (measure_ptr last_measure = last(measures))
+        {
+            last_measure->next = measure;
+            measure->previous = last_measure;
+        }
+        else if (phrase_ptr previous_phrase = previous(phrase))
+        {
+            measure_ptr last_measure = last(previous_phrase->measures);
+            last_measure->next = measure;
+            measure->previous = last_measure;
+        }
+    }
+    else
+    {
+        if (measure_ptr last_measure = last(measures))
+        {
+            last_measure->next = measure;
+            measure->previous = last_measure;
+        }
+    }
+
+    if (measure->positions.size() != 0)
+    {
+        if (measure_ptr last_measure = last(measures))
+        {
+            if (position_ptr last_position = last(last_measure->positions))
+            {
+                position_ptr position = first(measure->positions);
+                position->previous = last_position;
+                last_position->next = position;
+            }
+        }
     }
 
     measures.emplace_back(measure);
@@ -737,7 +769,7 @@ void append_note(measure_ptr measure, note_ptr note)
     if( (note->duration + note_position->measure_time) > measure->duration)
     {
         // Overflow note duration to next measure
-        // TODO: liaisons
+        // TODO: liaisons?
         int duration_this_measure = measure->duration - note_position->measure_time;
 
         // Try to append on next measure
@@ -809,7 +841,10 @@ position_ptr insert_position_at_time(measure_ptr measure, int time)
 
             if (measure_ptr previous_measure = previous(measure))
             {
-                zero_position->previous = last(previous_measure->positions);
+                if (position_ptr last_position = last(previous_measure->positions))
+                {
+                    zero_position->previous = last_position;
+                }
             }
 
             positions.emplace_back(zero_position);
@@ -846,7 +881,6 @@ position_ptr insert_position_at_time(measure_ptr measure, int time)
     }
 
     DEBUG_BREAK("this section should never be reached");
-    return nullptr;
 }
 
 int get_total_voice_duration(measure_ptr measure, voice_ptr voice)
@@ -858,6 +892,8 @@ int get_total_voice_duration(measure_ptr measure, voice_ptr voice)
 
     bool voice_exists_in_measure = false;
 
+    // Inspect first position of measure to check if the targeted voice is
+    // present in the measure
     for (note_ptr note : measure->positions[0]->notes)
     {
         if (note->voice == voice)
@@ -902,7 +938,18 @@ void relink_phrase(phrase_ptr phrase)
         measure_ptr measure = measures[measure_index];
         measure->parent_phrase = phrase;
 
-        if (measure_index != 0)
+        if (measure_index == 0)
+        {
+            if (phrase_ptr previous_phrase = previous(phrase))
+            {
+                if (measure_ptr last_measure = last(previous_phrase->measures))
+                {
+                    measure->previous = last_measure;
+                    last_measure->next = measure;
+                }
+            }
+        }
+        else
         {
             measure->previous = measures[measure_index - 1];
         }
@@ -910,6 +957,10 @@ void relink_phrase(phrase_ptr phrase)
         if (measure_index < (measure_count - 1))
         {
             measure->next = measures[measure_index + 1];
+        }
+        else
+        {
+            measure->next.reset();
         }
 
         std::vector<position_ptr>& positions = measure->positions;
@@ -920,17 +971,18 @@ void relink_phrase(phrase_ptr phrase)
             position_ptr position = positions[position_index];
             position->parent_measure = measure;
 
-            if (position_index == 0 &&
-                measure_index != 0)
+            if (position_index == 0)
             {
-                measure_ptr previous_measure = previous(measure);
-                position_ptr previous_position = last(previous_measure->positions);
-
-                position->previous = previous_position;
-                previous_position->next = position;
+                if (measure_ptr previous_measure = previous(measure))
+                {
+                    if (position_ptr previous_position = last(previous_measure->positions))
+                    {
+                        position->previous = previous_position;
+                        previous_position->next = position;
+                    }
+                }
             }
-
-            if (position_index != 0)
+            else
             {
                 position->previous = positions[position_index - 1];
             }
@@ -938,6 +990,10 @@ void relink_phrase(phrase_ptr phrase)
             if (position_index < (position_count - 1))
             {
                 position->next = positions[position_index + 1];
+            }
+            else
+            {
+                position->next.reset();
             }
         }
     }
@@ -962,63 +1018,12 @@ void relink_score(score_ptr score)
         {
             phrase->next = phrases[phrase_index + 1];
         }
-
-        std::vector<measure_ptr>& measures = phrase->measures;
-        int measure_count = static_cast<int>(measures.size());
-
-        for (int measure_index = 0; measure_index < measure_count; ++measure_index)
+        else
         {
-            measure_ptr measure = measures[measure_index];
-            measure->parent_phrase = phrase;
-
-            if (measure_index == 0 &&
-                phrase_index != 0)
-            {
-                phrase_ptr previous_phrase = previous(phrase);
-                measure_ptr previous_measure = last(previous_phrase->measures);
-                measure->previous = previous_measure;
-                previous_measure->next = measure;
-            }
-
-            if (measure_index != 0)
-            {
-                measure->previous = measures[measure_index - 1];
-            }
-
-            if (measure_index < (measure_count - 1))
-            {
-                measure->next = measures[measure_index + 1];
-            }
-
-            std::vector<position_ptr>& positions = measure->positions;
-            int position_count = static_cast<int>(positions.size());
-
-            for (int position_index = 0; position_index < position_count; ++position_index)
-            {
-                position_ptr position = positions[position_index];
-                position->parent_measure = measure;
-
-                if (position_index == 0 &&
-                    measure_index != 0)
-                {
-                    measure_ptr previous_measure = previous(measure);
-                    position_ptr previous_position = last(previous_measure->positions);
-
-                    position->previous = previous_position;
-                    previous_position->next = position;
-                }
-
-                if (position_index != 0)
-                {
-                    position->previous = positions[position_index - 1];
-                }
-
-                if (position_index < (position_count - 1))
-                {
-                    position->next = positions[position_index + 1];
-                }
-            }
+            phrase->next.reset();
         }
+
+        relink_phrase(phrase);
     }
 }
 
@@ -1033,7 +1038,7 @@ void apply_scale(note_ptr note, scale_ptr scale, scale_config_ptr scale_config)
 
     harmony_node_ptr harmony_node = position->harmony_node;
 
-    int midi_value = scale_config->root +
+    int midi_value = note->midi = scale_config->root +
         harmony_node->degree->interval_from_root +
         harmony_node->alteration +
         harmony_node->modulation +
@@ -1050,26 +1055,21 @@ void apply_scale(note_ptr note, scale_ptr scale, scale_config_ptr scale_config)
     }
     else
     {
-        accidental_e scale_accidental = scale_config->accidental;
-
-        switch (scale_accidental)
+        switch (scale_config->accidental)
         {
             default:
             case accidental_e::none:
-                DEBUG_BREAK("this switch case should never process these enum values");
-                break;
-
             case accidental_e::sharp:
                 note->accidental = accidental_e::sharp;
                 note->name = _note_names_sharp_[absolute_note];
                 note->step = _note_names_sharp_[absolute_note - 1];
-                break;
+                return;
 
             case accidental_e::flat:
                 note->accidental = accidental_e::flat;
                 note->name = _note_names_flat_[absolute_note];
                 note->step = _note_names_flat_[absolute_note + 1];
-                break;
+                return;
         }
     }
 }
@@ -1110,10 +1110,9 @@ harmony_node_ptr find_latest_harmony_node(position_ptr position)
         if (measure == nullptr)
         {
             return nullptr;
-            //DEBUG_BREAK("no previous measure to provide a harmony_node");
         }
 
-        if(measure->progression.size() != 0)
+        if(!measure->progression.empty())
         {
             return last(measure->progression);
         }

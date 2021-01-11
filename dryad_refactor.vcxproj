@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -155,7 +155,7 @@
     <ClInclude Include="refactoring\motif_config.h" />
     <ClInclude Include="refactoring\motif_variation.h" />
     <ClInclude Include="refactoring\note.h" />
-    <ClInclude Include="refactoring\operations.h" />
+    <ClInclude Include="refactoring\model.h" />
     <ClInclude Include="refactoring\phrase.h" />
     <ClInclude Include="refactoring\position.h" />
     <ClInclude Include="refactoring\scale_config.h" />
@@ -165,7 +165,7 @@
     <ClInclude Include="refactoring\voice.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="refactoring\operations.cpp" />
+    <ClCompile Include="refactoring\model.cpp" />
     <ClCompile Include="refactoring\utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

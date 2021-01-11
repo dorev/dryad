@@ -18,14 +18,14 @@ struct monitor_count : crtp_helper<type, monitor_count>
         alive_count--;
     }
 
-    static uint64_t get_count() { return alive_count.load(); }
+    static uint64_t get_count() { return alive_count; }
 
 private:
 
-    static std::atomic_uint64_t alive_count;
+    static uint64_t alive_count;
 };
 
 template <typename type>
-std::atomic_uint64_t monitor_count<type>::alive_count = 0;
+uint64_t monitor_count<type>::alive_count = 0;
 
 } // namespace dryad
