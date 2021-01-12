@@ -1,6 +1,4 @@
-#include "src/gtest-all.cc"
-
-// Tests
+#include "gtest/src/gtest-all.cc"
 
 int main(int argc, char **argv) 
 {

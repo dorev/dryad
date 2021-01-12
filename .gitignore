@@ -2,6 +2,3 @@ tmp/
 build/
 .vs/
 .vscode/
-*.user
-*.filters
-x64/
