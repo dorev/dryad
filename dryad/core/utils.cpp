@@ -1,4 +1,4 @@
-#include "dryad/model/utils.h"
+#include "utils.h"
 
 namespace dryad
 {

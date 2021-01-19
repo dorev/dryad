@@ -1,32 +1,22 @@
 cmake_minimum_required(VERSION 3.10)
-
-# Compilation settings
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Variables
-set(ROOT "${CMAKE_CURRENT_LIST_DIR}")
-set(TMP "${ROOT}/tmp")
-set(RELEASE_BINAIRIES "${TMP}/release/bin")
-set(DEBUG_BINAIRIES "${TMP}/debug/bin")
+project(dryadtests)
 
-# CMake variables
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${RELEASE_BINARIES}")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${DEBUG_BINARIES}")
+add_executable(dryadtest tests/main.cpp tests/model_tests.cpp)
 
-# Dryad project
-# =============================================================================
-project(dryad)
-file(GLOB_RECURSE sources "${ROOT}/src/*.cpp")
-file(GLOB_RECURSE includes "${ROOT}/includes/*.h")
-add_library(dryad STATIC ${sources} ${includes})
+target_include_directories(dryadtest PRIVATE "${CMAKE_CURRENT_LIST_DIR}")
+target_include_directories(dryadtest PRIVATE "${CMAKE_CURRENT_LIST_DIR}/extern")
+target_include_directories(dryadtest PRIVATE "${CMAKE_CURRENT_LIST_DIR}/extern/gtest")
+target_include_directories(dryadtest PRIVATE "${CMAKE_CURRENT_LIST_DIR}/extern/gtest/include")
 
-target_include_directories(dryad PRIVATE "${ROOT}/extern")
+target_link_libraries(dryadtest core)
 
-# Tests project
-# =============================================================================
-#project(dryadtests)
-#add_executable(dryadtest "${ROOT}/tests/*.cpp")
-#target_link_libraries(dryadtest PUBLIC dryad)
-#target_include_directories(dryadtests PRIVATE "${ROOT}/extern")
-#target_include_directories(dryadtests PRIVATE "${ROOT}/includes")
+add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/dryad/core")
+
+add_custom_target(run_test 
+    ALL
+    DEPENDS dryadtest
+    COMMAND $<TARGET_FILE:dryadtest>
+)

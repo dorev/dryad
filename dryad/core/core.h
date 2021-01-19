@@ -1,6 +1,24 @@
 #pragma once
 
-#include "dryad/model/definitions.h"
+#include "definitions.h"
+
+#include "degree.h"
+#include "harmony_graph.h"
+#include "harmony_node.h"
+#include "measure.h"
+#include "motif.h"
+#include "motif_config.h"
+#include "motif_variation.h"
+#include "core.h"
+#include "note.h"
+#include "phrase.h"
+#include "position.h"
+#include "utils.h"
+#include "scale.h"
+#include "scale_config.h"
+#include "score.h"
+#include "utils.h"
+#include "voice.h"
 
 namespace dryad
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dryad/model/definitions.h"
+#include "definitions.h"
 
 namespace dryad
 {
@@ -61,7 +61,7 @@ is_power_of_2(T integer)
 
     for (uint64_t bit = 0; bit < (sizeof(T) * 8); ++bit)
     {
-        if (static_cast<uint64_t>(integer) & (1ULL << bit) && set_bits++)
+        if ((int)integer & (1ULL << bit) && set_bits++)
         {
             return false;
         }

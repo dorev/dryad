@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "dryad/model/model.h"
+#include "dryad/core/core.h"
 
 namespace dryad
 {
@@ -30,7 +30,7 @@ TEST_F(model_tests, apply_progression_to_phrase)
     harmony_graph_ptr graph = create_major_graph();
     generate_progressions(graph);
 
-    int epoch = 1000;
+    int epoch = 100;
 
     for (int n = 0; n < epoch; ++n)
     {
@@ -69,7 +69,7 @@ TEST_F(model_tests, apply_progression_to_phrase)
 
 TEST_F(model_tests, apply_motif_to_phrase)
 {
-    int epoch = 1000;
+    int epoch = 100;
     voice_ptr voice = make_voice();
 
 
@@ -129,7 +129,7 @@ TEST_F(model_tests, apply_motif_to_phrase)
 
 TEST_F(model_tests, apply_scale_to_score)
 {
-    int epoch = 1000;
+    int epoch = 100;
 
     score_ptr score = create_score();
     score->graph = create_major_graph();
@@ -255,7 +255,7 @@ TEST_F(model_tests, spend_melodic_energy_correctly)
     motif_ptr motif = make_motif();
     motif_config_ptr motif_config = make_motif_config();
 
-    int epoch = 1000;
+    int epoch = 100;
     int note_count = 8;
 
     for (int n = 0; n < epoch; ++n)
@@ -302,7 +302,7 @@ TEST_F(model_tests, spend_rhythmic_energy_correctly)
     motif_ptr motif = make_motif();
     motif_config_ptr motif_config = make_motif_config();
 
-    int epoch = 1000;
+    int epoch = 100;
 
     for (int n = 0; n < epoch; ++n)
     {
@@ -328,7 +328,7 @@ TEST_F(model_tests, spend_rhythmic_energy_correctly)
 
 TEST_F(model_tests, empty_test_DISABLED)
 {
-    int epoch = 1000;
+    int epoch = 100;
 
     for (int n = 0; n < epoch; ++n)
     {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dryad/model/definitions.h
+#include "definitions.h"
 
 namespace dryad
 {

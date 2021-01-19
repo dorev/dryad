@@ -1,20 +1,4 @@
-#include "dryad/model/degree.h"
-#include "dryad/model/harmony_graph.h"
-#include "dryad/model/harmony_node.h"
-#include "dryad/model/measure.h"
-#include "dryad/model/motif.h"
-#include "dryad/model/motif_config.h"
-#include "dryad/model/motif_variation.h"
-#include "dryad/model/model.h"
-#include "dryad/model/note.h"
-#include "dryad/model/phrase.h"
-#include "dryad/model/position.h"
-#include "dryad/model/utils.h"
-#include "dryad/model/scale.h"
-#include "dryad/model/scale_config.h"
-#include "dryad/model/score.h"
-#include "dryad/model/utils.h"
-#include "dryad/model/voice.h"
+#include "core.h"
 
 namespace dryad
 {
@@ -360,7 +344,7 @@ void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_conf
 
     while(energy_left != 0)
     {
-        int targeted_note = static_cast<int>(random::range(0ULL, energy_distribution.size() - 1));
+        int targeted_note = (int)random::range(0ULL, energy_distribution.size() - 1);
         int energy_given = 0;
 
         if (energy_distribution[targeted_note] < max)
@@ -436,7 +420,7 @@ void spend_rhythmic_energy(motif_variation_ptr motif, motif_config_ptr motif_con
 
     while(energy_left--)
     {
-        int targeted_note = random::range(0, static_cast<int>(notes_durations.size() - 1));
+        int targeted_note = random::range(0, (int)notes_durations.size() - 1);
         int note_duration = notes_durations[targeted_note];
 
         if (note_duration > _sixteenth_)
@@ -526,8 +510,8 @@ void generate_motif(motif_ptr motif, motif_config_ptr motif_config)
 void apply_progression(phrase_ptr phrase, const std::vector<harmony_node_ptr>& progression, fitting_mode_e fitting_mode)
 {
     std::vector<measure_ptr>& measures = phrase->measures;
-    int progression_size = static_cast<int>(progression.size());
-    int phrase_size = static_cast<int>(measures.size());
+    int progression_size = (int)progression.size();
+    int phrase_size = (int)measures.size();
 
     if (!is_power_of_2(phrase_size))
     {
@@ -931,7 +915,7 @@ int get_total_voice_duration(measure_ptr measure, voice_ptr voice)
 void relink_phrase(phrase_ptr phrase)
 {
     std::vector<measure_ptr>& measures = phrase->measures;
-    int measure_count = static_cast<int>(measures.size());
+    int measure_count = (int)measures.size();
 
     for (int measure_index = 0; measure_index < measure_count; ++measure_index)
     {
@@ -964,7 +948,7 @@ void relink_phrase(phrase_ptr phrase)
         }
 
         std::vector<position_ptr>& positions = measure->positions;
-        int position_count = static_cast<int>(positions.size());
+        int position_count = (int)positions.size();
 
         for (int position_index = 0; position_index < position_count; ++position_index)
         {
@@ -1002,7 +986,7 @@ void relink_phrase(phrase_ptr phrase)
 void relink_score(score_ptr score)
 {
     std::vector<phrase_ptr>& phrases = score->phrases;
-    int phrase_count = static_cast<int>(phrases.size());
+    int phrase_count = (int)phrases.size();
 
     for (int phrase_index = 0; phrase_index < phrase_count; ++phrase_index)
     {
@@ -1129,7 +1113,7 @@ harmony_node_ptr resolve_harmony_node(position_ptr position)
         DEBUG_BREAK("a position is always expected to have a parent_measure");
     }
 
-    int progression_size = static_cast<int>(measure->progression.size());
+    int progression_size = (int)measure->progression.size();
 
     if (progression_size == 0)
     {
