@@ -1,13 +1,14 @@
 #pragma once
 
 #include "definitions.h"
+#include "monitoring.h"
 
 namespace dryad
 {
 
 struct score_t;
 
-struct voice_t
+struct voice_t : monitor_count<voice_t>
 {
     voice_t()
         : octave(5)

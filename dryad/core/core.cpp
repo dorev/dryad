@@ -31,9 +31,9 @@ void mark_as_exit(std::initializer_list<harmony_node_ptr> nodes, bool value)
 
 void add_edge(harmony_node_ptr node, harmony_node_ptr other_node)
 {
-    for (const harmony_node_ptr& edge : node->edges)
+    for (const harmony_node_weak_ptr& edge : node->edges)
     {
-        if (edge == other_node)
+        if (edge.lock() == other_node)
         {
             return;
         }
@@ -48,9 +48,9 @@ void add_edges(harmony_node_ptr node, std::initializer_list<harmony_node_ptr> ot
     {
         bool skip = false;
 
-        for (const harmony_node_ptr& edge : node->edges)
+        for (const harmony_node_weak_ptr& edge : node->edges)
         {
-            if (edge == other_node)
+            if (edge.lock() == other_node)
             {
                 skip = true;
                 break;
@@ -71,7 +71,7 @@ bool is_visitable(harmony_node_ptr node)
     return node->visit_count < node->max_visit;
 }
 
-void visit(harmony_node_ptr node, std::vector<harmony_node_ptr>& progression)
+void visit(harmony_node_ptr node, std::vector<harmony_node_weak_ptr>& progression)
 {
     node->visit_count++;
 
@@ -90,18 +90,25 @@ void visit(harmony_node_ptr node, std::vector<harmony_node_ptr>& progression)
         }
     }
 
-    for (harmony_node_ptr edge : node->edges)
+    for (harmony_node_weak_ptr edge : node->edges)
     {
-        if (is_visitable(edge))
+        harmony_node_ptr locked_edge = edge.lock();
+
+        if (locked_edge == nullptr)
         {
-            visit(edge, progression);
+            DEBUG_BREAK("Node edge has expired, unable to explore graph");
+        }
+
+        if (is_visitable(locked_edge))
+        {
+            visit(locked_edge, progression);
         }
     }
 
     leave(node, progression);
 }
 
-void leave(harmony_node_ptr node, std::vector<harmony_node_ptr>& progression)
+void leave(harmony_node_ptr node, std::vector<harmony_node_weak_ptr>& progression)
 {
     if (node->visit_count == 0)
     {
@@ -120,7 +127,7 @@ void leave(harmony_node_ptr node, std::vector<harmony_node_ptr>& progression)
 
 void generate_progressions(harmony_graph_ptr graph)
 {
-    std::vector<harmony_node_ptr> progression;
+    std::vector<harmony_node_weak_ptr> progression;
 
     for (harmony_node_ptr node : graph->nodes)
     {
@@ -507,7 +514,7 @@ void generate_motif(motif_ptr motif, motif_config_ptr motif_config)
     DEBUG_BREAK("generate_motif should not be called on a motif already containing variations");
 }
 
-void apply_progression(phrase_ptr phrase, const std::vector<harmony_node_ptr>& progression, fitting_mode_e fitting_mode)
+void apply_progression(phrase_ptr phrase, const std::vector<harmony_node_weak_ptr>& progression, fitting_mode_e fitting_mode)
 {
     std::vector<measure_ptr>& measures = phrase->measures;
     int progression_size = (int)progression.size();
@@ -1022,8 +1029,15 @@ void apply_scale(note_ptr note, scale_ptr scale, scale_config_ptr scale_config)
 
     harmony_node_ptr harmony_node = position->harmony_node;
 
+    degree_ptr harmony_node_degree = harmony_node->degree.lock();
+
+    if (harmony_node_degree == nullptr)
+    {
+        DEBUG_BREAK("No degree associated with node");
+    }
+
     int midi_value = note->midi = scale_config->root +
-        harmony_node->degree->interval_from_root +
+        harmony_node_degree->interval_from_root +
         harmony_node->alteration +
         harmony_node->modulation +
         (12 * note->voice->octave);

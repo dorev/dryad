@@ -22,6 +22,19 @@ struct note_t : monitor_count<note_t>
         , name(nullptr)
     {}
 
+    note_t(const note_t& other)
+        : offset(other.offset)
+        , duration(other.duration)
+        , midi(other.midi)
+        , accidental(other.accidental)
+        , octave(other.octave)
+        , step(other.step)
+        , name(other.name)
+        , voice(other.voice)
+        , motif(other.motif)
+        , parent_position(parent_position)
+    {}
+
     int offset;
     int duration;
     int midi;
@@ -30,7 +43,7 @@ struct note_t : monitor_count<note_t>
     const char* step;
     const char* name;
     voice_ptr voice;
-    motif_variation_ptr motif;
+    motif_variation_weak_ptr motif;
     position_weak_ptr parent_position;
 };
 

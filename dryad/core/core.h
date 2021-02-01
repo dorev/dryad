@@ -23,11 +23,11 @@
 namespace dryad
 {
 
-#define MAKE_FUNCTION(type) \
-template <class... types> \
-type##_ptr make_##type(types... args) \
-{ \
-    return std::make_shared<type##_t>(std::forward<types>(args)...); \
+#define MAKE_FUNCTION(type)                                             \
+template <class... types>                                               \
+type##_ptr make_##type(types... args)                                   \
+{                                                                       \
+    return std::make_shared<type##_t>(std::forward<types>(args)...);    \
 }
 
 MAKE_FUNCTION(degree)
@@ -53,8 +53,8 @@ void mark_as_exit(std::initializer_list<harmony_node_ptr> nodes, bool value = tr
 void add_edge(harmony_node_ptr node, harmony_node_ptr other_node);
 void add_edges(harmony_node_ptr node, std::initializer_list<harmony_node_ptr> other_nodes);
 bool is_visitable(harmony_node_ptr node);
-void visit(harmony_node_ptr node, std::vector<harmony_node_ptr>& progression);
-void leave(harmony_node_ptr node, std::vector<harmony_node_ptr>& progression);
+void visit(harmony_node_ptr node, std::vector<harmony_node_weak_ptr>& progression);
+void leave(harmony_node_ptr node, std::vector<harmony_node_weak_ptr>& progression);
 
 // Harmony graph
 harmony_graph_ptr create_major_graph();
@@ -76,7 +76,7 @@ void generate_motif(motif_variation_ptr motif, motif_config_ptr motif_config);
 void generate_motif(motif_ptr motif, motif_config_ptr motif_config);
 
 // Phrase
-void apply_progression(phrase_ptr phrase, const std::vector<harmony_node_ptr>& progression, fitting_mode_e fitting_mode = fitting_mode_e::power_of_2_right);
+void apply_progression(phrase_ptr phrase, const std::vector<harmony_node_weak_ptr>& progression, fitting_mode_e fitting_mode = fitting_mode_e::power_of_2_right);
 void apply_motif(phrase_ptr phrase, motif_variation_ptr motif_variation, voice_ptr voice);
 void append_phrase(score_ptr score, phrase_ptr phrase);
 void append_measure(phrase_ptr phrase, measure_ptr measure);

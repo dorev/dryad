@@ -25,8 +25,24 @@ protected:
     }
 };
 
+#define EXPECT_NO_LEAK_FROM_PREVIOUS_TEST               \
+    EXPECT_EQ(0ULL, degree_t::get_count());             \
+    EXPECT_EQ(0ULL, harmony_graph_t::get_count());      \
+    EXPECT_EQ(0ULL, harmony_node_t::get_count());       \
+    EXPECT_EQ(0ULL, measure_t::get_count());            \
+    EXPECT_EQ(0ULL, motif_t::get_count());              \
+    EXPECT_EQ(0ULL, motif_variation_t::get_count());    \
+    EXPECT_EQ(0ULL, position_t::get_count());           \
+    EXPECT_EQ(0ULL, note_t::get_count());               \
+    EXPECT_EQ(0ULL, phrase_t::get_count());             \
+    EXPECT_EQ(0ULL, scale_t::get_count());              \
+    EXPECT_EQ(0ULL, voice_t::get_count());              \
+
+
 TEST_F(model_tests, apply_progression_to_phrase)
 {
+    EXPECT_NO_LEAK_FROM_PREVIOUS_TEST
+
     harmony_graph_ptr graph = create_major_graph();
     generate_progressions(graph);
 
@@ -43,7 +59,7 @@ TEST_F(model_tests, apply_progression_to_phrase)
         {
             phrase->measures.emplace_back(make_measure());
         }
-        const std::vector<harmony_node_ptr>& progression = random::in(graph->progressions);
+        const std::vector<harmony_node_weak_ptr>& progression = random::in(graph->progressions);
 
         apply_progression(phrase, progression);
 
@@ -69,12 +85,15 @@ TEST_F(model_tests, apply_progression_to_phrase)
 
 TEST_F(model_tests, apply_motif_to_phrase)
 {
+    EXPECT_NO_LEAK_FROM_PREVIOUS_TEST
+
     int epoch = 100;
     voice_ptr voice = make_voice();
 
-
     for (int n = 0; n < epoch; ++n)
     {
+        EXPECT_EQ(note_t::get_count(), 0ULL);
+
         phrase_ptr phrase = make_phrase();
 
         int measure_count = random::in(std::vector<int>{4, 8, 16});
@@ -129,6 +148,8 @@ TEST_F(model_tests, apply_motif_to_phrase)
 
 TEST_F(model_tests, apply_scale_to_score)
 {
+    EXPECT_NO_LEAK_FROM_PREVIOUS_TEST
+
     int epoch = 100;
 
     score_ptr score = create_score();
@@ -218,7 +239,7 @@ TEST_F(model_tests, apply_scale_to_score)
 
 TEST_F(model_tests, create_a_valid_major_scale)
 {
-    EXPECT_EQ(0ULL, degree_t::get_count());
+    EXPECT_NO_LEAK_FROM_PREVIOUS_TEST
 
     scale_ptr scale = create_major_scale();
     EXPECT_EQ(scale->degrees.size(), 7) << "Scale has wrong size";
@@ -244,6 +265,8 @@ TEST_F(model_tests, create_a_valid_major_scale)
 
 TEST_F(model_tests, generate_major_graph_progressions)
 {
+    EXPECT_NO_LEAK_FROM_PREVIOUS_TEST
+
     harmony_graph_ptr graph = create_major_graph();
     generate_progressions(graph);
 
@@ -252,6 +275,8 @@ TEST_F(model_tests, generate_major_graph_progressions)
 
 TEST_F(model_tests, spend_melodic_energy_correctly)
 {
+    EXPECT_NO_LEAK_FROM_PREVIOUS_TEST
+
     motif_ptr motif = make_motif();
     motif_config_ptr motif_config = make_motif_config();
 
@@ -299,6 +324,8 @@ TEST_F(model_tests, spend_melodic_energy_correctly)
 
 TEST_F(model_tests, spend_rhythmic_energy_correctly)
 {
+    EXPECT_NO_LEAK_FROM_PREVIOUS_TEST
+
     motif_ptr motif = make_motif();
     motif_config_ptr motif_config = make_motif_config();
 
@@ -328,6 +355,8 @@ TEST_F(model_tests, spend_rhythmic_energy_correctly)
 
 TEST_F(model_tests, empty_test_DISABLED)
 {
+    EXPECT_NO_LEAK_FROM_PREVIOUS_TEST
+
     int epoch = 100;
 
     for (int n = 0; n < epoch; ++n)

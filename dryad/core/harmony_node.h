@@ -30,9 +30,9 @@ struct harmony_node_t : monitor_count<harmony_node_t>
     bool is_entry;
     bool is_exit;
     std::string name;
-    std::vector<harmony_node_ptr> edges;
+    std::vector<harmony_node_weak_ptr> edges;
     harmony_graph_weak_ptr parent_harmony_graph;
-    degree_ptr degree;
+    degree_weak_ptr degree;
 };
 
 } // namespace dryad

@@ -13,7 +13,7 @@ struct score_t;
 struct phrase_t : monitor_count<phrase_t>
 {
     std::vector<measure_ptr> measures;
-    std::vector<harmony_node_ptr> progression;
+    std::vector<harmony_node_weak_ptr> progression;
     score_weak_ptr parent_score;
     phrase_weak_ptr next;
     phrase_weak_ptr previous;
