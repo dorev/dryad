@@ -13,6 +13,7 @@ score_ptr create_score()
     return score;
 }
 
+// Used to set a group of node as potential progression starting point
 void mark_as_entry(std::initializer_list<harmony_node_ptr> nodes, bool value)
 {
     for (harmony_node_ptr node : nodes)
@@ -21,6 +22,7 @@ void mark_as_entry(std::initializer_list<harmony_node_ptr> nodes, bool value)
     }
 }
 
+// Used to set a group of nodes as potential progression ending point
 void mark_as_exit(std::initializer_list<harmony_node_ptr> nodes, bool value)
 {
     for (harmony_node_ptr node : nodes)
@@ -29,11 +31,19 @@ void mark_as_exit(std::initializer_list<harmony_node_ptr> nodes, bool value)
     }
 }
 
+// Adds other_node as edge if it is not already there
 void add_edge(harmony_node_ptr node, harmony_node_ptr other_node)
 {
     for (const harmony_node_weak_ptr& edge : node->edges)
     {
-        if (edge.lock() == other_node)
+        harmony_node_ptr locked_edge = edge.lock();
+
+        if (locked_edge == nullptr)
+        {
+            DEBUG_BREAK("Unable to add edge to node, it is expired");
+        }
+
+        if (locked_edge == other_node)
         {
             return;
         }
@@ -42,6 +52,7 @@ void add_edge(harmony_node_ptr node, harmony_node_ptr other_node)
     node->edges.push_back(other_node);
 }
 
+// Adds multiple other_nodes as edges if they are not already there
 void add_edges(harmony_node_ptr node, std::initializer_list<harmony_node_ptr> other_nodes)
 { 
     for (const harmony_node_ptr& other_node : other_nodes)
@@ -50,7 +61,14 @@ void add_edges(harmony_node_ptr node, std::initializer_list<harmony_node_ptr> ot
 
         for (const harmony_node_weak_ptr& edge : node->edges)
         {
-            if (edge.lock() == other_node)
+            harmony_node_ptr locked_edge = edge.lock();
+
+            if (locked_edge == nullptr)
+            {
+                DEBUG_BREAK("Unable to add edge to node, it is expired");
+            }
+
+            if (locked_edge == other_node)
             {
                 skip = true;
                 break;
@@ -66,17 +84,25 @@ void add_edges(harmony_node_ptr node, std::initializer_list<harmony_node_ptr> ot
     }
 }
 
+// Used when generating progressions of a harmony_graph
+// Checks if the node has not already been visit more often
+// than allowed by the current graph setup
 bool is_visitable(harmony_node_ptr node)
 {
     return node->visit_count < node->max_visit;
 }
 
+// Recursive function used to generate possible progression
+// of a harmony_graph
 void visit(harmony_node_ptr node, std::vector<harmony_node_weak_ptr>& progression)
 {
     node->visit_count++;
 
+    // Adds this node to the progression currently being built
     progression.push_back(node);
 
+    // If the node can conclude a progression, store this progression in its
+    // current state in the list of the harmony_graph
     if (node->is_exit &&
         progression.size() > 1)
     {
@@ -90,6 +116,7 @@ void visit(harmony_node_ptr node, std::vector<harmony_node_weak_ptr>& progressio
         }
     }
 
+    // For each harmony_node connected to this one
     for (harmony_node_weak_ptr edge : node->edges)
     {
         harmony_node_ptr locked_edge = edge.lock();
@@ -99,15 +126,19 @@ void visit(harmony_node_ptr node, std::vector<harmony_node_weak_ptr>& progressio
             DEBUG_BREAK("Node edge has expired, unable to explore graph");
         }
 
+        // If the edge node has not been visited to often yet
         if (is_visitable(locked_edge))
         {
+            // Recursive call
             visit(locked_edge, progression);
         }
     }
 
+    // Every allowed progression from this point has been visited
     leave(node, progression);
 }
 
+// Takes a step back in the harmony_graph during progression generation
 void leave(harmony_node_ptr node, std::vector<harmony_node_weak_ptr>& progression)
 {
     if (node->visit_count == 0)
@@ -115,6 +146,8 @@ void leave(harmony_node_ptr node, std::vector<harmony_node_weak_ptr>& progressio
         DEBUG_BREAK("harmony_node is left more than it was visited");
     }
 
+    // The harmony_node is "un-visited" because it can still be encountered
+    // on permutations originating from earlier nodes in the harmony_graph
     node->visit_count--;
 
     if (progression.empty())
@@ -125,6 +158,8 @@ void leave(harmony_node_ptr node, std::vector<harmony_node_weak_ptr>& progressio
     progression.pop_back();
 }
 
+// Triggers the exploration of the harmony_graph to generate all
+// possible progressions bases on the contained harmony_nodes parameters
 void generate_progressions(harmony_graph_ptr graph)
 {
     std::vector<harmony_node_weak_ptr> progression;
@@ -138,13 +173,14 @@ void generate_progressions(harmony_graph_ptr graph)
     }
 }
 
-// Harmony graph construction
+// Adds a harmony_node to a harmony_graph
 void add_node(harmony_graph_ptr graph, harmony_node_ptr node)
 {
     node->parent_harmony_graph = graph;
     graph->nodes.push_back(node);
 }
 
+// Adds multiple harmony_nodes to a harmony_graph
 void add_nodes(harmony_graph_ptr graph, std::initializer_list<harmony_node_ptr> nodes)
 {
     for (harmony_node_ptr node : nodes)
@@ -154,6 +190,7 @@ void add_nodes(harmony_graph_ptr graph, std::initializer_list<harmony_node_ptr> 
     }
 }
 
+// Adds a degree to a scale if it does not exists yet in it
 void add_degree(scale_ptr scale, degree_ptr added_degree)
 {
     for (const degree_ptr& existing_degree : scale->degrees)
@@ -167,6 +204,7 @@ void add_degree(scale_ptr scale, degree_ptr added_degree)
     scale->degrees.push_back(added_degree);
 }
 
+// Adds multiple degrees to a scale if they don't appear in it yet
 void add_degrees(scale_ptr scale, std::initializer_list<degree_ptr> added_degrees)
 {
     for (degree_ptr degree : added_degrees)
@@ -191,6 +229,7 @@ void add_degrees(scale_ptr scale, std::initializer_list<degree_ptr> added_degree
     }
 }
 
+// Creates a Major ionian scale
 scale_ptr create_major_scale()
 {
     scale_ptr major_scale = make_scale();
@@ -208,6 +247,8 @@ scale_ptr create_major_scale()
         make_degree(11, major_scale),
     });
 
+    // Binds together the degrees so they can be used in cycles with
+    // endless calls to next() and previous()
     for (int i = 0; i < 7; ++i)
     {
         major_scale->degrees[i]->next = major_scale->degrees[(i + 1) % 7];
@@ -217,32 +258,40 @@ scale_ptr create_major_scale()
     return major_scale;
 }
 
+// Evaluates the type of chord of a degree based on the following
+// degrees in the scale
 const std::vector<int>& get_chord_interval(degree_ptr degree)
 {
+    // Do not execute this function if custom intervals are set
     if (degree->chord_intervals.size() > 0)
     {
         return degree->chord_intervals;
     }
 
+    // Reach other degrees of the chord
     degree_ptr third = next(next(degree));
     degree_ptr fifth = next(next(third));
     degree_ptr seventh = next(next(fifth));
 
     int root = degree->interval_from_root;
 
+    // Handle potential inverted order of inteval from root
     int third_interval = third->interval_from_root < root
         ? third->interval_from_root + 12 - root
         : third->interval_from_root - root;
 
+    // Validate that third is either major or minor
     if (third_interval != 3 && third_interval != 4)
     {
         DEBUG_BREAK("unsupported third chord interval");
     }
 
+    // Handle potential inverted order of inteval from root
     int fifth_interval = fifth->interval_from_root < root
         ? fifth->interval_from_root + 12 - root
         : fifth->interval_from_root - root;
 
+    // Handle cases where the chord does not have a perfect fifth
     if (fifth_interval != 7)
     {
         if (fifth_interval == 6 && third_interval == 3)
@@ -259,15 +308,18 @@ const std::vector<int>& get_chord_interval(degree_ptr degree)
         DEBUG_BREAK("unsupported fifth chord interval");
     }
 
+    // Handle potential inverted order of inteval from root
     int seventh_interval = seventh->interval_from_root < root
         ? seventh->interval_from_root + 12 - root
         : seventh->interval_from_root - root;
 
+    // Validate that seventh is either major or minor
     if (seventh_interval != 10 && third_interval != 11)
     {
         DEBUG_BREAK("unsupported seventh chord interval");
     }
 
+    // Identify complete chord interval following the previous validations
     if (third_interval == 3)
     {
         if (seventh_interval == 10)
@@ -296,6 +348,8 @@ const std::vector<int>& get_chord_interval(degree_ptr degree)
     }
 }
 
+// Create a harmony_graph based on the major ionian scale with a
+// mostly agreeable configuration
 harmony_graph_ptr create_major_graph()
 {
     harmony_graph_ptr graph = make_harmony_graph();
@@ -336,6 +390,13 @@ harmony_graph_ptr create_major_graph()
     return graph;
 }
 
+// Creates a motif_variation based on the motif_config provided
+// The energy is randomly distributed to the notes of the motif 
+// and increases the pitch offset of the notes compared to their
+// neighbours
+
+// Should be called after spend_rhythmic_energy() otherwise there
+// might be only one note in the motif
 void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_config)
 {
     if (motif->notes.size() == 0)
@@ -347,13 +408,17 @@ void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_conf
     int max = motif_config->max_melodic_energy;
     int min = motif_config->min_melodic_energy;
 
+    // Created a vector to store "how the energy will be distributed"
     std::vector<int> energy_distribution(motif->notes.size(), 0);
 
     while(energy_left != 0)
     {
-        int targeted_note = (int)random::range(0ULL, energy_distribution.size() - 1);
+        // Randomly determines what note will get the energy
+        int targeted_note = static_cast<int>(random::range(0ULL, energy_distribution.size() - 1));
         int energy_given = 0;
 
+        // If the note can still receive energy, according to
+        // the motif_config
         if (energy_distribution[targeted_note] < max)
         {
             if (energy_left >= min)
@@ -365,12 +430,14 @@ void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_conf
                 energy_given = energy_left;
             }
         }
+        // Find another note to give energy too
         else
         {
-            // Find another note to give energy too
+            // Vector to store potential alternative energy receivers
             std::vector<int> candidate_indices;
 
-            for (int i = 0; i < (int)motif->notes.size(); ++i)
+            // Identify all notes still having room for more energy
+            for (unsigned i = 0; i < motif->notes.size(); ++i)
             {
                 if (energy_distribution[i] < max)
                 {
@@ -380,10 +447,11 @@ void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_conf
             
             if (candidate_indices.empty())
             {
-                // all notes are maxed on energy, unable to spend anymore energy
+                // All notes are maxed on energy, unable to spend anymore energy
                 break;
             }
 
+            // Randomly select a note among the candidates
             targeted_note = random::in(candidate_indices);
 
             if (energy_left >= min)
@@ -396,16 +464,21 @@ void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_conf
             }
         }
 
+        // Prevent note from getting too much energy
         if (energy_distribution[targeted_note] + energy_given > max)
         {
             energy_given = max - energy_distribution[targeted_note];
         }
 
+        // Update energy value of the note
         energy_distribution[targeted_note] += energy_given;
         energy_left -= energy_given;
     }
 
-    for (int i = 0; i < int(energy_distribution.size()); ++i)
+    // Randomly decide for each note of the energy makes the note
+    // get lower or higher and then assigned the final value
+    // to the motif
+    for (unsigned i = 0; i < energy_distribution.size(); ++i)
     {
         if (random::coin_flip())
         {
@@ -417,6 +490,7 @@ void spend_melodic_energy(motif_variation_ptr motif, motif_config_ptr motif_conf
     }
 }
 
+// Breaks a motif duration into multiple smaller durations
 void spend_rhythmic_energy(motif_variation_ptr motif, motif_config_ptr motif_config)
 {
     int duration = motif_config->duration;

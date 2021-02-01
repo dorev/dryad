@@ -38,7 +38,6 @@ protected:
     EXPECT_EQ(0ULL, scale_t::get_count());              \
     EXPECT_EQ(0ULL, voice_t::get_count());              \
 
-
 TEST_F(model_tests, apply_progression_to_phrase)
 {
     EXPECT_NO_LEAK_FROM_PREVIOUS_TEST

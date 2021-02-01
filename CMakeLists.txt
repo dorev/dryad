@@ -14,9 +14,3 @@ target_include_directories(dryadtest PRIVATE "${CMAKE_CURRENT_LIST_DIR}/extern/g
 target_link_libraries(dryadtest core)
 
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/dryad/core")
-
-add_custom_target(run_test 
-    ALL
-    DEPENDS dryadtest
-    COMMAND $<TARGET_FILE:dryadtest>
-)
