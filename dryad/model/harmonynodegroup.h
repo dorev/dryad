@@ -12,10 +12,15 @@ class HarmonyGraph;
 
 class HarmonyNodeGroup
 {
+    Id _id;
     Scale _scale;
     Vector<HarmonyNode> _nodes;
     Vector<Progression> _progressions;
     HarmonyGraph* _graph;
+
+    inline Id GetId() const { return _id; }
+    
+    void CalculateProgressions();
 };
 
 } // namespace Dryad::Model
