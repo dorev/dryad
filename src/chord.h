@@ -1,10 +1,10 @@
 #pragma once
 
 #include "types.h"
+#include "identification.h"
 
 namespace Dryad
 {
-
     enum Accidental : UInt8
     {
         Natural,
@@ -61,6 +61,13 @@ namespace Dryad
         Dominant = 1 << 5,
         Submediant = 1 << 6,
         LeadingTone = 1 << 7,
+    };
+
+    struct NoteRange
+    {
+        NoteValue min;
+        NoteValue max;
+        DegreeFlags allowedDegrees;
     };
 
     class Chord : public Identifiable

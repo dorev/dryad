@@ -56,4 +56,25 @@ namespace Dryad
     using Duration = MusicTime;
     using Position = MusicTime;
     using TimeSignature = Fraction;
+
+    //
+    // Forward declarations
+    //
+
+    class Node;
+    using NodePtr = SharedPtr<Node>;
+    class Edge;
+    using EdgePtr = SharedPtr<Edge>;
+    class Graph;
+    using GraphPtr = SharedPtr<Graph>;
+    class Motif;
+    using MotifPtr = SharedPtr<Motif>;
+    class Interlude;
+    using InterludePtr = SharedPtr<Interlude>;
+    class Scale;
+    using ScalePtr = SharedPtr<Scale>;
+    class Session;
+    using SessionPtr = SharedPtr<Session>;
+    class HarmonicContext;
+    using HarmonicContextPtr = SharedPtr<HarmonicContext>;
 }
