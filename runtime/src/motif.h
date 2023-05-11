@@ -1,7 +1,6 @@
 #pragma once
 
 #include "types.h"
-#include "identification.h"
 #include "note.h"
 
 namespace Dryad
@@ -27,7 +26,7 @@ namespace Dryad
         OnChord,
     };
 
-    class Motif : public Named
+    struct Motif
     {
         MotifMode mode;
         RythmicAnchor rythmicAnchor;

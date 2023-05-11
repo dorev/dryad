@@ -1,7 +1,6 @@
 #pragma once
 
 #include "types.h"
-#include "identification.h"
 
 namespace Dryad
 {
@@ -21,7 +20,7 @@ namespace Dryad
         Sus2 = 4,
         Sus4 = 5,
         DiminishedSeventh = 6,
-        AugmentedSeventh = 7,
+        // PLACEHOLDER_VALUE = 7,
         Seventh = 1 << 4,
         MajorSeventh = 1 << 5,
         Sixth = 1 << 6,
@@ -70,7 +69,7 @@ namespace Dryad
         DegreeFlags allowedDegrees;
     };
 
-    class Chord : public Identifiable
+    struct Chord
     {
         DegreeFlags degree;
         Accidental accidental;

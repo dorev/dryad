@@ -1,15 +1,12 @@
 #pragma once
 
 #include "types.h"
-#include "identification.h"
-#include "graph.h"
-#include "motif.h"
 
 namespace Dryad
 {
-    class Interlude : public Named
+    struct Interlude
     {
-        Graph graph;
-        Motif melody;
+        GraphPtr graph;
+        MotifPtr melody;
     };
 }

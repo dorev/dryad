@@ -10,5 +10,6 @@ namespace Dryad
         UnspecifiedError,
         NotAvailable,
         InvalidArgument,
+        NotImplemented,
     };
 }

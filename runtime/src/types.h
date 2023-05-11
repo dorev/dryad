@@ -24,10 +24,16 @@ namespace Dryad
     using Map = std::map<K, V>;
     template <class T>
     using Deque = std::deque<T>;
-    template <class T>
-    using SharedPtr = std::shared_ptr<T>;
     template <class... T>
     using Variant = std::variant<T...>;
+    template <class T>
+    using SharedPtr = std::shared_ptr<T>;
+
+    template <class T, class... Args>
+    SharedPtr<T> MakeShared(Args... args)
+    {
+        return std::make_shared<T>(new T(std::forward<Args>(args)...));
+    }
 
     //
     // Dryad basic types

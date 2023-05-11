@@ -4,7 +4,7 @@
 
 namespace Dryad
 {
-    class Note
+    struct Note
     {
         NoteValue value;
         MotifPtr motif;

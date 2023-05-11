@@ -1,7 +1,6 @@
 #pragma once
 
 #include "types.h"
-#include "identification.h"
 #include "score.h"
 #include "result.h"
 #include "event.h"
@@ -9,16 +8,16 @@
 
 namespace Dryad
 {
-    class Session : public Named
+    class Session
     {
-        Score score;
-        Deque<HarmonicContext> harmonyQueue;
-
+    public:
         Result Start(Time time);
         Result Pause();
-        Result PushEvent(const Event&);
-        Result Commit(Time, Vector<NoteEmitted>&);
+        Result PushEvent(const Event& event);
+        Result Update(Time deltaTime, Vector<NoteEmitted>& output);
 
-        Time PositionToTime(Position);
+    private:
+        Score score;
+        Deque<HarmonicContext> harmonyQueue;
     };
 }

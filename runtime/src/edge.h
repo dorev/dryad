@@ -1,11 +1,10 @@
 #pragma once
 
 #include "types.h"
-#include "identification.h"
 
 namespace Dryad
 {
-    class Edge : public Identifiable
+    struct Edge
     {
         NodePtr source;
         NodePtr destination;

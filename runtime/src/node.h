@@ -1,12 +1,11 @@
 #pragma once
 
 #include "types.h"
-#include "identification.h"
 #include "chord.h"
 
 namespace Dryad
 {
-    class Node : public Named
+    struct Node
     {
         GraphPtr graph;
         Vector<EdgePtr> edgesIn;

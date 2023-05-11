@@ -1,7 +1,6 @@
 #pragma once
 
 #include "types.h"
-#include "identification.h"
 #include "chord.h"
 
 namespace Dryad
@@ -11,7 +10,7 @@ namespace Dryad
     constexpr ScaleOffsets MinorHarmonicOffsets = { 0, 2, 3, 5, 7, 8, 11 };
     constexpr ScaleOffsets MinorMelodicOffsets = { 0, 2, 3, 5, 7, 9, 11 };
 
-    class Scale : public Identifiable
+    class Scale
     {
         ScaleOffsets offsets;
         ScaleOffsets descendingOffsets;

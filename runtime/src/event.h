@@ -1,7 +1,6 @@
 #pragma once
 
 #include "types.h"
-#include "identification.h"
 
 namespace Dryad
 {
@@ -32,7 +31,7 @@ namespace Dryad
         ToSilence,
     };
 
-    class Event : public Identifiable
+    struct Event
     {
         using Data = Variant
         <

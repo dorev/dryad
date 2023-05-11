@@ -8,10 +8,11 @@ namespace Dryad
     class HarmonicContext
     {
         TimeSignature timeSignature;
-        Position startPosition;
+        Position position;
         Tempo tempo;
         Scale scale;
         Map<MotifPtr, UInt32> motifLevels;
         NodePtr node;
+        GraphPtr graph;
     };
 }

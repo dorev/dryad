@@ -4,7 +4,7 @@
 
 namespace Dryad
 {
-    class NoteEmitted
+    struct NoteEmitted
     {
         NoteValue value;
         Time timeOn;
