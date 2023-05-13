@@ -1,7 +1,10 @@
 #pragma once
 
 #include "types.h"
+#include "time.h"
 #include "chord.h"
+#include "node.h"
+#include "edge.h"
 
 namespace Dryad
 {
@@ -19,4 +22,6 @@ namespace Dryad
         TimeSignature timeSignature;
         NoteRange noteRange;
     };
+
+    using GraphPtr = SharedPtr<Graph>;
 }

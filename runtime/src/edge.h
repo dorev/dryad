@@ -2,6 +2,8 @@
 
 #include "types.h"
 
+class NodePtr;
+
 namespace Dryad
 {
     struct Edge
@@ -12,4 +14,6 @@ namespace Dryad
         UInt32 weight;
         bool onlyForExit;
     };
+
+    using EdgePtr = SharedPtr<Edge>;
 }

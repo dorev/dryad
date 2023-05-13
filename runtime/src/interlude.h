@@ -9,4 +9,6 @@ namespace Dryad
         GraphPtr graph;
         MotifPtr melody;
     };
+
+    using InterludePtr = SharedPtr<Interlude>;
 }

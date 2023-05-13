@@ -1,7 +1,10 @@
 #pragma once
 
 #include "types.h"
+#include "time.h"
 #include "chord.h"
+#include "edge.h"
+#include "graph.h"
 
 namespace Dryad
 {
@@ -18,4 +21,6 @@ namespace Dryad
         bool graphExit;
         void* userData;
     };
+
+    using NodePtr = SharedPtr<Node>;
 }

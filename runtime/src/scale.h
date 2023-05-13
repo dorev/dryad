@@ -17,4 +17,6 @@ namespace Dryad
         Chord degrees[7];
         NoteValue root;
     };
+
+    using ScalePtr = SharedPtr<Scale>;
 }

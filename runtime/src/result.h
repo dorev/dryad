@@ -8,7 +8,7 @@ namespace Dryad
     {
         Success,
         UnspecifiedError,
-        NotAvailable,
+        NotFound,
         InvalidArgument,
         NotImplemented,
     };

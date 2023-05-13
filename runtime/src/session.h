@@ -12,12 +12,14 @@ namespace Dryad
     {
     public:
         Result Start(Time time);
-        Result Pause();
         Result PushEvent(const Event& event);
         Result Update(Time deltaTime, Vector<NoteEmitted>& output);
 
     private:
         Score score;
-        Deque<HarmonicContext> harmonyQueue;
+        Deque<HarmonicContextPtr> harmonyQueue;
+        Deque<Event> eventQueue;
     };
+
+    using SessionPtr = SharedPtr<Session>;
 }

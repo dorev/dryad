@@ -53,7 +53,7 @@ Result System::FinalizeSession(SessionPtr session)
             return Success;
         }
     }
-    return NotAvailable;
+    return NotFound;
 }
 
 Result System::Shutdown()

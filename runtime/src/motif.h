@@ -35,4 +35,6 @@ namespace Dryad
         Vector<Note> notes;
         void* userData;
     };
+
+    using MotifPtr = SharedPtr<Motif>;
 }

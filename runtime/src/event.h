@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include "time.h"
 
 namespace Dryad
 {
