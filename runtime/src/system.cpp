@@ -1,55 +1,54 @@
 #include "system.h"
-#include "graph.h"
-#include "motif.h"
-#include "interlude.h"
-#include "scale.h"
+#include "session.h"
+#include "memory.h"
 
 namespace Dryad
 {
 
-Result System::LoadItems(void*, UInt32)
+Result System::LoadSerializedData(void*, UInt32)
 {
     return NotImplemented;
 }
 
 Result System::LoadGraph(const Graph& graph)
 {
-    graphs.push_back(MakeShared<Graph>(graph));
+    graphs.push_back(new Graph(graph));
     return Success;
 }
 
 Result System::LoadMotif(const Motif& motif)
 {
-    motifs.push_back(MakeShared<Motif>(motif));
+    motifs.push_back(new Motif(motif));
     return Success;
 }
 
 Result System::LoadInterlude(const Interlude& interlude)
 {
-    interludes.push_back(MakeShared<Interlude>(interlude));
+    interludes.push_back(new Interlude(interlude));
     return Success;
 }
 
 Result System::LoadScale(const Scale& scale)
 {
-    scales.push_back(MakeShared<Scale>(scale));
+    scales.push_back(new Scale(scale));
     return Success;
 }
 
-SessionPtr System::CreateSession()
+Session* System::CreateSession()
 {
-    SessionPtr sessionPtr = MakeShared<Session>();
-    sessions.push_back(sessionPtr);
-    return sessionPtr;
+    Session* session = new Session;
+    sessions.push_back(session);
+    return session;
 }
 
-Result System::FinalizeSession(SessionPtr session)
+Result System::FinalizeSession(Session*& session)
 {
-    for(auto itr = sessions.begin(); itr != sessions.end(); itr++)
+    for(Vector<Session*>::iterator itr = sessions.begin(); itr != sessions.end(); itr++)
     {
         if(session == *itr)
         {
             sessions.erase(itr);
+            SafeDelete(session);
             return Success;
         }
     }
@@ -58,7 +57,11 @@ Result System::FinalizeSession(SessionPtr session)
 
 Result System::Shutdown()
 {
-    // Nothing special to do yet
+    CleanPointerVector(sessions);
+    CleanPointerVector(scales);
+    CleanPointerVector(motifs);
+    CleanPointerVector(graphs);
+    CleanPointerVector(interludes);
     return Success;
 }
 

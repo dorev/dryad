@@ -5,7 +5,6 @@
 #include <map>
 #include <deque>
 #include <string>
-#include <memory>
 
 namespace Dryad
 {
@@ -26,14 +25,6 @@ namespace Dryad
     using Deque = std::deque<T>;
     template <class... T>
     using Variant = std::variant<T...>;
-    template <class T>
-    using SharedPtr = std::shared_ptr<T>;
-
-    template <class T, class... Args>
-    SharedPtr<T> MakeShared(Args... args)
-    {
-        return std::make_shared<T>(new T(std::forward<Args>(args)...));
-    }
 
     //
     // Dryad basic types

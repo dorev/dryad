@@ -17,9 +17,7 @@ namespace Dryad
 
     private:
         Score score;
-        Deque<HarmonicContextPtr> harmonyQueue;
+        Deque<HarmonicContext*> harmonyQueue;
         Deque<Event> eventQueue;
     };
-
-    using SessionPtr = SharedPtr<Session>;
 }

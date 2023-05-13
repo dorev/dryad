@@ -71,9 +71,9 @@ namespace Dryad
 
     struct Chord
     {
+        NoteValue rootOffset;
         DegreeFlags degree;
         Accidental accidental;
-        NoteValue rootOffset;
         QualityFlags qualities;
     };
 }

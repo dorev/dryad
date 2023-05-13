@@ -6,12 +6,14 @@
 
 namespace Dryad
 {
+    class HarmonicContext;
+
     struct ScoreInfo
     {
         Time startTime;
         Position committedDuration;
         Position generatedDuration;
-        HarmonicContextPtr currentHarmonicContext;
+        HarmonicContext* currentHarmonicContext;
     };
 
     class Score

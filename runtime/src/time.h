@@ -25,5 +25,5 @@ namespace Dryad
     using Position = MusicTime;
     using TimeSignature = Fraction;
 
-    constexpr MusicTime MusicTimeZero { 0, 0, 0.0f, 0.0f, false, {0, 0} };
+    constexpr MusicTime TimeZero { 0, 0, 0.0f, 0.0f, false, {0, 0} };
 }

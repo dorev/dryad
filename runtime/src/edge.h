@@ -2,18 +2,18 @@
 
 #include "types.h"
 
-class NodePtr;
 
 namespace Dryad
 {
-    struct Edge
+    class Node;
+
+    class Edge
     {
-        NodePtr source;
-        NodePtr destination;
+    public:
+        Node* source;
+        Node* destination;
         Int8 modulation;
         UInt32 weight;
         bool onlyForExit;
     };
-
-    using EdgePtr = SharedPtr<Edge>;
 }

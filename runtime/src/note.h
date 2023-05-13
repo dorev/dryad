@@ -2,16 +2,17 @@
 
 #include "types.h"
 #include "time.h"
-#include "node.h"
-#include "motif.h"
 
 namespace Dryad
 {
+    class Node;
+    class Motif;
+
     struct Note
     {
         NoteValue value;
-        MotifPtr motif;
-        NodePtr node;
+        Motif* motif;
+        Node* node;
         Position position;
         Duration duration;
         bool committed;

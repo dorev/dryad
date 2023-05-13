@@ -16,6 +16,8 @@ namespace Dryad
 
     Result Session::Update(Time deltaTime, Vector<NoteEmitted>& output)
     {
+        // Dequeue all event
+        // Depending on their type update the current harmonic context
         
 
         return NotImplemented;

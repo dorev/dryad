@@ -8,11 +8,12 @@
 
 namespace Dryad
 {
-    struct Node
+    class Node
     {
-        GraphPtr graph;
-        Vector<EdgePtr> edgesIn;
-        Vector<EdgePtr> edgesOut;
+    public:
+        Graph* graph;
+        Vector<Edge*> edgesIn;
+        Vector<Edge*> edgesOut;
         Chord Chord;
         Duration duration;
         bool overrideGraphNoteRange;
@@ -21,6 +22,4 @@ namespace Dryad
         bool graphExit;
         void* userData;
     };
-
-    using NodePtr = SharedPtr<Node>;
 }

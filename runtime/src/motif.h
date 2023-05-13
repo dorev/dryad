@@ -26,8 +26,9 @@ namespace Dryad
         OnChord,
     };
 
-    struct Motif
+    class Motif
     {
+    public:
         MotifMode mode;
         RythmicAnchor rythmicAnchor;
         HarmonicAnchor harmonicAnchor;
@@ -35,6 +36,4 @@ namespace Dryad
         Vector<Note> notes;
         void* userData;
     };
-
-    using MotifPtr = SharedPtr<Motif>;
 }

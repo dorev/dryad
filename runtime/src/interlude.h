@@ -4,11 +4,10 @@
 
 namespace Dryad
 {
-    struct Interlude
+    class Interlude
     {
-        GraphPtr graph;
-        MotifPtr melody;
+    public:
+        Graph* graph;
+        Motif* melody;
     };
-
-    using InterludePtr = SharedPtr<Interlude>;
 }

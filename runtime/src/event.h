@@ -5,6 +5,10 @@
 
 namespace Dryad
 {
+    class Interlude;
+    class Scale;
+    class Graph;
+    class Motif;
 
     class TempoChange
     {
@@ -16,36 +20,37 @@ namespace Dryad
     class GraphChange
     {
         Duration maxTransitionDuration;
-        InterludePtr transition;
+        Interlude* transition;
     };
 
     enum EventType : UInt8
     {
-        AddGraph,
-        RemoveGraph,
         AddMotif,
         RemoveMotif,
         RequestInterlude,
         CancelInterlude,
         ChangeTempo,
         ChangeScale,
+        ChangeGraph,
         ToSilence,
     };
 
+    using EventData = Variant
+    <
+        IdType,
+        Graph*,
+        Motif*,
+        Interlude*,
+        Scale*,
+        Duration,
+        TimeSignature,
+        TempoChange,
+        GraphChange
+    >;
+
     struct Event
     {
-        using Data = Variant
-        <
-            IdType,
-            GraphPtr,
-            MotifPtr,
-            InterludePtr,
-            TimeSignature,
-            TempoChange,
-            Scale,
-            Duration
-        >;
         EventType type;
-        Data data;
+        EventData data;
     };
 }

@@ -6,8 +6,8 @@ namespace Dryad
     void Score::Reset(Time startTime)
     {
         info.startTime = startTime;
-        info.committedDuration = MusicTimeZero;
-        info.generatedDuration = MusicTimeZero;
+        info.committedDuration = TimeZero;
+        info.generatedDuration = TimeZero;
         info.currentHarmonicContext = nullptr;
     }
 }

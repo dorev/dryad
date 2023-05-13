@@ -3,25 +3,24 @@
 #include "types.h"
 #include "time.h"
 #include "chord.h"
-#include "node.h"
-#include "edge.h"
 
 namespace Dryad
 {
+    class Node;
+    class Edge;
+
     class Graph
     {
     public:
-        Result InsertNode(NodePtr node);
-        Result RemoveNode(NodePtr node);
-        EdgePtr AddEdge(NodePtr sourceNode, NodePtr destinationNode);
+        Result InsertNode(Node* node);
+        Result RemoveNode(Node* node);
+        Edge* AddEdge(Node* sourceNode, Node* destinationNode);
         
     private:
-        Vector<NodePtr> nodes;
-        Vector<EdgePtr> entryEdges;
-        Vector<EdgePtr> exitEdges;
+        Vector<Node*> nodes;
+        Vector<Edge*> entryEdges;
+        Vector<Edge*> exitEdges;
         TimeSignature timeSignature;
         NoteRange noteRange;
     };
-
-    using GraphPtr = SharedPtr<Graph>;
 }
