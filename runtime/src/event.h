@@ -9,6 +9,7 @@ namespace Dryad
     class Scale;
     class Graph;
     class Motif;
+    class Edge;
 
     class TempoChange
     {
@@ -17,10 +18,13 @@ namespace Dryad
         Duration transitionDuration;
     };
 
-    class GraphChange
+    class HarmonicTransition
     {
         Duration maxTransitionDuration;
         Interlude* transition;
+        Scale* targetScale;
+        Graph* targetGraph;
+        Edge* targetEntryEdge;
     };
 
     enum EventType : UInt8
@@ -32,25 +36,27 @@ namespace Dryad
         ChangeTempo,
         ChangeScale,
         ChangeGraph,
-        ToSilence,
     };
 
     using EventData = Variant
     <
-        IdType,
-        Graph*,
         Motif*,
         Interlude*,
-        Scale*,
-        Duration,
-        TimeSignature,
         TempoChange,
-        GraphChange
+        HarmonicTransition
     >;
 
     struct Event
     {
         EventType type;
         EventData data;
+    };
+
+    struct EventAccumulator
+    {
+        Map<Motif*, Int32> motifVariations;
+        TempoChange tempoChange;
+        Interlude* requestedIntelude; // this is separated from harmonic transition to avoid breaking the structure of a graph change
+        HarmonicTransition harmonicTransition;
     };
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "containers.h"
+
 namespace Dryad
 {
     template <class T>
@@ -29,7 +31,6 @@ namespace Dryad
         {
             SafeDelete(item);
         }
-        vector.clear();
-        vector.shrink_to_fit();
+        vector.Clean();
     }
 }

@@ -18,6 +18,6 @@ namespace Dryad
     private:
         Score score;
         Deque<HarmonicContext*> harmonyQueue;
-        Deque<Event> eventQueue;
+        EventAccumulator eventAccumulator;
     };
 }

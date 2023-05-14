@@ -10,7 +10,21 @@ namespace Dryad
 
     Result Session::PushEvent(const Event& event)
     {
-        eventQueue.push_back(event);
+        // Update eventAccumulator
+
+        switch(event.type)
+        {
+            case AddMotif:
+            case RemoveMotif:
+                break;
+            case RequestInterlude:
+            case CancelInterlude:
+            case ChangeTempo:
+            case ChangeScale:
+            case ChangeGraph:
+                break;
+        }
+
         return Success;
     }
 

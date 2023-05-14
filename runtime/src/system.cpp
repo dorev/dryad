@@ -12,45 +12,41 @@ Result System::LoadSerializedData(void*, UInt32)
 
 Result System::LoadGraph(const Graph& graph)
 {
-    graphs.push_back(new Graph(graph));
+    graphs.PushBack(new Graph(graph));
     return Success;
 }
 
 Result System::LoadMotif(const Motif& motif)
 {
-    motifs.push_back(new Motif(motif));
+    motifs.PushBack(new Motif(motif));
     return Success;
 }
 
 Result System::LoadInterlude(const Interlude& interlude)
 {
-    interludes.push_back(new Interlude(interlude));
+    interludes.PushBack(new Interlude(interlude));
     return Success;
 }
 
 Result System::LoadScale(const Scale& scale)
 {
-    scales.push_back(new Scale(scale));
+    scales.PushBack(new Scale(scale));
     return Success;
 }
 
 Session* System::CreateSession()
 {
     Session* session = new Session;
-    sessions.push_back(session);
+    sessions.PushBack(session);
     return session;
 }
 
 Result System::FinalizeSession(Session*& session)
 {
-    for(Vector<Session*>::iterator itr = sessions.begin(); itr != sessions.end(); itr++)
+    if(sessions.Erase(session))
     {
-        if(session == *itr)
-        {
-            sessions.erase(itr);
-            SafeDelete(session);
-            return Success;
-        }
+        SafeDelete(session);
+        return Success;
     }
     return NotFound;
 }
