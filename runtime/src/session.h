@@ -4,6 +4,7 @@
 #include "score.h"
 #include "result.h"
 #include "event.h"
+#include "eventaccumulator.h"
 #include "noteemitted.h"
 
 namespace Dryad
@@ -12,7 +13,7 @@ namespace Dryad
     {
     public:
         Result Start(Time time);
-        Result PushEvent(const Event& event);
+        Result PushEvent(Event& event);
         Result Update(Time deltaTime, Vector<NoteEmitted>& output);
 
     private:

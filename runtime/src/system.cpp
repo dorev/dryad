@@ -7,7 +7,7 @@ namespace Dryad
 
 Result System::LoadSerializedData(void*, UInt32)
 {
-    return NotImplemented;
+    return NotYetImplemented;
 }
 
 Result System::LoadGraph(const Graph& graph)

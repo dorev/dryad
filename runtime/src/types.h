@@ -3,7 +3,6 @@
 
 
 #include <variant>
-#include <map>
 #include <deque>
 #include <string>
 
@@ -21,12 +20,8 @@ namespace Dryad
     using UInt32 = unsigned int;
     using Int32 = int;
     using String = std::string;
-    template <class K, class V>
-    using Map = std::map<K, V>;
     template <class T>
     using Deque = std::deque<T>;
-    template <class... T>
-    using Variant = std::variant<T...>;
 
     //
     // Dryad basic types

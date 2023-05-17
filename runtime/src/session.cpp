@@ -8,24 +8,44 @@ namespace Dryad
         return Success;
     }
 
-    Result Session::PushEvent(const Event& event)
+    Result Session::PushEvent(Event& event)
     {
-        // Update eventAccumulator
-
         switch(event.type)
         {
             case AddMotif:
             case RemoveMotif:
-                break;
+                if(event.data.Contains<Motif*>())
+                {
+                    return eventAccumulator.Process(event.type, event.data.Get<Motif*>());
+                }
+                return InvalidEventData;
+
             case RequestInterlude:
             case CancelInterlude:
+                if(event.data.Contains<Interlude*>())
+                {
+                    return eventAccumulator.Process(event.type, event.data.Get<Interlude*>());
+                }
+                return InvalidEventData;
+
             case ChangeTempo:
+                if(event.data.Contains<TempoChange>())
+                {
+                    return eventAccumulator.Process(event.type, event.data.Get<TempoChange>());
+                }
+                return InvalidEventData;
+
             case ChangeScale:
             case ChangeGraph:
-                break;
-        }
+                if(event.data.Contains<HarmonicTransition>())
+                {
+                    return eventAccumulator.Process(event.type, event.data.Get<HarmonicTransition>());
+                }
+                return InvalidEventData;
 
-        return Success;
+            default:
+                return UnsupportedEventType;
+        }
     }
 
     Result Session::Update(Time deltaTime, Vector<NoteEmitted>& output)
@@ -34,6 +54,6 @@ namespace Dryad
         // Depending on their type update the current harmonic context
         
 
-        return NotImplemented;
+        return NotYetImplemented;
     }
 }

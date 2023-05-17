@@ -51,12 +51,4 @@ namespace Dryad
         EventType type;
         EventData data;
     };
-
-    struct EventAccumulator
-    {
-        Map<Motif*, Int32> motifVariations;
-        TempoChange tempoChange;
-        Interlude* requestedIntelude; // this is separated from harmonic transition to avoid breaking the structure of a graph change
-        HarmonicTransition harmonicTransition;
-    };
 }

@@ -9,7 +9,8 @@ namespace Dryad
         Success,
         UnspecifiedError,
         NotFound,
-        InvalidArgument,
-        NotImplemented,
+        UnsupportedEventType,
+        InvalidEventData,
+        NotYetImplemented,
     };
 }
