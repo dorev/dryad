@@ -11,6 +11,8 @@ namespace Dryad
         NotFound,
         UnsupportedEventType,
         InvalidEventData,
+        InvalidEventType,
         NotYetImplemented,
+        ConcurrencyError,
     };
 }

@@ -11,14 +11,14 @@ namespace Dryad
     class Motif;
     class Edge;
 
-    class TempoChange
+    struct TempoChange
     {
         // Only linear change
         Tempo targetTempo;
         Duration transitionDuration;
     };
 
-    class HarmonicTransition
+    struct HarmonicTransition
     {
         Duration maxTransitionDuration;
         Interlude* transition;

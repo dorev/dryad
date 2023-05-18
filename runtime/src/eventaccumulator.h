@@ -9,15 +9,15 @@ namespace Dryad
     class EventAccumulator
     {
     public:
-        Result Process(EventType eventType, Motif* motif);
-        Result Process(EventType eventType, Interlude* interlude);
-        Result Process(EventType eventType, TempoChange tempoChange);
-        Result Process(EventType eventType, HarmonicTransition harmonicTransition);
+        Result Consume(EventType eventType, Motif* motif);
+        Result Consume(EventType eventType, Interlude* interlude);
+        Result Consume(EventType eventType, TempoChange tempoChange);
+        Result Consume(EventType eventType, HarmonicTransition harmonicTransition);
 
     private:
         Map<Motif*, Int32> motifVariations;
-        TempoChange tempoChange;
-        Interlude* requestedIntelude; // this is separated from harmonic transition to avoid breaking the structure of a graph change
-        HarmonicTransition harmonicTransition;
+        TempoChange tempoChangeRequested;
+        Interlude* interludeRequested; // this is separated from harmonic transition to avoid breaking the structure of a graph change
+        HarmonicTransition harmonicTransitionRequested;
     };
 }

@@ -16,7 +16,7 @@ namespace Dryad
             case RemoveMotif:
                 if(event.data.Contains<Motif*>())
                 {
-                    return eventAccumulator.Process(event.type, event.data.Get<Motif*>());
+                    return eventAccumulator.Consume(event.type, event.data.Get<Motif*>());
                 }
                 return InvalidEventData;
 
@@ -24,14 +24,14 @@ namespace Dryad
             case CancelInterlude:
                 if(event.data.Contains<Interlude*>())
                 {
-                    return eventAccumulator.Process(event.type, event.data.Get<Interlude*>());
+                    return eventAccumulator.Consume(event.type, event.data.Get<Interlude*>());
                 }
                 return InvalidEventData;
 
             case ChangeTempo:
                 if(event.data.Contains<TempoChange>())
                 {
-                    return eventAccumulator.Process(event.type, event.data.Get<TempoChange>());
+                    return eventAccumulator.Consume(event.type, event.data.Get<TempoChange>());
                 }
                 return InvalidEventData;
 
@@ -39,7 +39,7 @@ namespace Dryad
             case ChangeGraph:
                 if(event.data.Contains<HarmonicTransition>())
                 {
-                    return eventAccumulator.Process(event.type, event.data.Get<HarmonicTransition>());
+                    return eventAccumulator.Consume(event.type, event.data.Get<HarmonicTransition>());
                 }
                 return InvalidEventData;
 
@@ -50,10 +50,6 @@ namespace Dryad
 
     Result Session::Update(Time deltaTime, Vector<NoteEmitted>& output)
     {
-        // Dequeue all event
-        // Depending on their type update the current harmonic context
-        
-
         return NotYetImplemented;
     }
 }

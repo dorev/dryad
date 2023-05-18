@@ -92,6 +92,11 @@ namespace Dryad
             return false;
         }
 
+        bool Remove(const KeyType& key)
+        {
+            return map.erase(key) > 0;
+        }
+
         using iterator = typename std::map<KeyType, ValueType>::iterator;
 
         auto begin()
