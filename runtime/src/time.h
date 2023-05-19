@@ -15,7 +15,7 @@ namespace Dryad
 
     struct MusicTime : Fraction
     {
-        Time time;
+        Time time = 0.0f;
         Tempo tempo;
         bool withinTempoChange;
         Fraction tempoChangeProgress;

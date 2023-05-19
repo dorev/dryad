@@ -1,11 +1,12 @@
 #include "eventaccumulator.h"
+#include "flags.h"
 
 namespace Dryad
 {
     Result EventAccumulator::Consume(EventType eventType, Motif* motif)
     {
-        Int32* variationCount;
-        if(motifVariations.Find(motif, variationCount))
+        Int32* variationCount = nullptr;
+        if(_summary.motifVariations.Find(motif, variationCount))
         {
             switch(eventType)
             {
@@ -18,7 +19,7 @@ namespace Dryad
                 default:
                     return InvalidEventType;
             }
-            if((*variationCount) == 0 && !motifVariations.Remove(motif))
+            if((*variationCount) == 0 && !_summary.motifVariations.Remove(motif))
             {
                 return ConcurrencyError;
             }
@@ -28,7 +29,7 @@ namespace Dryad
             switch(eventType)
             {
                 case AddMotif:
-                    motifVariations[motif] = 1;
+                    _summary.motifVariations[motif] = 1;
                     break;
                 case RemoveMotif:
                     break;
@@ -36,6 +37,7 @@ namespace Dryad
                     return InvalidEventType;
             }
         }
+        SetFlag(_summary.eventFlags, eventType);
         return Success;
     }
 
@@ -44,14 +46,16 @@ namespace Dryad
         switch(eventType)
         {
             case RequestInterlude:
-                interludeRequested = interlude;
+                _summary.interludeRequested = interlude;
+                SetFlag(_summary.eventFlags, RequestInterlude);
                 break;
             case CancelInterlude:
-                interludeRequested = nullptr;
+                _summary.interludeRequested = nullptr;
                 break;
             default:
                 return InvalidEventType;
         }
+        SetFlag(_summary.eventFlags, eventType);
         return Success;
     }
 
@@ -59,7 +63,8 @@ namespace Dryad
     {
         if(eventType == ChangeTempo)
         {
-            tempoChangeRequested = tempoChange;
+            _summary.tempoChangeRequested = tempoChange;
+            SetFlag(_summary.eventFlags, eventType);
             return Success;
         }
         return InvalidEventType;
@@ -70,14 +75,27 @@ namespace Dryad
         switch(eventType)
         {
             case ChangeScale:
-                harmonicTransitionRequested.targetScale = harmonicTransition.targetScale;
+                _summary.harmonicTransitionRequested.targetScale = harmonicTransition.targetScale;
                 break;
             case ChangeGraph:
-                interludeRequested = nullptr;
+                _summary.interludeRequested = nullptr;
                 break;
             default:
                 return InvalidEventType;
         }
+        SetFlag(_summary.eventFlags, eventType);
         return Success;
+    }
+
+    bool EventAccumulator::HasChanges()
+    {
+        return _summary.eventFlags != NoEvent;
+    }
+
+    EventSummary EventAccumulator::DumpAndReset()
+    {
+        EventSummary returnedSummary = _summary;
+        _summary = EventSummary();
+        return returnedSummary;
     }
 }

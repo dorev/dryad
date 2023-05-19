@@ -86,7 +86,7 @@ namespace Dryad
             auto itr = map.find(key);
             if(itr != map.end())
             {
-                outValuePtr = &(itr.second);
+                outValuePtr = &itr->second;
                 return true;
             }
             return false;

@@ -50,6 +50,24 @@ namespace Dryad
 
     Result Session::Update(Time deltaTime, Vector<NoteEmitted>& output)
     {
+        if(eventAccumulator.HasChanges())
+        {
+            EventSummary summary = eventAccumulator.DumpAndReset();
+
+            
+
+
+
+
+        }
+
+
+
+
+        // check if the time progress leads to new notes
+
+
+
         return NotYetImplemented;
     }
 }

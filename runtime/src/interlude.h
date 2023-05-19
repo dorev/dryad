@@ -4,6 +4,9 @@
 
 namespace Dryad
 {
+    class Graph;
+    class Motif;
+
     class Interlude
     {
     public:

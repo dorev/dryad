@@ -13,7 +13,6 @@ namespace Dryad
 
     struct TempoChange
     {
-        // Only linear change
         Tempo targetTempo;
         Duration transitionDuration;
     };
@@ -27,15 +26,16 @@ namespace Dryad
         Edge* targetEntryEdge;
     };
 
-    enum EventType : UInt8
+    enum EventType
     {
-        AddMotif,
-        RemoveMotif,
-        RequestInterlude,
-        CancelInterlude,
-        ChangeTempo,
-        ChangeScale,
-        ChangeGraph,
+        NoEvent = 0,
+        AddMotif = 1 << 0,
+        RemoveMotif = 1 << 1,
+        RequestInterlude = 1 << 2,
+        CancelInterlude = 1 << 3,
+        ChangeTempo = 1 << 4,
+        ChangeScale = 1 << 5,
+        ChangeGraph = 1 << 6,
     };
 
     using EventData = Variant
