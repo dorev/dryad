@@ -10,10 +10,10 @@ namespace Dryad
         {
             switch(eventType)
             {
-                case AddMotif:
+                case EventType::AddMotif:
                     (*variationCount)++;
                     break;
-                case RemoveMotif:
+                case EventType::RemoveMotif:
                     (*variationCount)--;
                     break;
                 default:
@@ -28,10 +28,10 @@ namespace Dryad
         {
             switch(eventType)
             {
-                case AddMotif:
+                case EventType::AddMotif:
                     _summary.motifVariations[motif] = 1;
                     break;
-                case RemoveMotif:
+                case EventType::RemoveMotif:
                     break;
                 default:
                     return InvalidEventType;
@@ -45,11 +45,10 @@ namespace Dryad
     {
         switch(eventType)
         {
-            case RequestInterlude:
+            case EventType::RequestInterlude:
                 _summary.interludeRequested = interlude;
-                SetFlag(_summary.eventFlags, RequestInterlude);
                 break;
-            case CancelInterlude:
+            case EventType::CancelInterlude:
                 _summary.interludeRequested = nullptr;
                 break;
             default:
@@ -61,7 +60,7 @@ namespace Dryad
 
     Result EventAccumulator::Consume(EventType eventType, TempoChange tempoChange)
     {
-        if(eventType == ChangeTempo)
+        if(eventType == EventType::ChangeTempo)
         {
             _summary.tempoChangeRequested = tempoChange;
             SetFlag(_summary.eventFlags, eventType);
@@ -74,10 +73,10 @@ namespace Dryad
     {
         switch(eventType)
         {
-            case ChangeScale:
+            case EventType::ChangeScale:
                 _summary.harmonicTransitionRequested.targetScale = harmonicTransition.targetScale;
                 break;
-            case ChangeGraph:
+            case EventType::ChangeGraph:
                 _summary.interludeRequested = nullptr;
                 break;
             default:
@@ -89,7 +88,7 @@ namespace Dryad
 
     bool EventAccumulator::HasChanges()
     {
-        return _summary.eventFlags != NoEvent;
+        return _summary.eventFlags != EventType::NoEvent;
     }
 
     EventSummary EventAccumulator::DumpAndReset()

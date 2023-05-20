@@ -4,14 +4,14 @@
 
 namespace Dryad
 {
-    enum Accidental : UInt8
+    enum class Accidental
     {
         Natural,
         Flat,
         Sharp,
     };
 
-    enum QualityFlags : UInt32
+    enum class QualityFlags
     {
         Minor = 0,
         Major = 1,
@@ -51,7 +51,7 @@ namespace Dryad
         //PLACEHOLDER_BIT3 = 1 << 31,
     };
 
-    enum DegreeFlags : UInt8
+    enum class DegreeFlags
     {
         Tonic = 1 << 1,
         Supertonic = 1 << 2,

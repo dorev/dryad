@@ -26,7 +26,7 @@ namespace Dryad
         Edge* targetEntryEdge;
     };
 
-    enum EventType
+    enum class EventType
     {
         NoEvent = 0,
         AddMotif = 1 << 0,

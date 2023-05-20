@@ -5,7 +5,15 @@
 
 namespace Dryad
 {
-    struct NoteEmitted
+    enum class ScoreEventType
+    {
+        NoteEmitted,
+        TempoChange,
+        GraphChange,
+        ScaleChange,
+    };
+
+    struct ScoreEvent
     {
         NoteValue value;
         Time timeOn;

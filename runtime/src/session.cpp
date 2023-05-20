@@ -12,31 +12,31 @@ namespace Dryad
     {
         switch(event.type)
         {
-            case AddMotif:
-            case RemoveMotif:
+            case EventType::AddMotif:
+            case EventType::RemoveMotif:
                 if(event.data.Contains<Motif*>())
                 {
                     return eventAccumulator.Consume(event.type, event.data.Get<Motif*>());
                 }
                 return InvalidEventData;
 
-            case RequestInterlude:
-            case CancelInterlude:
+            case EventType::RequestInterlude:
+            case EventType::CancelInterlude:
                 if(event.data.Contains<Interlude*>())
                 {
                     return eventAccumulator.Consume(event.type, event.data.Get<Interlude*>());
                 }
                 return InvalidEventData;
 
-            case ChangeTempo:
+            case EventType::ChangeTempo:
                 if(event.data.Contains<TempoChange>())
                 {
                     return eventAccumulator.Consume(event.type, event.data.Get<TempoChange>());
                 }
                 return InvalidEventData;
 
-            case ChangeScale:
-            case ChangeGraph:
+            case EventType::ChangeScale:
+            case EventType::ChangeGraph:
                 if(event.data.Contains<HarmonicTransition>())
                 {
                     return eventAccumulator.Consume(event.type, event.data.Get<HarmonicTransition>());
@@ -48,7 +48,7 @@ namespace Dryad
         }
     }
 
-    Result Session::Update(Time deltaTime, Vector<NoteEmitted>& output)
+    Result Session::Update(Time deltaTime, Vector<ScoreEvent>& output)
     {
         if(eventAccumulator.HasChanges())
         {

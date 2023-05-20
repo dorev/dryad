@@ -46,4 +46,11 @@ namespace Dryad
         CastType result = static_cast<CastType>(target) & ~(static_cast<CastType>(flagToClear));
         target = static_cast<FlagType>(result);
     }
+
+    template <class FlagType>
+    bool FlagIsSet(const FlagType& target, FlagType flagValue)
+    {
+        using CastType = UnsignedOfSameSize<FlagType>::Type;
+        return (static_cast<CastType>(target) & (static_cast<CastType>(flagValue))) > 0;
+    }
 }

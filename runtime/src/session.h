@@ -14,7 +14,7 @@ namespace Dryad
     public:
         Result Start(Time time);
         Result PushEvent(Event& event);
-        Result Update(Time deltaTime, Vector<NoteEmitted>& output);
+        Result Update(Time deltaTime, Vector<ScoreEvent>& output);
 
     private:
         Score score;
