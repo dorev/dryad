@@ -5,33 +5,33 @@
 namespace Dryad
 {
 
-Result System::LoadSerializedData(void*, UInt32)
+Result System::LoadSerializedData(void* data, UInt32 size)
 {
-    return NotYetImplemented;
+    return Result::NotYetImplemented;
 }
 
 Result System::LoadGraph(const Graph& graph)
 {
     graphs.PushBack(new Graph(graph));
-    return Success;
+    return Result::Success;
 }
 
 Result System::LoadMotif(const Motif& motif)
 {
     motifs.PushBack(new Motif(motif));
-    return Success;
+    return Result::Success;
 }
 
 Result System::LoadInterlude(const Interlude& interlude)
 {
     interludes.PushBack(new Interlude(interlude));
-    return Success;
+    return Result::Success;
 }
 
 Result System::LoadScale(const Scale& scale)
 {
     scales.PushBack(new Scale(scale));
-    return Success;
+    return Result::Success;
 }
 
 Session* System::CreateSession()
@@ -46,9 +46,9 @@ Result System::FinalizeSession(Session*& session)
     if(sessions.Erase(session))
     {
         SafeDelete(session);
-        return Success;
+        return Result::Success;
     }
-    return NotFound;
+    return Result::NotFound;
 }
 
 Result System::Shutdown()
@@ -58,7 +58,7 @@ Result System::Shutdown()
     CleanPointerVector(motifs);
     CleanPointerVector(graphs);
     CleanPointerVector(interludes);
-    return Success;
+    return Result::Success;
 }
 
 }

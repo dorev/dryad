@@ -15,12 +15,14 @@ namespace Dryad
 
     struct ScoreEvent
     {
-        NoteValue value;
+        ScoreEventType type;
+        bool committed;
+        NoteValue note;
+        NoteVelocity velocity;
         Time timeOn;
         Time timeOff;
-        IdType motifId;
-        void* motifUserData;
-        void* graphUserData;
-        void* nodeUserData;
+        const Motif* motif;
+        const Graph* graph;
+        const Node* node;
     };
 }

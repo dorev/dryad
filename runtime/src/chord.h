@@ -11,7 +11,7 @@ namespace Dryad
         Sharp,
     };
 
-    enum class QualityFlags
+    enum class ChordQualityFlags
     {
         Minor = 0,
         Major = 1,
@@ -20,46 +20,46 @@ namespace Dryad
         Sus2 = 4,
         Sus4 = 5,
         DiminishedSeventh = 6,
-        // PLACEHOLDER_VALUE = 7,
-        Seventh = 1 << 4,
-        MajorSeventh = 1 << 5,
-        Sixth = 1 << 6,
-        Ninth = 1 << 7,
-        Eleventh = 1 << 8,
-        Thirteenth = 1 << 9,
-        FlatSecond = 1 << 10,
-        FlatThird = 1 << 11,
-        FlatFourth = 1 << 12,
-        FlatFifth = 1 << 13,
-        FlatSixth = 1 << 14,
-        FlatSeventh = 1 << 15,
-        FlatNinth = 1 << 16,
-        FlatEvelenth = 1 << 17,
-        FlatThirteenth = 1 << 18,
-        SharpSecond = 1 << 19,
-        SharpThird = 1 << 20,
-        SharpFourth = 1 << 21,
-        SharpFifth = 1 << 22,
-        SharpSixth = 1 << 23,
-        SharpSeventh = 1 << 24,
-        SharpNinth = 1 << 25,
-        SharpEvelenth = 1 << 26,
-        SharpThirteenth = 1 << 27,
-        //PLACEHOLDER_BIT0 = 1 << 28,
-        //PLACEHOLDER_BIT1 = 1 << 29,
-        //PLACEHOLDER_BIT2 = 1 << 30,
-        //PLACEHOLDER_BIT3 = 1 << 31,
+        HalfDiminished = 7,
+        FLAG(Seventh, 4),
+        FLAG(MajorSeventh, 5),
+        FLAG(Add6, 6),
+        FLAG(Add9, 7),
+        FLAG(Add11, 8),
+        FLAG(Add13, 9),
+        FLAG(Flat2, 10),
+        FLAG(Flat3, 11),
+        FLAG(Flat4, 12),
+        FLAG(Flat5, 13),
+        FLAG(Flat6, 14),
+        FLAG(Flat7, 15),
+        FLAG(Flat9, 16),
+        FLAG(Flat11, 17),
+        FLAG(Flat13, 18),
+        FLAG(Sharp2, 19),
+        FLAG(Sharp3, 20),
+        FLAG(Sharp4, 21),
+        FLAG(Sharp5, 22),
+        FLAG(Sharp6, 23),
+        FLAG(Sharp7, 24),
+        FLAG(Sharp9, 25),
+        FLAG(Sharp11, 26),
+        FLAG(Sharp13, 27),
+        //FLAG(PLACEHOLDER_BIT0, 28),
+        //FLAG(PLACEHOLDER_BIT1, 29),
+        //FLAG(PLACEHOLDER_BIT2, 30),
+        //FLAG(PLACEHOLDER_BIT3, 31),
     };
 
     enum class DegreeFlags
     {
-        Tonic = 1 << 1,
-        Supertonic = 1 << 2,
-        Mediant = 1 << 3,
-        Subdominant = 1 << 4,
-        Dominant = 1 << 5,
-        Submediant = 1 << 6,
-        LeadingTone = 1 << 7,
+        FLAG(Tonic, 1),
+        FLAG(Supertonic, 2),
+        FLAG(Mediant, 3),
+        FLAG(Subdominant, 4),
+        FLAG(Dominant, 5),
+        FLAG(Submediant, 6),
+        FLAG(LeadingTone, 7),
     };
 
     struct NoteRange
@@ -74,6 +74,6 @@ namespace Dryad
         NoteValue rootOffset;
         DegreeFlags degree;
         Accidental accidental;
-        QualityFlags qualities;
+        ChordQualityFlags qualities;
     };
 }

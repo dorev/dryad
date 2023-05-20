@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include "time.h"
+#include "flags.h"
 
 namespace Dryad
 {
@@ -29,13 +30,13 @@ namespace Dryad
     enum class EventType
     {
         NoEvent = 0,
-        AddMotif = 1 << 0,
-        RemoveMotif = 1 << 1,
-        RequestInterlude = 1 << 2,
-        CancelInterlude = 1 << 3,
-        ChangeTempo = 1 << 4,
-        ChangeScale = 1 << 5,
-        ChangeGraph = 1 << 6,
+        FLAG(AddMotif, 0),
+        FLAG(RemoveMotif, 1),
+        FLAG(RequestInterlude, 2),
+        FLAG(CancelInterlude, 3),
+        FLAG(ChangeTempo, 4),
+        FLAG(ChangeScale, 5),
+        FLAG(ChangeGraph, 6),
     };
 
     using EventData = Variant

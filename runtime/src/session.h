@@ -1,11 +1,12 @@
 #pragma once
 
 #include "types.h"
+#include "containers.h"
 #include "score.h"
+#include "scoreevent.h"
 #include "result.h"
 #include "event.h"
-#include "eventaccumulator.h"
-#include "noteemitted.h"
+#include "eventreducer.h"
 
 namespace Dryad
 {
@@ -14,11 +15,10 @@ namespace Dryad
     public:
         Result Start(Time time);
         Result PushEvent(Event& event);
-        Result Update(Time deltaTime, Vector<ScoreEvent>& output);
+        Result Update(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents);
 
     private:
         Score score;
-        Deque<HarmonicContext*> harmonyQueue;
-        EventAccumulator eventAccumulator;
+        EventReducer eventReducer;
     };
 }

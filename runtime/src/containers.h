@@ -5,6 +5,9 @@
 
 namespace Dryad
 {
+    //
+    // Vector
+    //
     template <class ValueType>
     class Vector
     {
@@ -50,6 +53,16 @@ namespace Dryad
             return false;
         }
 
+        unsigned int Size() const
+        {
+            return vector.size();
+        }
+
+        void Resize(unsigned int size)
+        {
+            vector.resize(size);
+        }
+
         using iterator = typename std::vector<ValueType>::iterator;
 
         auto begin()
@@ -63,6 +76,9 @@ namespace Dryad
         }
     };
 
+    //
+    // Map
+    //
     template <class KeyType, class ValueType>
     class Map
     {
@@ -110,6 +126,9 @@ namespace Dryad
         }
     };
 
+    //
+    // Variant
+    //
     template <class... Args>
     class Variant
     {
@@ -141,5 +160,119 @@ namespace Dryad
         {
             return std::get<ValueType>(variant);
         }
+    };
+
+    //
+    // CircularDeque
+    //
+    template<typename T>
+    class CircularDeque
+    {
+    public:
+        CircularDeque(unsigned int capacity = 8)
+            : vector(capacity)
+            , head(0)
+            , tail(0)
+            , count(0)
+        {
+        }
+
+        void Clear()
+        {
+            vector.Clear();
+            head = tail = count = 0;
+        }
+
+        void Reset(unsigned int capacity)
+        {
+             Clear();
+             vector.Clean();
+             vector.Resize(capacity);
+        }
+
+        unsigned int Size() const
+        {
+            return count;
+        }
+
+        void PushBack(const T& value)
+        {
+            if (count == vector.Size())
+            {
+                ExtendBuffer();
+            }
+            vector[tail] = value;
+            tail = (tail + 1) % vector.Size();
+            ++count;
+        }
+
+        void PushFront(const T& value)
+        {
+            if (count == vector.Size())
+            {
+                ExtendBuffer();
+            }
+            head = (head + vector.Size() - 1) % vector.Size();
+            vector[head] = value;
+            ++count;
+        }
+
+        void PopFront()
+        {
+            if (count > 0)
+            {
+                head = (head + 1) % vector.Size();
+                --count;
+            }
+        }
+
+        void PopBack()
+        {
+            if (count > 0)
+            {
+                tail = (tail + vector.Size() - 1) % vector.Size();
+                --count;
+            }
+        }
+
+        T& Front()
+        {
+            return vector[head];
+        }
+
+        T& Back()
+        {
+            return vector[(tail + vector.Size() - 1) % vector.Size()];
+        }
+
+        const T& Front() const
+        {
+            return vector[head];
+        }
+
+        const T& Back() const
+        {
+            return vector[(tail + vector.Size() - 1) % vector.Size()];
+        }
+
+    private:
+        void ExtendBuffer()
+        {
+            unsigned int oldSize = vector.Size();
+            vector.Resize(oldSize * 2);
+            if (head > tail)
+            {
+                for (unsigned int i = 0; i < oldSize - head; ++i)
+                {
+                    vector[oldSize + i] = std::move(vector[head + i]);
+                }
+                head += oldSize;
+            }
+        }
+
+        Vector<T> vector;
+        unsigned int head;
+        unsigned int tail;
+        unsigned int count;
     };
 }

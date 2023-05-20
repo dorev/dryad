@@ -1,9 +1,9 @@
-#include "eventaccumulator.h"
+#include "eventreducer.h"
 #include "flags.h"
 
 namespace Dryad
 {
-    Result EventAccumulator::Consume(EventType eventType, Motif* motif)
+    Result EventReducer::Consume(EventType eventType, Motif* motif)
     {
         Int32* variationCount = nullptr;
         if(_summary.motifVariations.Find(motif, variationCount))
@@ -17,11 +17,11 @@ namespace Dryad
                     (*variationCount)--;
                     break;
                 default:
-                    return InvalidEventType;
+                    return Result::InvalidEventType;
             }
             if((*variationCount) == 0 && !_summary.motifVariations.Remove(motif))
             {
-                return ConcurrencyError;
+                return Result::ConcurrencyError;
             }
         }
         else
@@ -34,14 +34,14 @@ namespace Dryad
                 case EventType::RemoveMotif:
                     break;
                 default:
-                    return InvalidEventType;
+                    return Result::InvalidEventType;
             }
         }
         SetFlag(_summary.eventFlags, eventType);
-        return Success;
+        return Result::Success;
     }
 
-    Result EventAccumulator::Consume(EventType eventType, Interlude* interlude)
+    Result EventReducer::Consume(EventType eventType, Interlude* interlude)
     {
         switch(eventType)
         {
@@ -52,24 +52,24 @@ namespace Dryad
                 _summary.interludeRequested = nullptr;
                 break;
             default:
-                return InvalidEventType;
+                return Result::InvalidEventType;
         }
         SetFlag(_summary.eventFlags, eventType);
-        return Success;
+        return Result::Success;
     }
 
-    Result EventAccumulator::Consume(EventType eventType, TempoChange tempoChange)
+    Result EventReducer::Consume(EventType eventType, TempoChange tempoChange)
     {
         if(eventType == EventType::ChangeTempo)
         {
             _summary.tempoChangeRequested = tempoChange;
             SetFlag(_summary.eventFlags, eventType);
-            return Success;
+            return Result::Success;
         }
-        return InvalidEventType;
+        return Result::InvalidEventType;
     }
 
-    Result EventAccumulator::Consume(EventType eventType, HarmonicTransition harmonicTransition)
+    Result EventReducer::Consume(EventType eventType, HarmonicTransition harmonicTransition)
     {
         switch(eventType)
         {
@@ -80,18 +80,18 @@ namespace Dryad
                 _summary.interludeRequested = nullptr;
                 break;
             default:
-                return InvalidEventType;
+                return Result::InvalidEventType;
         }
         SetFlag(_summary.eventFlags, eventType);
-        return Success;
+        return Result::Success;
     }
 
-    bool EventAccumulator::HasChanges()
+    bool EventReducer::HasChanges()
     {
         return _summary.eventFlags != EventType::NoEvent;
     }
 
-    EventSummary EventAccumulator::DumpAndReset()
+    EventSummary EventReducer::DumpAndReset()
     {
         EventSummary returnedSummary = _summary;
         _summary = EventSummary();

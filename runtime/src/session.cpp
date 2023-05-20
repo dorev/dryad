@@ -1,11 +1,15 @@
 #include "session.h"
+#include "scoreevent.h"
+#include "flags.h"
 
 namespace Dryad
 {
     Result Session::Start(Time time)
     {
+        // TODO: return an error if the score has already been started
+        //       I might implement a "Pause" feature sometime...
         score.Reset(time);
-        return Success;
+        return Result::Success;
     }
 
     Result Session::PushEvent(Event& event)
@@ -16,58 +20,65 @@ namespace Dryad
             case EventType::RemoveMotif:
                 if(event.data.Contains<Motif*>())
                 {
-                    return eventAccumulator.Consume(event.type, event.data.Get<Motif*>());
+                    return eventReducer.Consume(event.type, event.data.Get<Motif*>());
                 }
-                return InvalidEventData;
+                return Result::InvalidEventData;
 
             case EventType::RequestInterlude:
             case EventType::CancelInterlude:
                 if(event.data.Contains<Interlude*>())
                 {
-                    return eventAccumulator.Consume(event.type, event.data.Get<Interlude*>());
+                    return eventReducer.Consume(event.type, event.data.Get<Interlude*>());
                 }
-                return InvalidEventData;
+                return Result::InvalidEventData;
 
             case EventType::ChangeTempo:
                 if(event.data.Contains<TempoChange>())
                 {
-                    return eventAccumulator.Consume(event.type, event.data.Get<TempoChange>());
+                    return eventReducer.Consume(event.type, event.data.Get<TempoChange>());
                 }
-                return InvalidEventData;
+                return Result::InvalidEventData;
 
             case EventType::ChangeScale:
             case EventType::ChangeGraph:
                 if(event.data.Contains<HarmonicTransition>())
                 {
-                    return eventAccumulator.Consume(event.type, event.data.Get<HarmonicTransition>());
+                    return eventReducer.Consume(event.type, event.data.Get<HarmonicTransition>());
                 }
-                return InvalidEventData;
+                return Result::InvalidEventData;
 
             default:
-                return UnsupportedEventType;
+                return Result::UnsupportedEventType;
         }
     }
 
-    Result Session::Update(Time deltaTime, Vector<ScoreEvent>& output)
+    Result Session::Update(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents)
     {
-        if(eventAccumulator.HasChanges())
+        if(deltaTime <= 0)
         {
-            EventSummary summary = eventAccumulator.DumpAndReset();
-
-            
-
-
-
-
+            return Result::UselessCall;
         }
-
-
-
-
-        // check if the time progress leads to new notes
-
-
-
-        return NotYetImplemented;
+        Result result = Result::EmptyResult;
+        if(eventReducer.HasChanges())
+        {
+            EventSummary summary = eventReducer.DumpAndReset();
+            if(summary.HasHarmonicChanges())
+            {
+                SetFlag(result, score.UpdateHarmony(summary.interludeRequested, summary.harmonicTransitionRequested));
+            }
+            if(summary.HasMotifChanges())
+            {
+                SetFlag(result, score.UpdateMotifs(summary.motifVariations));
+            }
+            if(summary.HasTempoChanges())
+            {
+                SetFlag(result, score.UpdateTempo(summary.tempoChangeRequested));
+            }
+        }
+        if(result == Result::Success)
+        {
+            return SetFlag(result, score.Commit(deltaTime, newCommittedEvents));
+        }
+        return result;
     }
 }

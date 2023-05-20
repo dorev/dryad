@@ -3,20 +3,13 @@
 #include "types.h"
 #include "result.h"
 #include "event.h"
+#include "eventsummary.h"
+#include "flags.h"
 
 namespace Dryad
 {
 
-    struct EventSummary
-    {
-        Map<Motif*, Int32> motifVariations;
-        TempoChange tempoChangeRequested;
-        Interlude* interludeRequested;
-        HarmonicTransition harmonicTransitionRequested;
-        EventType eventFlags;
-    };
-
-    class EventAccumulator
+    class EventReducer
     {
     public:
         Result Consume(EventType eventType, Motif* motif);

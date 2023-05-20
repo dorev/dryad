@@ -2,6 +2,8 @@
 
 #include "types.h"
 
+#define FLAG(name, shift) name = 1 << shift
+
 namespace Dryad
 {
     template <class T, size_t Size = sizeof(T)>
@@ -32,19 +34,19 @@ namespace Dryad
     };
 
     template <class FlagType>
-    void SetFlag(FlagType& target, FlagType flagToSet)
+    FlagType& SetFlag(FlagType& target, FlagType flagToSet)
     {
         using CastType = UnsignedOfSameSize<FlagType>::Type;
         CastType result = static_cast<CastType>(target) | static_cast<CastType>(flagToSet);
-        target = static_cast<FlagType>(result);
+        return target = static_cast<FlagType>(result);
     }
     
     template <class FlagType>
-    void ClearFlag(FlagType& target, FlagType flagToClear)
+    FlagType& ClearFlag(FlagType& target, FlagType flagToClear)
     {
         using CastType = UnsignedOfSameSize<FlagType>::Type;
         CastType result = static_cast<CastType>(target) & ~(static_cast<CastType>(flagToClear));
-        target = static_cast<FlagType>(result);
+        return target = static_cast<FlagType>(result);
     }
 
     template <class FlagType>
@@ -52,5 +54,37 @@ namespace Dryad
     {
         using CastType = UnsignedOfSameSize<FlagType>::Type;
         return (static_cast<CastType>(target) & (static_cast<CastType>(flagValue))) > 0;
+    }
+
+    template <class FlagType, class... OtherFlags>
+    bool AnyFlagIsSet(const FlagType& target, FlagType firstFlag, OtherFlags... otherFlags)
+    {
+        if (FlagIsSet(target, firstFlag))
+        {
+            return true;
+        }
+        return AnyFlagIsSet(target, otherFlags...);
+    }
+
+    template <class FlagType>
+    bool AnyFlagIsSet(const FlagType& target)
+    {
+        return false;
+    }
+
+    template <class FlagType, class... OtherFlags>
+    bool AllFlagsAreSet(const FlagType& target, FlagType firstFlag, OtherFlags... otherFlags)
+    {
+        if (!FlagIsSet(target, firstFlag))
+        {
+            return false;
+        }
+        return AllFlagsAreSet(target, otherFlags...);
+    }
+
+    template <class FlagType>
+    bool AllFlagsAreSet(const FlagType& target)
+    {
+        return true;
     }
 }

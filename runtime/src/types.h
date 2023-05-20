@@ -29,5 +29,6 @@ namespace Dryad
 
     using IdType = UInt32;
     using NoteValue = UInt8;
+    using NoteVelocity = UInt8;
     using ScaleOffsets = NoteValue[7];
 }

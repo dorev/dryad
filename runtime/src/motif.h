@@ -5,13 +5,13 @@
 
 namespace Dryad
 {
-    enum MotifMode : UInt8
+    enum class MotifMode
     {
         Diatonic,
         Chromatic,
     };
 
-    enum RythmicAnchor : UInt8
+    enum class RythmicAnchor
     {
         Anywhere,
         OnAnyBeat,
@@ -20,7 +20,7 @@ namespace Dryad
         OnLastBeat,
     };
 
-    enum HarmonicAnchor : UInt8
+    enum class HarmonicAnchor
     {
         OnScale,
         OnChord,

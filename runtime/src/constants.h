@@ -7,7 +7,7 @@ namespace Dryad
     constexpr UInt8 ScaleNoteLimit = 12;
     constexpr UInt8 OctaveLimit = 11;
 
-    constexpr float Frequencies[ScaleNoteLimit][11] =
+    constexpr float Frequencies[ScaleNoteLimit][OctaveLimit] =
     {
         { 16.3516f, 32.7032f, 65.4064f, 130.81f, 261.63f, 523.25f, 1046.5f, 2093.0f, 4186.0f, 8372.0f,  16744.0f },
         { 17.3239f, 34.6478f, 69.2957f, 138.59f, 277.18f, 554.37f, 1108.7f, 2217.5f, 4434.9f, 8869.8f,  17740.0f },
