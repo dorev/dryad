@@ -57,8 +57,6 @@ namespace Dryad
         switch(eventType)
         {
             case EventType::ChangeScale:
-                _summary.harmonicTransitionRequested.targetScale = harmonicTransition.targetScale;
-                break;
             case EventType::ChangeGraph:
                 _summary.harmonicTransitionRequested.Merge(harmonicTransition);
                 break;

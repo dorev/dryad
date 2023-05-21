@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <map>
-
+#include "templateutils.h"
 namespace Dryad
 {
     //
@@ -19,6 +19,16 @@ namespace Dryad
         Vector(Args... args)
             : _vector(std::forward<Args>(args)...)
         {
+        }
+
+        ValueType& operator[](unsigned int index)
+        {
+            return _vector[index];
+        }
+
+        const ValueType& operator[](unsigned int index) const
+        {
+            return _vector[index];
         }
 
         void PushBack(const ValueType& item)
@@ -50,9 +60,40 @@ namespace Dryad
             return false;
         }
 
+        template <class U = ValueType, class = EnableIf<!std::is_pointer<U>::value>>
+        bool Contains(const U& item) const
+        {
+            for (const U& content : _vector)
+            {
+                if (content == item)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        template <class U = ValueType, class = EnableIf<std::is_pointer<U>::value>>
+        bool Contains(U item) const
+        {
+            for (const U& content : _vector)
+            {
+                if (content == item)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         unsigned int Size() const
         {
-            return _vector.size();
+            return static_cast<unsigned int>(_vector.size());
+        }
+
+        bool Empty() const
+        {
+            return _vector.empty();
         }
 
         void Resize(unsigned int size)
@@ -70,6 +111,16 @@ namespace Dryad
         auto end()
         {
             return _vector.end();
+        }
+
+        auto cbegin() const
+        {
+            return _vector.cbegin();
+        }
+
+        auto cend() const
+        {
+            return _vector.cend();
         }
     };
 
@@ -103,6 +154,16 @@ namespace Dryad
                 return true;
             }
             return false;
+        }
+
+        unsigned int Size() const
+        {
+            return static_cast<unsigned int>(_map.size());
+        }
+
+        bool Empty() const
+        {
+            return _map.empty();
         }
 
         bool Remove(const KeyType& key)
@@ -190,6 +251,11 @@ namespace Dryad
         unsigned int Size() const
         {
             return _count;
+        }
+
+        bool Empty() const
+        {
+            return _count == 0;
         }
 
         void PushBack(const T& value)

@@ -12,26 +12,26 @@ namespace Dryad
 
     struct HarmonicTransition
     {
-        ScoreTime maxTransitionDuration;
-        Scale* targetScale;
-        Graph* targetGraph;
-        Edge* targetEntryEdge;
+        ScoreTime maxDuration;
+        Scale* scale;
+        Graph* graph;
+        Edge* entryEdge;
 
         // Take other's values without replacing valid pointer with nullptr
         void Merge(const HarmonicTransition& other)
         {
-            maxTransitionDuration = other.maxTransitionDuration;
-            if(other.targetScale != nullptr)
+            maxDuration = other.maxDuration;
+            if(other.scale != nullptr)
             {
-                targetScale = other.targetScale;
+                scale = other.scale;
             }
-            if(other.targetGraph != nullptr)
+            if(other.graph != nullptr)
             {
-                targetGraph = other.targetGraph;
+                graph = other.graph;
             }
-            if(other.targetEntryEdge != nullptr)
+            if(other.entryEdge != nullptr)
             {
-                targetEntryEdge = other.targetEntryEdge;
+                entryEdge = other.entryEdge;
             }
         }
     };

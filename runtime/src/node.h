@@ -16,9 +16,16 @@ namespace Dryad
         Vector<Edge*> edgesOut;
         bool graphEntry;
         bool graphExit;
-        Chord Chord;
+        Chord chord;
         ScoreTime duration;
         NoteRange noteRange;
         void* userData;
+
+        bool IsValid() const
+        {
+            return graph != nullptr
+                && (edgesIn.Empty() && graphEntry) || (edgesOut.Empty() && graphExit) || (!edgesIn.Empty() && !edgesOut.Empty())
+                && duration > 0;
+        }
     };
 }

@@ -14,7 +14,6 @@ namespace Dryad
     {
         Map<Motif*, Int32> motifVariations;
         TempoChange tempoChangeRequested;
-        Interlude* interludeRequested;
         HarmonicTransition harmonicTransitionRequested;
         EventType eventFlags;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include <limits>
 
 namespace Dryad 
 {
@@ -14,6 +15,23 @@ namespace Dryad
             : numerator(numerator)
             , denominator(denominator)
         {
+        }
+
+        bool IsValid() const
+        {
+            return denominator > 0;
+        }
+
+        float AsFloat() const
+        {
+            return IsValid()
+                ? static_cast<float>(numerator) / static_cast<float>(denominator)
+                : std::numeric_limits<float>::max();
+        }
+
+        bool operator>(float value) const
+        {
+            return AsFloat() > value;
         }
 
         UInt32 numerator;

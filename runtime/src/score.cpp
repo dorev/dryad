@@ -1,5 +1,10 @@
 #include "score.h"
 
+#include "graph.h"
+#include "edge.h"
+#include "node.h"
+#include "random.h"
+
 namespace Dryad
 {
     Score::Score()
@@ -16,8 +21,62 @@ namespace Dryad
         _events.Clean();
     }
 
-    Result Score::UpdateHarmony(HarmonicTransition& harmonicTransition)
+    Result Score::UpdateHarmony(HarmonicTransition& transition)
     {
+        Result result = Result:: EmptyResult;
+        Graph* graph = transition.graph;
+        Edge* entryEdge = transition.entryEdge;
+        if(_harmonicFrames.Empty())
+        {
+            // We must start by validating the entry edge
+            if(graph != nullptr)
+            {
+                // Validate that the provided edge belongs to the graph
+                if(entryEdge != nullptr)
+                {
+                    if(!graph->HasEntryEdge(entryEdge))
+                    {
+                        return Result::EdgeNotFound;
+                    }
+                }
+                // Or select randomly an entry edge
+                else
+                {
+                    result = RandomFrom(graph->entryEdges, entryEdge);
+                    if(result != Result::Success)
+                    {
+                        return result;
+                    }
+                    ResetResult(result);
+                }
+            }
+            else if(entryEdge == nullptr)
+            {
+                return Result::EdgeNotFound;
+            }
+
+            // Now we validate the entry node
+            Node* node = entryEdge->destination;
+            if(node == nullptr)
+            {
+                return Result::NodeNotFound;
+            }
+            if(node->graph == nullptr)
+            {
+                return Result::GraphNotFound;
+            }
+
+            // Initialize with default frame
+            HarmonicFrame frame;
+            if(transition.scale != nullptr)
+            {
+                frame.scale = transition.scale;
+            }
+
+            // Complete frame setup and add queue it
+
+            return Result::Success;
+        }
         // Based on the transition time limit...
         //  * check if we can move toward an exit node
         //  * otherwise proceed to the next graph a the closest node finish point

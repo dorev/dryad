@@ -10,7 +10,7 @@
     { \
         return static_cast<EnumName>(static_cast<UnderlyingType>(a) | static_cast<UnderlyingType>(b)); \
     } \
-    inline EnumName& operator|=(EnumName& a, EnumName b)\
+    inline EnumName& operator|=(EnumName& a, EnumName b) \
     { \
         return a = a | b; \
     } \
@@ -25,7 +25,7 @@ namespace Dryad
     template <class T> struct UnsignedOfSameSize<T, 8> { using Type = unsigned long long; };
 
     //
-    // Setting & clearing flags
+    // Writing flags
     //
     template <class FlagType>
     FlagType& SetFlag(FlagType& target, FlagType flagToSet)

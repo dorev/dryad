@@ -21,7 +21,11 @@ namespace Dryad
         ScoreTime CalculateLongestCycle();
         ScoreTime CalculateShortestCycle();
 
-    private:
+        bool HasEntryEdge(const Edge* edge) const
+        {
+            return entryEdges.Contains(edge);
+        }
+
         Vector<Node*> nodes;
         Vector<Edge*> entryEdges;
         Vector<Edge*> exitEdges;

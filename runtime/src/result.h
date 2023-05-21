@@ -17,6 +17,15 @@ namespace Dryad
         DRYAD_FLAG(NotYetImplemented, 7),
         DRYAD_FLAG(ConcurrencyError, 8),
         DRYAD_FLAG(UselessCall, 9),
+        DRYAD_FLAG(EdgeNotFound, 10),
+        DRYAD_FLAG(NodeNotFound, 11),
+        DRYAD_FLAG(GraphNotFound, 12),
+        DRYAD_FLAG(ContainerEmpty, 13),
     };
+
+    inline Result ResetResult(Result& result)
+    {
+        return result = Result::EmptyResult;
+    }
 }
 
