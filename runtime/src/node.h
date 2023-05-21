@@ -14,12 +14,11 @@ namespace Dryad
         Graph* graph;
         Vector<Edge*> edgesIn;
         Vector<Edge*> edgesOut;
-        Chord Chord;
-        Duration duration;
-        bool overrideGraphNoteRange;
-        NoteRange noteRange;
         bool graphEntry;
         bool graphExit;
+        Chord Chord;
+        ScoreTime duration;
+        NoteRange noteRange;
         void* userData;
     };
 }

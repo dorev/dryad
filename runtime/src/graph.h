@@ -15,11 +15,12 @@ namespace Dryad
         Result InsertNode(Node* node);
         Result RemoveNode(Node* node);
         Edge* AddEdge(Node* sourceNode, Node* destinationNode);
-        Duration CalculateMaxDuration()
-        {
 
-            return MusicTime();
-        }
+        // Do I need this?
+        // See `modegraph.cpp` in 1st rewrite
+        ScoreTime CalculateLongestCycle();
+        ScoreTime CalculateShortestCycle();
+
     private:
         Vector<Node*> nodes;
         Vector<Edge*> entryEdges;

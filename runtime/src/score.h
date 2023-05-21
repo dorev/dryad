@@ -23,7 +23,7 @@ namespace Dryad
         }
 
         Time startTime;
-        Position committedDuration;
+        ScoreTime committedDuration;
         Int32 lastCommittedEventIndex;
     };
 

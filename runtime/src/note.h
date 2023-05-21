@@ -13,8 +13,8 @@ namespace Dryad
         NoteValue value;
         Motif* motif;
         Node* node;
-        Position position;
-        Duration duration;
+        ScoreTime position;
+        ScoreTime duration;
         bool committed;
     };
 }

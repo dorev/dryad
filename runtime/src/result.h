@@ -5,18 +5,18 @@
 
 namespace Dryad
 {
-    enum class Result
+    DRYAD_DECLARE_FLAG_ENUM(Result, UInt32)
     {
-        FLAG(Success, 0),
-        FLAG(EmptyResult, 1),
-        FLAG(UnspecifiedError, 2),
-        FLAG(NotFound, 3),
-        FLAG(UnsupportedEventType, 4),
-        FLAG(InvalidEventData, 5),
-        FLAG(InvalidEventType, 6),
-        FLAG(NotYetImplemented, 7),
-        FLAG(ConcurrencyError, 8),
-        FLAG(UselessCall, 9),
+        DRYAD_FLAG(Success, 0),
+        DRYAD_FLAG(EmptyResult, 1),
+        DRYAD_FLAG(UnspecifiedError, 2),
+        DRYAD_FLAG(NotFound, 3),
+        DRYAD_FLAG(UnsupportedEventType, 4),
+        DRYAD_FLAG(InvalidEventData, 5),
+        DRYAD_FLAG(InvalidEventType, 6),
+        DRYAD_FLAG(NotYetImplemented, 7),
+        DRYAD_FLAG(ConcurrencyError, 8),
+        DRYAD_FLAG(UselessCall, 9),
     };
 }
 

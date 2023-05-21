@@ -20,20 +20,16 @@ namespace Dryad
         UInt32 denominator;
     };
 
-    struct MusicTime : Fraction
+    struct ScoreTime : Fraction
     {
-        MusicTime(UInt32 numerator = 0, UInt32 denominator = 0, Time time = 0, Tempo = DefaultTempo)
+        ScoreTime(UInt32 numerator = 0, UInt32 denominator = 0, Time time = 0)
             : Fraction(numerator, denominator)
             , time(time)
-            , tempo(tempo)
         {
         }
 
         Time time;
-        Tempo tempo;
     };
 
-    using Duration = MusicTime;
-    using Position = MusicTime;
     using TimeSignature = Fraction;
 }

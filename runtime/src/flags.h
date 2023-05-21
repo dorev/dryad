@@ -2,7 +2,19 @@
 
 #include "types.h"
 
-#define FLAG(name, shift) name = 1 << shift
+#define DRYAD_FLAG(name, shift) name = 1 << shift
+
+#define DRYAD_DECLARE_FLAG_ENUM(EnumName, UnderlyingType) \
+    enum class EnumName : UnderlyingType; \
+    inline EnumName operator|(EnumName a, EnumName b) \
+    { \
+        return static_cast<EnumName>(static_cast<UnderlyingType>(a) | static_cast<UnderlyingType>(b)); \
+    } \
+    inline EnumName& operator|=(EnumName& a, EnumName b)\
+    { \
+        return a = a | b; \
+    } \
+    enum class EnumName : UnderlyingType
 
 namespace Dryad
 {
@@ -22,12 +34,20 @@ namespace Dryad
         CastType result = static_cast<CastType>(target) | static_cast<CastType>(flagToSet);
         return target = static_cast<FlagType>(result);
     }
-    
+
     template <class FlagType>
     FlagType& ClearFlag(FlagType& target, FlagType flagToClear)
     {
         using CastType = UnsignedOfSameSize<FlagType>::Type;
         CastType result = static_cast<CastType>(target) & ~(static_cast<CastType>(flagToClear));
+        return target = static_cast<FlagType>(result);
+    }
+
+    template <class FlagType>
+    FlagType& ToggleFlag(FlagType& target, FlagType flagToToggle)
+    {
+        using CastType = UnsignedOfSameSize<FlagType>::Type;
+        CastType result = static_cast<CastType>(target) ^ static_cast<CastType>(flagToToggle);
         return target = static_cast<FlagType>(result);
     }
 

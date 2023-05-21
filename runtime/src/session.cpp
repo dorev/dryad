@@ -56,20 +56,20 @@ namespace Dryad
             EventSummary summary = eventReducer.DumpAndReset();
             if(summary.HasHarmonicChanges())
             {
-                SetFlag(result, score.UpdateHarmony(summary.harmonicTransitionRequested));
+                result |= score.UpdateHarmony(summary.harmonicTransitionRequested);
             }
             if(summary.HasMotifChanges())
             {
-                SetFlag(result, score.UpdateMotifs(summary.motifVariations));
+                result |= result, score.UpdateMotifs(summary.motifVariations);
             }
             if(summary.HasTempoChanges())
             {
-                SetFlag(result, score.UpdateTempo(summary.tempoChangeRequested));
+                result |= result, score.UpdateTempo(summary.tempoChangeRequested);
             }
         }
         if(result == Result::Success)
         {
-            return SetFlag(result, score.Commit(deltaTime, newCommittedEvents));
+            return result |= result, score.Commit(deltaTime, newCommittedEvents);
         }
         return result;
     }
