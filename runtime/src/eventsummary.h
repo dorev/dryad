@@ -30,7 +30,13 @@ namespace Dryad
 
         inline bool HasHarmonicChanges() const
         {
-            return AnyFlagIsSet(EventType::RequestInterlude, EventType::CancelInterlude, EventType::ChangeGraph, EventType::ChangeScale);
+            return AnyFlagIsSet
+            (
+                EventType::RequestInterlude,
+                EventType::CancelInterlude,
+                EventType::ChangeGraph,
+                EventType::ChangeScale
+            );
         }
     };
 }

@@ -22,12 +22,6 @@ Result System::LoadMotif(const Motif& motif)
     return Result::Success;
 }
 
-Result System::LoadInterlude(const Interlude& interlude)
-{
-    interludes.PushBack(new Interlude(interlude));
-    return Result::Success;
-}
-
 Result System::LoadScale(const Scale& scale)
 {
     scales.PushBack(new Scale(scale));
@@ -57,7 +51,6 @@ Result System::Shutdown()
     CleanPointerVector(scales);
     CleanPointerVector(motifs);
     CleanPointerVector(graphs);
-    CleanPointerVector(interludes);
     return Result::Success;
 }
 

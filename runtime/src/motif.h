@@ -32,7 +32,7 @@ namespace Dryad
         MotifMode mode;
         RythmicAnchor rythmicAnchor;
         HarmonicAnchor harmonicAnchor;
-        UInt8 maxLevel;
+        UInt32 maxLevel;
         Vector<Note> notes;
         void* userData;
     };

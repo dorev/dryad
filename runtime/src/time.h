@@ -10,13 +10,7 @@ namespace Dryad
 
     struct Fraction
     {
-        Fraction()
-            : numerator(0)
-            , denominator(0)
-        {
-        }
-
-        Fraction(UInt32 numerator, UInt32 denominator)
+        Fraction(UInt32 numerator = 0, UInt32 denominator = 0)
             : numerator(numerator)
             , denominator(denominator)
         {
@@ -28,18 +22,15 @@ namespace Dryad
 
     struct MusicTime : Fraction
     {
-        MusicTime()
-            : time(0)
-            , tempo(DefaultTempo)
-            , withinTempoChange(false)
-            , tempoChangeProgress()
+        MusicTime(UInt32 numerator = 0, UInt32 denominator = 0, Time time = 0, Tempo = DefaultTempo)
+            : Fraction(numerator, denominator)
+            , time(time)
+            , tempo(tempo)
         {
         }
 
         Time time;
         Tempo tempo;
-        bool withinTempoChange;
-        Fraction tempoChangeProgress;
     };
 
     using Duration = MusicTime;

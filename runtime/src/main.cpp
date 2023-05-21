@@ -6,9 +6,9 @@ namespace Dryad
     namespace Authoring
     {
         constexpr Byte DryadCode[5] = { 'D', 'R', 'Y', 'A', 'D'};
-        constexpr Byte GraphCode[4] = { 'G', 'R', 'P', 'H' };
-        constexpr Byte MotifCode[4] = { 'M', 'T', 'I', 'F' };
-        constexpr Byte InterludeCode[4] = { 'M', 'O', 'M', 'T' };
+        constexpr Byte GraphCode[5] = { 'G', 'R', 'A', 'P', 'H' };
+        constexpr Byte MotifCode[5] = { 'M', 'O', 'T', 'I', 'F' };
+        constexpr Byte ScaleCode[5] = { 'S', 'C', 'A', 'L', 'E' };
 
         void Serialize();
         void Deserialize();

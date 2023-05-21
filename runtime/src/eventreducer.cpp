@@ -41,23 +41,6 @@ namespace Dryad
         return Result::Success;
     }
 
-    Result EventReducer::Consume(EventType eventType, Interlude* interlude)
-    {
-        switch(eventType)
-        {
-            case EventType::RequestInterlude:
-                _summary.interludeRequested = interlude;
-                break;
-            case EventType::CancelInterlude:
-                _summary.interludeRequested = nullptr;
-                break;
-            default:
-                return Result::InvalidEventType;
-        }
-        SetFlag(_summary.eventFlags, eventType);
-        return Result::Success;
-    }
-
     Result EventReducer::Consume(EventType eventType, TempoChange tempoChange)
     {
         if(eventType == EventType::ChangeTempo)
@@ -77,7 +60,7 @@ namespace Dryad
                 _summary.harmonicTransitionRequested.targetScale = harmonicTransition.targetScale;
                 break;
             case EventType::ChangeGraph:
-                _summary.interludeRequested = nullptr;
+                _summary.harmonicTransitionRequested.Merge(harmonicTransition);
                 break;
             default:
                 return Result::InvalidEventType;

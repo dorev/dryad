@@ -6,33 +6,15 @@
 
 namespace Dryad
 {
-    template <class T, size_t Size = sizeof(T)>
-    struct UnsignedOfSameSize;
+    template <class T, size_t Size = sizeof(T)> struct UnsignedOfSameSize;
+    template <class T> struct UnsignedOfSameSize<T, 1> { using Type = unsigned char; };
+    template <class T> struct UnsignedOfSameSize<T, 2> { using Type = unsigned short; };
+    template <class T> struct UnsignedOfSameSize<T, 4> { using Type = unsigned int; };
+    template <class T> struct UnsignedOfSameSize<T, 8> { using Type = unsigned long long; };
 
-    template <class T>
-    struct UnsignedOfSameSize<T, 1>
-    {
-        using Type = unsigned char;
-    };
-
-    template <class T>
-    struct UnsignedOfSameSize<T, 2>
-    {
-        using Type = unsigned short;
-    };
-
-    template <class T>
-    struct UnsignedOfSameSize<T, 4>
-    {
-        using Type = unsigned int;
-    };
-
-    template <class T>
-    struct UnsignedOfSameSize<T, 8>
-    {
-        using Type = unsigned long long;
-    };
-
+    //
+    // Setting & clearing flags
+    //
     template <class FlagType>
     FlagType& SetFlag(FlagType& target, FlagType flagToSet)
     {
@@ -49,6 +31,9 @@ namespace Dryad
         return target = static_cast<FlagType>(result);
     }
 
+    //
+    // Reading flags
+    //
     template <class FlagType>
     bool FlagIsSet(const FlagType& target, FlagType flagValue)
     {

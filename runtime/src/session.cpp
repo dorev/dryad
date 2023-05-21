@@ -24,14 +24,6 @@ namespace Dryad
                 }
                 return Result::InvalidEventData;
 
-            case EventType::RequestInterlude:
-            case EventType::CancelInterlude:
-                if(event.data.Contains<Interlude*>())
-                {
-                    return eventReducer.Consume(event.type, event.data.Get<Interlude*>());
-                }
-                return Result::InvalidEventData;
-
             case EventType::ChangeTempo:
                 if(event.data.Contains<TempoChange>())
                 {
@@ -64,7 +56,7 @@ namespace Dryad
             EventSummary summary = eventReducer.DumpAndReset();
             if(summary.HasHarmonicChanges())
             {
-                SetFlag(result, score.UpdateHarmony(summary.interludeRequested, summary.harmonicTransitionRequested));
+                SetFlag(result, score.UpdateHarmony(summary.harmonicTransitionRequested));
             }
             if(summary.HasMotifChanges())
             {

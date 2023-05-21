@@ -5,7 +5,6 @@
 
 #include "graph.h"
 #include "motif.h"
-#include "interlude.h"
 #include "scale.h"
 
 namespace Dryad
@@ -18,7 +17,6 @@ namespace Dryad
         Result LoadSerializedData(void* data, UInt32 size);
         Result LoadGraph(const Graph& graph);
         Result LoadMotif(const Motif& motif);
-        Result LoadInterlude(const Interlude& interlude);
         Result LoadScale(const Scale& scale);
 
         Session* CreateSession();
@@ -29,7 +27,6 @@ namespace Dryad
         Vector<Session*> sessions;
         Vector<Graph*> graphs;
         Vector<Motif*> motifs;
-        Vector<Interlude*> interludes;
         Vector<Scale*> scales;
     };
 }

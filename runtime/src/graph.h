@@ -15,7 +15,11 @@ namespace Dryad
         Result InsertNode(Node* node);
         Result RemoveNode(Node* node);
         Edge* AddEdge(Node* sourceNode, Node* destinationNode);
-        
+        Duration CalculateMaxDuration()
+        {
+
+            return MusicTime();
+        }
     private:
         Vector<Node*> nodes;
         Vector<Edge*> entryEdges;
