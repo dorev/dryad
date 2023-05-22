@@ -5,6 +5,7 @@
 #include "note.h"
 #include "event.h"
 #include "scoreevent.h"
+#include "scoreledger.h"
 #include "result.h"
 #include "harmonicframe.h"
 
@@ -12,35 +13,31 @@ namespace Dryad
 {
     class Motif;
     class Session;
-
-    struct ScoreInfo
-    {
-        ScoreInfo(Time startTime)
-            : startTime(startTime)
-            , committedDuration()
-            , lastCommittedEventIndex(-1)
-        {
-        }
-
-        Time startTime;
-        ScoreTime committedDuration;
-        Int32 lastCommittedEventIndex;
-    };
-
+    
     class Score
     {
     public:
         Score();
-        void Reset(Time startTime);
+        void Reset(Time startTime, Tempo startTempo);
         Result UpdateHarmony(HarmonicTransition& harmonicTransition);
         Result UpdateMotifs(Map<Motif*, Int32>& motifVariations);
         Result UpdateTempo(TempoChange& tempoChange);
         Result Commit(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents);
 
+        Tempo CurrentTempo() const;
+        Scale* CurrentScale() const;
+        Node* CurrentNode();
+        HarmonicFrame& CurrentHarmonicFrame();
+        const HarmonicFrame& CurrentHarmonicFrame() const;
+
     private:
         inline static const UInt32 DefaultHarmonicFramesCount = 8;
-        ScoreInfo _info;
+        ScoreLedger _ledger;
         CircularDeque<HarmonicFrame> _harmonicFrames;
-        Vector<ScoreEvent> _events;
+
+    private:
+        Result InitialHarmonicFrame(HarmonicTransition& transition);
+        Result UpdateHarmonyScale(HarmonicTransition& transition);
+        Result UpdateHarmonyGraph(HarmonicTransition& transition);
     };
 }

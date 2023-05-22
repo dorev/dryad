@@ -13,7 +13,7 @@ namespace Dryad
     class Session
     {
     public:
-        Result Start(Time time);
+        Result Start(Time time, Tempo tempo);
         Result PushEvent(Event& event);
         Result Update(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents);
 

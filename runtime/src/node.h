@@ -24,7 +24,9 @@ namespace Dryad
         bool IsValid() const
         {
             return graph != nullptr
-                && (edgesIn.Empty() && graphEntry) || (edgesOut.Empty() && graphExit) || (!edgesIn.Empty() && !edgesOut.Empty())
+                && ((edgesIn.Empty() && graphEntry)
+                    || (edgesOut.Empty() && graphExit)
+                    || (!edgesIn.Empty() && !edgesOut.Empty()))
                 && duration > 0;
         }
     };

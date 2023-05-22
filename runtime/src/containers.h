@@ -41,10 +41,14 @@ namespace Dryad
             _vector.clear();
         }
 
-        void Clean()
+        void Clean(unsigned int size = 0)
         {
             _vector.clear();
             _vector.shrink_to_fit();
+            if(size != 0)
+            {
+                _vector.reserve(size);
+            }
         }
 
         bool Erase(const ValueType& item)
@@ -60,7 +64,7 @@ namespace Dryad
             return false;
         }
 
-        template <class U = ValueType, class = EnableIf<!std::is_pointer<U>::value>>
+        template <class U = ValueType, class = EnableIf<!IsPointer<U>>>
         bool Contains(const U& item) const
         {
             for (const U& content : _vector)
@@ -73,7 +77,7 @@ namespace Dryad
             return false;
         }
 
-        template <class U = ValueType, class = EnableIf<std::is_pointer<U>::value>>
+        template <class U = ValueType, class = EnableIf<IsPointer<U>>>
         bool Contains(U item) const
         {
             for (const U& content : _vector)
@@ -131,24 +135,24 @@ namespace Dryad
     class Map
     {
     private:
-        std::map<KeyType, ValueType> map;
+        std::map<KeyType, ValueType> _map;
 
     public:
         template <class... Args>
         Map(Args... args)
-            : map(std::forward<Args>(args)...)
+            : _map(std::forward<Args>(args)...)
         {
         }
 
         ValueType& operator[](const KeyType& key)
         {
-            return map[key];
+            return _map[key];
         }
 
         bool Find(const KeyType& key, ValueType* outValuePtr)
         {
-            auto itr = map.find(key);
-            if(itr != map.end())
+            auto itr = _map.find(key);
+            if(itr != _map.end())
             {
                 outValuePtr = &itr->second;
                 return true;
@@ -168,19 +172,29 @@ namespace Dryad
 
         bool Remove(const KeyType& key)
         {
-            return map.erase(key) > 0;
+            return _map.erase(key) > 0;
         }
 
         using iterator = typename std::map<KeyType, ValueType>::iterator;
 
         auto begin()
         {
-            return map.begin();
+            return _map.begin();
         }
 
         auto end()
         {
-            return map.end();
+            return _map.end();
+        }
+
+        auto cbegin() const
+        {
+            return _map.cbegin();
+        }
+
+        auto cend() const
+        {
+            return _map.cend();
         }
     };
 

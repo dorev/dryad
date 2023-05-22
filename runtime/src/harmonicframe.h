@@ -27,17 +27,10 @@ namespace Dryad
             Scale* scale = nullptr,
             Node* node = nullptr,
             Graph* graph = nullptr
-        )
-            : timeSignature(timeSignature)
-            , tempo(tempo)
-            , frameStart(duration)
-            , duration(duration)
-            , motifLevels(motifLevels)
-            , scale(scale)
-            , node(node)
-            , graph(graph)
-        {
-        }
+        );
+
+        // Used when initializing the first harmonic frame
+        Result MatchNode(Node* node);
 
         TimeSignature timeSignature;
         Tempo tempo;
