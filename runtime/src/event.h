@@ -3,7 +3,7 @@
 #include "types.h"
 #include "time.h"
 #include "flags.h"
-#include "harmonictransition.h"
+#include "harmonytransition.h"
 
 namespace Dryad
 {
@@ -34,7 +34,7 @@ namespace Dryad
     <
         Motif*,
         TempoChange,
-        HarmonicTransition
+        HarmonyTransition
     >;
 
     struct Event

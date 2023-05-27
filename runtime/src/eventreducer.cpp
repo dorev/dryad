@@ -52,7 +52,7 @@ namespace Dryad
         return Result::InvalidEventType;
     }
 
-    Result EventReducer::Consume(EventType eventType, HarmonicTransition harmonicTransition)
+    Result EventReducer::Consume(EventType eventType, HarmonyTransition harmonicTransition)
     {
         switch(eventType)
         {

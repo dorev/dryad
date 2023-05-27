@@ -20,8 +20,6 @@ namespace Dryad
     using UInt32 = unsigned int;
     using Int32 = int;
     using String = std::string;
-    template <class T>
-    using Deque = std::deque<T>;
 
     //
     // Dryad basic types

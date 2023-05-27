@@ -33,9 +33,9 @@ namespace Dryad
 
             case EventType::ChangeScale:
             case EventType::ChangeGraph:
-                if(event.data.Contains<HarmonicTransition>())
+                if(event.data.Contains<HarmonyTransition>())
                 {
-                    return eventReducer.Consume(event.type, event.data.Get<HarmonicTransition>());
+                    return eventReducer.Consume(event.type, event.data.Get<HarmonyTransition>());
                 }
                 return Result::InvalidEventData;
 

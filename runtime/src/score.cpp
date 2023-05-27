@@ -1,5 +1,4 @@
 #include "score.h"
-
 #include "graph.h"
 #include "edge.h"
 #include "node.h"
@@ -9,7 +8,7 @@ namespace Dryad
 {
     Score::Score()
         : _info(0.0f)
-        , _harmonicFrames(DefaultHarmonicFramesCount)
+        , _harmonyFrames(DefaultHarmonicFramesCount)
         , _events()
     {
     }
@@ -17,21 +16,23 @@ namespace Dryad
     void Score::Reset(Time startTime)
     {
         _info = ScoreInfo(startTime);
-        _harmonicFrames.Reset(DefaultHarmonicFramesCount);
+        _harmonyFrames.Reset(DefaultHarmonicFramesCount);
         _events.Clean();
     }
 
-    Result Score::UpdateHarmony(HarmonicTransition& transition)
+    Result Score::UpdateHarmony(HarmonyTransition& transition)
     {
         Result result = Result:: EmptyResult;
         Graph* graph = transition.graph;
         Edge* entryEdge = transition.entryEdge;
-        if(_harmonicFrames.Empty())
+
+        // No frames yet
+        if(_harmonyFrames.Empty())
         {
             // We must start by validating the entry edge
             if(graph != nullptr)
             {
-                // Validate that the provided edge belongs to the graph
+                // Validate that the provided edge belongs to the graph...
                 if(entryEdge != nullptr)
                 {
                     if(!graph->HasEntryEdge(entryEdge))
@@ -39,7 +40,7 @@ namespace Dryad
                         return Result::EdgeNotFound;
                     }
                 }
-                // Or select randomly an entry edge
+                // ...or select randomly an entry edge
                 else
                 {
                     result = RandomFrom(graph->entryEdges, entryEdge);
@@ -66,17 +67,28 @@ namespace Dryad
                 return Result::GraphNotFound;
             }
 
+            // Validate that if a graph was provided, it's correctly associated to the node
+            if(graph != nullptr && node->graph != graph)
+            {
+                return Result::InvalidGraph;
+            }
+
             // Initialize with default frame
-            HarmonicFrame frame;
+            HarmonyFrame frame;
             if(transition.scale != nullptr)
             {
                 frame.scale = transition.scale;
             }
 
             // Complete frame setup and add queue it
-
+            frame.duration = node->duration;
+            frame.frameStart = ScoreTime(1, 4, 0); // time should be updated at commit
+            frame.graph = node->graph;
+            frame.timeSignature = node->graph->timeSignature;
+            frame.tempo; // tempo should be set at commit
             return Result::Success;
         }
+
         // Based on the transition time limit...
         //  * check if we can move toward an exit node
         //  * otherwise proceed to the next graph a the closest node finish point
@@ -86,8 +98,7 @@ namespace Dryad
         // after the target scale dominant
 
         // Skip edge modulation when changing scale or graph
-
-        return Result::NotYetImplemented;
+        return _harmonyStrategy.ApplyTransition(_harmonyFrames, transition);
     }
 
     Result Score::UpdateMotifs(Map<Motif*, Int32>& motifVariations)

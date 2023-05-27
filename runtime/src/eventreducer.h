@@ -15,7 +15,7 @@ namespace Dryad
         Result Consume(EventType eventType, Motif* motif);
         Result Consume(EventType eventType, Interlude* interlude);
         Result Consume(EventType eventType, TempoChange tempoChange);
-        Result Consume(EventType eventType, HarmonicTransition harmonicTransition);
+        Result Consume(EventType eventType, HarmonyTransition harmonicTransition);
 
         bool HasChanges();
         EventSummary DumpAndReset();
