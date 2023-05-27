@@ -4,6 +4,8 @@
 #include "result.h"
 #include "time.h"
 
+#include "node.h"
+
 namespace Dryad
 {
     class Scale;
@@ -33,6 +35,15 @@ namespace Dryad
             {
                 entryEdge = other.entryEdge;
             }
+        }
+
+        Node* GetTargetNode()
+        {
+            if(entryEdge != nullptr)
+            {
+                return entryEdge->destination;
+            }
+            return nullptr;
         }
     };
 }

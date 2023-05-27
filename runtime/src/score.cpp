@@ -26,78 +26,51 @@ namespace Dryad
         Graph* graph = transition.graph;
         Edge* entryEdge = transition.entryEdge;
 
-        // No frames yet
-        if(_harmonyFrames.Empty())
+        // We must start by validating the entry edge
+        if(graph != nullptr)
         {
-            // We must start by validating the entry edge
-            if(graph != nullptr)
+            // Validate that the provided edge belongs to the graph...
+            if(entryEdge != nullptr)
             {
-                // Validate that the provided edge belongs to the graph...
-                if(entryEdge != nullptr)
+                if(!graph->HasEntryEdge(entryEdge))
                 {
-                    if(!graph->HasEntryEdge(entryEdge))
-                    {
-                        return Result::EdgeNotFound;
-                    }
-                }
-                // ...or select randomly an entry edge
-                else
-                {
-                    result = RandomFrom(graph->entryEdges, entryEdge);
-                    if(result != Result::Success)
-                    {
-                        return result;
-                    }
-                    ResetResult(result);
+                    return Result::EdgeNotFound;
                 }
             }
-            else if(entryEdge == nullptr)
+            // ...or select randomly an entry edge
+            else
             {
-                return Result::EdgeNotFound;
+                result = RandomFrom(graph->entryEdges, entryEdge);
+                if(result != Result::Success)
+                {
+                    return result;
+                }
+                ResetResult(result);
             }
-
-            // Now we validate the entry node
-            Node* node = entryEdge->destination;
-            if(node == nullptr)
-            {
-                return Result::NodeNotFound;
-            }
-            if(node->graph == nullptr)
-            {
-                return Result::GraphNotFound;
-            }
-
-            // Validate that if a graph was provided, it's correctly associated to the node
-            if(graph != nullptr && node->graph != graph)
-            {
-                return Result::InvalidGraph;
-            }
-
-            // Initialize with default frame
-            HarmonyFrame frame;
-            if(transition.scale != nullptr)
-            {
-                frame.scale = transition.scale;
-            }
-
-            // Complete frame setup and add queue it
-            frame.duration = node->duration;
-            frame.frameStart = ScoreTime(1, 4, 0); // time should be updated at commit
-            frame.graph = node->graph;
-            frame.timeSignature = node->graph->timeSignature;
-            frame.tempo; // tempo should be set at commit
-            return Result::Success;
+        }
+        else if(entryEdge == nullptr)
+        {
+            return Result::EdgeNotFound;
         }
 
-        // Based on the transition time limit...
-        //  * check if we can move toward an exit node
-        //  * otherwise proceed to the next graph a the closest node finish point
-        // ... cute strategies will follow later!!
+        // Now we validate the entry node
+        Node* node = entryEdge->destination;
+        if(node == nullptr)
+        {
+            return Result::NodeNotFound;
+        }
+        if(node->graph == nullptr)
+        {
+            return Result::GraphNotFound;
+        }
 
-        // In the case of a scale change, try to follow common chords or to switch
-        // after the target scale dominant
+        // Validate that if a graph was provided, it's correctly associated to the node
+        if(graph != nullptr && node->graph != graph)
+        {
+            return Result::InvalidGraph;
+        }
 
-        // Skip edge modulation when changing scale or graph
+        // Now that the transition data has been validated, let the strategy do the rest
         return _harmonyStrategy.ApplyTransition(_harmonyFrames, transition);
     }
 
