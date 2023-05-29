@@ -21,6 +21,7 @@ namespace Dryad
         DRYAD_FLAG(NodeNotFound, 11),
         DRYAD_FLAG(GraphNotFound, 12),
         DRYAD_FLAG(ContainerEmpty, 13),
+        DRYAD_FLAG(InvalidGraph, 14),
     };
 
     inline Result ResetResult(Result& result)

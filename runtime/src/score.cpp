@@ -1,5 +1,4 @@
 #include "score.h"
-
 #include "graph.h"
 #include "edge.h"
 #include "node.h"
@@ -9,39 +8,69 @@ namespace Dryad
 {
     Score::Score()
         : _ledger(0.0f, DefaultTempo)
-        , _harmonicFrames(DefaultHarmonicFramesCount)
+        , _harmonyFrames(DefaultHarmonicFramesCount)
     {
     }
 
     void Score::Reset(Time startTime, Tempo startTempo)
     {
         _ledger = ScoreLedger(startTime, startTempo);
-        _harmonicFrames.Reset(DefaultHarmonicFramesCount);
         //_events.Clean(); TODO: Clean ledger events
+        _harmonyFrames.Reset(DefaultHarmonicFramesCount);
     }
 
-    Result Score::UpdateHarmony(HarmonicTransition& transition)
+    Result Score::UpdateHarmony(HarmonyTransition& transition)
     {
-        if(_harmonicFrames.Empty())
+        Result result = Result:: EmptyResult;
+        Graph* graph = transition.graph;
+        Edge* entryEdge = transition.entryEdge;
+
+        // We must start by validating the entry edge
+        if(graph != nullptr)
         {
-            return InitialHarmonicFrame(transition);
+            // Validate that the provided edge belongs to the graph...
+            if(entryEdge != nullptr)
+            {
+                if(!graph->HasEntryEdge(entryEdge))
+                {
+                    return Result::EdgeNotFound;
+                }
+            }
+            // ...or select randomly an entry edge
+            else
+            {
+                result = RandomFrom(graph->entryEdges, entryEdge);
+                if(result != Result::Success)
+                {
+                    return result;
+                }
+                ResetResult(result);
+            }
         }
-        // With just a scale
-        if(transition.graph == nullptr && transition.scale != nullptr)
+        else if(entryEdge == nullptr)
         {
-            return UpdateHarmonyScale(transition);
+            return Result::EdgeNotFound;
         }
-        // With a graph and maybe a scale
-        else if(transition.graph != nullptr)
+
+        // Now we validate the entry node
+        Node* node = entryEdge->destination;
+        if(node == nullptr)
         {
-            // Plan a graph change, including a potential modulation
-            return UpdateHarmonyGraph(transition);
+            return Result::NodeNotFound;
         }
-        else
+        if(node->graph == nullptr)
         {
-            // No scale or graph provided, nothing to do
-            return Result::UselessCall;
+            return Result::GraphNotFound;
         }
+
+        // Validate that if a graph was provided, it's correctly associated to the node
+        if(graph != nullptr && node->graph != graph)
+        {
+            return Result::InvalidGraph;
+        }
+
+        // Now that the transition data has been validated, let the strategy do the rest
+        return _harmonyStrategy.ApplyTransition(_harmonyFrames, transition);
     }
 
     Result Score::UpdateMotifs(Map<Motif*, Int32>& motifVariations)
@@ -69,19 +98,19 @@ namespace Dryad
         return Result::NotYetImplemented;
     }
 
-    HarmonicFrame& Score::CurrentHarmonicFrame()
+    HarmonyFrame& Score::CurrentHarmonicFrame()
     {
-        return _harmonicFrames.Front();
+        return _harmonyFrames.Front();
     }
     
-    const HarmonicFrame& Score::CurrentHarmonicFrame() const
+    const HarmonyFrame& Score::CurrentHarmonicFrame() const
     {
-        return _harmonicFrames.Front();
+        return _harmonyFrames.Front();
     }
 
     Tempo Score::CurrentTempo() const
     {
-        if(_harmonicFrames.Empty())
+        if(_harmonyFrames.Empty())
         {
             return _ledger.startTempo;
         }
@@ -90,7 +119,7 @@ namespace Dryad
 
     Scale* Score::CurrentScale() const
     {
-        if(_harmonicFrames.Empty())
+        if(_harmonyFrames.Empty())
         {
             return nullptr;
         }
@@ -99,92 +128,10 @@ namespace Dryad
 
     Node* Score::CurrentNode()
     {
-        if(_harmonicFrames.Empty())
+        if(_harmonyFrames.Empty())
         {
             return nullptr;
         }
         return CurrentHarmonicFrame().node;
-    }
-
-    Result Score::InitialHarmonicFrame(HarmonicTransition& transition)
-    {
-        Result result = Result:: EmptyResult;
-        Graph* graph = transition.graph;
-        Edge* entryEdge = transition.entryEdge;
-        Scale* scale = transition.scale;
-
-        // Validate the entry edge
-        if(graph != nullptr)
-        {
-            // Validate that the provided edge belongs to the graph
-            if(entryEdge != nullptr && !graph->HasEntryEdge(entryEdge))
-            {
-                return Result::EdgeNotFound;
-            }
-            // Or select randomly an entry edge
-            else
-            {
-                result = RandomFrom(graph->entryEdges, entryEdge);
-                if(result != Result::Success)
-                {
-                    return result;
-                }
-                ResetResult(result);
-            }
-        }
-        else if(entryEdge == nullptr)
-        {
-            // No graph and no edge provided
-            return Result::EdgeNotFound;
-        }
-
-        // Validate the entry node
-        Node* node = entryEdge->destination;
-        if(node == nullptr)
-        {
-            return Result::NodeNotFound;
-        }
-        if(node->graph == nullptr)
-        {
-            return Result::GraphNotFound;
-        }
-
-        // Initialize with default frame
-        HarmonicFrame frame;
-        frame.tempo = CurrentTempo();
-        if(scale != nullptr)
-        {
-            frame.scale = scale;
-            // Intentionally ignoring edge modulation
-        }
-
-        // Complete frame setup and add queue it
-        return result = frame.MatchNode(node);
-    }
-
-    Result Score::UpdateHarmonyScale(HarmonicTransition& transition)
-    {
-        if(transition.maxDuration.IsZero()/*  || _events.Empty() _ledger.Empty!*/)
-        {
-            CurrentHarmonicFrame().scale = transition.scale;
-            return Result::Success;
-        }
-
-        // Based on the transition duration, try to find an exit node,
-        // or the dominant chord of the target scale
-        ScoreTime duration = transition.maxDuration;
-
-        // Find the remaining uncommitted time of the current frame
-
-
-        return Result::NotYetImplemented;
-    }
-
-    Result Score::UpdateHarmonyGraph(HarmonicTransition& transition)
-    {
-        // Based on the transition duration, try to find an exit node,
-        // or the dominant chord of the target scale
-        // or a matching resolution with the target entry edge of the next graph
-        return Result::NotYetImplemented;
     }
 }

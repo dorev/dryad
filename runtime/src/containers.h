@@ -238,10 +238,10 @@ namespace Dryad
     // CircularDeque
     //
     template<typename T>
-    class CircularDeque
+    class Deque
     {
     public:
-        CircularDeque(unsigned int capacity = 8)
+        Deque(unsigned int capacity = 8)
             : _vector(capacity)
             , _head(0)
             , _tail(0)

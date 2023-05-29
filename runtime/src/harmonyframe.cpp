@@ -1,11 +1,11 @@
 #pragma once
 
-#include "harmonicframe.h"
+#include "harmonyframe.h"
 #include "node.h"
 
 namespace Dryad
 {
-    HarmonicFrame::HarmonicFrame
+    HarmonyFrame::HarmonyFrame
     (
         TimeSignature timeSignature,
         Tempo tempo,
@@ -28,7 +28,7 @@ namespace Dryad
     }
 
     // Used when initializing the first harmonic frame
-    Result HarmonicFrame::MatchNode(Node* node)
+    Result HarmonyFrame::UpdateFromNode(Node* node)
     {
         if(node == nullptr)
         {

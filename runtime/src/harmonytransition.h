@@ -4,13 +4,15 @@
 #include "result.h"
 #include "time.h"
 
+#include "node.h"
+
 namespace Dryad
 {
     class Scale;
     class Graph;
     class Edge;
 
-    struct HarmonicTransition
+    struct HarmonyTransition
     {
         ScoreTime maxDuration;
         Scale* scale;
@@ -18,7 +20,7 @@ namespace Dryad
         Edge* entryEdge;
 
         // Take other's values without replacing valid pointer with nullptr
-        void Merge(const HarmonicTransition& other)
+        void Merge(const HarmonyTransition& other)
         {
             maxDuration = other.maxDuration;
             if(other.scale != nullptr)
@@ -33,6 +35,15 @@ namespace Dryad
             {
                 entryEdge = other.entryEdge;
             }
+        }
+
+        Node* GetTargetNode()
+        {
+            if(entryEdge != nullptr)
+            {
+                return entryEdge->destination;
+            }
+            return nullptr;
         }
     };
 }

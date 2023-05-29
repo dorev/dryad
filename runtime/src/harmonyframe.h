@@ -14,10 +14,10 @@ namespace Dryad
     // The HarmonicFrame represents all the harmony modifiers at a certain
     // point in the score generation process. It holds everything that is
     // required to generate the next few notes
-    class HarmonicFrame
+    class HarmonyFrame
     {
     public:
-        HarmonicFrame
+        HarmonyFrame
         (
             TimeSignature timeSignature = TimeSignature(4, 4),
             Tempo tempo = DefaultTempo,
@@ -30,7 +30,7 @@ namespace Dryad
         );
 
         // Used when initializing the first harmonic frame
-        Result MatchNode(Node* node);
+        Result UpdateFromNode(Node* node);
 
         TimeSignature timeSignature;
         Tempo tempo;
