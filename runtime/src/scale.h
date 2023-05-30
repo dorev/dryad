@@ -89,4 +89,6 @@ namespace Dryad
         ScaleDegrees degrees;
         NoteValue root;
     };
+
+    const Scale MajorScale = Scale();
 }

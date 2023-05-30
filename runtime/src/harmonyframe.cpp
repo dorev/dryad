@@ -12,7 +12,7 @@ namespace Dryad
         ScoreTime frameStart,
         ScoreTime duration,
         Map<Motif*, UInt32> motifLevels,
-        Scale* scale,
+        const Scale* scale,
         Node* node,
         Graph* graph
     )

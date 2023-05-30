@@ -4,11 +4,11 @@
 
 namespace Dryad
 {
-    Result Session::Start(Time time, Tempo tempo)
+    Result Session::Start(Time time, Tempo tempo, const Scale* scale)
     {
         // TODO: return an error if the score has already been started
         //       I might implement a "Pause" feature sometime...
-        score.Reset(time, tempo);
+        score.Reset(time, tempo, scale);
         return Result::Success;
     }
 

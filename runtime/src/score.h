@@ -20,17 +20,19 @@ namespace Dryad
     {
     public:
         Score();
-        void Reset(Time startTime, Tempo startTempo);
+        void Reset(Time startTime, Tempo startTempo, const Scale* startScale);
         Result UpdateHarmony(HarmonyTransition& harmonicTransition);
         Result UpdateMotifs(Map<Motif*, Int32>& motifVariations);
         Result UpdateTempo(TempoChange& tempoChange);
         Result Commit(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents);
 
         Tempo CurrentTempo() const;
-        Scale* CurrentScale() const;
+        const Scale* CurrentScale() const;
         Node* CurrentNode();
-        HarmonyFrame& CurrentHarmonicFrame();
-        const HarmonyFrame& CurrentHarmonicFrame() const;
+        HarmonyFrame& CurrentHarmonyFrame();
+        const HarmonyFrame& CurrentHarmonyFrame() const;
+        Deque<HarmonyFrame>& GetHarmonyFrames();
+        const Deque<HarmonyFrame>& GetHarmonyFrames() const;
 
     private:
         inline static const UInt32 DefaultHarmonicFramesCount = 8;

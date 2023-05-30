@@ -3,18 +3,19 @@
 #include "edge.h"
 #include "node.h"
 #include "random.h"
+#include "scale.h"
 
 namespace Dryad
 {
     Score::Score()
-        : _ledger(0.0f, DefaultTempo)
+        : _ledger(0.0f, DefaultTempo, &MajorScale)
         , _harmonyFrames(DefaultHarmonicFramesCount)
     {
     }
 
-    void Score::Reset(Time startTime, Tempo startTempo)
+    void Score::Reset(Time startTime, Tempo startTempo, const Scale* startScale)
     {
-        _ledger = ScoreLedger(startTime, startTempo);
+        _ledger = ScoreLedger(startTime, startTempo, startScale);
         //_events.Clean(); TODO: Clean ledger events
         _harmonyFrames.Reset(DefaultHarmonicFramesCount);
     }
@@ -70,7 +71,7 @@ namespace Dryad
         }
 
         // Now that the transition data has been validated, let the strategy do the rest
-        return _harmonyStrategy.ApplyTransition(_harmonyFrames, transition);
+        return _harmonyStrategy.ApplyTransition(*this, transition);
     }
 
     Result Score::UpdateMotifs(Map<Motif*, Int32>& motifVariations)
@@ -98,14 +99,24 @@ namespace Dryad
         return Result::NotYetImplemented;
     }
 
-    HarmonyFrame& Score::CurrentHarmonicFrame()
+    HarmonyFrame& Score::CurrentHarmonyFrame()
     {
         return _harmonyFrames.Front();
     }
     
-    const HarmonyFrame& Score::CurrentHarmonicFrame() const
+    const HarmonyFrame& Score::CurrentHarmonyFrame() const
     {
         return _harmonyFrames.Front();
+    }
+
+    Deque<HarmonyFrame>& Score::GetHarmonyFrames()
+    {
+        return _harmonyFrames;
+    }
+
+    const Deque<HarmonyFrame>& Score::GetHarmonyFrames() const
+    {
+        return _harmonyFrames;
     }
 
     Tempo Score::CurrentTempo() const
@@ -114,16 +125,16 @@ namespace Dryad
         {
             return _ledger.startTempo;
         }
-        return CurrentHarmonicFrame().tempo;
+        return CurrentHarmonyFrame().tempo;
     }
 
-    Scale* Score::CurrentScale() const
+    const Scale* Score::CurrentScale() const
     {
         if(_harmonyFrames.Empty())
         {
-            return nullptr;
+            return _ledger.startScale;
         }
-        return CurrentHarmonicFrame().scale;
+        return CurrentHarmonyFrame().scale;
     }
 
     Node* Score::CurrentNode()
@@ -132,6 +143,6 @@ namespace Dryad
         {
             return nullptr;
         }
-        return CurrentHarmonicFrame().node;
+        return CurrentHarmonyFrame().node;
     }
 }

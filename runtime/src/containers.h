@@ -105,6 +105,11 @@ namespace Dryad
             _vector.resize(size);
         }
 
+        void Reserve(unsigned int size)
+        {
+            _vector.reserve(size);
+        }
+
         using iterator = typename std::vector<ValueType>::iterator;
 
         auto begin()

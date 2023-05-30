@@ -24,7 +24,7 @@ namespace Dryad
             ScoreTime frameStart = ScoreTime(1, 4, 0.0f),
             ScoreTime duration = ScoreTime(4, 4),
             Map<Motif*, UInt32> motifLevels = {},
-            Scale* scale = nullptr,
+            const Scale* scale = nullptr,
             Node* node = nullptr,
             Graph* graph = nullptr
         );
@@ -37,7 +37,7 @@ namespace Dryad
         ScoreTime frameStart;
         ScoreTime duration;
         Map<Motif*, UInt32> motifLevels;
-        Scale* scale;
+        const Scale* scale;
         Node* node;
         Graph* graph;
     };

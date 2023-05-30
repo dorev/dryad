@@ -14,6 +14,7 @@ namespace Dryad
     class System
     {
     public:
+        System();
         Result LoadSerializedData(void* data, UInt32 size);
         Result LoadGraph(const Graph& graph);
         Result LoadMotif(const Motif& motif);

@@ -5,6 +5,14 @@
 namespace Dryad
 {
 
+System::System()
+{
+    graphs.Reserve(256);
+    motifs.Reserve(256);
+    scales.Reserve(64);
+    sessions.Reserve(16);
+}
+
 Result System::LoadSerializedData(void* data, UInt32 size)
 {
     return Result::NotYetImplemented;
