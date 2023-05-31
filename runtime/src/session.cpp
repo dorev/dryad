@@ -48,7 +48,7 @@ namespace Dryad
     {
         if(deltaTime <= 0)
         {
-            return Result::UselessCall;
+            return Result::UselessOperation;
         }
         Result result = Result::EmptyResult;
         if(eventReducer.HasChanges())

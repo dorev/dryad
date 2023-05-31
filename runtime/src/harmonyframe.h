@@ -40,5 +40,14 @@ namespace Dryad
         const Scale* scale;
         Node* node;
         Graph* graph;
+
+        // Eventually implement a memento mechanism if we want to backtrack?
+        // What do we do when we asked for a strong transition, followed by another transition
+        // that brings us to a frame similar to the initial one... how do we "cancel"?
+        // We might have to backtrack on the score or keep more "progress" data in the frames
+
+        // This?:
+        // Probably the frames should stored in a tree, branching on the graph forced transitions.
+        // This could be relevant especially when a transition is requested but not acted yet.
     };
 }

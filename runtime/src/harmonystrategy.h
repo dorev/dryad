@@ -20,5 +20,7 @@ namespace Dryad
 
     private:
         Result FirstFrame(Score& score, HarmonyTransition& transition);
+        Result ChangeScale(Score& score, HarmonyTransition& transition);
+        Result ChangeGraph(Score& score, HarmonyTransition& transition);
     };
 }

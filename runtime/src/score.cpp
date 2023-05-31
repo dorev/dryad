@@ -76,6 +76,8 @@ namespace Dryad
 
     Result Score::UpdateMotifs(Map<Motif*, Int32>& motifVariations)
     {
+        // TODO: complete before starting editor work
+
         // This will essentially be about updating the motif levels of the
         // current harmonic frame!
         return Result::NotYetImplemented;
@@ -83,6 +85,8 @@ namespace Dryad
 
     Result Score::UpdateTempo(TempoChange& tempoChange)
     {
+        // NOTE: optional for editor work debut
+
         // This will lead to the insertion of a ScoreEvent and also to some modification
         // of the harmonic frames (depending on the duration of the tempo change...)
         // I'm thinking about pushing this for a farther development cycle but I feel it
@@ -92,6 +96,8 @@ namespace Dryad
 
     Result Score::Commit(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents)
     {
+        // TODO: complete before starting editor work
+
         // This should be pretty straight-forward, just about scanning from the current
         // score position, toggling the notes bools and updating the vector
         // If we reach the end of a harmonic frame, prepare the next one if necessary.
@@ -103,7 +109,7 @@ namespace Dryad
     {
         return _harmonyFrames.Front();
     }
-    
+
     const HarmonyFrame& Score::CurrentHarmonyFrame() const
     {
         return _harmonyFrames.Front();
@@ -144,5 +150,10 @@ namespace Dryad
             return nullptr;
         }
         return CurrentHarmonyFrame().node;
+    }
+
+    ScoreTime Score::CurrentTime() const
+    {
+        return _ledger.committedDuration;
     }
 }

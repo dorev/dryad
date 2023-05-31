@@ -29,6 +29,7 @@ namespace Dryad
         Tempo CurrentTempo() const;
         const Scale* CurrentScale() const;
         Node* CurrentNode();
+        ScoreTime CurrentTime() const;
         HarmonyFrame& CurrentHarmonyFrame();
         const HarmonyFrame& CurrentHarmonyFrame() const;
         Deque<HarmonyFrame>& GetHarmonyFrames();
