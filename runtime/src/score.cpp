@@ -156,4 +156,9 @@ namespace Dryad
     {
         return _ledger.committedDuration;
     }
+
+    ScoreTime Score::TimeRemainingToCurrentFrame() const
+    {
+        return _ledger.committedDuration - CurrentHarmonyFrame().frameStart;
+    }
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "types.h"
-#include "time.h"
+#include "scoretime.h"
 #include "note.h"
 #include "event.h"
 #include "scoreevent.h"
@@ -34,6 +34,7 @@ namespace Dryad
         const HarmonyFrame& CurrentHarmonyFrame() const;
         Deque<HarmonyFrame>& GetHarmonyFrames();
         const Deque<HarmonyFrame>& GetHarmonyFrames() const;
+        ScoreTime TimeRemainingToCurrentFrame() const;
 
     private:
         inline static const UInt32 DefaultHarmonicFramesCount = 8;

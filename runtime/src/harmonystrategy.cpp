@@ -71,6 +71,18 @@ namespace Dryad
     {
         // Evaluate if we have to change the scale on the next beat
         //  -> transition time limit bring is really close to the next beat or even before
+        if(transition.maxDuration.LesserThan(1,4))
+        {
+            // Change scale on the next beat
+            return Result::NotYetImplemented;
+        }
+
+
+
+
+
+        ScoreTime currentTime = score.CurrentTime();
+        ScoreTime transitionDeadline = currentTime + transition.maxDuration;
 
         // If we have more or less time to clear the current frame, change the scale on the next frame
 

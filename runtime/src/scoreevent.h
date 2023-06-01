@@ -1,7 +1,7 @@
 #pragma once
 
 #include "types.h"
-#include "time.h"
+#include "scoretime.h"
 
 namespace Dryad
 {
