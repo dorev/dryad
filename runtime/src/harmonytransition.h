@@ -2,8 +2,6 @@
 
 #include "types.h"
 #include "result.h"
-#include "scoretime.h"
-
 #include "node.h"
 
 namespace Dryad

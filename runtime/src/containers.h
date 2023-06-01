@@ -338,6 +338,11 @@ namespace Dryad
             return _vector[(_tail + _vector.Size() - 1) % _vector.Size()];
         }
 
+        void Insert(const T& item, unsigned int index)
+        {
+            _vector.insert(_vector.begin() + index, item);
+        }
+
     private:
         void ExtendBuffer()
         {

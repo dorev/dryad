@@ -23,6 +23,7 @@ namespace Dryad
         DRYAD_FLAG(ContainerEmpty, 13),
         DRYAD_FLAG(InvalidGraph, 14),
         DRYAD_FLAG(InvalidNode, 15),
+        DRYAD_FLAG(InvalidTime, 16),
     };
 
     inline Result ResetResult(Result& result)

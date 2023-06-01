@@ -57,12 +57,11 @@ namespace Dryad
         }
 
         // Time will be set at commit
-        frame.frameStart = ScoreTime(1, 4, 0);
+        frame.frameStart = 0;
 
         // Complete frame setup and add queue it
         frame.duration = node->duration;
         frame.graph = node->graph;
-        frame.timeSignature = node->graph->timeSignature;
         frame.tempo = score.CurrentTempo(); 
         return Result::Success;
     }
@@ -71,10 +70,24 @@ namespace Dryad
     {
         // Evaluate if we have to change the scale on the next beat
         //  -> transition time limit bring is really close to the next beat or even before
-        if(transition.maxDuration.LesserThan(1,4))
+        if(transition.maxDuration < score.TimeRemainingToCurrentHarmonyFrame())
         {
-            // Change scale on the next beat
-            return Result::NotYetImplemented;
+            // The transition has to happen within the frame
+            // Make it happen on the next beat!
+            ScoreTime transitionTime = NearestBeatAfter(Quarter, score.CurrentTime());
+            HarmonyFrame currentFrame = score.CurrentHarmonyFrame();
+            HarmonyFrame nextFrame;
+            Result result = currentFrame.SplitFrame(transitionTime, nextFrame);
+
+            // Simply crush and rewrite the queue for now
+            if(result == Result::Success)
+            {
+                Deque<HarmonyFrame> frames = score.GetHarmonyFrames();
+                frames.Clear();
+                frames.PushBack(currentFrame);
+                frames.PushBack(nextFrame);
+            }
+            return result;
         }
 
 

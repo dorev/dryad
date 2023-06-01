@@ -7,7 +7,6 @@ namespace Dryad
 {
     HarmonyFrame::HarmonyFrame
     (
-        TimeSignature timeSignature,
         Tempo tempo,
         ScoreTime frameStart,
         ScoreTime duration,
@@ -16,8 +15,7 @@ namespace Dryad
         Node* node,
         Graph* graph
     )
-        : timeSignature(timeSignature)
-        , tempo(tempo)
+        : tempo(tempo)
         , frameStart(duration)
         , duration(duration)
         , motifLevels(motifLevels)
@@ -34,8 +32,7 @@ namespace Dryad
         {
             return Result::NodeNotFound;
         }
-        timeSignature = node->graph->timeSignature;
-        frameStart = ScoreTime(1,4);
+        frameStart = 0;
         duration = node->duration;
         this->node = node;
         if(node->graph == nullptr)
@@ -43,6 +40,26 @@ namespace Dryad
             return Result::GraphNotFound;
         }
         graph = node->graph;
+        return Result::Success;
+    }
+
+    ScoreTime HarmonyFrame::FrameEnd() const
+    {
+        return frameStart + duration;
+    }
+
+    Result HarmonyFrame::SplitFrame(ScoreTime splitTime, HarmonyFrame& latterFrame)
+    {
+        if(splitTime <= frameStart || splitTime >= FrameEnd())
+        {
+            return Result::InvalidTime;
+        }
+        ScoreTime updatedFrameDuration = splitTime - frameStart;
+        ScoreTime latterFrameDuration = duration - updatedFrameDuration;
+        duration = updatedFrameDuration;
+        latterFrame = *this;
+        latterFrame.frameStart = frameStart + updatedFrameDuration;
+        latterFrame.duration = latterFrameDuration;
         return Result::Success;
     }
 }

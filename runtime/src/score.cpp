@@ -157,8 +157,21 @@ namespace Dryad
         return _ledger.committedDuration;
     }
 
-    ScoreTime Score::TimeRemainingToCurrentFrame() const
+    ScoreTime Score::TimeRemainingToCurrentHarmonyFrame() const
     {
+        if(_harmonyFrames.Empty())
+        {
+            return 0;
+        }
         return _ledger.committedDuration - CurrentHarmonyFrame().frameStart;
+    }
+
+    ScoreTime Score::CurrentHarmonyFrameEndTime() const
+    {
+        if(_harmonyFrames.Empty())
+        {
+            return 0;
+        }
+        return CurrentHarmonyFrame().FrameEnd();
     }
 }

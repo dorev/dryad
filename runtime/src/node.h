@@ -1,7 +1,6 @@
 #pragma once
 
 #include "types.h"
-#include "scoretime.h"
 #include "chord.h"
 #include "edge.h"
 #include "graph.h"

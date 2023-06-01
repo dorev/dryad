@@ -1,7 +1,6 @@
 #pragma once
 
 #include "types.h"
-#include "scoretime.h"
 #include "chord.h"
 
 namespace Dryad
@@ -29,7 +28,6 @@ namespace Dryad
         Vector<Node*> nodes;
         Vector<Edge*> entryEdges;
         Vector<Edge*> exitEdges;
-        TimeSignature timeSignature;
         NoteRange noteRange;
     };
 }
