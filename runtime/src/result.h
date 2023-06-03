@@ -15,7 +15,7 @@ namespace Dryad
         DRYAD_FLAG(InvalidEventData, 5),
         DRYAD_FLAG(InvalidEventType, 6),
         DRYAD_FLAG(NotYetImplemented, 7),
-        DRYAD_FLAG(ConcurrencyError, 8),
+        DRYAD_FLAG(PotentialConcurrencyError, 8),
         DRYAD_FLAG(UselessOperation, 9),
         DRYAD_FLAG(EdgeNotFound, 10),
         DRYAD_FLAG(NodeNotFound, 11),

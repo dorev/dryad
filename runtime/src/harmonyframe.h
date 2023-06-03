@@ -40,6 +40,9 @@ namespace Dryad
         ScoreTime FrameEnd() const;
         Result SplitFrame(ScoreTime splitTime, HarmonyFrame& latterFrame);
 
+        bool operator==(const HarmonyFrame& other) const;
+        bool operator!=(const HarmonyFrame& other) const;
+
 
         // Eventually implement a memento mechanism if we want to backtrack?
         // What do we do when we asked for a strong transition, followed by another transition

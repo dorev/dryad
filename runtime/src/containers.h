@@ -202,6 +202,11 @@ namespace Dryad
         {
             return _map.cend();
         }
+
+        bool operator==(const Map& other) const
+        {
+            return _map == other._map;
+        }
     };
 
     //

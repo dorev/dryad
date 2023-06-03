@@ -21,7 +21,7 @@ namespace Dryad
             }
             if((*variationCount) == 0 && !_summary.motifVariations.Remove(motif))
             {
-                return Result::ConcurrencyError;
+                return Result::PotentialConcurrencyError;
             }
         }
         else

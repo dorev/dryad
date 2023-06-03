@@ -62,4 +62,21 @@ namespace Dryad
         latterFrame.duration = latterFrameDuration;
         return Result::Success;
     }
+
+    bool HarmonyFrame::operator==(const HarmonyFrame& other) const
+    {
+        return
+            tempo == other.tempo &&
+            frameStart == other.frameStart &&
+            duration == other.duration &&
+            motifLevels == other.motifLevels &&
+            scale == other.scale &&
+            node == other.node &&
+            graph == other.graph;
+    }
+
+    bool HarmonyFrame::operator!=(const HarmonyFrame& other) const
+    {
+        return !(*this == other);
+    }
 }
