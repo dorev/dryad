@@ -68,19 +68,20 @@ namespace Dryad
 
     Result HarmonyStrategy::ChangeScale(Score& score, HarmonyTransition& transition)
     {
+        ScoreTime currentTime = score.CurrentTime();
+        Deque<HarmonyFrame> frames = score.GetHarmonyFrames();
+        HarmonyFrame frame = score.CurrentHarmonyFrame();
+
+        // If the transition has to happen within the frame
+        // Make it happen on the next beat
         if(transition.maxDuration < score.TimeRemainingToCurrentHarmonyFrame())
         {
-            // The transition has to happen within the frame
-            // Make it happen on the next beat
-            ScoreTime transitionTime = NearestBeatAfter(Quarter, score.CurrentTime());
-            HarmonyFrame currentFrame = score.CurrentHarmonyFrame();
+            ScoreTime transitionTime = NearestBeatAfter(Quarter, currentTime);
             HarmonyFrame nextFrame;
-            Result result = currentFrame.SplitFrame(transitionTime, nextFrame);
-
+            Result result = frame.SplitFrame(transitionTime, nextFrame);
             if(result == Result::Success)
             {
-                Deque<HarmonyFrame> frames = score.GetHarmonyFrames();
-                while(!frames.Empty() && frames.Back() != currentFrame)
+                while(!frames.Empty() && frames.Back() != frame)
                 {
                     frames.PopBack();
                     if(frames.Empty())
@@ -93,7 +94,35 @@ namespace Dryad
             return result;
         }
 
-        // 
+        // if we have a long time ahead of us, start by figuring out if we have exit nodes available before the deadline
+        ScoreTime deadline = currentTime + transition.maxDuration;
+        if(frames.Back().FrameEnd() < deadline)
+        {
+            // Generate frames until deadline
+            // score.GenerateFrames(ScoreTime durationToAppend);
+        }
+        UInt32 framesCount = frames.Size();
+        Vector<UInt32> exitFrameIndices;
+        for(UInt32 i = 0; i < framesCount; ++i)
+        {
+            if(frames.Get(i, frame))
+            {
+                if(frame.node != nullptr && frame.node->graphExit)
+                {
+                    exitFrameIndices.PushBack(i);
+                }
+            }
+        }
+
+        // Order frames so we're looking at 4th measures first, then 2nd to try to make the transition in a relevant place
+        // 1- If one of these frames is the next scale dominant, select it as pivot
+        // 2- Explore the graph to find if a node nearby is a dominant
+        // 3- Repeat 1-2 looking for IV
+        // 4- Repeat 1-2 looking for V/V and add a V frame as pivot
+        // 5- Repeat 1-2 looking for a common chord and use it as pivot
+        // 6- Select the latest frame possible, hoping that something else happens in the meantime
+
+
 
 
 

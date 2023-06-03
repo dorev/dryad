@@ -348,6 +348,17 @@ namespace Dryad
             _vector.insert(_vector.begin() + index, item);
         }
 
+        bool Get(unsigned int index, T& value) const
+        {
+            if (index >= _count)
+            {
+                return false;
+            }
+
+            value = _vector[(_head + index) % _vector.Size()];
+            return true;
+        }
+
     private:
         void ExtendBuffer()
         {
