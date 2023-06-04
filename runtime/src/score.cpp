@@ -23,8 +23,8 @@ namespace Dryad
     Result Score::UpdateHarmony(HarmonyTransition& transition)
     {
         Result result = Result:: EmptyResult;
-        Graph* graph = transition.graph;
-        Edge* entryEdge = transition.entryEdge;
+        const Graph* graph = transition.graph;
+        const Edge* entryEdge = transition.entryEdge;
 
         // We must start by validating the entry edge
         if(graph != nullptr)
@@ -173,5 +173,41 @@ namespace Dryad
             return 0;
         }
         return CurrentHarmonyFrame().FrameEnd();
+    }
+
+    Result Score::GenerateFrames(ScoreTime durationToAppend)
+    {
+        if(_harmonyFrames.Empty())
+        {
+            return Result::NotYetImplemented;
+        }
+        Node* node = _harmonyFrames.Back().node;
+        if(node == nullptr || !node->IsValid())
+        {
+            return Result::InvalidNode;
+        }
+        ScoreTime scoreEnd = _harmonyFrames.Back().FrameEnd();
+        ScoreTime scoreTarget = scoreEnd + durationToAppend;
+        while(scoreEnd < scoreTarget)
+        {
+            Node* nextNode = node->GetNext();
+            if(nextNode == nullptr || !nextNode->IsValid())
+            {
+                return Result::InvalidNode;
+            }
+            HarmonyFrame newFrame
+            (
+                CurrentTempo(),
+                scoreEnd,
+                nextNode->duration,
+                {},
+                CurrentScale(),
+                nextNode,
+                nextNode->graph
+            );
+            _harmonyFrames.PushBack(newFrame);
+            scoreEnd = newFrame.FrameEnd();
+        }
+        return Result::Success;
     }
 }

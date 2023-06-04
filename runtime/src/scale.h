@@ -11,12 +11,12 @@ namespace Dryad
         ScaleOffsets
         (
             NoteValue tonic = 0,
-            NoteValue supertonic = 2,
-            NoteValue mediant = 4,
-            NoteValue subdominant = 5,
-            NoteValue dominant = 7,
-            NoteValue submediant = 9,
-            NoteValue leadindTone = 11
+            NoteValue supertonic = MajorSecond,
+            NoteValue mediant = MajorThird,
+            NoteValue subdominant = PerfectFourth,
+            NoteValue dominant = PerfectFifth,
+            NoteValue submediant = MajorSixth,
+            NoteValue leadindTone = MajorSeventh
         )
             : offsets
             {
@@ -43,15 +43,15 @@ namespace Dryad
     {
         ScaleDegrees
         (
-            Chord first = Chord(Degree::Tonic, ChordQualities::Major | ChordQualities::MajorSeventh),
-            Chord second = Chord(Degree::Supertonic, ChordQualities::Minor | ChordQualities::Seventh),
-            Chord third = Chord(Degree::Mediant, ChordQualities::Minor | ChordQualities::Seventh),
-            Chord fourth = Chord(Degree::Subdominant, ChordQualities::Major | ChordQualities::MajorSeventh),
-            Chord fifth = Chord(Degree::Dominant, ChordQualities::Major | ChordQualities::MajorSeventh),
-            Chord sixth = Chord(Degree::Submediant, ChordQualities::Major | ChordQualities::Seventh),
-            Chord seventh = Chord(Degree::LeadingTone, ChordQualities::HalfDiminished)
+            Chord first = Chord(C, Degree::Tonic, ChordQualities::Major | ChordQualities::MajorSeventh),
+            Chord second = Chord(D, Degree::Supertonic, ChordQualities::Minor | ChordQualities::Seventh),
+            Chord third = Chord(E, Degree::Mediant, ChordQualities::Minor | ChordQualities::Seventh),
+            Chord fourth = Chord(F, Degree::Subdominant, ChordQualities::Major | ChordQualities::MajorSeventh),
+            Chord fifth = Chord(G, Degree::Dominant, ChordQualities::Major | ChordQualities::MajorSeventh),
+            Chord sixth = Chord(A, Degree::Submediant, ChordQualities::Major | ChordQualities::Seventh),
+            Chord seventh = Chord(B, Degree::LeadingTone, ChordQualities::HalfDiminished)
         )
-            : degrees
+            : chords
             {
                 first,
                 second,
@@ -64,7 +64,7 @@ namespace Dryad
         {
         }
 
-        Chord degrees[7];
+        Chord chords[7];
     };
 
     class Scale
@@ -82,12 +82,33 @@ namespace Dryad
             , degrees(degrees)
             , root(root)
         {
+            UpdateChordRoots();
+        }
+
+        void UpdateChordRoots()
+        {
+            for (int i = 0; i < 7; ++i)
+            {
+                degrees.chords[i].root = (root + offsets.offsets[i]) % Octave;
+            }
         }
 
         ScaleOffsets offsets;
         ScaleOffsets descendingOffsets;
         ScaleDegrees degrees;
         NoteValue root;
+
+        const Chord TonicChord() const { return degrees.chords[0]; }
+        const Chord SupertonicChord() const { return degrees.chords[1]; }
+        const Chord MediantChord() const { return degrees.chords[2]; }
+        const Chord SubdominantChord() const { return degrees.chords[3]; }
+        const Chord DominantChord() const { return degrees.chords[4]; }
+        const Chord SubmediantChord() const { return degrees.chords[5]; }
+        const Chord LeadingToneChord() const { return degrees.chords[6]; }
+        const Chord SecondaryDominantChord() const
+        {
+            return Chord(DominantChord().root + PerfectFifth, Degree::Dominant, ChordQualities::Major | ChordQualities::MajorSeventh);
+        }
     };
 
     const Scale MajorScale = Scale();

@@ -24,6 +24,7 @@ namespace Dryad
         Result UpdateMotifs(Map<Motif*, Int32>& motifVariations);
         Result UpdateTempo(TempoChange& tempoChange);
         Result Commit(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents);
+        Result GenerateFrames(ScoreTime durationToAppend);
 
         Tempo CurrentTempo() const;
         const Scale* CurrentScale() const;
@@ -35,7 +36,6 @@ namespace Dryad
         const Deque<HarmonyFrame>& GetHarmonyFrames() const;
         ScoreTime TimeRemainingToCurrentHarmonyFrame() const;
         ScoreTime CurrentHarmonyFrameEndTime() const;
-        Result InsertFrameAfter(const HarmonyFrame& frameToInsert, const HarmonyFrame& targetFrame);
 
     private:
         inline static const UInt32 DefaultHarmonicFramesCount = 8;

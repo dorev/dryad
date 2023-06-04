@@ -24,6 +24,7 @@ namespace Dryad
         DRYAD_FLAG(InvalidGraph, 14),
         DRYAD_FLAG(InvalidNode, 15),
         DRYAD_FLAG(InvalidTime, 16),
+        DRYAD_FLAG(InvalidEdge, 17),
     };
 
     inline Result ResetResult(Result& result)

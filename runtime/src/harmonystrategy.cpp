@@ -3,6 +3,7 @@
 #include "types.h"
 #include "harmonytransition.h"
 #include "score.h"
+#include "scale.h"
 
 namespace Dryad
 {
@@ -13,8 +14,8 @@ namespace Dryad
         {
             return Result::InvalidNode;
         }
-        Scale* scale = transition.scale;
-        Graph* graph = transition.graph;
+        const Scale* scale = transition.scale;
+        const Graph* graph = transition.graph;
         if (score.GetHarmonyFrames().Empty())
         {
             return FirstFrame(score, transition);
@@ -41,7 +42,7 @@ namespace Dryad
         {
             return Result::InvalidNode;
         }
-        Scale* scale = transition.scale;
+        const Scale* scale = transition.scale;
 
         // Initialize with default frame
         HarmonyFrame frame;
@@ -94,27 +95,60 @@ namespace Dryad
             return result;
         }
 
-        // if we have a long time ahead of us, start by figuring out if we have exit nodes available before the deadline
+        // Make sure that we have enough frames to cover the maximal transition duration
         ScoreTime deadline = currentTime + transition.maxDuration;
         if(frames.Back().FrameEnd() < deadline)
         {
-            // Generate frames until deadline
-            // score.GenerateFrames(ScoreTime durationToAppend);
+            score.GenerateFrames(transition.maxDuration);
         }
+
+        // Find if we have frames containing graph exit nodes
+        // NOTE: This could become a function of Score or HarmonyFrameTree
         UInt32 framesCount = frames.Size();
-        Vector<UInt32> exitFrameIndices;
+        Vector<HarmonyFrame> exitFrames(framesCount);
         for(UInt32 i = 0; i < framesCount; ++i)
         {
             if(frames.Get(i, frame))
             {
                 if(frame.node != nullptr && frame.node->graphExit)
                 {
-                    exitFrameIndices.PushBack(i);
+                    exitFrames.PushBack(frame);
                 }
             }
         }
 
-        // Order frames so we're looking at 4th measures first, then 2nd to try to make the transition in a relevant place
+        const Scale* currentScale = score.CurrentScale();
+        const Scale* scale = transition.scale;
+
+        if(exitFrames.Size() > 0)
+        {
+            // Looking for V of the new scale
+            for(const HarmonyFrame& frame : exitFrames)
+            {
+                if(scale->DominantChord() == frame.node->chord)
+                {
+                    // this is the one!
+                }
+            }
+            // Looking for IV of the new scale
+            for(const HarmonyFrame& frame : exitFrames)
+            {
+                if(scale->SubdominantChord() == frame.node->chord)
+                {
+                    // this is the one!
+                }
+            }
+            // Looking for V/V of the new scale
+            for(const HarmonyFrame& frame : exitFrames)
+            {
+                if(scale->SecondaryDominantChord() == frame.node->chord)
+                {
+                    // this is the one!
+                }
+            }
+        }
+
+
         // 1- If one of these frames is the next scale dominant, select it as pivot
         // 2- Explore the graph to find if a node nearby is a dominant
         // 3- Repeat 1-2 looking for IV
@@ -122,12 +156,6 @@ namespace Dryad
         // 5- Repeat 1-2 looking for a common chord and use it as pivot
         // 6- Select the latest frame possible, hoping that something else happens in the meantime
 
-
-
-
-
-        ScoreTime currentTime = score.CurrentTime();
-        ScoreTime transitionDeadline = currentTime + transition.maxDuration;
 
         // If we have more or less time to clear the current frame, change the scale on the next frame
 

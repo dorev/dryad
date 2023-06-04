@@ -28,7 +28,7 @@ namespace Dryad
         (
             Tempo tempo = DefaultTempo,
             ScoreTime frameStart = 0,
-            ScoreTime duration = 1 * Whole,
+            ScoreTime duration = Whole,
             Map<Motif*, UInt32> motifLevels = {},
             const Scale* scale = nullptr,
             Node* node = nullptr,

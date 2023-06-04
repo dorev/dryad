@@ -123,12 +123,12 @@ namespace Dryad
             return _vector.end();
         }
 
-        auto cbegin() const
+        const auto begin() const
         {
             return _vector.cbegin();
         }
 
-        auto cend() const
+        const auto end() const
         {
             return _vector.cend();
         }

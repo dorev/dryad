@@ -7,6 +7,19 @@ namespace Dryad
     constexpr UInt8 ScaleNoteLimit = 12;
     constexpr UInt8 OctaveLimit = 11;
 
+    constexpr NoteValue MinorSecond = 1;
+    constexpr NoteValue MajorSecond = 2;
+    constexpr NoteValue MinorThird = 3;
+    constexpr NoteValue MajorThird = 4;
+    constexpr NoteValue PerfectFourth = 5;
+    constexpr NoteValue Tritone = 6;
+    constexpr NoteValue PerfectFifth = 7;
+    constexpr NoteValue MinorSixth = 8;
+    constexpr NoteValue MajorSixth = 9;
+    constexpr NoteValue MinorSeventh = 10;
+    constexpr NoteValue MajorSeventh = 11;
+    constexpr NoteValue Octave = 12;
+
     constexpr float Frequencies[ScaleNoteLimit][OctaveLimit] =
     {
         { 16.3516f, 32.7032f, 65.4064f, 130.81f, 261.63f, 523.25f, 1046.5f, 2093.0f, 4186.0f, 8372.0f,  16744.0f },

@@ -66,12 +66,12 @@ namespace Dryad
     bool HarmonyFrame::operator==(const HarmonyFrame& other) const
     {
         return
-            tempo == other.tempo &&
             frameStart == other.frameStart &&
+            node == other.node &&
             duration == other.duration &&
+            tempo == other.tempo &&
             motifLevels == other.motifLevels &&
             scale == other.scale &&
-            node == other.node &&
             graph == other.graph;
     }
 

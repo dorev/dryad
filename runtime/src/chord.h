@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include "constants.h"
 
 namespace Dryad
 {
@@ -74,6 +75,7 @@ namespace Dryad
     {
         Chord
         (
+            NoteValue root = C,
             Degree degree = Degree::Tonic,
             ChordQualities qualities = ChordQualities::Major,
             Accidental accidental = Accidental::Natural
@@ -84,6 +86,14 @@ namespace Dryad
         {
         }
 
+        bool operator==(const Chord& other) const
+        {
+            return degree == other.degree
+                && qualities == other.qualities
+                && accidental == other.accidental;
+        }
+
+        NoteValue root;
         Degree degree;
         ChordQualities qualities;
         Accidental accidental;

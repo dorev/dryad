@@ -13,9 +13,9 @@ namespace Dryad
     struct HarmonyTransition
     {
         ScoreTime maxDuration;
-        Scale* scale;
-        Graph* graph;
-        Edge* entryEdge;
+        const Scale* scale;
+        const Graph* graph;
+        const Edge* entryEdge;
 
         // Take other's values without replacing valid pointer with nullptr
         void Merge(const HarmonyTransition& other)

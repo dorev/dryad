@@ -28,5 +28,25 @@ namespace Dryad
                     || (!edgesIn.Empty() && !edgesOut.Empty()))
                 && duration > 0;
         }
+
+        Node* GetNext() const
+        {
+            if(!edgesOut.Empty())
+            {
+                if(edgesOut.Size() == 1)
+                {
+                    return edgesOut[0]->destination;
+                }
+                else
+                {
+                    Edge* edge = Edge::SelectWeightedRandom(edgesOut);
+                    if (edge != nullptr)
+                    {
+                        return edge->destination;
+                    }
+                }
+            }
+            return nullptr;
+        }
     };
 }
