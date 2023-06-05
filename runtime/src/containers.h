@@ -354,9 +354,23 @@ namespace Dryad
             {
                 return false;
             }
-
             value = _vector[(_head + index) % _vector.Size()];
             return true;
+        }
+
+        // This could be unsafe if values are modified concurrently
+        bool GetPtr(unsigned int index, T*& pointer)
+        {
+            if (index < _count)
+            {
+                T* tmp = &_vector[(_head + index) % _vector.Size()];
+                if(tmp != nullptr)
+                {
+                    pointer = tmp;
+                    return true;
+                }
+            }
+            return false;
         }
 
     private:

@@ -95,6 +95,30 @@ namespace Dryad
             return result;
         }
 
+        // If the transition can happen later, simply make it happen on the next frame
+        // Validate that more frames exist
+        if(frames.Size() == 1)
+        {
+            score.GenerateFrames(transition.maxDuration);
+        }
+
+        // Update the scale for all remaining frames
+        HarmonyFrame* framePtr = nullptr;
+        for(UInt32 i = 1; i < frames.Size(); ++i)
+        {
+            if(frames.GetPtr(i, framePtr))
+            {
+                framePtr->scale = transition.scale;
+            }
+            else
+            {
+                return Result::HarmonyFrameNotFound;
+            }
+        }
+
+        return Result::Success;
+
+        /*
         // Make sure that we have enough frames to cover the maximal transition duration
         ScoreTime deadline = currentTime + transition.maxDuration;
         if(frames.Back().FrameEnd() < deadline)
@@ -172,6 +196,7 @@ namespace Dryad
         // Identity if a node within the time limit would be a relevant transition chord,
         // otherwise just change the scale on the next node or relevant beat
         return Result::NotYetImplemented;
+        */
     }
 
     Result HarmonyStrategy::ChangeGraph(Score& score, HarmonyTransition& transition)
