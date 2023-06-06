@@ -9,7 +9,7 @@ namespace Dryad
 {
     Result HarmonyStrategy::ApplyTransition(Score& score, HarmonyTransition& transition)
     {
-        Node* node = transition.GetTargetNode();
+        Node* node = transition.GetEntryNode();
         if(!node->IsValid())
         {
             return Result::InvalidNode;
@@ -33,7 +33,7 @@ namespace Dryad
 
     Result HarmonyStrategy::FirstFrame(Score& score, HarmonyTransition& transition)
     {
-        Node* node = transition.GetTargetNode();
+        Node* node = transition.GetEntryNode();
         if (node == nullptr)
         {
             return Result::NodeNotFound;
@@ -42,12 +42,10 @@ namespace Dryad
         {
             return Result::InvalidNode;
         }
-        const Scale* scale = transition.scale;
 
-        // Initialize with default frame
+        // Prepare the first frame
         HarmonyFrame frame;
-
-        // Set scale
+        const Scale* scale = transition.scale;
         if (scale != nullptr)
         {
             frame.scale = scale;
@@ -70,7 +68,7 @@ namespace Dryad
     Result HarmonyStrategy::ChangeScale(Score& score, HarmonyTransition& transition)
     {
         ScoreTime currentTime = score.CurrentTime();
-        Deque<HarmonyFrame> frames = score.GetHarmonyFrames();
+        Deque<HarmonyFrame>& frames = score.GetHarmonyFrames();
         HarmonyFrame frame = score.CurrentHarmonyFrame();
 
         // If the transition has to happen within the frame
@@ -117,55 +115,103 @@ namespace Dryad
         }
 
         return Result::Success;
+    }
 
-        /*
-        // Make sure that we have enough frames to cover the maximal transition duration
-        ScoreTime deadline = currentTime + transition.maxDuration;
-        if(frames.Back().FrameEnd() < deadline)
+    Result HarmonyStrategy::ChangeGraph(Score& score, HarmonyTransition& transition)
+    {
+        const Graph* graph = transition.graph;
+        if(graph == nullptr || graph->nodes.Empty())
         {
-            score.GenerateFrames(transition.maxDuration);
+            return Result::InvalidGraph;
+        }
+        const Node* node = transition.GetEntryNode();
+        const Scale* scale = transition.scale;
+        ScoreTime deadline = score.CurrentTime() + transition.maxDuration;
+        Deque<HarmonyFrame>& frames = score.GetHarmonyFrames();
+
+        // Trim any frame beyond the transition deadline
+        // The soonest a transition can happen is the next frame
+        Result result = score.GenerateFramesUntil(deadline);
+        if(result != Result::Success)
+        {
+            return result;
+        }
+        while(frames.Size() > 1 && frames.Back().EndTime() > deadline)
+        {
+            frames.PopBack();
         }
 
+        // If no entry is specified, find the most relevant one
+        if(node == nullptr)
+        {
+            node = BestEntryMatch(frames, graph, scale);
+            if(node == nullptr)
+            {
+                return Result::FailedToTransition;
+            }
+        }
+        HarmonyFrame nextFrame
+        (
+            score.CurrentTempo(),
+            frames.Back().EndTime(),
+            node->duration,
+            transition.scale,
+            node,
+            graph
+        );
+        frames.PushBack(nextFrame);
+        return Result::Success;
+    }
+
+    const Node* HarmonyStrategy::BestEntryMatch(Deque<HarmonyFrame>& frames, const Graph* graph, const Scale* scale)
+    {
         // Find if we have frames containing graph exit nodes
         // NOTE: This could become a function of Score or HarmonyFrameTree
         UInt32 framesCount = frames.Size();
-        Vector<HarmonyFrame> exitFrames(framesCount);
+        Vector<HarmonyFrame*> exitFrames(framesCount);
         for(UInt32 i = 0; i < framesCount; ++i)
         {
-            if(frames.Get(i, frame))
+            HarmonyFrame* framePtr;
+            if(frames.GetPtr(i, framePtr))
             {
-                if(frame.node != nullptr && frame.node->graphExit)
+                if(framePtr->node != nullptr && framePtr->node->graphExit)
                 {
-                    exitFrames.PushBack(frame);
+                    exitFrames.PushBack(framePtr);
                 }
             }
         }
-
-        const Scale* currentScale = score.CurrentScale();
-        const Scale* scale = transition.scale;
 
         if(exitFrames.Size() > 0)
         {
             // Looking for V of the new scale
-            for(const HarmonyFrame& frame : exitFrames)
+            for(const HarmonyFrame* framePtr : exitFrames)
             {
-                if(scale->DominantChord() == frame.node->chord)
+                for(const Edge* entryEdge : graph->entryEdges)
                 {
-                    // this is the one!
+                    Chord& targetChord = entryEdge->destination->chord;
+
+                    if(framePtr->node->chord.IsDominantOf(targetChord))
+                    {
+                        // this is the one!
+                    }
                 }
             }
+
+
+
+
             // Looking for IV of the new scale
-            for(const HarmonyFrame& frame : exitFrames)
+            for(const HarmonyFrame* framePtr : exitFrames)
             {
-                if(scale->SubdominantChord() == frame.node->chord)
+                if(scale->SubdominantChord() == framePtr->node->chord)
                 {
                     // this is the one!
                 }
             }
             // Looking for V/V of the new scale
-            for(const HarmonyFrame& frame : exitFrames)
+            for(const HarmonyFrame* framePtr : exitFrames)
             {
-                if(scale->SecondaryDominantChord() == frame.node->chord)
+                if(scale->SecondaryDominantChord() == framePtr->node->chord)
                 {
                     // this is the one!
                 }
@@ -179,32 +225,7 @@ namespace Dryad
         // 4- Repeat 1-2 looking for V/V and add a V frame as pivot
         // 5- Repeat 1-2 looking for a common chord and use it as pivot
         // 6- Select the latest frame possible, hoping that something else happens in the meantime
-
-
-        // If we have more or less time to clear the current frame, change the scale on the next frame
-
-        // If we have more time, enough to finish the current frame and the next, and maybe more
-        // Find a relevant path in the graph to accomplish the modulation
-
-
-
-        // In the case of a scale change, try to follow common chords or to switch
-        // after the target scale dominant
-
-        // Skip edge modulation when changing scale or graph
-
-        // Identity if a node within the time limit would be a relevant transition chord,
-        // otherwise just change the scale on the next node or relevant beat
-        return Result::NotYetImplemented;
-        */
-    }
-
-    Result HarmonyStrategy::ChangeGraph(Score& score, HarmonyTransition& transition)
-    {
-        // Based on the transition time limit...
-        //  * check if we can move toward an exit node
-        //  * otherwise proceed to the next graph a the closest node finish point
-        // ... cute strategies will follow later!!
-        return Result::NotYetImplemented;
+        
+        return nullptr;
     }
 }

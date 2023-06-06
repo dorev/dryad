@@ -143,7 +143,7 @@ namespace Dryad
         return CurrentHarmonyFrame().scale;
     }
 
-    Node* Score::CurrentNode()
+    const Node* Score::CurrentNode()
     {
         if(_harmonyFrames.Empty())
         {
@@ -172,7 +172,7 @@ namespace Dryad
         {
             return 0;
         }
-        return CurrentHarmonyFrame().FrameEnd();
+        return CurrentHarmonyFrame().EndTime();
     }
 
     Result Score::GenerateFrames(ScoreTime durationToAppend)
@@ -181,12 +181,12 @@ namespace Dryad
         {
             return Result::NotYetImplemented;
         }
-        Node* node = _harmonyFrames.Back().node;
+        const Node* node = _harmonyFrames.Back().node;
         if(node == nullptr || !node->IsValid())
         {
             return Result::InvalidNode;
         }
-        ScoreTime scoreEnd = _harmonyFrames.Back().FrameEnd();
+        ScoreTime scoreEnd = _harmonyFrames.Back().EndTime();
         ScoreTime scoreTarget = scoreEnd + durationToAppend;
         while(scoreEnd < scoreTarget)
         {
@@ -200,13 +200,31 @@ namespace Dryad
                 CurrentTempo(),
                 scoreEnd,
                 nextNode->duration,
-                {},
                 CurrentScale(),
                 nextNode,
                 nextNode->graph
             );
             _harmonyFrames.PushBack(newFrame);
-            scoreEnd = newFrame.FrameEnd();
+            scoreEnd = newFrame.EndTime();
+        }
+        return Result::Success;
+    }
+
+    ScoreTime Score::GeneratedEndTime() const
+    {
+        if(_harmonyFrames.Empty())
+        {
+            return 0;
+        }
+        return _harmonyFrames.Back().EndTime();
+    }
+
+    Result Score::GenerateFramesUntil(ScoreTime targetScoreTime)
+    {
+        ScoreTime currentScoreEnd = GeneratedEndTime();
+        if(targetScoreTime > currentScoreEnd)
+        {
+            return GenerateFrames(targetScoreTime - currentScoreEnd);
         }
         return Result::Success;
     }

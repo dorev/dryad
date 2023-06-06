@@ -25,15 +25,17 @@ namespace Dryad
         Result UpdateTempo(TempoChange& tempoChange);
         Result Commit(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents);
         Result GenerateFrames(ScoreTime durationToAppend);
+        Result GenerateFramesUntil(ScoreTime targetScoreTIme);
 
         Tempo CurrentTempo() const;
         const Scale* CurrentScale() const;
-        Node* CurrentNode();
+        const Node* CurrentNode();
         ScoreTime CurrentTime() const;
         HarmonyFrame& CurrentHarmonyFrame();
         const HarmonyFrame& CurrentHarmonyFrame() const;
         Deque<HarmonyFrame>& GetHarmonyFrames();
         const Deque<HarmonyFrame>& GetHarmonyFrames() const;
+        ScoreTime GeneratedEndTime() const;
         ScoreTime TimeRemainingToCurrentHarmonyFrame() const;
         ScoreTime CurrentHarmonyFrameEndTime() const;
 

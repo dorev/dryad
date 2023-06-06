@@ -21,23 +21,22 @@ namespace Dryad
         ScoreTime duration;
         Map<Motif*, UInt32> motifLevels;
         const Scale* scale;
-        Node* node;
-        Graph* graph;
+        const Node* node;
+        const Graph* graph;
 
         HarmonyFrame
         (
             Tempo tempo = DefaultTempo,
             ScoreTime frameStart = 0,
             ScoreTime duration = Whole,
-            Map<Motif*, UInt32> motifLevels = {},
             const Scale* scale = nullptr,
-            Node* node = nullptr,
-            Graph* graph = nullptr
+            const Node* node = nullptr,
+            const Graph* graph = nullptr
         );
 
         // Used when initializing the first harmonic frame
         Result UpdateFromNode(Node* node);
-        ScoreTime FrameEnd() const;
+        ScoreTime EndTime() const;
         Result SplitFrame(ScoreTime splitTime, HarmonyFrame& latterFrame);
 
         bool operator==(const HarmonyFrame& other) const;

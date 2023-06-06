@@ -35,7 +35,7 @@ namespace Dryad
             }
         }
 
-        Node* GetTargetNode()
+        Node* GetEntryNode()
         {
             if(entryEdge != nullptr)
             {

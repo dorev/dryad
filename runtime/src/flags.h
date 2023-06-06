@@ -6,13 +6,21 @@
 
 #define DRYAD_DECLARE_FLAG_ENUM(EnumName, UnderlyingType) \
     enum class EnumName : UnderlyingType; \
-    inline EnumName operator|(EnumName a, EnumName b) \
+    constexpr EnumName operator|(EnumName a, EnumName b) \
     { \
         return static_cast<EnumName>(static_cast<UnderlyingType>(a) | static_cast<UnderlyingType>(b)); \
+    } \
+    constexpr EnumName operator&(EnumName a, EnumName b) \
+    { \
+        return static_cast<EnumName>(static_cast<UnderlyingType>(a) & static_cast<UnderlyingType>(b)); \
     } \
     inline EnumName& operator|=(EnumName& a, EnumName b) \
     { \
         return a = a | b; \
+    } \
+    inline EnumName& operator&=(EnumName& a, EnumName b) \
+    { \
+        return a = a & b; \
     } \
     enum class EnumName : UnderlyingType
 

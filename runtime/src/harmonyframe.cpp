@@ -10,10 +10,9 @@ namespace Dryad
         Tempo tempo,
         ScoreTime frameStart,
         ScoreTime duration,
-        Map<Motif*, UInt32> motifLevels,
         const Scale* scale,
-        Node* node,
-        Graph* graph
+        const Node* node,
+        const Graph* graph
     )
         : tempo(tempo)
         , frameStart(duration)
@@ -43,14 +42,14 @@ namespace Dryad
         return Result::Success;
     }
 
-    ScoreTime HarmonyFrame::FrameEnd() const
+    ScoreTime HarmonyFrame::EndTime() const
     {
         return frameStart + duration;
     }
 
     Result HarmonyFrame::SplitFrame(ScoreTime splitTime, HarmonyFrame& latterFrame)
     {
-        if(splitTime <= frameStart || splitTime >= FrameEnd())
+        if(splitTime <= frameStart || splitTime >= EndTime())
         {
             return Result::InvalidTime;
         }

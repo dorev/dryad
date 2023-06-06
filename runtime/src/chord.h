@@ -46,11 +46,20 @@ namespace Dryad
         DRYAD_FLAG(Sharp9, 25),
         DRYAD_FLAG(Sharp11, 26),
         DRYAD_FLAG(Sharp13, 27),
-        //FLAG(PLACEHOLDER_BIT0, 28),
-        //FLAG(PLACEHOLDER_BIT1, 29),
-        //FLAG(PLACEHOLDER_BIT2, 30),
-        //FLAG(PLACEHOLDER_BIT3, 31),
+        //DRYAD_FLAG(PLACEHOLDER_BIT0, 28),
+        //DRYAD_FLAG(PLACEHOLDER_BIT1, 29),
+        //DRYAD_FLAG(PLACEHOLDER_BIT2, 30),
+        //DRYAD_FLAG(PLACEHOLDER_BIT3, 31),
     };
+
+    constexpr ChordQualities SimplifiedChordQualities = ChordQualities::Minor
+        | ChordQualities::Major
+        | ChordQualities::Diminished
+        | ChordQualities::Augmented
+        | ChordQualities::Sus2
+        | ChordQualities::Sus4
+        | ChordQualities::DiminishedSeventh
+        | ChordQualities::HalfDiminished;
 
     enum class Degree
     {
@@ -80,7 +89,8 @@ namespace Dryad
             ChordQualities qualities = ChordQualities::Major,
             Accidental accidental = Accidental::Natural
         )
-            : degree(degree)
+            : root(root)
+            , degree(degree)
             , qualities(qualities)
             , accidental(accidental)
         {
@@ -88,9 +98,30 @@ namespace Dryad
 
         bool operator==(const Chord& other) const
         {
-            return degree == other.degree
+            return root == other.root
+                && degree == other.degree
                 && qualities == other.qualities
                 && accidental == other.accidental;
+        }
+
+        bool IsDominantOf(Chord other) const
+        {
+            if (FlagIsSet(qualities, ChordQualities::Major))
+            {
+                other.root += PerfectFifth;
+                other.root %= Octave;
+                return AreSimilar(*this, other);
+            }
+            return false;
+        }
+
+        static bool AreSimilar(const Chord& left, const Chord& right)
+        {
+            ChordQualities leftQualitiesSimplified = left.qualities & SimplifiedChordQualities;
+            ChordQualities rightQualitiesSimplified = right.qualities & SimplifiedChordQualities;
+            return left.root == right.root
+                && left.accidental == right.accidental
+                && leftQualitiesSimplified == rightQualitiesSimplified;
         }
 
         NoteValue root;
