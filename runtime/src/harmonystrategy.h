@@ -22,6 +22,6 @@ namespace Dryad
         Result FirstFrame(Score& score, HarmonyTransition& transition);
         Result ChangeScale(Score& score, HarmonyTransition& transition);
         Result ChangeGraph(Score& score, HarmonyTransition& transition);
-        const Node* BestEntryMatch(Deque<HarmonyFrame>& frames, const Graph* graph, const Scale* scale);
+        const Node* FindEntryNode(Deque<HarmonyFrame>& frames, const Graph* graph, const Scale* scale);
     };
 }

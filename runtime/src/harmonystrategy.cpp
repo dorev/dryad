@@ -144,7 +144,7 @@ namespace Dryad
         // If no entry is specified, find the most relevant one
         if(node == nullptr)
         {
-            node = BestEntryMatch(frames, graph, scale);
+            node = FindEntryNode(frames, graph, scale);
             if(node == nullptr)
             {
                 return Result::FailedToTransition;
@@ -163,7 +163,29 @@ namespace Dryad
         return Result::Success;
     }
 
-    const Node* HarmonyStrategy::BestEntryMatch(Deque<HarmonyFrame>& frames, const Graph* graph, const Scale* scale)
+    using CompareChordPredicate = bool(*)(const Chord&, const Chord&);
+    using CompareFrameNodeScalePredicate = bool(*)(const HarmonyFrame&, const Node*, const Scale*);
+
+    HarmonyFrame* FindBestFrameForTransition(Deque<HarmonyFrame>& frames,const Graph* graph, const Scale* scale, CompareFrameNodeScalePredicate predicate)
+    {
+        for(UInt32 i = 0; i < frames.Size(); ++i)
+        {
+            HarmonyFrame* framePtr = nullptr;
+            if(frames.GetPtr(i, framePtr))
+            {
+                for(const Edge* entryEdge : graph->entryEdges)
+                {
+                    if(predicate(*framePtr, entryEdge->destination, scale))
+                    {
+                        return framePtr;
+                    }
+                }
+            }
+        }
+        return nullptr;
+    }
+
+    const Node* HarmonyStrategy::FindEntryNode(Deque<HarmonyFrame>& frames, const Graph* graph, const Scale* scale)
     {
         // Find if we have frames containing graph exit nodes
         // NOTE: This could become a function of Score or HarmonyFrameTree
@@ -183,21 +205,12 @@ namespace Dryad
 
         if(exitFrames.Size() > 0)
         {
-            // Looking for V of the new scale
-            for(const HarmonyFrame* framePtr : exitFrames)
+            const HarmonyFrame* transitionFrame = FindBestFrameForTransition(frames, graph, scale,
+            [](const HarmonyFrame& frame, const Node* node, const Scale* scale) -> bool
             {
-                for(const Edge* entryEdge : graph->entryEdges)
-                {
-                    Chord& targetChord = entryEdge->destination->chord;
-
-                    if(framePtr->node->chord.IsDominantOf(targetChord))
-                    {
-                        // this is the one!
-                    }
-                }
-            }
-
-
+                node->chord
+                return false;
+            });
 
 
             // Looking for IV of the new scale

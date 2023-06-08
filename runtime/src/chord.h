@@ -72,7 +72,7 @@ namespace Dryad
         DRYAD_FLAG(Submediant, 6),
         DRYAD_FLAG(LeadingTone, 7),
     };
-
+    
     struct NoteRange
     {
         NoteValue min;
@@ -124,6 +124,20 @@ namespace Dryad
                 && leftQualitiesSimplified == rightQualitiesSimplified;
         }
 
+        Result ApplyScale(const Scale* scale)
+        {
+            if (scale == nullptr)
+            {
+                return Result::InvalidScale;
+            }
+            root = scale->GetDegreeRoot(degree);
+            if (root == Octave)
+            {
+                return Result::InvalidDegree;
+            }
+            return Result::Success;
+        }
+    
         NoteValue root;
         Degree degree;
         ChordQualities qualities;

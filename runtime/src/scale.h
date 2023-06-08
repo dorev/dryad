@@ -93,6 +93,32 @@ namespace Dryad
             }
         }
 
+        static UInt32 DegreeToScaleIndex(Degree degree)
+        {
+            switch(degree)
+            {
+            case Degree::Tonic: return 0;
+            case Degree::Supertonic: return 1;
+            case Degree::Mediant: return 2;
+            case Degree::Subdominant: return 3;
+            case Degree::Dominant: return 4;
+            case Degree::Submediant: return 5;
+            case Degree::LeadingTone: return 6;
+            default:
+                return 7;
+            }
+        }
+
+        NoteValue GetDegreeRoot(Degree degree) const
+        {
+            UInt32 degreeIndex = DegreeToScaleIndex(degree);
+            if(degreeIndex < 7)
+            {
+                return degrees.chords[degreeIndex].root;
+            }
+            return Octave;
+        }
+
         ScaleOffsets offsets;
         ScaleOffsets descendingOffsets;
         ScaleDegrees degrees;

@@ -373,6 +373,20 @@ namespace Dryad
             return false;
         }
 
+        bool GetPtr(unsigned int index, const T*& pointer) const
+        {
+            if (index < _count)
+            {
+                const T* tmp = &_vector[(_head + index) % _vector.Size()];
+                if(tmp != nullptr)
+                {
+                    pointer = tmp;
+                    return true;
+                }
+            }
+            return false;
+        }
+
     private:
         void ExtendBuffer()
         {
