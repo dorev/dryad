@@ -124,13 +124,13 @@ namespace Dryad
         ScaleDegrees degrees;
         NoteValue root;
 
-        const Chord TonicChord() const { return degrees.chords[0]; }
-        const Chord SupertonicChord() const { return degrees.chords[1]; }
-        const Chord MediantChord() const { return degrees.chords[2]; }
-        const Chord SubdominantChord() const { return degrees.chords[3]; }
-        const Chord DominantChord() const { return degrees.chords[4]; }
-        const Chord SubmediantChord() const { return degrees.chords[5]; }
-        const Chord LeadingToneChord() const { return degrees.chords[6]; }
+        const Chord& TonicChord() const { return degrees.chords[0]; }
+        const Chord& SupertonicChord() const { return degrees.chords[1]; }
+        const Chord& MediantChord() const { return degrees.chords[2]; }
+        const Chord& SubdominantChord() const { return degrees.chords[3]; }
+        const Chord& DominantChord() const { return degrees.chords[4]; }
+        const Chord& SubmediantChord() const { return degrees.chords[5]; }
+        const Chord& LeadingToneChord() const { return degrees.chords[6]; }
         const Chord SecondaryDominantChord() const
         {
             return Chord(DominantChord().root + PerfectFifth, Degree::Dominant, ChordQualities::Major | ChordQualities::MajorSeventh);

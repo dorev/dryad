@@ -185,38 +185,41 @@ namespace Dryad
         return nullptr;
     }
 
-    const Node* HarmonyStrategy::FindEntryNode(Deque<HarmonyFrame>& frames, const Graph* graph, const Scale* scale)
+    const Node* HarmonyStrategy::FindEntryNode(Deque<HarmonyFrame>& frames, const Graph* targetGraph, const Scale* targetScale)
     {
         // Find if we have frames containing graph exit nodes
         // NOTE: This could become a function of Score or HarmonyFrameTree
         UInt32 framesCount = frames.Size();
-        Vector<HarmonyFrame*> exitFrames(framesCount);
+        Deque<HarmonyFrame*> exitFrames(framesCount);
         for(UInt32 i = 0; i < framesCount; ++i)
         {
             HarmonyFrame* framePtr;
-            if(frames.GetPtr(i, framePtr))
+            if(frames.GetPtr(i, framePtr)
+                && framePtr->node != nullptr
+                && framePtr->node->graphExit)
             {
-                if(framePtr->node != nullptr && framePtr->node->graphExit)
-                {
-                    exitFrames.PushBack(framePtr);
-                }
+                exitFrames.PushBack(framePtr);
             }
         }
 
         if(exitFrames.Size() > 0)
         {
-            const HarmonyFrame* transitionFrame = FindBestFrameForTransition(frames, graph, scale,
+            const HarmonyFrame* transitionFrame = FindBestFrameForTransition(frames, targetGraph, targetScale,
             [](const HarmonyFrame& frame, const Node* node, const Scale* scale) -> bool
             {
-                node->chord
+                // Find if any of the exit frame is the dominant of the new scale
+                if(frame.node != nullptr && frame.node->graphExit)
+                {
+                    return Chord::AreSimilar(frame.node->chord, scale->DominantChord());
+                }
                 return false;
             });
 
-
+            /*
             // Looking for IV of the new scale
             for(const HarmonyFrame* framePtr : exitFrames)
             {
-                if(scale->SubdominantChord() == framePtr->node->chord)
+                if(targetScale->SubdominantChord() == framePtr->node->chord)
                 {
                     // this is the one!
                 }
@@ -224,11 +227,16 @@ namespace Dryad
             // Looking for V/V of the new scale
             for(const HarmonyFrame* framePtr : exitFrames)
             {
-                if(scale->SecondaryDominantChord() == framePtr->node->chord)
+                if(targetScale->SecondaryDominantChord() == framePtr->node->chord)
                 {
                     // this is the one!
                 }
             }
+            */
+        }
+        else
+        {
+            // No exit frame, we need to find a frame that contains a node of the new graph
         }
 
 

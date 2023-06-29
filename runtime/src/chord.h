@@ -1,6 +1,8 @@
 #pragma once
 
 #include "types.h"
+#include "result.h"
+#include "flags.h"
 #include "constants.h"
 
 namespace Dryad
@@ -80,67 +82,26 @@ namespace Dryad
         Degree allowedDegrees;
     };
 
-    struct Chord
+    class Scale;
+    class Chord
     {
+    public:
+        NoteValue root;
+        Degree degree;
+        ChordQualities qualities;
+        Accidental accidental;
+
         Chord
         (
             NoteValue root = C,
             Degree degree = Degree::Tonic,
             ChordQualities qualities = ChordQualities::Major,
             Accidental accidental = Accidental::Natural
-        )
-            : root(root)
-            , degree(degree)
-            , qualities(qualities)
-            , accidental(accidental)
-        {
-        }
+        );
 
-        bool operator==(const Chord& other) const
-        {
-            return root == other.root
-                && degree == other.degree
-                && qualities == other.qualities
-                && accidental == other.accidental;
-        }
-
-        bool IsDominantOf(Chord other) const
-        {
-            if (FlagIsSet(qualities, ChordQualities::Major))
-            {
-                other.root += PerfectFifth;
-                other.root %= Octave;
-                return AreSimilar(*this, other);
-            }
-            return false;
-        }
-
-        static bool AreSimilar(const Chord& left, const Chord& right)
-        {
-            ChordQualities leftQualitiesSimplified = left.qualities & SimplifiedChordQualities;
-            ChordQualities rightQualitiesSimplified = right.qualities & SimplifiedChordQualities;
-            return left.root == right.root
-                && left.accidental == right.accidental
-                && leftQualitiesSimplified == rightQualitiesSimplified;
-        }
-
-        Result ApplyScale(const Scale* scale)
-        {
-            if (scale == nullptr)
-            {
-                return Result::InvalidScale;
-            }
-            root = scale->GetDegreeRoot(degree);
-            if (root == Octave)
-            {
-                return Result::InvalidDegree;
-            }
-            return Result::Success;
-        }
-    
-        NoteValue root;
-        Degree degree;
-        ChordQualities qualities;
-        Accidental accidental;
+        bool operator==(const Chord& other) const;
+        bool IsDominantOf(Chord other) const;
+        static bool AreSimilar(const Chord& left, const Chord& right);
+        Result ApplyScale(const Scale* scale);
     };
 }
