@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include "harmonytransition.h"
+#include "harmonystrategy.h"
 #include "score.h"
 #include "scale.h"
 
@@ -120,12 +121,16 @@ namespace Dryad
     Result HarmonyStrategy::ChangeGraph(Score& score, HarmonyTransition& transition)
     {
         const Graph* graph = transition.graph;
-        if(graph == nullptr || graph->nodes.Empty())
+        if(graph == nullptr || graph->nodes.Empty() || graph->entryEdges.Empty())
         {
             return Result::InvalidGraph;
         }
         const Node* node = transition.GetEntryNode();
         const Scale* scale = transition.scale;
+        if(scale == nullptr)
+        {
+             return Result::InvalidScale;
+        }
         ScoreTime deadline = score.CurrentTime() + transition.maxDuration;
         Deque<HarmonyFrame>& frames = score.GetHarmonyFrames();
 
@@ -144,7 +149,7 @@ namespace Dryad
         // If no entry is specified, find the most relevant one
         if(node == nullptr)
         {
-            node = FindEntryNode(frames, graph, scale);
+            node = FindEntryNode(frames, transition);
             if(node == nullptr)
             {
                 return Result::FailedToTransition;
@@ -163,90 +168,39 @@ namespace Dryad
         return Result::Success;
     }
 
-    using CompareChordPredicate = bool(*)(const Chord&, const Chord&);
-    using CompareFrameNodeScalePredicate = bool(*)(const HarmonyFrame&, const Node*, const Scale*);
-
-    HarmonyFrame* FindBestFrameForTransition(Deque<HarmonyFrame>& frames,const Graph* graph, const Scale* scale, CompareFrameNodeScalePredicate predicate)
+    const Node* HarmonyStrategy::FindEntryNode(Deque<HarmonyFrame>& frames, const HarmonyTransition& transition)
     {
-        for(UInt32 i = 0; i < frames.Size(); ++i)
+        const Graph* targetGraph = transition.graph;
+        const Scale* targetScale = transition.scale;
+        HarmonyFrame* framePtr = nullptr;
+
+        // Going through the frames in order
+        // Compare the frame node against the entry nodes of the target graph
+        // By running them through a set of predicates defined in the strategy
+        // To evaluate if it is a good candidate for the transition
+        for(UInt32 predicateIndex = 0; predicateIndex < FrameSearchPredicatesCount; ++predicateIndex)
         {
-            HarmonyFrame* framePtr = nullptr;
-            if(frames.GetPtr(i, framePtr))
+            for(UInt32 frameIndex = 0; frameIndex < frames.Size(); ++frameIndex)
             {
-                for(const Edge* entryEdge : graph->entryEdges)
+                if(frames.GetPtr(frameIndex, framePtr))
                 {
-                    if(predicate(*framePtr, entryEdge->destination, scale))
+                    for(const Edge* entryEdge : targetGraph->entryEdges)
                     {
-                        return framePtr;
+                        if(FrameSearchPredicates[predicateIndex](*framePtr, entryEdge->destination, targetScale))
+                        {
+                            return framePtr->node;
+                        }
                     }
                 }
             }
         }
-        return nullptr;
-    }
 
-    const Node* HarmonyStrategy::FindEntryNode(Deque<HarmonyFrame>& frames, const Graph* targetGraph, const Scale* targetScale)
-    {
-        // Find if we have frames containing graph exit nodes
-        // NOTE: This could become a function of Score or HarmonyFrameTree
-        UInt32 framesCount = frames.Size();
-        Deque<HarmonyFrame*> exitFrames(framesCount);
-        for(UInt32 i = 0; i < framesCount; ++i)
+        // As a last resort, use a random entry edge of the target graph
+        const Edge* randomEntryEdge = nullptr;
+        if(RandomFrom(targetGraph->entryEdges, randomEntryEdge) == Result::Success)
         {
-            HarmonyFrame* framePtr;
-            if(frames.GetPtr(i, framePtr)
-                && framePtr->node != nullptr
-                && framePtr->node->graphExit)
-            {
-                exitFrames.PushBack(framePtr);
-            }
+            return randomEntryEdge->destination;
         }
-
-        if(exitFrames.Size() > 0)
-        {
-            const HarmonyFrame* transitionFrame = FindBestFrameForTransition(frames, targetGraph, targetScale,
-            [](const HarmonyFrame& frame, const Node* node, const Scale* scale) -> bool
-            {
-                // Find if any of the exit frame is the dominant of the new scale
-                if(frame.node != nullptr && frame.node->graphExit)
-                {
-                    return Chord::AreSimilar(frame.node->chord, scale->DominantChord());
-                }
-                return false;
-            });
-
-            /*
-            // Looking for IV of the new scale
-            for(const HarmonyFrame* framePtr : exitFrames)
-            {
-                if(targetScale->SubdominantChord() == framePtr->node->chord)
-                {
-                    // this is the one!
-                }
-            }
-            // Looking for V/V of the new scale
-            for(const HarmonyFrame* framePtr : exitFrames)
-            {
-                if(targetScale->SecondaryDominantChord() == framePtr->node->chord)
-                {
-                    // this is the one!
-                }
-            }
-            */
-        }
-        else
-        {
-            // No exit frame, we need to find a frame that contains a node of the new graph
-        }
-
-
-        // 1- If one of these frames is the next scale dominant, select it as pivot
-        // 2- Explore the graph to find if a node nearby is a dominant
-        // 3- Repeat 1-2 looking for IV
-        // 4- Repeat 1-2 looking for V/V and add a V frame as pivot
-        // 5- Repeat 1-2 looking for a common chord and use it as pivot
-        // 6- Select the latest frame possible, hoping that something else happens in the meantime
-        
         return nullptr;
     }
 }

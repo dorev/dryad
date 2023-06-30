@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include "harmonytransition.h"
+#include "harmonyframe.h"
 
 namespace Dryad
 {
@@ -13,6 +14,7 @@ namespace Dryad
         virtual Result ApplyTransition(Score& score, HarmonyTransition& transition) = 0;
     };
 
+    using FrameSearchPredicate = bool(*)(const HarmonyFrame&, const Node*, const Scale*);
     class HarmonyStrategy : IHarmonyStrategy
     {
     public:
@@ -22,6 +24,9 @@ namespace Dryad
         Result FirstFrame(Score& score, HarmonyTransition& transition);
         Result ChangeScale(Score& score, HarmonyTransition& transition);
         Result ChangeGraph(Score& score, HarmonyTransition& transition);
-        const Node* FindEntryNode(Deque<HarmonyFrame>& frames, const Graph* graph, const Scale* scale);
+        const Node* FindEntryNode(Deque<HarmonyFrame>& frames, const HarmonyTransition& transition);
+
+        static const FrameSearchPredicate FrameSearchPredicates[];
+        static const UInt32 FrameSearchPredicatesCount;
     };
 }
