@@ -17,7 +17,7 @@ namespace Dryad
     {
         _ledger = ScoreLedger(startTime, startTempo, startScale);
         //_events.Clean(); TODO: Clean ledger events
-        _harmonyFrames.Reset(DefaultHarmonicFramesCount);
+        _harmonyFrames.Clear();
     }
 
     Result Score::UpdateHarmony(HarmonyTransition& transition)
@@ -115,12 +115,12 @@ namespace Dryad
         return _harmonyFrames.Front();
     }
 
-    Deque<HarmonyFrame>& Score::GetHarmonyFrames()
+    List<HarmonyFrame>& Score::GetHarmonyFrames()
     {
         return _harmonyFrames;
     }
 
-    const Deque<HarmonyFrame>& Score::GetHarmonyFrames() const
+    const List<HarmonyFrame>& Score::GetHarmonyFrames() const
     {
         return _harmonyFrames;
     }

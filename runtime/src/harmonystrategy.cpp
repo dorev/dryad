@@ -69,7 +69,7 @@ namespace Dryad
     Result HarmonyStrategy::ChangeScale(Score& score, HarmonyTransition& transition)
     {
         ScoreTime currentTime = score.CurrentTime();
-        Deque<HarmonyFrame>& frames = score.GetHarmonyFrames();
+        List<HarmonyFrame>& frames = score.GetHarmonyFrames();
         HarmonyFrame frame = score.CurrentHarmonyFrame();
 
         // If the transition has to happen within the frame
@@ -102,17 +102,9 @@ namespace Dryad
         }
 
         // Update the scale for all remaining frames
-        HarmonyFrame* framePtr = nullptr;
-        for(UInt32 i = 1; i < frames.Size(); ++i)
+        for(auto frameIterator = ++frames.begin(); frameIterator != frames.end(); frameIterator++)
         {
-            if(frames.GetPtr(i, framePtr))
-            {
-                framePtr->scale = transition.scale;
-            }
-            else
-            {
-                return Result::HarmonyFrameNotFound;
-            }
+            frameIterator->scale = transition.scale;
         }
 
         return Result::Success;
@@ -132,7 +124,7 @@ namespace Dryad
              return Result::InvalidScale;
         }
         ScoreTime deadline = score.CurrentTime() + transition.maxDuration;
-        Deque<HarmonyFrame>& frames = score.GetHarmonyFrames();
+        List<HarmonyFrame>& frames = score.GetHarmonyFrames();
 
         // Trim any frame beyond the transition deadline
         // The soonest a transition can happen is the next frame
@@ -146,11 +138,18 @@ namespace Dryad
             frames.PopBack();
         }
 
-        // If no entry is specified, find the most relevant one
+        // TODO: Identify if there is an exit frame in the remaining frames
+        
+
+        // If no entry is specified, use a random entry node
         if(node == nullptr)
         {
-            node = FindEntryNode(frames, transition);
-            if(node == nullptr)
+            const Edge* randomEntryEdge = nullptr;
+            if(RandomFrom(graph->entryEdges, randomEntryEdge) == Result::Success)
+            {
+                node = randomEntryEdge->destination;
+            }
+            else
             {
                 return Result::FailedToTransition;
             }
@@ -166,41 +165,5 @@ namespace Dryad
         );
         frames.PushBack(nextFrame);
         return Result::Success;
-    }
-
-    const Node* HarmonyStrategy::FindEntryNode(Deque<HarmonyFrame>& frames, const HarmonyTransition& transition)
-    {
-        const Graph* targetGraph = transition.graph;
-        const Scale* targetScale = transition.scale;
-        HarmonyFrame* framePtr = nullptr;
-
-        // Going through the frames in order
-        // Compare the frame node against the entry nodes of the target graph
-        // By running them through a set of predicates defined in the strategy
-        // To evaluate if it is a good candidate for the transition
-        for(UInt32 predicateIndex = 0; predicateIndex < FrameSearchPredicatesCount; ++predicateIndex)
-        {
-            for(UInt32 frameIndex = 0; frameIndex < frames.Size(); ++frameIndex)
-            {
-                if(frames.GetPtr(frameIndex, framePtr))
-                {
-                    for(const Edge* entryEdge : targetGraph->entryEdges)
-                    {
-                        if(FrameSearchPredicates[predicateIndex](*framePtr, entryEdge->destination, targetScale))
-                        {
-                            return framePtr->node;
-                        }
-                    }
-                }
-            }
-        }
-
-        // As a last resort, use a random entry edge of the target graph
-        const Edge* randomEntryEdge = nullptr;
-        if(RandomFrom(targetGraph->entryEdges, randomEntryEdge) == Result::Success)
-        {
-            return randomEntryEdge->destination;
-        }
-        return nullptr;
     }
 }

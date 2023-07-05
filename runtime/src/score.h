@@ -33,8 +33,8 @@ namespace Dryad
         ScoreTime CurrentTime() const;
         HarmonyFrame& CurrentHarmonyFrame();
         const HarmonyFrame& CurrentHarmonyFrame() const;
-        Deque<HarmonyFrame>& GetHarmonyFrames();
-        const Deque<HarmonyFrame>& GetHarmonyFrames() const;
+        List<HarmonyFrame>& GetHarmonyFrames();
+        const List<HarmonyFrame>& GetHarmonyFrames() const;
         ScoreTime GeneratedEndTime() const;
         ScoreTime TimeRemainingToCurrentHarmonyFrame() const;
         ScoreTime CurrentHarmonyFrameEndTime() const;
@@ -42,7 +42,7 @@ namespace Dryad
     private:
         inline static const UInt32 DefaultHarmonicFramesCount = 8;
         ScoreLedger _ledger;
-        Deque<HarmonyFrame> _harmonyFrames;
+        List<HarmonyFrame> _harmonyFrames;
         HarmonyStrategy _harmonyStrategy;
         MotifStrategy _motifStrategy;
     };

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <map>
+#include <list>
 #include "templateutils.h"
 
 namespace Dryad
@@ -193,12 +194,12 @@ namespace Dryad
             return _map.end();
         }
 
-        auto cbegin() const
+        const auto begin() const
         {
             return _map.cbegin();
         }
 
-        auto cend() const
+        const auto end() const
         {
             return _map.cend();
         }
@@ -245,166 +246,96 @@ namespace Dryad
         }
     };
 
-    //
-    // CircularDeque
-    //
-    template<typename T>
-    class Deque
+    template <class T>
+    class List
     {
+        std::list<T> _list;
+
     public:
-        Deque(unsigned int capacity = 8)
-            : _vector(capacity)
-            , _head(0)
-            , _tail(0)
-            , _count(0)
+        template <class... Args>
+        List(Args... args)
+            : _list(std::forward<Args>(args)...)
         {
         }
 
         void Clear()
         {
-            _vector.Clear();
-            _head = _tail = _count = 0;
-        }
-
-        void Reset(unsigned int capacity)
-        {
-             Clear();
-             _vector.Clean();
-             _vector.Resize(capacity);
+            _list.clear();
         }
 
         unsigned int Size() const
         {
-            return _count;
+            return static_cast<UInt32>(_list.size());
         }
 
         bool Empty() const
         {
-            return _count == 0;
+            return _list.empty();
         }
 
         void PushBack(const T& value)
         {
-            if (_count == _vector.Size())
-            {
-                ExtendBuffer();
-            }
-            _vector[_tail] = value;
-            _tail = (_tail + 1) % _vector.Size();
-            ++_count;
+            _list.push_back(value);
         }
 
         void PushFront(const T& value)
         {
-            if (_count == _vector.Size())
-            {
-                ExtendBuffer();
-            }
-            _head = (_head + _vector.Size() - 1) % _vector.Size();
-            _vector[_head] = value;
-            ++_count;
+            _list.push_front(value);
         }
 
         void PopFront()
         {
-            if (_count > 0)
-            {
-                _head = (_head + 1) % _vector.Size();
-                --_count;
-            }
+            _list.pop_front();
         }
 
         void PopBack()
         {
-            if (_count > 0)
-            {
-                _tail = (_tail + _vector.Size() - 1) % _vector.Size();
-                --_count;
-            }
+            _list.pop_back();
         }
 
         T& Front()
         {
-            return _vector[_head];
+            return _list.front();
         }
 
         T& Back()
         {
-            return _vector[(_tail + _vector.Size() - 1) % _vector.Size()];
+            return _list.back();
         }
 
         const T& Front() const
         {
-            return _vector[_head];
+            return _list.front();
         }
 
         const T& Back() const
         {
-            return _vector[(_tail + _vector.Size() - 1) % _vector.Size()];
+            return _list.back();
         }
 
         void Insert(const T& item, unsigned int index)
         {
-            _vector.insert(_vector.begin() + index, item);
+            _list.insert()
         }
 
-        bool Get(unsigned int index, T& value) const
+        auto begin()
         {
-            if (index >= _count)
-            {
-                return false;
-            }
-            value = _vector[(_head + index) % _vector.Size()];
-            return true;
+            return _list.begin();
         }
 
-        // This could be unsafe if values are modified concurrently
-        bool GetPtr(unsigned int index, T*& pointer)
+        auto end()
         {
-            if (index < _count)
-            {
-                T* tmp = &_vector[(_head + index) % _vector.Size()];
-                if(tmp != nullptr)
-                {
-                    pointer = tmp;
-                    return true;
-                }
-            }
-            return false;
+            return _list.end();
         }
 
-        bool GetPtr(unsigned int index, const T*& pointer) const
+        const auto begin() const
         {
-            if (index < _count)
-            {
-                const T* tmp = &_vector[(_head + index) % _vector.Size()];
-                if(tmp != nullptr)
-                {
-                    pointer = tmp;
-                    return true;
-                }
-            }
-            return false;
+            return _list.begin();
         }
 
-    private:
-        void ExtendBuffer()
+        const auto end() const
         {
-            unsigned int oldSize = _vector.Size();
-            _vector.Resize(oldSize * 2);
-            if (_head > _tail)
-            {
-                for (unsigned int i = 0; i < oldSize - _head; ++i)
-                {
-                    _vector[oldSize + i] = std::move(_vector[_head + i]);
-                }
-                _head += oldSize;
-            }
+            return _list.end();
         }
-
-        Vector<T> _vector;
-        unsigned int _head;
-        unsigned int _tail;
-        unsigned int _count;
     };
 }

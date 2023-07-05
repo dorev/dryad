@@ -24,7 +24,6 @@ namespace Dryad
         Result FirstFrame(Score& score, HarmonyTransition& transition);
         Result ChangeScale(Score& score, HarmonyTransition& transition);
         Result ChangeGraph(Score& score, HarmonyTransition& transition);
-        const Node* FindEntryNode(Deque<HarmonyFrame>& frames, const HarmonyTransition& transition);
 
         static const FrameSearchPredicate FrameSearchPredicates[];
         static const UInt32 FrameSearchPredicatesCount;
