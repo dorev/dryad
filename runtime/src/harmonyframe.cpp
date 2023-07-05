@@ -17,7 +17,6 @@ namespace Dryad
         : tempo(tempo)
         , frameStart(duration)
         , duration(duration)
-        , motifLevels(motifLevels)
         , scale(scale)
         , node(node)
         , graph(graph)
@@ -69,7 +68,6 @@ namespace Dryad
             node == other.node &&
             duration == other.duration &&
             tempo == other.tempo &&
-            motifLevels == other.motifLevels &&
             scale == other.scale &&
             graph == other.graph;
     }

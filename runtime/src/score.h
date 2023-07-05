@@ -21,7 +21,7 @@ namespace Dryad
         Score();
         void Reset(Time startTime, Tempo startTempo, const Scale* startScale);
         Result UpdateHarmony(HarmonyTransition& harmonicTransition);
-        Result UpdateMotifs(Map<Motif*, Int32>& motifVariations);
+        Result UpdateMotifs(Map<const Motif*, Int32>& motifVariations);
         Result UpdateTempo(TempoChange& tempoChange);
         Result Commit(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents);
         Result GenerateFrames(ScoreTime durationToAppend);
@@ -43,6 +43,7 @@ namespace Dryad
         inline static const UInt32 DefaultHarmonicFramesCount = 8;
         ScoreLedger _ledger;
         List<HarmonyFrame> _harmonyFrames;
+        Map<const Motif*, UInt32> _motifLevels;
         HarmonyStrategy _harmonyStrategy;
         MotifStrategy _motifStrategy;
     };

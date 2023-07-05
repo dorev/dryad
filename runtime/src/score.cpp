@@ -74,13 +74,26 @@ namespace Dryad
         return _harmonyStrategy.ApplyTransition(*this, transition);
     }
 
-    Result Score::UpdateMotifs(Map<Motif*, Int32>& motifVariations)
+    Result Score::UpdateMotifs(Map<const Motif*, Int32>& motifVariations)
     {
-        // TODO: complete before starting editor work
-
-        // This will essentially be about updating the motif levels of the
-        // current harmonic frame!
-        return Result::NotYetImplemented;
+        Vector<const Motif*> motifsToRemove;
+        for(const auto& [motif, variation] : motifVariations)
+        {
+            Int32 motifLevel = static_cast<Int32>(_motifLevels[motif]) + variation;
+            if(motifLevel <= 0)
+            {
+                motifsToRemove.PushBack(motif);
+            }
+            else
+            {
+                _motifLevels[motif] = static_cast<UInt32>(motifLevel);
+            }
+        }
+        for(const Motif* motif : motifsToRemove)
+        {
+            _motifLevels.Remove(motif);
+        }
+        return Result::Success;
     }
 
     Result Score::UpdateTempo(TempoChange& tempoChange)

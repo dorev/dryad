@@ -19,7 +19,6 @@ namespace Dryad
         Tempo tempo;
         ScoreTime frameStart;
         ScoreTime duration;
-        Map<Motif*, UInt32> motifLevels;
         const Scale* scale;
         const Node* node;
         const Graph* graph;

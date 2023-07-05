@@ -12,7 +12,7 @@ namespace Dryad
 
     struct EventSummary
     {
-        Map<Motif*, Int32> motifVariations;
+        Map<const Motif*, Int32> motifVariations;
         TempoChange tempoChangeRequested;
         HarmonyTransition harmonicTransitionRequested;
         EventType eventFlags;
@@ -24,7 +24,9 @@ namespace Dryad
 
         inline bool HasTempoChanges() const
         {
-            return AnyFlagIsSet(EventType::ChangeTempo);
+            // This will be ignored for the moment
+            return false;
+            //return AnyFlagIsSet(EventType::ChangeTempo);
         }
 
         inline bool HasHarmonicChanges() const

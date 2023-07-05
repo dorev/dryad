@@ -1,5 +1,3 @@
-#pragma once
-
 #include "types.h"
 #include "harmonytransition.h"
 #include "harmonystrategy.h"
@@ -106,7 +104,6 @@ namespace Dryad
         {
             frameIterator->scale = transition.scale;
         }
-
         return Result::Success;
     }
 
@@ -138,8 +135,21 @@ namespace Dryad
             frames.PopBack();
         }
 
-        // TODO: Identify if there is an exit frame in the remaining frames
-        
+        // Identify if there is an exit frame in the remaining frames
+        // If no exit frame is  found, the transition will simply occur on the latest frame possible
+        for(auto frameIterator = --frames.end(); frameIterator != frames.begin(); frameIterator--)
+        {
+            const Node* frameNode = frameIterator->node;
+            if(frameNode != nullptr && frameNode->graphExit)
+            {
+                // Remove all the frames after that one
+                while(frames.Back() != *frameIterator)
+                {
+                    frames.PopBack();
+                }
+                break;
+            };
+        }
 
         // If no entry is specified, use a random entry node
         if(node == nullptr)
