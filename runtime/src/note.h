@@ -5,12 +5,12 @@
 namespace Dryad
 {
     class Node;
-    class Motif;
+    class MotifInstance;
 
     struct Note
     {
         NoteValue value;
-        Motif* motif;
+        MotifInstance* motif;
         Node* node;
         ScoreTime position;
         ScoreTime duration;

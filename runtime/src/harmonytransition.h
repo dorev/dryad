@@ -17,7 +17,7 @@ namespace Dryad
         const Graph* graph;
         const Edge* entryEdge;
 
-        // Take other's values without replacing valid pointer with nullptr
+        // Take other object values without replacing a valid pointer with nullptr
         void Merge(const HarmonyTransition& other)
         {
             maxDuration = other.maxDuration;

@@ -55,6 +55,8 @@ namespace Dryad
         ScoreTime updatedFrameDuration = splitTime - frameStart;
         ScoreTime latterFrameDuration = duration - updatedFrameDuration;
         duration = updatedFrameDuration;
+
+        // Copy the current frame, only change the start time and duration
         latterFrame = *this;
         latterFrame.frameStart = frameStart + updatedFrameDuration;
         latterFrame.duration = latterFrameDuration;
