@@ -14,52 +14,52 @@ namespace Dryad
     class Vector
     {
     private:
-        std::vector<ValueType> _vector;
+        std::vector<ValueType> m_Vector;
 
     public:
         template <class... Args>
         Vector(Args... args)
-            : _vector(std::forward<Args>(args)...)
+            : m_Vector(std::forward<Args>(args)...)
         {
         }
 
         ValueType& operator[](unsigned int index)
         {
-            return _vector[index];
+            return m_Vector[index];
         }
 
         const ValueType& operator[](unsigned int index) const
         {
-            return _vector[index];
+            return m_Vector[index];
         }
 
         void PushBack(const ValueType& item)
         {
-            _vector.push_back(item);
+            m_Vector.push_back(item);
         }
 
         void Clear()
         {
-            _vector.clear();
+            m_Vector.clear();
         }
 
         void Clean(unsigned int size = 0)
         {
-            _vector.clear();
-            _vector.shrink_to_fit();
+            m_Vector.clear();
+            m_Vector.shrink_to_fit();
             if(size != 0)
             {
-                _vector.reserve(size);
+                m_Vector.reserve(size);
             }
         }
 
         bool Erase(const ValueType& item)
         {
-            for(auto itr = _vector.begin(); itr != _vector.end(); itr++)
+            for(auto itr = m_Vector.begin(); itr != m_Vector.end(); itr++)
             {
                 if(item == *itr)
                 {
-                    _vector.erase(itr);
+                    m_Vector.erase(itr);
                     return true;
                 }
             }
@@ -69,7 +69,7 @@ namespace Dryad
         template <class U = ValueType, class = EnableIf<!IsPointer<U>>>
         bool Contains(const U& item) const
         {
-            for (const U& content : _vector)
+            for (const U& content : m_Vector)
             {
                 if (content == item)
                 {
@@ -82,7 +82,7 @@ namespace Dryad
         template <class U = ValueType, class = EnableIf<IsPointer<U>>>
         bool Contains(U item) const
         {
-            for (const U& content : _vector)
+            for (const U& content : m_Vector)
             {
                 if (content == item)
                 {
@@ -94,44 +94,44 @@ namespace Dryad
 
         unsigned int Size() const
         {
-            return static_cast<unsigned int>(_vector.size());
+            return static_cast<unsigned int>(m_Vector.size());
         }
 
         bool Empty() const
         {
-            return _vector.empty();
+            return m_Vector.empty();
         }
 
         void Resize(unsigned int size)
         {
-            _vector.resize(size);
+            m_Vector.resize(size);
         }
 
         void Reserve(unsigned int size)
         {
-            _vector.reserve(size);
+            m_Vector.reserve(size);
         }
 
         using iterator = typename std::vector<ValueType>::iterator;
 
         auto begin()
         {
-            return _vector.begin();
+            return m_Vector.begin();
         }
 
         auto end()
         {
-            return _vector.end();
+            return m_Vector.end();
         }
 
         const auto begin() const
         {
-            return _vector.cbegin();
+            return m_Vector.cbegin();
         }
 
         const auto end() const
         {
-            return _vector.cend();
+            return m_Vector.cend();
         }
     };
 
@@ -142,24 +142,24 @@ namespace Dryad
     class Map
     {
     private:
-        std::map<KeyType, ValueType> _map;
+        std::map<KeyType, ValueType> m_Map;
 
     public:
         template <class... Args>
         Map(Args... args)
-            : _map(std::forward<Args>(args)...)
+            : m_Map(std::forward<Args>(args)...)
         {
         }
 
         ValueType& operator[](const KeyType& key)
         {
-            return _map[key];
+            return m_Map[key];
         }
 
         bool Find(const KeyType& key, ValueType* outValuePtr)
         {
-            auto itr = _map.find(key);
-            if(itr != _map.end())
+            auto itr = m_Map.find(key);
+            if(itr != m_Map.end())
             {
                 outValuePtr = &itr->second;
                 return true;
@@ -169,44 +169,44 @@ namespace Dryad
 
         unsigned int Size() const
         {
-            return static_cast<unsigned int>(_map.size());
+            return static_cast<unsigned int>(m_Map.size());
         }
 
         bool Empty() const
         {
-            return _map.empty();
+            return m_Map.empty();
         }
 
         bool Remove(const KeyType& key)
         {
-            return _map.erase(key) > 0;
+            return m_Map.erase(key) > 0;
         }
 
         using iterator = typename std::map<KeyType, ValueType>::iterator;
 
         auto begin()
         {
-            return _map.begin();
+            return m_Map.begin();
         }
 
         auto end()
         {
-            return _map.end();
+            return m_Map.end();
         }
 
         const auto begin() const
         {
-            return _map.cbegin();
+            return m_Map.cbegin();
         }
 
         const auto end() const
         {
-            return _map.cend();
+            return m_Map.cend();
         }
 
         bool operator==(const Map& other) const
         {
-            return _map == other._map;
+            return m_Map == other.m_Map;
         }
     };
 
@@ -217,125 +217,125 @@ namespace Dryad
     class Variant
     {
     private:
-        std::variant<Args...> _variant;
+        std::variant<Args...> m_Variant;
 
     public:
         template <class ValueType>
         Variant(ValueType value)
-            : _variant(value)
+            : m_Variant(value)
         {
         }
 
         template <class ValueType>
         Variant& operator=(ValueType value)
         {
-            _variant = value;
+            m_Variant = value;
             return *this;
         }
 
         template <class ValueType>
         bool Contains() const
         {
-            return std::holds_alternative<ValueType>(_variant);
+            return std::holds_alternative<ValueType>(m_Variant);
         }
 
         template <class ValueType>
         ValueType& Get()
         {
-            return std::get<ValueType>(_variant);
+            return std::get<ValueType>(m_Variant);
         }
     };
 
     template <class T>
     class List
     {
-        std::list<T> _list;
+        std::list<T> m_List;
 
     public:
         template <class... Args>
         List(Args... args)
-            : _list(std::forward<Args>(args)...)
+            : m_List(std::forward<Args>(args)...)
         {
         }
 
         void Clear()
         {
-            _list.clear();
+            m_List.clear();
         }
 
         unsigned int Size() const
         {
-            return static_cast<UInt32>(_list.size());
+            return static_cast<UInt32>(m_List.size());
         }
 
         bool Empty() const
         {
-            return _list.empty();
+            return m_List.empty();
         }
 
         void PushBack(const T& value)
         {
-            _list.push_back(value);
+            m_List.push_back(value);
         }
 
         void PushFront(const T& value)
         {
-            _list.push_front(value);
+            m_List.push_front(value);
         }
 
         void PopFront()
         {
-            _list.pop_front();
+            m_List.pop_front();
         }
 
         void PopBack()
         {
-            _list.pop_back();
+            m_List.pop_back();
         }
 
         T& Front()
         {
-            return _list.front();
+            return m_List.front();
         }
 
         T& Back()
         {
-            return _list.back();
+            return m_List.back();
         }
 
         const T& Front() const
         {
-            return _list.front();
+            return m_List.front();
         }
 
         const T& Back() const
         {
-            return _list.back();
+            return m_List.back();
         }
 
         void Insert(const T& item, unsigned int index)
         {
-            _list.insert()
+            m_List.insert()
         }
 
         auto begin()
         {
-            return _list.begin();
+            return m_List.begin();
         }
 
         auto end()
         {
-            return _list.end();
+            return m_List.end();
         }
 
         const auto begin() const
         {
-            return _list.begin();
+            return m_List.begin();
         }
 
         const auto end() const
         {
-            return _list.end();
+            return m_List.end();
         }
     };
 }

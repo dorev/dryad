@@ -6,6 +6,7 @@
 #include "graph.h"
 #include "motif.h"
 #include "scale.h"
+#include "lockfreepool.h"
 
 namespace Dryad
 {

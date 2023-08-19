@@ -18,7 +18,7 @@ namespace Dryad
         Result Update(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents);
 
     private:
-        Score score;
-        EventReducer eventReducer;
+        Score m_Score;
+        EventReducer m_EventReducer;
     };
 }

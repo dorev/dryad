@@ -8,7 +8,7 @@ namespace Dryad
     {
         // TODO: return an error if the score has already been started
         //       I might implement a "Pause" feature sometime...
-        score.Reset(time, tempo, scale);
+        m_Score.Reset(time, tempo, scale);
         return Result::Success;
     }
 
@@ -20,14 +20,14 @@ namespace Dryad
             case EventType::RemoveMotif:
                 if(event.data.Contains<Motif*>())
                 {
-                    return eventReducer.Consume(event.type, event.data.Get<Motif*>());
+                    return m_EventReducer.Consume(event.type, event.data.Get<Motif*>());
                 }
                 return Result::InvalidEventData;
 
             case EventType::ChangeTempo:
                 if(event.data.Contains<TempoChange>())
                 {
-                    return eventReducer.Consume(event.type, event.data.Get<TempoChange>());
+                    return m_EventReducer.Consume(event.type, event.data.Get<TempoChange>());
                 }
                 return Result::InvalidEventData;
 
@@ -35,7 +35,7 @@ namespace Dryad
             case EventType::ChangeGraph:
                 if(event.data.Contains<HarmonyTransition>())
                 {
-                    return eventReducer.Consume(event.type, event.data.Get<HarmonyTransition>());
+                    return m_EventReducer.Consume(event.type, event.data.Get<HarmonyTransition>());
                 }
                 return Result::InvalidEventData;
 
@@ -51,25 +51,32 @@ namespace Dryad
             return Result::UselessOperation;
         }
         Result result = Result::EmptyResult;
-        if(eventReducer.HasChanges())
+        if(m_EventReducer.HasChanges())
         {
-            EventSummary summary = eventReducer.DumpAndReset();
-            if(summary.HasHarmonicChanges())
+            EventSummary summary = m_EventReducer.DumpAndReset();
+            bool harmonyChanged = summary.HasHarmonyChanges();
+            bool motifsChanged = summary.HasMotifChanges();
+            bool tempoChanged = summary.HasTempoChanges();
+            if (harmonyChanged)
             {
-                result |= score.UpdateHarmony(summary.harmonicTransitionRequested);
+                result |= m_Score.UpdateHarmony(summary.harmonyTransitionRequested);
             }
-            if(summary.HasMotifChanges())
+            if (motifsChanged)
             {
-                result |= result, score.UpdateMotifs(summary.motifVariations);
+                result |= m_Score.UpdateMotifs(summary.motifVariations);
             }
-            if(summary.HasTempoChanges())
+            if (harmonyChanged || motifsChanged)
             {
-                result |= result, score.UpdateTempo(summary.tempoChangeRequested);
+                result |= m_Score.UpdateNotes();
+            }
+            if (tempoChanged)
+            {
+                result |= m_Score.UpdateTempo(summary.tempoChangeRequested);
             }
         }
-        if(result == Result::Success)
+        if (result == Result::Success)
         {
-            return result |= result, score.Commit(deltaTime, newCommittedEvents);
+            return result |= result, m_Score.Commit(deltaTime, newCommittedEvents);
         }
         return result;
     }

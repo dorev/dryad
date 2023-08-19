@@ -6,7 +6,7 @@ namespace Dryad
     Result EventReducer::Consume(EventType eventType, Motif* motif)
     {
         Int32* variationCount = nullptr;
-        if(_summary.motifVariations.Find(motif, variationCount))
+        if(m_Summary.motifVariations.Find(motif, variationCount))
         {
             switch(eventType)
             {
@@ -19,7 +19,7 @@ namespace Dryad
                 default:
                     return Result::InvalidEventType;
             }
-            if((*variationCount) == 0 && !_summary.motifVariations.Remove(motif))
+            if((*variationCount) == 0 && !m_Summary.motifVariations.Remove(motif))
             {
                 return Result::PotentialConcurrencyError;
             }
@@ -29,7 +29,7 @@ namespace Dryad
             switch(eventType)
             {
                 case EventType::AddMotif:
-                    _summary.motifVariations[motif] = 1;
+                    m_Summary.motifVariations[motif] = 1;
                     break;
                 case EventType::RemoveMotif:
                     break;
@@ -37,7 +37,7 @@ namespace Dryad
                     return Result::InvalidEventType;
             }
         }
-        SetFlag(_summary.eventFlags, eventType);
+        SetFlag(m_Summary.eventFlags, eventType);
         return Result::Success;
     }
 
@@ -45,8 +45,8 @@ namespace Dryad
     {
         if(eventType == EventType::ChangeTempo)
         {
-            _summary.tempoChangeRequested = tempoChange;
-            SetFlag(_summary.eventFlags, eventType);
+            m_Summary.tempoChangeRequested = tempoChange;
+            SetFlag(m_Summary.eventFlags, eventType);
             return Result::Success;
         }
         return Result::InvalidEventType;
@@ -58,24 +58,24 @@ namespace Dryad
         {
             case EventType::ChangeScale:
             case EventType::ChangeGraph:
-                _summary.harmonicTransitionRequested.Merge(harmonicTransition);
+                m_Summary.harmonyTransitionRequested.Merge(harmonicTransition);
                 break;
             default:
                 return Result::InvalidEventType;
         }
-        SetFlag(_summary.eventFlags, eventType);
+        SetFlag(m_Summary.eventFlags, eventType);
         return Result::Success;
     }
 
     bool EventReducer::HasChanges()
     {
-        return _summary.eventFlags != EventType::NoEvent;
+        return m_Summary.eventFlags != EventType::NoEvent;
     }
 
     EventSummary EventReducer::DumpAndReset()
     {
-        EventSummary returnedSummary = _summary;
-        _summary = EventSummary();
+        EventSummary returnedSummary = m_Summary;
+        m_Summary = EventSummary();
         return returnedSummary;
     }
 }

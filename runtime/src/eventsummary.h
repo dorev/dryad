@@ -14,25 +14,39 @@ namespace Dryad
     {
         Map<const Motif*, Int32> motifVariations;
         TempoChange tempoChangeRequested;
-        HarmonyTransition harmonicTransitionRequested;
+        HarmonyTransition harmonyTransitionRequested;
         EventType eventFlags;
 
-        inline bool HasMotifChanges() const
+        EventSummary()
+            : motifVariations()
+            , tempoChangeRequested()
+            , harmonyTransitionRequested()
+            , eventFlags(EventType::NoEvent)
         {
-            return AnyFlagIsSet(EventType::AddMotif, EventType::RemoveMotif);
         }
 
-        inline bool HasTempoChanges() const
+        bool HasMotifChanges() const
+        {
+            return AnyFlagIsSet
+            (
+                eventFlags,
+                EventType::AddMotif,
+                EventType::RemoveMotif
+            );
+        }
+
+        bool HasTempoChanges() const
         {
             // This will be ignored for the moment
             return false;
             //return AnyFlagIsSet(EventType::ChangeTempo);
         }
 
-        inline bool HasHarmonicChanges() const
+        bool HasHarmonyChanges() const
         {
             return AnyFlagIsSet
             (
+                eventFlags,
                 EventType::RequestInterlude,
                 EventType::CancelInterlude,
                 EventType::ChangeGraph,

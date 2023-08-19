@@ -8,16 +8,16 @@
 namespace Dryad
 {
     Score::Score()
-        : _ledger(0.0f, DefaultTempo, &MajorScale)
-        , _harmonyFrames(DefaultHarmonicFramesCount)
+        : m_Ledger(0.0f, DefaultTempo, &MajorScale)
+        , m_HarmonyFrames(m_DefaultHarmonicFramesCount)
     {
     }
 
     void Score::Reset(Time startTime, Tempo startTempo, const Scale* startScale)
     {
-        _ledger = ScoreLedger(startTime, startTempo, startScale);
+        m_Ledger = ScoreLedger(startTime, startTempo, startScale);
         //_events.Clean(); TODO: Clean ledger events
-        _harmonyFrames.Clear();
+        m_HarmonyFrames.Clear();
     }
 
     Result Score::UpdateHarmony(HarmonyTransition& transition)
@@ -71,7 +71,7 @@ namespace Dryad
         }
 
         // Now that the transition data has been validated, let the strategy do the rest
-        return _harmonyStrategy.ApplyTransition(*this, transition);
+        return m_HarmonyStrategy.ApplyTransition(*this, transition);
     }
 
     Result Score::UpdateMotifs(Map<const Motif*, Int32>& motifVariations)
@@ -79,20 +79,21 @@ namespace Dryad
         Vector<const Motif*> motifsToRemove;
         for(const auto& [motif, variation] : motifVariations)
         {
-            Int32 motifLevel = static_cast<Int32>(_motifLevels[motif]) + variation;
+            Int32 motifLevel = static_cast<Int32>(m_MotifLevels[motif]) + variation;
             if(motifLevel <= 0)
             {
                 motifsToRemove.PushBack(motif);
             }
             else
             {
-                _motifLevels[motif] = static_cast<UInt32>(motifLevel);
+                m_MotifLevels[motif] = static_cast<UInt32>(motifLevel);
             }
         }
         for(const Motif* motif : motifsToRemove)
         {
-            _motifLevels.Remove(motif);
+            m_MotifLevels.Remove(motif);
         }
+
         return Result::Success;
     }
 
@@ -104,6 +105,14 @@ namespace Dryad
         // of the harmonic frames (depending on the duration of the tempo change...)
         // I'm thinking about pushing this for a farther development cycle but I feel it
         // would be better to consider it sooner than later
+        return Result::NotYetImplemented;
+    }
+
+    Result Score::UpdateNotes()
+    {
+        // Here, we will align the uncommitted notes of the score to the active harmomy
+        // frames and motif.
+
         return Result::NotYetImplemented;
     }
 
@@ -120,45 +129,45 @@ namespace Dryad
 
     HarmonyFrame& Score::CurrentHarmonyFrame()
     {
-        return _harmonyFrames.Front();
+        return m_HarmonyFrames.Front();
     }
 
     const HarmonyFrame& Score::CurrentHarmonyFrame() const
     {
-        return _harmonyFrames.Front();
+        return m_HarmonyFrames.Front();
     }
 
     List<HarmonyFrame>& Score::GetHarmonyFrames()
     {
-        return _harmonyFrames;
+        return m_HarmonyFrames;
     }
 
     const List<HarmonyFrame>& Score::GetHarmonyFrames() const
     {
-        return _harmonyFrames;
+        return m_HarmonyFrames;
     }
 
     Tempo Score::CurrentTempo() const
     {
-        if(_harmonyFrames.Empty())
+        if(m_HarmonyFrames.Empty())
         {
-            return _ledger.startTempo;
+            return m_Ledger.startTempo;
         }
         return CurrentHarmonyFrame().tempo;
     }
 
     const Scale* Score::CurrentScale() const
     {
-        if(_harmonyFrames.Empty())
+        if(m_HarmonyFrames.Empty())
         {
-            return _ledger.startScale;
+            return m_Ledger.startScale;
         }
         return CurrentHarmonyFrame().scale;
     }
 
     const Node* Score::CurrentNode()
     {
-        if(_harmonyFrames.Empty())
+        if(m_HarmonyFrames.Empty())
         {
             return nullptr;
         }
@@ -167,21 +176,21 @@ namespace Dryad
 
     ScoreTime Score::CurrentTime() const
     {
-        return _ledger.committedDuration;
+        return m_Ledger.committedDuration;
     }
 
     ScoreTime Score::TimeRemainingToCurrentHarmonyFrame() const
     {
-        if(_harmonyFrames.Empty())
+        if(m_HarmonyFrames.Empty())
         {
             return 0;
         }
-        return _ledger.committedDuration - CurrentHarmonyFrame().frameStart;
+        return m_Ledger.committedDuration - CurrentHarmonyFrame().frameStart;
     }
 
     ScoreTime Score::CurrentHarmonyFrameEndTime() const
     {
-        if(_harmonyFrames.Empty())
+        if(m_HarmonyFrames.Empty())
         {
             return 0;
         }
@@ -190,16 +199,16 @@ namespace Dryad
 
     Result Score::GenerateFrames(ScoreTime durationToAppend)
     {
-        if(_harmonyFrames.Empty())
+        if(m_HarmonyFrames.Empty())
         {
             return Result::NotYetImplemented;
         }
-        const Node* node = _harmonyFrames.Back().node;
+        const Node* node = m_HarmonyFrames.Back().node;
         if(node == nullptr || !node->IsValid())
         {
             return Result::InvalidNode;
         }
-        ScoreTime scoreEnd = _harmonyFrames.Back().EndTime();
+        ScoreTime scoreEnd = m_HarmonyFrames.Back().EndTime();
         ScoreTime scoreTarget = scoreEnd + durationToAppend;
         while(scoreEnd < scoreTarget)
         {
@@ -217,7 +226,7 @@ namespace Dryad
                 nextNode,
                 nextNode->graph
             );
-            _harmonyFrames.PushBack(newFrame);
+            m_HarmonyFrames.PushBack(newFrame);
             scoreEnd = newFrame.EndTime();
         }
         return Result::Success;
@@ -225,11 +234,11 @@ namespace Dryad
 
     ScoreTime Score::GeneratedEndTime() const
     {
-        if(_harmonyFrames.Empty())
+        if(m_HarmonyFrames.Empty())
         {
             return 0;
         }
-        return _harmonyFrames.Back().EndTime();
+        return m_HarmonyFrames.Back().EndTime();
     }
 
     Result Score::GenerateFramesUntil(ScoreTime targetScoreTime)

@@ -17,6 +17,14 @@ namespace Dryad
         const Graph* graph;
         const Edge* entryEdge;
 
+        HarmonyTransition()
+            : maxDuration(0)
+            , scale(nullptr)
+            , graph(nullptr)
+            , entryEdge(nullptr)
+        {
+        }
+
         // Take other object values without replacing a valid pointer with nullptr
         void Merge(const HarmonyTransition& other)
         {

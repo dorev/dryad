@@ -21,6 +21,6 @@ namespace Dryad
         EventSummary DumpAndReset();
 
     private:
-        EventSummary _summary;
+        EventSummary m_Summary;
     };
 }
