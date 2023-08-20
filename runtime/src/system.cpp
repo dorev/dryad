@@ -24,9 +24,9 @@ Result System::LoadGraph(const Graph& graph)
     return Result::Success;
 }
 
-Result System::LoadMotif(const Motif& motif)
+Result System::LoadMotif (const Motif& motif)
 {
-    motifs.PushBack(new Motif(motif));
+    motifs.PushBack(new Motif (motif));
     return Result::Success;
 }
 
@@ -45,7 +45,7 @@ Session* System::CreateSession()
 
 Result System::FinalizeSession(Session*& session)
 {
-    if(sessions.Erase(session))
+    if (sessions.Erase(session))
     {
         SafeDelete(session);
         return Result::Success;

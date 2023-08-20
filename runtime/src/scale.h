@@ -112,7 +112,7 @@ namespace Dryad
         NoteValue GetDegreeRoot(Degree degree) const
         {
             UInt32 degreeIndex = DegreeToScaleIndex(degree);
-            if(degreeIndex < 7)
+            if (degreeIndex < 7)
             {
                 return degrees.chords[degreeIndex].root;
             }

@@ -32,6 +32,8 @@ namespace Dryad
         MotifMode mode;
         RythmicAnchor rythmicAnchor;
         HarmonicAnchor harmonicAnchor;
+        bool canBeTruncated; // when motif levels change, a motif can be abruptly ended (or must finish completely)
+        bool canBeBent; // when the chord changes, the motif evolves to follow closely the harmony (or keeps its original harmonization)
         UInt32 maxLevel;
         Vector<Note> notes;
         void* userData;

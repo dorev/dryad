@@ -1,12 +1,24 @@
 #pragma once
 
 #include <vector>
+#include <variant>
 #include <map>
 #include <list>
+
 #include "templateutils.h"
 
 namespace Dryad
 {
+    // Internal container types using std:: interface used in wrappers below
+    template <class T>
+    using VectorInternal = std::vector<T>;
+    template <class K, class V>
+    using MapInternal = std::map<K, V>;
+    template <class T>
+    using ListInternal = std::list<T>;
+    template <class T>
+    using VariantInternal = std::variant<T>;
+
     //
     // Vector
     //
@@ -210,42 +222,6 @@ namespace Dryad
         }
     };
 
-    //
-    // Variant
-    //
-    template <class... Args>
-    class Variant
-    {
-    private:
-        std::variant<Args...> m_Variant;
-
-    public:
-        template <class ValueType>
-        Variant(ValueType value)
-            : m_Variant(value)
-        {
-        }
-
-        template <class ValueType>
-        Variant& operator=(ValueType value)
-        {
-            m_Variant = value;
-            return *this;
-        }
-
-        template <class ValueType>
-        bool Contains() const
-        {
-            return std::holds_alternative<ValueType>(m_Variant);
-        }
-
-        template <class ValueType>
-        ValueType& Get()
-        {
-            return std::get<ValueType>(m_Variant);
-        }
-    };
-
     template <class T>
     class List
     {
@@ -338,4 +314,41 @@ namespace Dryad
             return m_List.end();
         }
     };
-}
+
+    //
+    // Variant
+    //
+    template <class... Args>
+    class Variant
+    {
+    private:
+        std::variant<Args...> m_Variant;
+
+    public:
+        template <class ValueType>
+        Variant(ValueType value)
+            : m_Variant(value)
+        {
+        }
+
+        template <class ValueType>
+        Variant& operator=(ValueType value)
+        {
+            m_Variant = value;
+            return *this;
+        }
+
+        template <class ValueType>
+        bool Contains() const
+        {
+            return std::holds_alternative<ValueType>(m_Variant);
+        }
+
+        template <class ValueType>
+        ValueType& Get()
+        {
+            return std::get<ValueType>(m_Variant);
+        }
+    };
+
+} // namespace Dryad

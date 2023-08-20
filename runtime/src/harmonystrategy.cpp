@@ -85,7 +85,7 @@ namespace Dryad
             Result result = frame.SplitFrame(nextBeat, nextFrame);
 
             // Remove all the frames that are after the split
-            if(result == Result::Success)
+            if (result == Result::Success)
             {
                 while(!frames.Empty() && frames.Back() != frame)
                 {
@@ -156,7 +156,7 @@ namespace Dryad
         for(auto frameIterator = --frames.end(); frameIterator != frames.begin(); frameIterator--)
         {
             const Node* frameNode = frameIterator->node;
-            if(frameNode != nullptr && frameNode->graphExit)
+            if (frameNode != nullptr && frameNode->graphExit)
             {
                 // Remove all the frames after that one
                 while(frames.Back() != *frameIterator)
@@ -168,10 +168,10 @@ namespace Dryad
         }
 
         // If no entry is specified, use a random entry node
-        if(node == nullptr)
+        if (node == nullptr)
         {
             const Edge* randomEntryEdge = nullptr;
-            if(RandomFrom(graph->entryEdges, randomEntryEdge) == Result::Success)
+            if (RandomFrom(graph->entryEdges, randomEntryEdge) == Result::Success)
             {
                 node = randomEntryEdge->destination;
             }

@@ -29,6 +29,7 @@ namespace Dryad
         DRYAD_FLAG(HarmonyFrameNotFound, 19),
         DRYAD_FLAG(FailedToTransition, 20),
         DRYAD_FLAG(InvalidDegree, 21),
+        DRYAD_FLAG(InvalidOperation, 22),
     };
 
     inline Result ResetResult(Result& result)

@@ -16,12 +16,13 @@ namespace Dryad
     {
         ScoreEventType type;
         bool committed;
-        NoteValue note;
-        NoteVelocity velocity;
         Time timeOn;
         Time timeOff;
+        NoteValue note;
+        NoteVelocity velocity;
         const Motif* motif;
         const Graph* graph;
+        const Scale* scale;
         const Node* node;
     };
 }

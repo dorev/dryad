@@ -1,14 +1,12 @@
 #pragma once
 
-#include <variant>
-#include <deque>
 #include <string>
 #include "containers.h"
 
 namespace Dryad
 {
     //
-    // Aliases for standard types
+    // Aliases for common types
     //
 
     using Byte = char;
@@ -30,33 +28,8 @@ namespace Dryad
     using ScoreTime = UInt32;
 
     //
-    // Helper types
+    // Function wrappers
     //
-
-    template<typename ClassType, typename ReturnType, typename... Args>
-    class MemberFunction
-    {
-    public:
-        using MemberFunctionType = ReturnType(ClassType::*)(Args...);
-        MemberFunction(ClassType* object, MemberFunctionType memberFunction)
-            : m_Object(object)
-            , m_MemberFunction(memberFunction)
-        {
-        }
-
-        ReturnType Execute(Args... args)
-        {
-            return (m_Object->*m_MemberFunction)(std::forward<Args>(args)...);
-        }
-
-    private:
-        ClassType* m_Object;
-        MemberFunctionType m_MemberFunction;
-    };
-
-    // Deduction guide
-    template<typename ClassType, typename ReturnType, typename... Args>
-    MemberFunction(ClassType*, ReturnType(ClassType::*)(Args...))->MemberFunction<ClassType, ReturnType, Args...>;
 
     template<typename ReturnType, typename... Args>
     class FreeFunction
@@ -69,7 +42,7 @@ namespace Dryad
         {
         }
 
-        ReturnType Execute(Args... args)
+        ReturnType operator()(Args... args)
         {
             return m_Function(std::forward<Args>(args)...);
         }
@@ -77,4 +50,29 @@ namespace Dryad
     private:
         FunctionType m_Function;
     };
+
+    template<typename ClassType, typename ReturnType, typename... Args>
+    class MemberFunction
+    {
+    public:
+        using MemberFunctionType = ReturnType(ClassType::*)(Args...);
+        MemberFunction(ClassType* object, MemberFunctionType memberFunction)
+            : m_Object(object)
+            , m_MemberFunction(memberFunction)
+        {
+        }
+
+        ReturnType operator()(Args... args)
+        {
+            return (m_Object->*m_MemberFunction)(std::forward<Args>(args)...);
+        }
+
+    private:
+        ClassType* m_Object;
+        MemberFunctionType m_MemberFunction;
+    };
+
+    // Deduction guide
+    template<typename ClassType, typename ReturnType, typename... Args>
+    MemberFunction(ClassType*, ReturnType(ClassType::*)(Args...))->MemberFunction<ClassType, ReturnType, Args...>;
 }

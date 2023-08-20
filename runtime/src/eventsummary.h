@@ -8,7 +8,6 @@
 namespace Dryad
 {
     class Motif;
-    class Interlude;
 
     struct EventSummary
     {
@@ -37,9 +36,7 @@ namespace Dryad
 
         bool HasTempoChanges() const
         {
-            // This will be ignored for the moment
-            return false;
-            //return AnyFlagIsSet(EventType::ChangeTempo);
+            return AnyFlagIsSet(EventType::ChangeTempo);
         }
 
         bool HasHarmonyChanges() const
@@ -47,8 +44,6 @@ namespace Dryad
             return AnyFlagIsSet
             (
                 eventFlags,
-                EventType::RequestInterlude,
-                EventType::CancelInterlude,
                 EventType::ChangeGraph,
                 EventType::ChangeScale
             );

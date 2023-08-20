@@ -31,9 +31,9 @@ namespace Dryad
 
         Node* GetNext() const
         {
-            if(!edgesOut.Empty())
+            if (!edgesOut.Empty())
             {
-                if(edgesOut.Size() == 1)
+                if (edgesOut.Size() == 1)
                 {
                     return edgesOut[0]->destination;
                 }

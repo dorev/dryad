@@ -18,7 +18,7 @@ namespace Dryad
         System();
         Result LoadSerializedData(void* data, UInt32 size);
         Result LoadGraph(const Graph& graph);
-        Result LoadMotif(const Motif& motif);
+        Result LoadMotif (const Motif& motif);
         Result LoadScale(const Scale& scale);
 
         Session* CreateSession();

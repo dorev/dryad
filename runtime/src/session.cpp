@@ -18,14 +18,14 @@ namespace Dryad
         {
             case EventType::AddMotif:
             case EventType::RemoveMotif:
-                if(event.data.Contains<Motif*>())
+                if (event.data.Contains<Motif*>())
                 {
                     return m_EventReducer.Consume(event.type, event.data.Get<Motif*>());
                 }
                 return Result::InvalidEventData;
 
             case EventType::ChangeTempo:
-                if(event.data.Contains<TempoChange>())
+                if (event.data.Contains<TempoChange>())
                 {
                     return m_EventReducer.Consume(event.type, event.data.Get<TempoChange>());
                 }
@@ -33,7 +33,7 @@ namespace Dryad
 
             case EventType::ChangeScale:
             case EventType::ChangeGraph:
-                if(event.data.Contains<HarmonyTransition>())
+                if (event.data.Contains<HarmonyTransition>())
                 {
                     return m_EventReducer.Consume(event.type, event.data.Get<HarmonyTransition>());
                 }
@@ -46,12 +46,16 @@ namespace Dryad
 
     Result Session::Update(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents)
     {
-        if(deltaTime <= 0)
+        if (deltaTime == 0)
         {
             return Result::UselessOperation;
         }
+        if (deltaTime < 0)
+        {
+            return Result::InvalidOperation;
+        }
         Result result = Result::EmptyResult;
-        if(m_EventReducer.HasChanges())
+        if (m_EventReducer.HasChanges())
         {
             EventSummary summary = m_EventReducer.DumpAndReset();
             bool harmonyChanged = summary.HasHarmonyChanges();
@@ -67,7 +71,7 @@ namespace Dryad
             }
             if (harmonyChanged || motifsChanged)
             {
-                result |= m_Score.UpdateNotes();
+                result |= m_Score.UpdateNotes(motifsChanged, harmonyChanged);
             }
             if (tempoChanged)
             {

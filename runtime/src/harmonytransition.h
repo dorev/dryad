@@ -29,15 +29,15 @@ namespace Dryad
         void Merge(const HarmonyTransition& other)
         {
             maxDuration = other.maxDuration;
-            if(other.scale != nullptr)
+            if (other.scale != nullptr)
             {
                 scale = other.scale;
             }
-            if(other.graph != nullptr)
+            if (other.graph != nullptr)
             {
                 graph = other.graph;
             }
-            if(other.entryEdge != nullptr)
+            if (other.entryEdge != nullptr)
             {
                 entryEdge = other.entryEdge;
             }
@@ -45,7 +45,7 @@ namespace Dryad
 
         Node* GetEntryNode()
         {
-            if(entryEdge != nullptr)
+            if (entryEdge != nullptr)
             {
                 return entryEdge->destination;
             }

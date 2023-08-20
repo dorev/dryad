@@ -20,10 +20,10 @@ namespace Dryad
     public:
         Score();
         void Reset(Time startTime, Tempo startTempo, const Scale* startScale);
-        Result UpdateHarmony(HarmonyTransition& harmonicTransition);
+        Result UpdateHarmony(HarmonyTransition& harmonyTransition);
         Result UpdateMotifs(Map<const Motif*, Int32>& motifVariations);
         Result UpdateTempo(TempoChange& tempoChange);
-        Result UpdateNotes();
+        Result UpdateNotes(bool motifsChanged, bool harmonyChanged);
         Result Commit(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents);
         Result GenerateFrames(ScoreTime durationToAppend);
         Result GenerateFramesUntil(ScoreTime targetScoreTIme);

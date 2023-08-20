@@ -26,14 +26,14 @@ namespace Dryad
     // Used when initializing the first harmonic frame
     Result HarmonyFrame::UpdateFromNode(Node* node)
     {
-        if(node == nullptr)
+        if (node == nullptr)
         {
             return Result::NodeNotFound;
         }
         frameStart = 0;
         duration = node->duration;
         this->node = node;
-        if(node->graph == nullptr)
+        if (node->graph == nullptr)
         {
             return Result::GraphNotFound;
         }
@@ -48,7 +48,7 @@ namespace Dryad
 
     Result HarmonyFrame::SplitFrame(ScoreTime splitTime, HarmonyFrame& latterFrame)
     {
-        if(splitTime <= frameStart || splitTime >= EndTime())
+        if (splitTime <= frameStart || splitTime >= EndTime())
         {
             return Result::InvalidTime;
         }

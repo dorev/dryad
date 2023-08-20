@@ -54,7 +54,8 @@ namespace Dryad
             do
             {
                 m_Indices[index].store(currentTop, std::memory_order_relaxed);
-            } while (!m_Top.compare_exchange_weak(currentTop, index));
+            }
+            while (!m_Top.compare_exchange_weak(currentTop, index));
         }
 
     private:
@@ -114,12 +115,16 @@ namespace Dryad
                 char* blockStart = &m_Blocks[blockIndex]->data[0];
                 char* blockEnd = blockStart + sizeof(T) * PoolSize;
                 if (reinterpret_cast<char*>(object) >= blockStart && reinterpret_cast<char*>(object) < blockEnd)
+                {
                     break;
+                }
             }
 
             // If we didn't find the object in any block, there's an error.
             if (blockIndex == m_Blocks.size())
+            {
                 return; // or throw an exception.
+            }
 
             size_t dataIndex = (reinterpret_cast<uintptr_t>(object) - reinterpret_cast<uintptr_t>(&m_Blocks[blockIndex]->data[0])) / sizeof(T);
             size_t totalIndex = blockIndex * PoolSize + dataIndex;

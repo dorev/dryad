@@ -14,19 +14,18 @@ namespace Dryad
     struct TempoChange
     {
         Tempo targetTempo;
-        ScoreTime transitionDuration;
+        // For a first implementation, only support instantaneous tempo changes
+        // ScoreTime transitionDuration;
     };
 
     enum class EventType
     {
         NoEvent = 0,
-        DRYAD_FLAG(AddMotif, 0),
-        DRYAD_FLAG(RemoveMotif, 1),
-        DRYAD_FLAG(RequestInterlude, 2),
-        DRYAD_FLAG(CancelInterlude, 3),
-        DRYAD_FLAG(ChangeTempo, 4),
-        DRYAD_FLAG(ChangeScale, 5),
-        DRYAD_FLAG(ChangeGraph, 6),
+        AddMotif,
+        RemoveMotif,
+        ChangeTempo,
+        ChangeScale,
+        ChangeGraph
     };
 
     using EventData = Variant

@@ -27,12 +27,12 @@ namespace Dryad
         const Edge* entryEdge = transition.entryEdge;
 
         // We must start by validating the entry edge
-        if(graph != nullptr)
+        if (graph != nullptr)
         {
             // Validate that the provided edge belongs to the graph...
-            if(entryEdge != nullptr)
+            if (entryEdge != nullptr)
             {
-                if(!graph->HasEntryEdge(entryEdge))
+                if (!graph->HasEntryEdge(entryEdge))
                 {
                     return Result::EdgeNotFound;
                 }
@@ -41,31 +41,31 @@ namespace Dryad
             else
             {
                 result = RandomFrom(graph->entryEdges, entryEdge);
-                if(result != Result::Success)
+                if (result != Result::Success)
                 {
                     return result;
                 }
                 ResetResult(result);
             }
         }
-        else if(entryEdge == nullptr)
+        else if (entryEdge == nullptr)
         {
             return Result::EdgeNotFound;
         }
 
         // Now we validate the entry node
         Node* node = entryEdge->destination;
-        if(node == nullptr)
+        if (node == nullptr)
         {
             return Result::NodeNotFound;
         }
-        if(node->graph == nullptr)
+        if (node->graph == nullptr)
         {
             return Result::GraphNotFound;
         }
 
         // Validate that if a graph was provided, it's correctly associated to the node
-        if(graph != nullptr && node->graph != graph)
+        if (graph != nullptr && node->graph != graph)
         {
             return Result::InvalidGraph;
         }
@@ -80,7 +80,7 @@ namespace Dryad
         for(const auto& [motif, variation] : motifVariations)
         {
             Int32 motifLevel = static_cast<Int32>(m_MotifLevels[motif]) + variation;
-            if(motifLevel <= 0)
+            if (motifLevel <= 0)
             {
                 motifsToRemove.PushBack(motif);
             }
@@ -108,10 +108,28 @@ namespace Dryad
         return Result::NotYetImplemented;
     }
 
-    Result Score::UpdateNotes()
+    Result Score::UpdateNotes(bool motifsChanged, bool harmo)
     {
         // Here, we will align the uncommitted notes of the score to the active harmomy
         // frames and motif.
+
+        const HarmonyFrame& currentFrame = CurrentHarmonyFrame();
+        // Check on ledger where the uncommitted notes start
+        // Knowing if a graph change or motif change occured would help here
+
+        // Add motifs notes first, so all the notes can already be then when reharmonizing
+
+        // Find where to add the next motif instances
+            // Find at what beat they can be added
+            // Place their notes while respecting the harmony frame
+        // Find what motif instances to remove
+            // Request deletion of the instance notes
+            // If a part of the motif was already started, check if it can be truncated
+
+        // When processing to reharmonization...
+            // According to the current notes position, establish which motive should be the lowest note of the frame chord
+            // 'Hints' could be associated to motifs during reharmonization to indicate how to attempt to place them
+        // A second pass should probably be done to smoothen the voicings
 
         return Result::NotYetImplemented;
     }
@@ -149,7 +167,7 @@ namespace Dryad
 
     Tempo Score::CurrentTempo() const
     {
-        if(m_HarmonyFrames.Empty())
+        if (m_HarmonyFrames.Empty())
         {
             return m_Ledger.startTempo;
         }
@@ -158,7 +176,7 @@ namespace Dryad
 
     const Scale* Score::CurrentScale() const
     {
-        if(m_HarmonyFrames.Empty())
+        if (m_HarmonyFrames.Empty())
         {
             return m_Ledger.startScale;
         }
@@ -167,7 +185,7 @@ namespace Dryad
 
     const Node* Score::CurrentNode()
     {
-        if(m_HarmonyFrames.Empty())
+        if (m_HarmonyFrames.Empty())
         {
             return nullptr;
         }
@@ -181,7 +199,7 @@ namespace Dryad
 
     ScoreTime Score::TimeRemainingToCurrentHarmonyFrame() const
     {
-        if(m_HarmonyFrames.Empty())
+        if (m_HarmonyFrames.Empty())
         {
             return 0;
         }
@@ -190,21 +208,40 @@ namespace Dryad
 
     ScoreTime Score::CurrentHarmonyFrameEndTime() const
     {
-        if(m_HarmonyFrames.Empty())
+        if (m_HarmonyFrames.Empty())
         {
             return 0;
         }
         return CurrentHarmonyFrame().EndTime();
     }
 
+    ScoreTime Score::GeneratedEndTime() const
+    {
+        if (m_HarmonyFrames.Empty())
+        {
+            return 0;
+        }
+        return m_HarmonyFrames.Back().EndTime();
+    }
+
+    Result Score::GenerateFramesUntil(ScoreTime targetScoreTime)
+    {
+        ScoreTime currentScoreEnd = GeneratedEndTime();
+        if (targetScoreTime > currentScoreEnd)
+        {
+            return GenerateFrames(targetScoreTime - currentScoreEnd);
+        }
+        return Result::Success;
+    }
+
     Result Score::GenerateFrames(ScoreTime durationToAppend)
     {
-        if(m_HarmonyFrames.Empty())
+        if (m_HarmonyFrames.Empty())
         {
             return Result::NotYetImplemented;
         }
         const Node* node = m_HarmonyFrames.Back().node;
-        if(node == nullptr || !node->IsValid())
+        if (node == nullptr || !node->IsValid())
         {
             return Result::InvalidNode;
         }
@@ -213,7 +250,7 @@ namespace Dryad
         while(scoreEnd < scoreTarget)
         {
             Node* nextNode = node->GetNext();
-            if(nextNode == nullptr || !nextNode->IsValid())
+            if (nextNode == nullptr || !nextNode->IsValid())
             {
                 return Result::InvalidNode;
             }
@@ -228,25 +265,6 @@ namespace Dryad
             );
             m_HarmonyFrames.PushBack(newFrame);
             scoreEnd = newFrame.EndTime();
-        }
-        return Result::Success;
-    }
-
-    ScoreTime Score::GeneratedEndTime() const
-    {
-        if(m_HarmonyFrames.Empty())
-        {
-            return 0;
-        }
-        return m_HarmonyFrames.Back().EndTime();
-    }
-
-    Result Score::GenerateFramesUntil(ScoreTime targetScoreTime)
-    {
-        ScoreTime currentScoreEnd = GeneratedEndTime();
-        if(targetScoreTime > currentScoreEnd)
-        {
-            return GenerateFrames(targetScoreTime - currentScoreEnd);
         }
         return Result::Success;
     }
