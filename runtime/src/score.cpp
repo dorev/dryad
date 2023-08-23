@@ -105,6 +105,9 @@ namespace Dryad
         // of the harmonic frames (depending on the duration of the tempo change...)
         // I'm thinking about pushing this for a farther development cycle but I feel it
         // would be better to consider it sooner than later
+
+        // !! For the first version, let's only support instantaneous tempo changes
+
         return Result::NotYetImplemented;
     }
 

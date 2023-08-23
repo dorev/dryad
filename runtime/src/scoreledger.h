@@ -17,6 +17,12 @@ namespace Dryad
         {
         }
 
+
+        // How to store the ScoreEvent in the ledger?
+        // multimap using time as key?
+        
+
+
         Time startTime;
         Tempo startTempo;
         const Scale* startScale;

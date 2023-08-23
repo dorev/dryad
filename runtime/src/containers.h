@@ -5,6 +5,7 @@
 #include <map>
 #include <list>
 
+#include "types.h"
 #include "templateutils.h"
 
 namespace Dryad
@@ -14,6 +15,8 @@ namespace Dryad
     using VectorInternal = std::vector<T>;
     template <class K, class V>
     using MapInternal = std::map<K, V>;
+    template <class K, class V>
+    using MultiMapInternal = std::multimap<K, V>;
     template <class T>
     using ListInternal = std::list<T>;
     template <class T>
@@ -179,7 +182,7 @@ namespace Dryad
             return false;
         }
 
-        unsigned int Size() const
+        UInt32 Size() const
         {
             return static_cast<unsigned int>(m_Map.size());
         }
@@ -222,6 +225,82 @@ namespace Dryad
         }
     };
 
+    //
+    // Multimap
+    //
+
+    template <class KeyType, class ValueType>
+    class MultiMap
+    {
+    private:
+        MultiMapInternal<KeyType, ValueType> m_MultiMap;
+
+    public:
+        template <class... Args>
+        MultiMap(Args... args)
+            : m_MultiMap(std::forward<Args>(args)...)
+        {
+        }
+
+        ValueType& operator[](const KeyType& key)
+        {
+            return m_MultiMap[key];
+        }
+
+        bool Find(const KeyType& key, ValueType* outValuePtr)
+        {
+            auto itr = m_MultiMap.find(key);
+            if(itr != m_MultiMap.end())
+            {
+                outValuePtr = &itr->second;
+                return true;
+            }
+            return false;
+        }
+
+        UInt32 Size() const
+        {
+            return static_cast<unsigned int>(m_MultiMap.size());
+        }
+
+        bool Empty() const
+        {
+            return m_MultiMap.empty();
+        }
+
+        bool Remove(const KeyType& key)
+        {
+            return m_MultiMap.erase(key) > 0;
+        }
+
+        using iterator = typename std::multimap<KeyType, ValueType>::iterator;
+
+        auto begin()
+        {
+            return m_MultiMap.begin();
+        }
+
+        auto end()
+        {
+            return m_MultiMap.end();
+        }
+
+        const auto begin() const
+        {
+            return m_MultiMap.cbegin();
+        }
+
+        const auto end() const
+        {
+            return m_MultiMap.cend();
+        }
+
+        bool operator==(const MultiMap& other) const
+        {
+            return m_MultiMap == other.m_MultiMap;
+        }
+    };
+
     template <class T>
     class List
     {
@@ -239,7 +318,7 @@ namespace Dryad
             m_List.clear();
         }
 
-        unsigned int Size() const
+        UInt32 Size() const
         {
             return static_cast<UInt32>(m_List.size());
         }
