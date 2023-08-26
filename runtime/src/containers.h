@@ -19,8 +19,8 @@ namespace Dryad
     using MultiMapInternal = std::multimap<K, V>;
     template <class T>
     using ListInternal = std::list<T>;
-    template <class T>
-    using VariantInternal = std::variant<T>;
+    template <class... Args>
+    using VariantInternal = std::variant<Args...>;
 
     //
     // Vector
@@ -29,7 +29,7 @@ namespace Dryad
     class Vector
     {
     private:
-        std::vector<ValueType> m_Vector;
+        VectorInternal<ValueType> m_Vector;
 
     public:
         template <class... Args>
@@ -157,7 +157,7 @@ namespace Dryad
     class Map
     {
     private:
-        std::map<KeyType, ValueType> m_Map;
+        MapInternal<KeyType, ValueType> m_Map;
 
     public:
         template <class... Args>
@@ -304,7 +304,7 @@ namespace Dryad
     template <class T>
     class List
     {
-        std::list<T> m_List;
+        ListInternal<T> m_List;
 
     public:
         template <class... Args>
@@ -368,9 +368,36 @@ namespace Dryad
             return m_List.back();
         }
 
-        void Insert(const T& item, unsigned int index)
+        bool InsertBefore(const T& item, const T& reference)
         {
-            m_List.insert()
+            for (auto it = m_List.begin(); it != m_List.end(); ++it)
+            {
+                if (*it == reference)
+                {
+                    m_List.insert(it, item);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        bool InsertAfter(const T& item, const T& reference)
+        {
+            for (auto it = m_List.begin(); it != m_List.end(); ++it)
+            {
+                if (*it == reference)
+                {
+                    // If the iterator is not at the end of the list, advance it one position before inserting.
+                    // Otherwise, just insert at the current position which would be equivalent to inserting at the end.
+                    if (std::next(it) != m_List.end())
+                    {
+                        ++it;
+                    }
+                    m_List.insert(it, item);
+                    return true;
+                }
+            }
+            return false;
         }
 
         auto begin()
@@ -401,7 +428,7 @@ namespace Dryad
     class Variant
     {
     private:
-        std::variant<Args...> m_Variant;
+        VariantInternal<Args...> m_Variant;
 
     public:
         template <class ValueType>

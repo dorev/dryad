@@ -111,12 +111,13 @@ namespace Dryad
         return Result::NotYetImplemented;
     }
 
-    Result Score::UpdateNotes(bool motifsChanged, bool harmo)
+    Result Score::UpdateNotes(bool motifsChanged, bool harmonyChanged)
     {
         // Here, we will align the uncommitted notes of the score to the active harmomy
         // frames and motif.
 
-        const HarmonyFrame& currentFrame = CurrentHarmonyFrame();
+        const HarmonyFrame& currentHarmonyFrame = CurrentHarmonyFrame();
+        ScoreLedgerFrame* ledgerFrame = m_Ledger.GetFirstUncommittedFrame();
         // Check on ledger where the uncommitted notes start
         // Knowing if a graph change or motif change occured would help here
 
@@ -172,7 +173,7 @@ namespace Dryad
     {
         if (m_HarmonyFrames.Empty())
         {
-            return m_Ledger.startTempo;
+            return m_Ledger.m_StartTempo;
         }
         return CurrentHarmonyFrame().tempo;
     }
@@ -181,7 +182,7 @@ namespace Dryad
     {
         if (m_HarmonyFrames.Empty())
         {
-            return m_Ledger.startScale;
+            return m_Ledger.m_StartScale;
         }
         return CurrentHarmonyFrame().scale;
     }

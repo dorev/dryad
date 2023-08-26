@@ -78,7 +78,8 @@ namespace Dryad
             InitializeBlock(m_Blocks.back().get());
         }
 
-        T* Create()
+        template <typename... Args>
+        T* Create(Args&&... args)
         {
             // Load the current top index.
             size_t currentIndex = m_Top.load(std::memory_order_relaxed);
@@ -100,7 +101,7 @@ namespace Dryad
             // Try to get a free spot and construct the object at that spot.
             if (m_Top.compare_exchange_strong(currentIndex, m_Indices[currentIndex].load(std::memory_order_relaxed)))
             {
-                return new (&GetStorageLocation(currentIndex)) T();
+                return new (&GetStorageLocation(currentIndex)) T(std::forward<Args>(args)...);
             }
 
             // Something unexpected happened.

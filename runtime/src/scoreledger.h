@@ -5,29 +5,60 @@
 
 namespace Dryad
 {
+    struct ScoreLedgerFrame
+    {
+        List<ScoreEvent*> events;
+        ScoreLedgerFrame* next;
+        ScoreLedgerFrame* prev;
+    };
+
     class ScoreLedger
     {
     public:
         ScoreLedger(Time startTime, Tempo startTempo, const Scale* startScale)
-            : startTime(startTime)
-            , startTempo(startTempo)
-            , startScale(startScale)
-            , committedDuration()
-            , lastCommittedEventIndex(-1)
+            : m_StartTime(startTime)
+            , m_StartTempo(startTempo)
+            , m_StartScale(startScale)
+            , m_LastCommittedLedgerFrame(nullptr)
         {
         }
 
+        ScoreLedgerFrame* GetFirstUncommittedFrame()
+        {
+            if (m_LastCommittedLedgerFrame == nullptr)
+            {
+                m_LastCommittedLedgerFrame = AppendNewFrame();
+                return m_LastCommittedLedgerFrame;
+            }
+            else
+            {
+                return m_LastCommittedLedgerFrame->next;
+            }
+        }
 
-        // How to store the ScoreEvent in the ledger?
-        // multimap using time as key?
-        
+        ScoreLedgerFrame* AppendNewFrame()
+        {
+            ScoreLedgerFrame* newFrame = new ScoreLedgerFrame();
+            if (m_LedgerFrames.Size() > 0)
+            {
+                ScoreLedgerFrame* lastFrame = m_LedgerFrames.Back();
+                lastFrame->next = newFrame;
+                newFrame->prev = lastFrame;
+                m_LedgerFrames.PushBack(newFrame);
+            }
+            else
+            {
+                m_LedgerFrames.PushBack(newFrame);
+            }
+            return newFrame;
+        }
 
 
-        Time startTime;
-        Tempo startTempo;
-        const Scale* startScale;
-        ScoreTime committedDuration;
-        Int32 lastCommittedEventIndex;
+    private:
+        Time m_StartTime;
+        Tempo m_StartTempo;
+        const Scale* m_StartScale;
+        ScoreLedgerFrame* m_LastCommittedLedgerFrame;
+        List<ScoreLedgerFrame*> m_LedgerFrames;
     };
-
 }

@@ -42,8 +42,8 @@ namespace Dryad
     struct ScoreEvent
     {
         Time time;
-        ScoreEventType type;
         bool committed;
+        ScoreEventType type;
         ScoreEventData data;
     };
 }
