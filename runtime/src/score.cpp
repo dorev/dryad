@@ -4,6 +4,8 @@
 #include "node.h"
 #include "random.h"
 #include "scale.h"
+#include "motif.h"
+#include "motifinstance.h"
 
 namespace Dryad
 {
@@ -132,6 +134,21 @@ namespace Dryad
             if (variation > 0)
             {
                 // Find at what beat they can be added
+                RythmicAnchor rythmicAnchor = motif->rythmicAnchor;
+                switch(rythmicAnchor)
+                {
+                    default:
+                        return Result::InvalidMotif;
+                    case RythmicAnchor::Anywhere:
+                    {
+                        ScoreTime motifStartTime = NearestBeatAfter(ledgerFrame->time, DefaultBeatAlignment);
+                        MotifInstance* newMotifInstance = new MotifInstance(motif, motifStartTime);
+                        NoteValue motifReferenceNote = GetLatestOctaveRoot();
+                        newMotifInstance->UpdateNotes(motifReferenceNote);
+                        m_MotifInstances[motif].PushBack(newMotifInstance);
+                    }
+                }
+
                 // Place their notes while respecting the harmony frame
 
             }
@@ -146,6 +163,7 @@ namespace Dryad
                 {
 
                 }
+                return Result::NotYetImplemented;
             }
 
         }
@@ -202,6 +220,7 @@ namespace Dryad
     {
         if (m_HarmonyFrames.Empty())
         {
+            // TODO: return the default scale?
             return m_Ledger.GetStartScale();
         }
         return CurrentHarmonyFrame().scale;
@@ -237,6 +256,21 @@ namespace Dryad
             return 0;
         }
         return CurrentHarmonyFrame().EndTime();
+    }
+
+    NoteValue Score::GetLatestOctaveRoot() const
+    {
+        if (m_HarmonyFrames.Empty())
+        {
+            const Scale* scale = CurrentScale();
+            return MiddleC + scale->root;
+        }
+        else
+        {
+            NoteValue root = m_HarmonyFrames.Back().scale->root;
+            NoteValue reference = m_Ledger.GetLastCommittedNoteValue() % Notes[C][1];
+            return reference + root;
+        }
     }
 
     ScoreTime Score::GeneratedEndTime() const

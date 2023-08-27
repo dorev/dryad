@@ -30,6 +30,8 @@ namespace Dryad
         DRYAD_FLAG(FailedToTransition, 20),
         DRYAD_FLAG(InvalidDegree, 21),
         DRYAD_FLAG(InvalidOperation, 22),
+        DRYAD_FLAG(InvalidMotif, 23),
+        DRYAD_FLAG(InvalidNote, 24),
     };
 
     inline Result ResetResult(Result& result)

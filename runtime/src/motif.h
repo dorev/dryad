@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include "containers.h"
 #include "note.h"
 
 namespace Dryad

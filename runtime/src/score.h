@@ -39,12 +39,14 @@ namespace Dryad
         ScoreTime GeneratedEndTime() const;
         ScoreTime TimeRemainingToCurrentHarmonyFrame() const;
         ScoreTime CurrentHarmonyFrameEndTime() const;
+        NoteValue GetLatestOctaveRoot() const;
 
     private:
         inline static const UInt32 m_DefaultHarmonicFramesCount = 8;
         ScoreLedger m_Ledger;
         List<HarmonyFrame> m_HarmonyFrames;
         Map<const Motif*, UInt32> m_MotifLevels;
+        Map<const Motif*, List<MotifInstance*>> m_MotifInstances;
         HarmonyStrategy m_HarmonyStrategy;
         MotifStrategy m_MotifStrategy;
     };

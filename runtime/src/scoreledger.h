@@ -1,13 +1,23 @@
 #pragma once
 
 #include "types.h"
+#include "containers.h"
 #include "math.h"
 #include "scoreevent.h"
+#include "scale.h"
 
 namespace Dryad
 {
     struct ScoreLedgerFrame
     {
+        ScoreLedgerFrame()
+            : time(0)
+            , events()
+            , next(nullptr)
+            , prev(nullptr)
+        {
+        }
+
         ScoreTime time;
         List<ScoreEvent*> events;
         ScoreLedgerFrame* next;
@@ -23,6 +33,23 @@ namespace Dryad
             , m_StartScale(startScale)
             , m_LastCommittedLedgerFrame(nullptr)
         {
+        }
+
+        NoteValue GetLastCommittedNoteValue() const
+        {
+            ScoreLedgerFrame* frame = m_LastCommittedLedgerFrame;
+            while (frame != nullptr)
+            {
+                for (const ScoreEvent* event : frame->events)
+                {
+                    if (event->type == ScoreEventType::NotePlay)
+                    {
+                        return event->GetNoteEvent().value;
+                    }
+                }
+                frame = frame->prev;
+            }
+            return MiddleC;
         }
 
         ScoreTime GetCommittedScoreDuration() const

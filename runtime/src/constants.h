@@ -52,6 +52,8 @@ namespace Dryad
         { 11, 23, 35, 47, 59, 71, 83, 95, 107, 119, 131 },
     };
 
+    constexpr NoteValue NoteValueMax = Notes[ScaleNoteLimit - 1][OctaveLimit - 1];
+
     constexpr NoteValue C = 0;
     constexpr NoteValue Cs = 1;
     constexpr NoteValue Db = 1;
@@ -69,6 +71,8 @@ namespace Dryad
     constexpr NoteValue As = 10;
     constexpr NoteValue Bb = 10;
     constexpr NoteValue B = 11;
+
+    constexpr NoteValue MiddleC = Notes[C][4];
 
     float constexpr MidiToFreq(NoteValue midi)
     {

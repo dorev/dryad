@@ -20,6 +20,7 @@ namespace Dryad
     constexpr ScoreTime SixteenthTriplet = 4;
     constexpr ScoreTime ThirthySeconth = 3;
     constexpr ScoreTime ThirthySeconthTriplet = 2;
+    constexpr ScoreTime DefaultBeatAlignment = Eighth;
 
     ScoreTime NearestBeatBefore(ScoreTime beatValue, ScoreTime scoreTime);
     ScoreTime NearestBeatAfter(ScoreTime beatValue, ScoreTime scoreTime);

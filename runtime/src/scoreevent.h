@@ -15,7 +15,7 @@ namespace Dryad
     struct ScoreNoteEvent
     {
         ScoreTime duration;
-        NoteValue note;
+        NoteValue value;
         NoteVelocity velocity;
         const Motif* motif;
         const Scale* scale;
