@@ -182,6 +182,11 @@ namespace Dryad
             return false;
         }
 
+        bool Contains (const KeyType& key) const
+        {
+            return m_Map.find(key) != m_Map.end();
+        }
+
         UInt32 Size() const
         {
             return static_cast<unsigned int>(m_Map.size());
@@ -452,6 +457,12 @@ namespace Dryad
 
         template <class ValueType>
         ValueType& Get()
+        {
+            return std::get<ValueType>(m_Variant);
+        }
+
+        template <class ValueType>
+    const ValueType& Get() const
         {
             return std::get<ValueType>(m_Variant);
         }

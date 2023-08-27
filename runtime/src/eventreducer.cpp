@@ -6,7 +6,7 @@ namespace Dryad
     Result EventReducer::Consume(EventType eventType, Motif* motif)
     {
         Int32* variationCount = nullptr;
-        if (m_Summary.motifVariations.Find(motif, variationCount))
+        if (m_Summary.motifsVariations.Find(motif, variationCount))
         {
             switch(eventType)
             {
@@ -21,7 +21,7 @@ namespace Dryad
                 default:
                     return Result::InvalidEventType;
             }
-            if ((*variationCount) == 0 && !m_Summary.motifVariations.Remove(motif))
+            if ((*variationCount) == 0 && !m_Summary.motifsVariations.Remove(motif))
             {
                 return Result::PotentialConcurrencyError;
             }
@@ -31,7 +31,7 @@ namespace Dryad
             switch(eventType)
             {
                 case EventType::AddMotif:
-                    m_Summary.motifVariations[motif] = 1;
+                    m_Summary.motifsVariations[motif] = 1;
                     break;
                 case EventType::RemoveMotif:
                     break;

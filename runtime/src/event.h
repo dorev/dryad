@@ -40,4 +40,32 @@ namespace Dryad
         EventType type;
         EventData data;
     };
+
+    inline bool HasMotifChanges(const EventType& eventFlags)
+    {
+        return AnyFlagIsSet
+        (
+            eventFlags,
+            EventType::AddMotif,
+            EventType::RemoveMotif
+        );
+    }
+
+    inline bool HasTempoChanges(const EventType& eventFlags)
+    {
+        return AnyFlagIsSet
+        (
+            eventFlags, EventType::ChangeTempo
+        );
+    }
+
+    inline bool HasHarmonyChanges(const EventType& eventFlags)
+    {
+        return AnyFlagIsSet
+        (
+            eventFlags,
+            EventType::ChangeGraph,
+            EventType::ChangeScale
+        );
+    }
 }

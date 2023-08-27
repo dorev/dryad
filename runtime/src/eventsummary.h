@@ -11,13 +11,13 @@ namespace Dryad
 
     struct EventSummary
     {
-        Map<const Motif*, Int32> motifVariations;
+        Map<const Motif*, Int32> motifsVariations;
         TempoChange tempoChangeRequested;
         HarmonyTransition harmonyTransitionRequested;
         EventType eventFlags;
 
         EventSummary()
-            : motifVariations()
+            : motifsVariations()
             , tempoChangeRequested()
             , harmonyTransitionRequested()
             , eventFlags(EventType::NoEvent)
@@ -26,27 +26,17 @@ namespace Dryad
 
         bool HasMotifChanges() const
         {
-            return AnyFlagIsSet
-            (
-                eventFlags,
-                EventType::AddMotif,
-                EventType::RemoveMotif
-            );
+            return Dryad::HasMotifChanges(eventFlags);
         }
 
         bool HasTempoChanges() const
         {
-            return AnyFlagIsSet(EventType::ChangeTempo);
+            return Dryad::HasTempoChanges(eventFlags);
         }
 
         bool HasHarmonyChanges() const
         {
-            return AnyFlagIsSet
-            (
-                eventFlags,
-                EventType::ChangeGraph,
-                EventType::ChangeScale
-            );
+            return Dryad::HasHarmonyChanges(eventFlags);
         }
     };
 }

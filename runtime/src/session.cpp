@@ -67,11 +67,11 @@ namespace Dryad
             }
             if (motifsChanged)
             {
-                result |= m_Score.UpdateMotifs(summary.motifVariations);
+                result |= m_Score.UpdateMotifs(summary.motifsVariations);
             }
             if (harmonyChanged || motifsChanged)
             {
-                result |= m_Score.UpdateNotes(motifsChanged, harmonyChanged);
+                result |= m_Score.UpdateNotes(summary.motifsVariations, summary.harmonyTransitionRequested);
             }
             if (tempoChanged)
             {

@@ -14,7 +14,7 @@ namespace Dryad
 
     struct ScoreNoteEvent
     {
-        Time duration;
+        ScoreTime duration;
         NoteValue note;
         NoteVelocity velocity;
         const Motif* motif;
@@ -41,9 +41,29 @@ namespace Dryad
 
     struct ScoreEvent
     {
-        Time time;
+        ScoreTime time;
         bool committed;
         ScoreEventType type;
         ScoreEventData data;
+
+        inline const ScoreNoteEvent& GetNoteEvent() const
+        {
+            return data.Get<ScoreNoteEvent>();
+        }
+
+        inline const ScoreTempoEvent& GetTempoEvent() const
+        {
+            return data.Get<ScoreTempoEvent>();
+        }
+
+        inline const ScoreGraphEvent& GetGraphEvent() const
+        {
+            return data.Get<ScoreGraphEvent>();
+        }
+
+        inline const ScoreScaleEvent& GetScaleEvent() const
+        {
+            return data.Get<ScoreScaleEvent>();
+        }
     };
 }

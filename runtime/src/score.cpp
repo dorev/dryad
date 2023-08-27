@@ -111,24 +111,44 @@ namespace Dryad
         return Result::NotYetImplemented;
     }
 
-    Result Score::UpdateNotes(bool motifsChanged, bool harmonyChanged)
+    Result Score::UpdateNotes(Map<const Motif*, Int32>& motifsVariations, const HarmonyTransition& harmonyTransition)
     {
         // Here, we will align the uncommitted notes of the score to the active harmomy
         // frames and motif.
-
         const HarmonyFrame& currentHarmonyFrame = CurrentHarmonyFrame();
         ScoreLedgerFrame* ledgerFrame = m_Ledger.GetFirstUncommittedFrame();
-        // Check on ledger where the uncommitted notes start
-        // Knowing if a graph change or motif change occured would help here
 
         // Add motifs notes first, so all the notes can already be then when reharmonizing
+        for (const auto& [motif, variation] : motifsVariations)
+        {
+            // If the motif is not already in the score, add it
+            if (!m_MotifLevels.Contains(motif))
+            {
+                m_MotifLevels[motif] = 0;
+            }
 
-        // Find where to add the next motif instances
-            // Find at what beat they can be added
-            // Place their notes while respecting the harmony frame
-        // Find what motif instances to remove
-            // Request deletion of the instance notes
-            // If a part of the motif was already started, check if it can be truncated
+            // Update the motif level and write it to the score
+            int newLevel = m_MotifLevels[motif] += variation;
+            if (variation > 0)
+            {
+                // Find at what beat they can be added
+                // Place their notes while respecting the harmony frame
+
+            }
+            else
+            {
+                // If a part of the motif was already started, check if it can be truncated
+                if (newLevel == 0)
+                {
+
+                }
+                else
+                {
+
+                }
+            }
+
+        }
 
         // When processing to reharmonization...
             // According to the current notes position, establish which motive should be the lowest note of the frame chord
@@ -173,7 +193,7 @@ namespace Dryad
     {
         if (m_HarmonyFrames.Empty())
         {
-            return m_Ledger.m_StartTempo;
+            return m_Ledger.GetStartTempo();
         }
         return CurrentHarmonyFrame().tempo;
     }
@@ -182,7 +202,7 @@ namespace Dryad
     {
         if (m_HarmonyFrames.Empty())
         {
-            return m_Ledger.m_StartScale;
+            return m_Ledger.GetStartScale();
         }
         return CurrentHarmonyFrame().scale;
     }
@@ -198,7 +218,7 @@ namespace Dryad
 
     ScoreTime Score::CurrentTime() const
     {
-        return m_Ledger.committedDuration;
+        return m_Ledger.GetCommittedScoreDuration();
     }
 
     ScoreTime Score::TimeRemainingToCurrentHarmonyFrame() const
@@ -207,7 +227,7 @@ namespace Dryad
         {
             return 0;
         }
-        return m_Ledger.committedDuration - CurrentHarmonyFrame().frameStart;
+        return CurrentHarmonyFrameEndTime() - CurrentTime();
     }
 
     ScoreTime Score::CurrentHarmonyFrameEndTime() const

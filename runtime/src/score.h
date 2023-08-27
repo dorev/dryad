@@ -21,9 +21,9 @@ namespace Dryad
         Score();
         void Reset(Time startTime, Tempo startTempo, const Scale* startScale);
         Result UpdateHarmony(HarmonyTransition& harmonyTransition);
-        Result UpdateMotifs(Map<const Motif*, Int32>& motifVariations);
+        Result UpdateMotifs(Map<const Motif*, Int32>& motifsVariations);
         Result UpdateTempo(TempoChange& tempoChange);
-        Result UpdateNotes(bool motifsChanged, bool harmonyChanged);
+        Result UpdateNotes(Map<const Motif*, Int32>& motifsVariations, const HarmonyTransition& harmonyTransition);
         Result Commit(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents);
         Result GenerateFrames(ScoreTime durationToAppend);
         Result GenerateFramesUntil(ScoreTime targetScoreTIme);

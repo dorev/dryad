@@ -1,12 +1,14 @@
 #pragma once
 
 #include "types.h"
+#include "math.h"
 #include "scoreevent.h"
 
 namespace Dryad
 {
     struct ScoreLedgerFrame
     {
+        ScoreTime time;
         List<ScoreEvent*> events;
         ScoreLedgerFrame* next;
         ScoreLedgerFrame* prev;
@@ -21,6 +23,12 @@ namespace Dryad
             , m_StartScale(startScale)
             , m_LastCommittedLedgerFrame(nullptr)
         {
+        }
+
+        ScoreTime GetCommittedScoreDuration() const
+        {
+            ScoreLedgerFrame* frame = m_LastCommittedLedgerFrame;
+            return frame != nullptr ? frame->time : 0;
         }
 
         ScoreLedgerFrame* GetFirstUncommittedFrame()
@@ -53,6 +61,20 @@ namespace Dryad
             return newFrame;
         }
 
+        const Time& GetStartTime() const
+        {
+            return m_StartTime;
+        }
+
+        const Tempo& GetStartTempo() const
+        {
+            return m_StartTempo;
+        }
+
+        const Scale* GetStartScale() const
+        {
+            return m_StartScale;
+        }
 
     private:
         Time m_StartTime;
