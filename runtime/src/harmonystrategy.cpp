@@ -61,7 +61,7 @@ namespace Dryad
         frame.scale = (scale != nullptr) ? scale : score.CurrentScale();
 
         // Time will be set at commit
-        frame.frameStart = 0;
+        frame.startTime = 0;
 
         // Complete frame setup and add queue it
         frame.duration = node->duration;

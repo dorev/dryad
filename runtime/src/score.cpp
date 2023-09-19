@@ -115,10 +115,8 @@ namespace Dryad
 
     Result Score::UpdateNotes(Map<const Motif*, Int32>& motifsVariations, const HarmonyTransition& harmonyTransition)
     {
-        // Here, we will align the uncommitted notes of the score to the active harmomy
-        // frames and motif.
-        const HarmonyFrame& currentHarmonyFrame = CurrentHarmonyFrame();
-        ScoreLedgerFrame* ledgerFrame = m_Ledger.GetFirstUncommittedFrame();
+        const HarmonyFrame& harmonyFrame = CurrentHarmonyFrame();
+        ScoreFrame* scoreFrame = m_Ledger.GetFirstUncommittedFrame();
 
         // Add motifs notes first, so all the notes can already be then when reharmonizing
         for (const auto& [motif, variation] : motifsVariations)
@@ -128,36 +126,63 @@ namespace Dryad
             {
                 m_MotifLevels[motif] = 0;
             }
-
-            // Update the motif level and write it to the score
             int newLevel = m_MotifLevels[motif] += variation;
+
+            // Adding a motif
             if (variation > 0)
             {
-                // Find at what beat they can be added
-                RythmicAnchor rythmicAnchor = motif->rythmicAnchor;
-                switch(rythmicAnchor)
+                // Find the best time to start the motif
+                ScoreTime motifStartTime = 0;
+                if (motif->alignRhythmToNode)
                 {
-                    default:
-                        return Result::InvalidMotif;
-                    case RythmicAnchor::Anywhere:
+                    // If the ledger and harmony frames are aligned, start the motif at the beginning of the frame
+                    if (scoreFrame->startTime == harmonyFrame.startTime)
                     {
-                        ScoreTime motifStartTime = NearestBeatAfter(ledgerFrame->time, DefaultBeatAlignment);
-                        MotifInstance* newMotifInstance = new MotifInstance(motif, motifStartTime);
-                        NoteValue motifReferenceNote = GetLatestOctaveRoot();
-                        newMotifInstance->UpdateNotes(motifReferenceNote);
-                        m_MotifInstances[motif].PushBack(newMotifInstance);
+                        motifStartTime = scoreFrame->startTime;
+                    }
+                    else
+                    {
+                        // If the time is not already aligned with the motif, find the next aligned time
+                        motifStartTime = NearestBeatAfter(motif->rhythmicAlignment, harmonyFrame.startTime);
+                        while (motifStartTime < scoreFrame->startTime)
+                        {
+                            motifStartTime += motif->rhythmicAlignment;
+                        }
+
+                        // If the first aligned time is beyond the current frame, align it with the next frame
+                        if (motifStartTime > harmonyFrame.EndTime())
+                        {
+                            motifStartTime = harmonyFrame.EndTime();
+                        }
                     }
                 }
+                else
+                {
+                    motifStartTime = NearestBeatAfter(motif->rhythmicAlignment, scoreFrame->startTime);
+                }
 
-                // Place their notes while respecting the harmony frame
+                MotifInstance* newMotifInstance = new MotifInstance(motif, motifStartTime);
+                NoteValue motifReferenceNote = GetLatestOctaveRoot();
+                m_MotifInstances[motif].PushBack(newMotifInstance);
 
+                // Naively align the motif on the root, the voicing/harmonization will be done later
+                newMotifInstance->UpdateNotes(motifReferenceNote);
             }
+            // Removing a motif
             else
             {
                 // If a part of the motif was already started, check if it can be truncated
                 if (newLevel == 0)
                 {
-
+                    if (motif->canBeTruncated)
+                    {
+                        // Remove the notes of the motif beyond the transition point
+                        // Is this relevant?
+                    }
+                    else
+                    {
+                        // Remove any uncommitted motif note
+                    }
                 }
                 else
                 {
@@ -165,7 +190,6 @@ namespace Dryad
                 }
                 return Result::NotYetImplemented;
             }
-
         }
 
         // When processing to reharmonization...

@@ -17,7 +17,7 @@ namespace Dryad
     struct HarmonyFrame
     {
         Tempo tempo;
-        ScoreTime frameStart;
+        ScoreTime startTime;
         ScoreTime duration;
         const Scale* scale;
         const Node* node;
@@ -26,7 +26,7 @@ namespace Dryad
         HarmonyFrame
         (
             Tempo tempo = DefaultTempo,
-            ScoreTime frameStart = 0,
+            ScoreTime startTime = 0,
             ScoreTime duration = Whole,
             const Scale* scale = nullptr,
             const Node* node = nullptr,

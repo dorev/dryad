@@ -8,14 +8,14 @@ namespace Dryad
     HarmonyFrame::HarmonyFrame
     (
         Tempo tempo,
-        ScoreTime frameStart,
+        ScoreTime startTime,
         ScoreTime duration,
         const Scale* scale,
         const Node* node,
         const Graph* graph
     )
         : tempo(tempo)
-        , frameStart(duration)
+        , startTime(duration)
         , duration(duration)
         , scale(scale)
         , node(node)
@@ -30,7 +30,7 @@ namespace Dryad
         {
             return Result::NodeNotFound;
         }
-        frameStart = 0;
+        startTime = 0;
         duration = node->duration;
         this->node = node;
         if (node->graph == nullptr)
@@ -43,22 +43,22 @@ namespace Dryad
 
     ScoreTime HarmonyFrame::EndTime() const
     {
-        return frameStart + duration;
+        return startTime + duration;
     }
 
     Result HarmonyFrame::SplitFrame(ScoreTime splitTime, HarmonyFrame& latterFrame)
     {
-        if (splitTime <= frameStart || splitTime >= EndTime())
+        if (splitTime <= startTime || splitTime >= EndTime())
         {
             return Result::InvalidTime;
         }
-        ScoreTime updatedFrameDuration = splitTime - frameStart;
+        ScoreTime updatedFrameDuration = splitTime - startTime;
         ScoreTime latterFrameDuration = duration - updatedFrameDuration;
         duration = updatedFrameDuration;
 
         // Copy the current frame, only change the start time and duration
         latterFrame = *this;
-        latterFrame.frameStart = frameStart + updatedFrameDuration;
+        latterFrame.startTime = startTime + updatedFrameDuration;
         latterFrame.duration = latterFrameDuration;
         return Result::Success;
     }
@@ -66,7 +66,7 @@ namespace Dryad
     bool HarmonyFrame::operator==(const HarmonyFrame& other) const
     {
         return
-            frameStart == other.frameStart &&
+            startTime == other.startTime &&
             node == other.node &&
             duration == other.duration &&
             tempo == other.tempo &&

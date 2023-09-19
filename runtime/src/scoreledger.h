@@ -8,20 +8,20 @@
 
 namespace Dryad
 {
-    struct ScoreLedgerFrame
+    struct ScoreFrame
     {
-        ScoreLedgerFrame()
-            : time(0)
+        ScoreFrame()
+            : startTime(0)
             , events()
             , next(nullptr)
             , prev(nullptr)
         {
         }
 
-        ScoreTime time;
+        ScoreTime startTime;
         List<ScoreEvent*> events;
-        ScoreLedgerFrame* next;
-        ScoreLedgerFrame* prev;
+        ScoreFrame* next;
+        ScoreFrame* prev;
     };
 
     class ScoreLedger
@@ -37,7 +37,7 @@ namespace Dryad
 
         NoteValue GetLastCommittedNoteValue() const
         {
-            ScoreLedgerFrame* frame = m_LastCommittedLedgerFrame;
+            ScoreFrame* frame = m_LastCommittedLedgerFrame;
             while (frame != nullptr)
             {
                 for (const ScoreEvent* event : frame->events)
@@ -54,11 +54,11 @@ namespace Dryad
 
         ScoreTime GetCommittedScoreDuration() const
         {
-            ScoreLedgerFrame* frame = m_LastCommittedLedgerFrame;
-            return frame != nullptr ? frame->time : 0;
+            ScoreFrame* frame = m_LastCommittedLedgerFrame;
+            return frame != nullptr ? frame->startTime : 0;
         }
 
-        ScoreLedgerFrame* GetFirstUncommittedFrame()
+        ScoreFrame* GetFirstUncommittedFrame()
         {
             if (m_LastCommittedLedgerFrame == nullptr)
             {
@@ -71,12 +71,12 @@ namespace Dryad
             }
         }
 
-        ScoreLedgerFrame* AppendNewFrame()
+        ScoreFrame* AppendNewFrame()
         {
-            ScoreLedgerFrame* newFrame = new ScoreLedgerFrame();
+            ScoreFrame* newFrame = new ScoreFrame();
             if (m_LedgerFrames.Size() > 0)
             {
-                ScoreLedgerFrame* lastFrame = m_LedgerFrames.Back();
+                ScoreFrame* lastFrame = m_LedgerFrames.Back();
                 lastFrame->next = newFrame;
                 newFrame->prev = lastFrame;
                 m_LedgerFrames.PushBack(newFrame);
@@ -107,7 +107,7 @@ namespace Dryad
         Time m_StartTime;
         Tempo m_StartTempo;
         const Scale* m_StartScale;
-        ScoreLedgerFrame* m_LastCommittedLedgerFrame;
-        List<ScoreLedgerFrame*> m_LedgerFrames;
+        ScoreFrame* m_LastCommittedLedgerFrame;
+        List<ScoreFrame*> m_LedgerFrames;
     };
 }
