@@ -6,7 +6,7 @@ namespace Dryad
 {
     enum class ScoreEventType
     {
-        NotePlay,
+        PlayNote,
         TempoChange,
         GraphChange,
         ScaleChange,

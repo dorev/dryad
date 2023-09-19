@@ -14,8 +14,9 @@ namespace Dryad
     // The HarmonicFrame represents all the harmony modifiers at a certain
     // point in the score generation process. It holds everything that is
     // required to generate the next few notes
-    struct HarmonyFrame
+    class HarmonyFrame
     {
+    public:
         Tempo tempo;
         ScoreTime startTime;
         ScoreTime duration;

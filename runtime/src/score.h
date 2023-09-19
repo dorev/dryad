@@ -36,6 +36,7 @@ namespace Dryad
         const HarmonyFrame& CurrentHarmonyFrame() const;
         List<HarmonyFrame>& GetHarmonyFrames();
         const List<HarmonyFrame>& GetHarmonyFrames() const;
+
         ScoreTime GeneratedEndTime() const;
         ScoreTime TimeRemainingToCurrentHarmonyFrame() const;
         ScoreTime CurrentHarmonyFrameEndTime() const;

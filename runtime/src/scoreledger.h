@@ -8,8 +8,11 @@
 
 namespace Dryad
 {
-    struct ScoreFrame
+    class HarmonyFrame;
+
+    class ScoreFrame
     {
+    public:
         ScoreFrame()
             : startTime(0)
             , events()
@@ -20,6 +23,7 @@ namespace Dryad
 
         ScoreTime startTime;
         List<ScoreEvent*> events;
+        HarmonyFrame* harmonyFrame;
         ScoreFrame* next;
         ScoreFrame* prev;
     };
@@ -42,7 +46,7 @@ namespace Dryad
             {
                 for (const ScoreEvent* event : frame->events)
                 {
-                    if (event->type == ScoreEventType::NotePlay)
+                    if (event->type == ScoreEventType::PlayNote)
                     {
                         return event->GetNoteEvent().value;
                     }

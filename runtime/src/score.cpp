@@ -116,7 +116,7 @@ namespace Dryad
     Result Score::UpdateNotes(Map<const Motif*, Int32>& motifsVariations, const HarmonyTransition& harmonyTransition)
     {
         const HarmonyFrame& harmonyFrame = CurrentHarmonyFrame();
-        ScoreFrame* scoreFrame = m_Ledger.GetFirstUncommittedFrame();
+        ScoreFrame* firstUncommittedScoreFrame = m_Ledger.GetFirstUncommittedFrame();
 
         // Add motifs notes first, so all the notes can already be then when reharmonizing
         for (const auto& [motif, variation] : motifsVariations)
@@ -136,15 +136,15 @@ namespace Dryad
                 if (motif->alignRhythmToNode)
                 {
                     // If the ledger and harmony frames are aligned, start the motif at the beginning of the frame
-                    if (scoreFrame->startTime == harmonyFrame.startTime)
+                    if (firstUncommittedScoreFrame->startTime == harmonyFrame.startTime)
                     {
-                        motifStartTime = scoreFrame->startTime;
+                        motifStartTime = firstUncommittedScoreFrame->startTime;
                     }
                     else
                     {
                         // If the time is not already aligned with the motif, find the next aligned time
                         motifStartTime = NearestBeatAfter(motif->rhythmicAlignment, harmonyFrame.startTime);
-                        while (motifStartTime < scoreFrame->startTime)
+                        while (motifStartTime < firstUncommittedScoreFrame->startTime)
                         {
                             motifStartTime += motif->rhythmicAlignment;
                         }
@@ -158,7 +158,7 @@ namespace Dryad
                 }
                 else
                 {
-                    motifStartTime = NearestBeatAfter(motif->rhythmicAlignment, scoreFrame->startTime);
+                    motifStartTime = NearestBeatAfter(motif->rhythmicAlignment, firstUncommittedScoreFrame->startTime);
                 }
 
                 MotifInstance* newMotifInstance = new MotifInstance(motif, motifStartTime);
@@ -171,18 +171,46 @@ namespace Dryad
             // Removing a motif
             else
             {
-                // If a part of the motif was already started, check if it can be truncated
+                // Find all the instances of this motif
+                List<MotifInstance*> motifInstances = m_MotifInstances[motif];
+                if (motifInstances.Size() == 0)
+                {
+                    // Reaching this area is suspicious... at this point if we identified this
+                    // motif it should contain instances...
+                    // Erase from the instances map and move on to the next motif
+                    m_MotifInstances.Remove(motif);
+                    continue;
+                }
                 if (newLevel == 0)
                 {
+                    // Remove any uncommitted notes of the motif
                     if (motif->canBeTruncated)
                     {
-                        // Remove the notes of the motif beyond the transition point
-                        // Is this relevant?
+                        // From the first uncommitted frame to the end of the score,
+                        // remove any note event associated to the current motif
+                        ScoreFrame* scoreFrame = firstUncommittedScoreFrame;
+                        while (scoreFrame != nullptr)
+                        {
+                            for (ScoreEvent* scoreEvent : scoreFrame->events)
+                            {
+                                if (scoreEvent != nullptr
+                                    && scoreEvent->type == ScoreEventType::PlayNote
+                                    && scoreEvent->GetNoteEvent().motif == motif)
+                                {
+                                    scoreFrame->events.Remove(scoreEvent);
+                                }
+                            }
+                            scoreFrame = scoreFrame->next;
+                        }
                     }
                     else
+                    // Remove any next iteration of the motif
                     {
-                        // Remove any uncommitted motif note
+                        // Ok now... how do we find the notes of specific motif instances now...
+                        // Check all the 
                     }
+
+                    m_MotifInstances.Remove(motif);
                 }
                 else
                 {
@@ -190,6 +218,10 @@ namespace Dryad
                 }
                 return Result::NotYetImplemented;
             }
+
+            // OOOUPS!! Seems to be a problem in there... we're adding the notes to the motif instance
+            // but not to the score ledger! That suuuuucks! It would be much better if the motif instances could
+            // store the score frames they're starting on, that would be much easier for look-ups
         }
 
         // When processing to reharmonization...

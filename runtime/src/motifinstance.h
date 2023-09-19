@@ -41,6 +41,7 @@ namespace Dryad
 
         const Motif* m_Motif;
         ScoreTime m_StartTime;
+        ScoreFrame* m_StartFrame;
         Vector<Note> m_Notes;
     };
 }

@@ -373,11 +373,11 @@ namespace Dryad
             return m_List.back();
         }
 
-        bool InsertBefore(const T& item, const T& reference)
+        bool InsertBefore(const T& item, const T& pivot)
         {
             for (auto it = m_List.begin(); it != m_List.end(); ++it)
             {
-                if (*it == reference)
+                if (*it == pivot)
                 {
                     m_List.insert(it, item);
                     return true;
@@ -386,11 +386,11 @@ namespace Dryad
             return false;
         }
 
-        bool InsertAfter(const T& item, const T& reference)
+        bool InsertAfter(const T& item, const T& pivot)
         {
             for (auto it = m_List.begin(); it != m_List.end(); ++it)
             {
-                if (*it == reference)
+                if (*it == pivot)
                 {
                     // If the iterator is not at the end of the list, advance it one position before inserting.
                     // Otherwise, just insert at the current position which would be equivalent to inserting at the end.
@@ -399,6 +399,19 @@ namespace Dryad
                         ++it;
                     }
                     m_List.insert(it, item);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        bool Remove(const T& item)
+        {
+            for (auto it = m_List.begin(); it != m_List.end(); ++it)
+            {
+                if (*it == item)
+                {
+                    m_List.erase(it);
                     return true;
                 }
             }
