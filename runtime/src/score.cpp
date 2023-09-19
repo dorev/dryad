@@ -15,20 +15,14 @@ namespace Dryad
     {
     }
 
-    void Score::Reset(Time startTime, Tempo startTempo, const Scale* startScale)
-    {
-        m_Ledger = ScoreLedger(startTime, startTempo, startScale);
-        //_events.Clean(); TODO: Clean ledger events
-        m_HarmonyFrames.Clear();
-    }
-
+    // Handles the motification to harmony frames
     Result Score::UpdateHarmony(HarmonyTransition& transition)
     {
         Result result = Result:: EmptyResult;
         const Graph* graph = transition.graph;
         const Edge* entryEdge = transition.entryEdge;
 
-        // We must start by validating the entry edge
+        // Validate the entry edge
         if (graph != nullptr)
         {
             // Validate that the provided edge belongs to the graph...
@@ -76,6 +70,7 @@ namespace Dryad
         return m_HarmonyStrategy.ApplyTransition(*this, transition);
     }
 
+    // Handles the concurrent count of identical motifs
     Result Score::UpdateMotifs(Map<const Motif*, Int32>& motifVariations)
     {
         Vector<const Motif*> motifsToRemove;
@@ -113,6 +108,11 @@ namespace Dryad
         return Result::NotYetImplemented;
     }
 
+    // Handles adding or removing note to the uncommitted score space based on motif changes
+    // that occured since the last update
+    // This is where ScoreFrames are added to or removed from the score ledger
+    // THIS FUNCTION IS INSANELY IMPORTANT! MUST RETHINK!!
+    // This is the basic point where mememento has to be implemented
     Result Score::UpdateNotes(Map<const Motif*, Int32>& motifsVariations, const HarmonyTransition& harmonyTransition)
     {
         const HarmonyFrame& harmonyFrame = CurrentHarmonyFrame();
@@ -241,111 +241,6 @@ namespace Dryad
         // If we reach the end of a harmonic frame, prepare the next one if necessary.
         // Keep always t
         return Result::NotYetImplemented;
-    }
-
-    HarmonyFrame& Score::CurrentHarmonyFrame()
-    {
-        return m_HarmonyFrames.Front();
-    }
-
-    const HarmonyFrame& Score::CurrentHarmonyFrame() const
-    {
-        return m_HarmonyFrames.Front();
-    }
-
-    List<HarmonyFrame>& Score::GetHarmonyFrames()
-    {
-        return m_HarmonyFrames;
-    }
-
-    const List<HarmonyFrame>& Score::GetHarmonyFrames() const
-    {
-        return m_HarmonyFrames;
-    }
-
-    Tempo Score::CurrentTempo() const
-    {
-        if (m_HarmonyFrames.Empty())
-        {
-            return m_Ledger.GetStartTempo();
-        }
-        return CurrentHarmonyFrame().tempo;
-    }
-
-    const Scale* Score::CurrentScale() const
-    {
-        if (m_HarmonyFrames.Empty())
-        {
-            // TODO: return the default scale?
-            return m_Ledger.GetStartScale();
-        }
-        return CurrentHarmonyFrame().scale;
-    }
-
-    const Node* Score::CurrentNode()
-    {
-        if (m_HarmonyFrames.Empty())
-        {
-            return nullptr;
-        }
-        return CurrentHarmonyFrame().node;
-    }
-
-    ScoreTime Score::CurrentTime() const
-    {
-        return m_Ledger.GetCommittedScoreDuration();
-    }
-
-    ScoreTime Score::TimeRemainingToCurrentHarmonyFrame() const
-    {
-        if (m_HarmonyFrames.Empty())
-        {
-            return 0;
-        }
-        return CurrentHarmonyFrameEndTime() - CurrentTime();
-    }
-
-    ScoreTime Score::CurrentHarmonyFrameEndTime() const
-    {
-        if (m_HarmonyFrames.Empty())
-        {
-            return 0;
-        }
-        return CurrentHarmonyFrame().EndTime();
-    }
-
-    NoteValue Score::GetLatestOctaveRoot() const
-    {
-        if (m_HarmonyFrames.Empty())
-        {
-            const Scale* scale = CurrentScale();
-            return MiddleC + scale->root;
-        }
-        else
-        {
-            NoteValue root = m_HarmonyFrames.Back().scale->root;
-            NoteValue reference = m_Ledger.GetLastCommittedNoteValue() % Notes[C][1];
-            return reference + root;
-        }
-    }
-
-    ScoreTime Score::GeneratedEndTime() const
-    {
-        if (m_HarmonyFrames.Empty())
-        {
-            return 0;
-        }
-        return m_HarmonyFrames.Back().EndTime();
-    }
-
-    Result Score::GenerateFramesUntil(ScoreTime targetScoreTime)
-    {
-        ScoreTime currentScoreEnd = GeneratedEndTime();
-        if (targetScoreTime > currentScoreEnd)
-        {
-            return GenerateFrames(targetScoreTime - currentScoreEnd);
-        }
-        return Result::Success;
     }
 
     Result Score::GenerateFrames(ScoreTime durationToAppend)
