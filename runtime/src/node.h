@@ -25,13 +25,18 @@ namespace Dryad
             return graph != nullptr
                 && ((edgesIn.Empty() && graphEntry)
                     || (edgesOut.Empty() && graphExit)
-                    || (!edgesIn.Empty() && !edgesOut.Empty()))
+                    || (edgesIn.NotEmpty() && edgesOut.NotEmpty()))
                 && duration > 0;
+        }
+
+        bool IsNotValid() const
+        {
+            return !IsValid();
         }
 
         Node* GetNext() const
         {
-            if (!edgesOut.Empty())
+            if (edgesOut.NotEmpty())
             {
                 if (edgesOut.Size() == 1)
                 {

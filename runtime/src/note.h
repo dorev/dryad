@@ -15,7 +15,6 @@ namespace Dryad
             , node(node)
             , position(position)
             , duration(duration)
-            , committed(false)
         {
         }
 
@@ -25,6 +24,5 @@ namespace Dryad
         Node* node;
         ScoreTime position;
         ScoreTime duration;
-        bool committed;
     };
 }

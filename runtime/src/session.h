@@ -13,9 +13,9 @@ namespace Dryad
     class Session
     {
     public:
-        Result Start(Time time, Tempo tempo, const Scale* scale);
+        Result Start(RealTime time, Tempo tempo, const Scale* scale);
         Result PushEvent(Event& event);
-        Result Update(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents);
+        Result Update(RealTime deltaTime, Vector<ScoreEvent>& newCommittedEvents);
 
     private:
         Score m_Score;

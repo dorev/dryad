@@ -39,6 +39,11 @@ namespace Dryad
             return Result::Success;
         }
 
+        const Motif* GetMotif() const
+        {
+            return m_Motif;
+        }
+
         const Motif* m_Motif;
         ScoreTime m_StartTime;
         ScoreFrame* m_StartFrame;

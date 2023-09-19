@@ -23,8 +23,8 @@ namespace Dryad
     using NoteValue = UInt8;
     using NoteRelativeValue = Int8;
     using NoteVelocity = UInt8;
-    using Time = float;
     using Tempo = float;
+    using RealTime = float;
     using ScoreTime = UInt32;
 
     //

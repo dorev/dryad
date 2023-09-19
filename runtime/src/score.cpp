@@ -6,12 +6,14 @@
 #include "scale.h"
 #include "motif.h"
 #include "motifinstance.h"
+#include "scoreevent.h"
 
 namespace Dryad
 {
     Score::Score()
-        : m_Ledger(0.0f, DefaultTempo, &MajorScale)
-        , m_HarmonyFrames(m_DefaultHarmonicFramesCount)
+        : m_StartTime(0.0f)
+        , m_StartTempo(DefaultTempo)
+        , m_StartScale(&MajorScale)
     {
     }
 
@@ -115,8 +117,8 @@ namespace Dryad
     // This is the basic point where mememento has to be implemented
     Result Score::UpdateNotes(Map<const Motif*, Int32>& motifsVariations, const HarmonyTransition& harmonyTransition)
     {
-        const HarmonyFrame& harmonyFrame = CurrentHarmonyFrame();
-        ScoreFrame* firstUncommittedScoreFrame = m_Ledger.GetFirstUncommittedFrame();
+        const HarmonyFrame* harmonyFrame = CurrentHarmonyFrame();
+        ScoreFrame* firstUncommittedScoreFrame = GetFirstStagedFrame();
 
         // Add motifs notes first, so all the notes can already be then when reharmonizing
         for (const auto& [motif, variation] : motifsVariations)
@@ -136,23 +138,23 @@ namespace Dryad
                 if (motif->alignRhythmToNode)
                 {
                     // If the ledger and harmony frames are aligned, start the motif at the beginning of the frame
-                    if (firstUncommittedScoreFrame->startTime == harmonyFrame.startTime)
+                    if (firstUncommittedScoreFrame->startTime == harmonyFrame->startTime)
                     {
                         motifStartTime = firstUncommittedScoreFrame->startTime;
                     }
                     else
                     {
                         // If the time is not already aligned with the motif, find the next aligned time
-                        motifStartTime = NearestBeatAfter(motif->rhythmicAlignment, harmonyFrame.startTime);
+                        motifStartTime = NearestBeatAfter(motif->rhythmicAlignment, harmonyFrame->startTime);
                         while (motifStartTime < firstUncommittedScoreFrame->startTime)
                         {
                             motifStartTime += motif->rhythmicAlignment;
                         }
 
                         // If the first aligned time is beyond the current frame, align it with the next frame
-                        if (motifStartTime > harmonyFrame.EndTime())
+                        if (motifStartTime > harmonyFrame->EndTime())
                         {
-                            motifStartTime = harmonyFrame.EndTime();
+                            motifStartTime = harmonyFrame->EndTime();
                         }
                     }
                 }
@@ -191,13 +193,15 @@ namespace Dryad
                         ScoreFrame* scoreFrame = firstUncommittedScoreFrame;
                         while (scoreFrame != nullptr)
                         {
-                            for (ScoreEvent* scoreEvent : scoreFrame->events)
+                            for (ScoreEvent* scoreEvent : scoreFrame->scoreEvents)
                             {
-                                if (scoreEvent != nullptr
-                                    && scoreEvent->type == ScoreEventType::PlayNote
-                                    && scoreEvent->GetNoteEvent().motif == motif)
+                                if (scoreEvent != nullptr && scoreEvent->IsPlayNote())
                                 {
-                                    scoreFrame->events.Remove(scoreEvent);
+                                    const MotifInstance* motifInstance = scoreEvent->GetNoteData().motifInstance;
+                                    if (motifInstance != nullptr && motifInstance->GetMotif() == motif)
+                                    {
+                                        scoreFrame->scoreEvents.Remove(scoreEvent);
+                                    }
                                 }
                             }
                             scoreFrame = scoreFrame->next;
@@ -232,29 +236,32 @@ namespace Dryad
         return Result::NotYetImplemented;
     }
 
-    Result Score::Commit(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents)
+    Result Score::Commit(RealTime deltaTime, Vector<ScoreEvent>& newCommittedEvents)
     {
         // TODO: complete before starting editor work
 
         // This should be pretty straight-forward, just about scanning from the current
         // score position, toggling the notes bools and updating the vector
         // If we reach the end of a harmonic frame, prepare the next one if necessary.
-        // Keep always t
+
+        // It was noted somewhere that this function should check that a node scale properly respects edge modulations
+        // But maybe that's not the best spot for that... 
         return Result::NotYetImplemented;
     }
 
-    Result Score::GenerateFrames(ScoreTime durationToAppend)
+    Result Score::GenerateHarmonyFrames(ScoreTime durationToAppend)
     {
-        if (m_HarmonyFrames.Empty())
+        HarmonyFrame* harmonyFrame = LastHarmonyFrame();
+        if (harmonyFrame == nullptr)
         {
             return Result::NotYetImplemented;
         }
-        const Node* node = m_HarmonyFrames.Back().node;
+        const Node* node = harmonyFrame->node;
         if (node == nullptr || !node->IsValid())
         {
             return Result::InvalidNode;
         }
-        ScoreTime scoreEnd = m_HarmonyFrames.Back().EndTime();
+        ScoreTime scoreEnd = harmonyFrame->EndTime();
         ScoreTime scoreTarget = scoreEnd + durationToAppend;
         while(scoreEnd < scoreTarget)
         {
@@ -263,7 +270,7 @@ namespace Dryad
             {
                 return Result::InvalidNode;
             }
-            HarmonyFrame newFrame
+            HarmonyFrame* newFrame = new HarmonyFrame
             (
                 CurrentTempo(),
                 scoreEnd,
@@ -272,8 +279,8 @@ namespace Dryad
                 nextNode,
                 nextNode->graph
             );
-            m_HarmonyFrames.PushBack(newFrame);
-            scoreEnd = newFrame.EndTime();
+            InsertHarmonyFrame(newFrame);
+            scoreEnd = newFrame->EndTime();
         }
         return Result::Success;
     }

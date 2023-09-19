@@ -4,12 +4,17 @@
 
 namespace Dryad
 {
+    class Graph;
+    class Scale;
+    class HarmonyFrame;
+
     enum class ScoreEventType
     {
         PlayNote,
         TempoChange,
         GraphChange,
         ScaleChange,
+        HarmonyFrameChange,
     };
 
     struct ScoreNoteEvent
@@ -17,27 +22,12 @@ namespace Dryad
         ScoreTime duration;
         NoteValue value;
         NoteVelocity velocity;
-        const Motif* motif;
+        const MotifInstance* motifInstance;
         const Scale* scale;
         const Node* node;
     };
 
-    struct ScoreTempoEvent
-    {
-        Tempo tempo;
-    };
-
-    struct ScoreGraphEvent
-    {
-        const Graph* graph;
-    };
-
-    struct ScoreScaleEvent
-    {
-        const Scale* scale;
-    };
-
-    using ScoreEventData = Variant<ScoreNoteEvent, ScoreTempoEvent, ScoreGraphEvent, ScoreScaleEvent>;
+    using ScoreEventData = Variant<ScoreNoteEvent, Tempo, const Graph*, const Scale*, HarmonyFrame*>;
 
     struct ScoreEvent
     {
@@ -46,24 +36,44 @@ namespace Dryad
         ScoreEventType type;
         ScoreEventData data;
 
-        inline const ScoreNoteEvent& GetNoteEvent() const
+        inline bool IsPlayNote() const
+        {
+            return type == ScoreEventType::PlayNote;
+        }
+
+        inline bool IsHarmonyFrame() const
+        {
+            return type == ScoreEventType::HarmonyFrameChange;
+        }
+
+        inline const ScoreNoteEvent& GetNoteData() const
         {
             return data.Get<ScoreNoteEvent>();
         }
 
-        inline const ScoreTempoEvent& GetTempoEvent() const
+        inline const Tempo GetTempoData() const
         {
-            return data.Get<ScoreTempoEvent>();
+            return data.Get<Tempo>();
         }
 
-        inline const ScoreGraphEvent& GetGraphEvent() const
+        inline const Graph* GetGraphData() const
         {
-            return data.Get<ScoreGraphEvent>();
+            return data.Get<const Graph*>();
         }
 
-        inline const ScoreScaleEvent& GetScaleEvent() const
+        inline const Scale* GetScaleData() const
         {
-            return data.Get<ScoreScaleEvent>();
+            return data.Get<const Scale*>();
+        }
+
+        inline HarmonyFrame* GetHarmonyFrameData()
+        {
+            return data.Get<HarmonyFrame*>();
+        }
+        
+        inline const HarmonyFrame* GetHarmonyFrameData() const
+        {
+            return data.Get<HarmonyFrame*>();
         }
     };
 }

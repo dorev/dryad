@@ -10,6 +10,7 @@ namespace Dryad
     class Motif;
     class Node;
     class Graph;
+    class ScoreFrame;
 
     // The HarmonicFrame represents all the harmony modifiers at a certain
     // point in the score generation process. It holds everything that is
@@ -23,6 +24,11 @@ namespace Dryad
         const Scale* scale;
         const Node* node;
         const Graph* graph;
+
+        // This need to be used!
+        ScoreFrame* scoreFrame;
+        HarmonyFrame* next;
+        HarmonyFrame* prev;
 
         HarmonyFrame
         (

@@ -13,17 +13,11 @@ namespace Dryad
         const Graph* graph = transition.graph;
 
         // A node can be nullptr (in the case where we only change the scale)
-        if (node != nullptr && !node->IsValid())
+        if (node != nullptr && node->IsNotValid())
         {
             return Result::InvalidNode;
         }
-
-        // Handle the case where a transition is requested on an empty score
-        if (score.GetHarmonyFrames().Empty())
-        {
-            return FirstFrame(score, transition);
-        }
-        if (node == score.CurrentNode())
+        else if (node == score.CurrentNode())
         {
             // If we're are pointing to the same node, we need at least a scale change
             if (scale == nullptr || score.CurrentScale() == scale)
@@ -48,73 +42,65 @@ namespace Dryad
         {
             return Result::NodeNotFound;
         }
-        if (!node->IsValid())
+        if (node->IsNotValid())
         {
             return Result::InvalidNode;
         }
 
         // Prepare the first frame
-        HarmonyFrame frame;
+        HarmonyFrame* frame = new HarmonyFrame();
         const Scale* scale = transition.scale;
 
         // The frame scale has to be specified, or the default scale of the score will be used
-        frame.scale = (scale != nullptr) ? scale : score.CurrentScale();
-
-        // Time will be set at commit
-        frame.startTime = 0;
+        frame->scale = (scale != nullptr) ? scale : score.CurrentScale();
 
         // Complete frame setup and add queue it
-        frame.duration = node->duration;
-        frame.graph = node->graph;
-        frame.tempo = score.CurrentTempo();
-        score.GetHarmonyFrames().PushBack(frame);
+        frame->startTime = 0;
+        frame->duration = node->duration;
+        frame->graph = node->graph;
+        frame->tempo = score.CurrentTempo();
+        score.InsertHarmonyFrame(frame);
         return Result::Success;
     }
 
     Result HarmonyStrategy::ChangeScale(Score& score, HarmonyTransition& transition)
     {
         ScoreTime currentTime = score.CurrentTime();
-        List<HarmonyFrame>& frames = score.GetHarmonyFrames();
-        HarmonyFrame frame = score.CurrentHarmonyFrame();
+        HarmonyFrame* harmonyFrame = score.CurrentHarmonyFrame();
+
+        // Handle the case where a transition is requested on an empty score
+        if (harmonyFrame == nullptr)
+        {
+            return FirstFrame(score, transition);
+        }
 
         // If the transition has to happen within the frame, make it happen on the next beat
+        // by splitting the current HarmonyFrame at that time and change the scale on that latter frame
         if (transition.maxDuration < score.TimeRemainingToCurrentHarmonyFrame())
         {
             ScoreTime nextBeat = NearestBeatAfter(Quarter, currentTime);
-            HarmonyFrame nextFrame;
-            Result result = frame.SplitFrame(nextBeat, nextFrame);
+            HarmonyFrame* nextHarmonyFrame = new HarmonyFrame(*harmonyFrame);
+            Result result = harmonyFrame->SplitFrame(nextBeat, *nextHarmonyFrame);
+            RETURN_RESULT_ON_FAILURE(result);
 
             // Remove all the frames that are after the split
-            if (result == Result::Success)
-            {
-                while(!frames.Empty() && frames.Back() != frame)
-                {
-                    frames.PopBack();
-                    if (frames.Empty())
-                    {
-                        return Result::PotentialConcurrencyError;
-                    }
-                }
-                frames.PushBack(nextFrame);
-            }
-            return result;
+            nextHarmonyFrame->scale = transition.scale;
+            result = score.InsertHarmonyFrame(nextHarmonyFrame);
+            RETURN_RESULT_ON_FAILURE(result);
+            harmonyFrame = nextHarmonyFrame;
         }
-        // If the transition can happen later, simply make it happen on the next frame
-        else
-        {
-            // Validate that more frames exist, extend the score if necessary
-            if (frames.Size() == 1)
-            {
-                score.GenerateFrames(transition.maxDuration);
-            }
 
-            // Update the scale for all remaining frames
-            for (auto frameIterator = ++frames.begin(); frameIterator != frames.end(); frameIterator++)
-            {
-                frameIterator->scale = transition.scale;
-            }
-            return Result::Success;
+        // Update the following harmony frame scales
+        harmonyFrame = harmonyFrame->next;
+        while (harmonyFrame != nullptr)
+        {
+            // TODO: this will have to take edge modulation into account!
+            // something like harmonyFrame.ApplyScaleDiff(sourceScale, destinationScale);
+            // or maybe this is something that could be validated at commit??
+            harmonyFrame->scale = transition.scale;
+            harmonyFrame = harmonyFrame->next;
         }
+        return Result::Success;
     }
 
     Result HarmonyStrategy::ChangeGraph(Score& score, HarmonyTransition& transition)
@@ -122,7 +108,13 @@ namespace Dryad
         const Graph* graph = transition.graph;
         const Node* node = transition.GetEntryNode();
         const Scale* scale = transition.scale;
-        List<HarmonyFrame>& frames = score.GetHarmonyFrames();
+        HarmonyFrame* harmonyFrame = score.CurrentHarmonyFrame();
+
+        // Handle the case where a transition is requested on an empty score
+        if (harmonyFrame == nullptr)
+        {
+            return FirstFrame(score, transition);
+        }
 
         // Sanity checks
         if (graph == nullptr || graph->nodes.Empty())
@@ -141,55 +133,50 @@ namespace Dryad
         // Trim any frame beyond the transition deadline
         // The soonest a transition can happen is the next frame
         ScoreTime deadline = score.CurrentTime() + transition.maxDuration;
-        Result result = score.GenerateFramesUntil(deadline);
-        if (result != Result::Success)
-        {
-            return result;
-        }
-        while (frames.Size() > 1 && frames.Back().EndTime() > deadline)
-        {
-            frames.PopBack();
-        }
+        Result result = score.GenerateHarmonyFramesUntil(deadline);
+        RETURN_RESULT_ON_FAILURE(result);
+        score.ClearHarmonyFramesAfter(deadline);
 
         // Identify if there is an exit frame in the remaining frames
         // If no exit frame is found, the transition will simply occur on the latest frame possible
-        for(auto frameIterator = --frames.end(); frameIterator != frames.begin(); frameIterator--)
+        harmonyFrame = score.LastHarmonyFrame();
+        while (harmonyFrame != nullptr)
         {
-            const Node* frameNode = frameIterator->node;
+            const Node* frameNode = harmonyFrame->node;
             if (frameNode != nullptr && frameNode->graphExit)
             {
-                // Remove all the frames after that one
-                while(frames.Back() != *frameIterator)
-                {
-                    frames.PopBack();
-                }
+                score.ClearHarmonyFramesAfter(harmonyFrame);
                 break;
             };
+            harmonyFrame = harmonyFrame->prev;
         }
+        if (harmonyFrame == nullptr)
+        {
+            return Result::InvalidHarmonyFrame;
+        }
+
+        // NOTE: eventually, we could try to find a better match between the last/exit node
+        //       and the entry node of the next graph
 
         // If no entry is specified, use a random entry node
         if (node == nullptr)
         {
             const Edge* randomEntryEdge = nullptr;
-            if (RandomFrom(graph->entryEdges, randomEntryEdge) == Result::Success)
-            {
-                node = randomEntryEdge->destination;
-            }
-            else
-            {
-                return Result::FailedToTransition;
-            }
+            result = RandomFrom(graph->entryEdges, randomEntryEdge);
+            RETURN_RESULT_ON_FAILURE(result);
+            node = randomEntryEdge->destination;
         }
-        HarmonyFrame nextFrame
+
+        HarmonyFrame* nextFrame = new HarmonyFrame
         (
             score.CurrentTempo(),
-            frames.Back().EndTime(),
+            harmonyFrame->EndTime(),
             node->duration,
             transition.scale,
             node,
             graph
         );
-        frames.PushBack(nextFrame);
+        score.InsertHarmonyFrame(nextFrame);
         return Result::Success;
     }
 }

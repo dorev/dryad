@@ -4,7 +4,7 @@
 
 namespace Dryad
 {
-    Result Session::Start(Time time, Tempo tempo, const Scale* scale)
+    Result Session::Start(RealTime time, Tempo tempo, const Scale* scale)
     {
         // TODO: return an error if the score has already been started
         //       I might implement a "Pause" feature sometime...
@@ -44,7 +44,7 @@ namespace Dryad
         }
     }
 
-    Result Session::Update(Time deltaTime, Vector<ScoreEvent>& newCommittedEvents)
+    Result Session::Update(RealTime deltaTime, Vector<ScoreEvent>& newCommittedEvents)
     {
         if (deltaTime == 0)
         {

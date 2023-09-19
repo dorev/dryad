@@ -117,6 +117,11 @@ namespace Dryad
             return m_Vector.empty();
         }
 
+        bool NotEmpty() const
+        {
+            return !Empty();
+        }
+
         void Resize(unsigned int size)
         {
             m_Vector.resize(size);
@@ -331,6 +336,11 @@ namespace Dryad
         bool Empty() const
         {
             return m_List.empty();
+        }
+
+        bool NotEmpty() const
+        {
+            return !Empty();
         }
 
         void PushBack(const T& value)

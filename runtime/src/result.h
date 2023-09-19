@@ -32,6 +32,7 @@ namespace Dryad
         DRYAD_FLAG(InvalidOperation, 22),
         DRYAD_FLAG(InvalidMotif, 23),
         DRYAD_FLAG(InvalidNote, 24),
+        DRYAD_FLAG(InvalidHarmonyFrame, 25),
     };
 
     inline Result ResetResult(Result& result)
@@ -40,3 +41,4 @@ namespace Dryad
     }
 }
 
+#define RETURN_RESULT_ON_FAILURE(result) if (result != Result::Success) { return result; }

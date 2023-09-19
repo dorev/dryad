@@ -5,7 +5,7 @@
 namespace Dryad
 {
     template <class T>
-    void SafeDelete(T*& pointer)
+    void SafeDelete(T* pointer)
     {
         if (pointer != nullptr)
         {
@@ -15,7 +15,7 @@ namespace Dryad
     }
 
     template <class T>
-    void SafeDeleteArray(T*& pointer)
+    void SafeDeleteArray(T* pointer)
     {
         if (pointer != nullptr)
         {
