@@ -10,6 +10,7 @@ namespace Dryad
 
     enum class ScoreEventType
     {
+        Undefined,
         PlayNote,
         TempoChange,
         GraphChange,
@@ -29,12 +30,51 @@ namespace Dryad
 
     using ScoreEventData = Variant<ScoreNoteEvent, Tempo, const Graph*, const Scale*, HarmonyFrame*>;
 
-    struct ScoreEvent
+    class ScoreEvent
     {
+    public:
         ScoreTime time;
         bool committed;
         ScoreEventType type;
         ScoreEventData data;
+
+        ScoreEvent()
+            : time(0)
+            , committed(false)
+            , type(ScoreEventType::Undefined)
+            , data(static_cast<Graph*>(nullptr))
+        {
+        }
+
+        inline void SetNote(const ScoreNoteEvent& noteEvent)
+        {
+            type = ScoreEventType::PlayNote;
+            data = noteEvent;
+        }
+
+        inline void SetTempo(const Tempo& tempo)
+        {
+            type = ScoreEventType::TempoChange;
+            data = tempo;
+        }
+
+        inline void SetGraph(const Graph* graph)
+        {
+            type = ScoreEventType::GraphChange;
+            data = graph;
+        }
+
+        inline void SetScale(const Scale* scale)
+        {
+            type = ScoreEventType::ScaleChange;
+            data = scale;
+        }
+
+        inline void SetHarmonyFrame(HarmonyFrame* harmonyFrame)
+        {
+            type = ScoreEventType::HarmonyFrameChange;
+            data = harmonyFrame;
+        }
 
         inline bool IsPlayNote() const
         {
@@ -44,6 +84,21 @@ namespace Dryad
         inline bool IsHarmonyFrame() const
         {
             return type == ScoreEventType::HarmonyFrameChange;
+        }
+
+        inline bool IsTempoChange() const
+        {
+            return type == ScoreEventType::TempoChange;
+        }
+
+        inline bool IsGraphChange() const
+        {
+            return type == ScoreEventType::GraphChange;
+        }
+
+        inline bool IsScaleChange() const
+        {
+            return type == ScoreEventType::ScaleChange;
         }
 
         inline const ScoreNoteEvent& GetNoteData() const

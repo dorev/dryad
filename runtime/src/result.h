@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include "flags.h"
+#include "logging.h"
 
 namespace Dryad
 {

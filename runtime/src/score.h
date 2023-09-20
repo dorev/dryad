@@ -43,7 +43,7 @@ namespace Dryad
         ScoreFrame* GetLastCommittedFrame();
         const ScoreFrame* GetLastCommittedFrame() const;
         ScoreFrame* GetFirstStagedFrame();
-        ScoreFrame* AppendEmptyFrame();
+        ScoreFrame* AppendEmptyStagedScoreFrame();
         Result ClearHarmonyFramesAfter(HarmonyFrame* harmonyFrame);
         Result ClearHarmonyFramesAfter(ScoreTime time);
         Result InsertHarmonyFrame(HarmonyFrame* harmnyFrame);

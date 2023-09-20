@@ -245,6 +245,7 @@ namespace Dryad
         HarmonyFrame* harmonyFrame = CurrentHarmonyFrame();
         if (harmonyFrame == nullptr)
         {
+            LOG_WARN("Cannot clear harmony frames after score time %d because there are no harmony frames", time);
             return Result::UselessOperation;
         }
 
@@ -260,8 +261,60 @@ namespace Dryad
     {
         if (harmonyFrame == nullptr)
         {
+            LOG_WARN("Cannot insert null harmony frame");
             return Result::UselessOperation;
         }
+        // Find the appropriate location in the list based on the start time
+        // Connect the next and prev frames
+
+        if (m_StagedScoreFrames.Empty())
+        {
+            if (m_CommittedScoreFrames.Empty())
+            {
+                if (harmonyFrame->startTime > 0)
+                {
+                    LOG_WARN("Adding a harmony frame with a start time of %d to an empty score", harmonyFrame->startTime);
+                }
+                ScoreFrame* newFrame = AppendEmptyStagedScoreFrame();
+                newFrame->AddHarmonyFrame(harmonyFrame);
+            }
+            else
+            {
+                // TODO!!
+            }
+            ScoreFrame* newFrame = new ScoreFrame();
+            m_StagedScoreFrames.PushBack(newFrame);
+        }
+        else
+        {
+            // TODO!!
+        }
+        ScoreFrame* scoreFrame = m_StagedScoreFrames.Front();
+        while (scoreFrame != nullptr && scoreFrame->startTime > harmonyFrame->startTime)
+        {
+            scoreFrame = scoreFrame->prev;
+        }
+        if (scoreFrame == nullptr)
+        {
+            
+        }
         return Result::NotYetImplemented;
+    }
+
+    ScoreFrame* Score::AppendEmptyStagedScoreFrame()
+    {
+        ScoreFrame* newFrame = new ScoreFrame();
+        if (m_StagedScoreFrames.Empty())
+        {
+            m_StagedScoreFrames.PushBack(newFrame);
+        }
+        else
+        {
+            ScoreFrame* lastFrame = m_StagedScoreFrames.Back();
+            lastFrame->next = newFrame;
+            newFrame->prev = lastFrame;
+            m_StagedScoreFrames.PushBack(newFrame);
+        }
+        return newFrame;
     }
 }
