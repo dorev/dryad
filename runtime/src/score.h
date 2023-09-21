@@ -38,12 +38,13 @@ namespace Dryad
         const Scale* CurrentScale() const;
         const Node* CurrentNode();
         ScoreTime CurrentTime() const;
-        const List<HarmonyFrame>& GetHarmonyFrames() const;
         NoteValue GetLastCommittedNoteValue() const;
-        ScoreFrame* GetLastCommittedFrame();
+        ScoreFrame*& GetLastCommittedFrame();
+        ScoreFrame*& GetLastStagedFrame();
+        const ScoreFrame* GetLastStagedFrame() const;
         const ScoreFrame* GetLastCommittedFrame() const;
-        ScoreFrame* GetFirstStagedFrame();
-        ScoreFrame* AppendEmptyStagedScoreFrame();
+        ScoreFrame*& GetFirstStagedFrame();
+        ScoreFrame*& GetFirstCommittedFrame();
         Result ClearHarmonyFramesAfter(HarmonyFrame* harmonyFrame);
         Result ClearHarmonyFramesAfter(ScoreTime time);
         Result InsertHarmonyFrame(HarmonyFrame* harmnyFrame);
@@ -58,8 +59,11 @@ namespace Dryad
         Map<const Motif*, List<MotifInstance*>> m_MotifInstances;
         HarmonyStrategy m_HarmonyStrategy;
         MotifStrategy m_MotifStrategy;
-        List<ScoreFrame*> m_CommittedScoreFrames;
-        List<ScoreFrame*> m_StagedScoreFrames;
+
+        ScoreFrame* m_FirstCommittedScoreFrame;
+        ScoreFrame* m_LastCommittedScoreFrame;
+        ScoreFrame* m_FirstStagedScoreFrame;
+        ScoreFrame* m_LastStagedScoreFrame;
 
         RealTime m_StartTime;
         Tempo m_StartTempo;

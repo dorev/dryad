@@ -14,8 +14,8 @@ namespace Dryad
     class ScoreFrame
     {
     public:
-        ScoreFrame()
-            : startTime(0)
+        ScoreFrame(ScoreTime scoreTime = 0)
+            : startTime(scoreTime)
             , scoreEvents()
             , next(nullptr)
             , prev(nullptr)
@@ -39,19 +39,21 @@ namespace Dryad
             return nullptr;
         }
 
-        void AddHarmonyFrame(HarmonyFrame* harmonyFrame)
+        Result AddHarmonyFrame(HarmonyFrame* harmonyFrame)
         {
             // Check if there is not already a harmony frame or graph or scale change
-            if (harmonyFrame != nullptr )
+            if (harmonyFrame != nullptr)
             {
                 if (HasHarmonyChanges())
                 {
-                    DeleteHarmonyFrame();
+                    return Result::ScoreFrameAlreadyContainsHarmonyChange;
                 }
                 ScoreEvent* scoreEvent = new ScoreEvent();
                 scoreEvent->SetHarmonyFrame(harmonyFrame);
                 scoreEvents.PushBack(scoreEvent);
+                return Result::Success;
             }
+            return Result::InvalidHarmonyFrame;
         }
 
         bool HasHarmonyChanges() const
@@ -66,12 +68,12 @@ namespace Dryad
             return false;
         }
 
-        void Add(ScoreEvent* scoreEvent)
+        Result Add(ScoreEvent* scoreEvent)
         {
             // Check if there is not already a harmony frame or graph or scale change
             if (scoreEvent->IsHarmonyFrame())
             {
-                DeleteHarmonyFrame();
+                return Result::ScoreFrameAlreadyContainsHarmonyChange;
             }
             else if (scoreEvent->IsGraphChange())
             {
@@ -87,6 +89,7 @@ namespace Dryad
             }
 
             scoreEvents.PushBack(scoreEvent);
+            return Result::Success;
         }
 
         void DeleteHarmonyFrame()
@@ -102,8 +105,25 @@ namespace Dryad
             }
         }
 
-        // Still need to use these 2
-        HarmonyFrame* harmonyFrame;
+        void InsertBefore(ScoreFrame* other)
+        {
+            if (other != nullptr)
+            {
+                next = other;
+                prev = other->prev;
+                other->prev = this;
+            }
+        }
+
+        void InsertAfter(ScoreFrame* other)
+        {
+            if (other != nullptr)
+            {
+                prev = other;
+                next = other->next;
+                other->next = this;
+            }
+        }
         bool committed;
     };
 }

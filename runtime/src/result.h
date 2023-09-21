@@ -34,6 +34,8 @@ namespace Dryad
         DRYAD_FLAG(InvalidMotif, 23),
         DRYAD_FLAG(InvalidNote, 24),
         DRYAD_FLAG(InvalidHarmonyFrame, 25),
+        DRYAD_FLAG(OperationFailed, 26),
+        DRYAD_FLAG(ScoreFrameAlreadyContainsHarmonyChange, 27),
     };
 
     inline Result ResetResult(Result& result)

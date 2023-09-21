@@ -18,8 +18,27 @@ namespace Dryad
         m_StartTime = startTime;
         m_StartTempo = startTempo;
         m_StartScale = startScale;
-        m_CommittedScoreFrames.Clear();
-        m_StagedScoreFrames.Clear();
+
+        // Delete all the committed score frames
+        ScoreFrame* scoreFrameToDelete = GetFirstCommittedFrame();
+        ScoreFrame* nextScoreFrameToDelete = nullptr;
+        while(scoreFrameToDelete != nullptr)
+        {
+            nextScoreFrameToDelete = scoreFrameToDelete->next;
+            SafeDelete(scoreFrameToDelete);
+            scoreFrameToDelete = nextScoreFrameToDelete;
+        }
+        m_LastCommittedScoreFrame = nullptr;
+
+        // Delete all the staged score frames
+        scoreFrameToDelete = GetFirstStagedFrame();
+        while(scoreFrameToDelete != nullptr)
+        {
+            nextScoreFrameToDelete = scoreFrameToDelete->next;
+            SafeDelete(scoreFrameToDelete);
+            scoreFrameToDelete = nextScoreFrameToDelete;
+        }
+        m_LastStagedScoreFrame = nullptr;
     }
 
     HarmonyFrame* Score::CurrentHarmonyFrame()
@@ -34,12 +53,12 @@ namespace Dryad
 
     HarmonyFrame* Score::LastHarmonyFrame()
     {
-        return HarmonyFrameBackwardSearch(m_StagedScoreFrames.Back());
+        return HarmonyFrameBackwardSearch(GetLastStagedFrame());
     }
 
     const HarmonyFrame* Score::LastHarmonyFrame() const
     {
-        return HarmonyFrameBackwardSearch(m_StagedScoreFrames.Back());
+        return HarmonyFrameBackwardSearch(GetLastStagedFrame());
     }
 
     HarmonyFrame* Score::HarmonyFrameBackwardSearch(const ScoreFrame* scoreFrame)
@@ -76,32 +95,34 @@ namespace Dryad
         return harmonyFrame;
     }
 
-    ScoreFrame* Score::GetFirstStagedFrame()
+    ScoreFrame*& Score::GetFirstStagedFrame()
     {
-        if (m_StagedScoreFrames.Empty())
-        {
-            ScoreFrame* newFrame = new ScoreFrame();
-            m_StagedScoreFrames.PushBack(newFrame);
-        }
-        return m_StagedScoreFrames.Front();
+        return m_FirstStagedScoreFrame;
     }
 
-    ScoreFrame* Score::GetLastCommittedFrame()
+    ScoreFrame*& Score::GetFirstCommittedFrame()
     {
-        if (m_CommittedScoreFrames.Empty())
-        {
-            return nullptr;
-        }
-        return m_CommittedScoreFrames.Back();
+        return m_FirstCommittedScoreFrame;
+    }
+
+    ScoreFrame*& Score::GetLastCommittedFrame()
+    {
+        return m_LastCommittedScoreFrame;
+    }
+
+    ScoreFrame*& Score::GetLastStagedFrame()
+    {
+        return m_LastStagedScoreFrame;
+    }
+
+    const ScoreFrame* Score::GetLastStagedFrame() const
+    {
+        return m_LastStagedScoreFrame;
     }
 
     const ScoreFrame* Score::GetLastCommittedFrame() const
     {
-        if (m_CommittedScoreFrames.Empty())
-        {
-            return nullptr;
-        }
-        return m_CommittedScoreFrames.Back();
+        return m_LastCommittedScoreFrame;
     }
 
     Tempo Score::CurrentTempo() const
@@ -136,11 +157,8 @@ namespace Dryad
 
     ScoreTime Score::CurrentTime() const
     {
-        if (m_CommittedScoreFrames.Empty())
-        {
-            return 0;
-        }
-        return m_CommittedScoreFrames.Back()->startTime;
+        const ScoreFrame* scoreFrame = GetLastCommittedFrame();
+        return scoreFrame == nullptr ? 0 : scoreFrame->startTime;
     }
 
     ScoreTime Score::TimeRemainingToCurrentHarmonyFrame() const
@@ -155,22 +173,18 @@ namespace Dryad
 
     NoteValue Score::GetLastCommittedNoteValue() const
     {
-        if (m_CommittedScoreFrames.NotEmpty())
+        // Walk back through the frames from the last one and return the first note event found
+        const ScoreFrame* scoreFrame = GetLastCommittedFrame();
+        while (scoreFrame != nullptr)
         {
-            // Walk back through the frames from the last one and return
-            // the first note event found
-            ScoreFrame* frame = m_CommittedScoreFrames.Back();
-            while (frame != nullptr)
+            for (const ScoreEvent* event : scoreFrame->scoreEvents)
             {
-                for (const ScoreEvent* event : frame->scoreEvents)
+                if (event->type == ScoreEventType::PlayNote)
                 {
-                    if (event->type == ScoreEventType::PlayNote)
-                    {
-                        return event->GetNoteData().value;
-                    }
+                    return event->GetNoteData().value;
                 }
-                frame = frame->prev;
             }
+            scoreFrame = scoreFrame->prev;
         }
         return MiddleC;
     }
@@ -259,62 +273,60 @@ namespace Dryad
 
     Result Score::InsertHarmonyFrame(HarmonyFrame* harmonyFrame)
     {
+
         if (harmonyFrame == nullptr)
         {
             LOG_WARN("Cannot insert null harmony frame");
             return Result::UselessOperation;
         }
-        // Find the appropriate location in the list based on the start time
-        // Connect the next and prev frames
 
-        if (m_StagedScoreFrames.Empty())
+        if (CurrentTime() >= harmonyFrame->startTime)
         {
-            if (m_CommittedScoreFrames.Empty())
+            LOG_WARN("Cannot insert harmony frame into a time slot that's already committed.");
+            return Result::OperationFailed;
+        }
+
+        // First, check if we can insert it into the staged frames.
+        ScoreFrame* scoreFrame = GetFirstStagedFrame();
+        while (scoreFrame != nullptr)
+        {
+            if (scoreFrame->startTime == harmonyFrame->startTime)
             {
-                if (harmonyFrame->startTime > 0)
+                if (scoreFrame->HasHarmonyChanges())
                 {
-                    LOG_WARN("Adding a harmony frame with a start time of %d to an empty score", harmonyFrame->startTime);
+                    LOG_WARN("A ScoreFrame with matching start time already has a HarmonyFrame.");
+                    return Result::OperationFailed;
                 }
-                ScoreFrame* newFrame = AppendEmptyStagedScoreFrame();
-                newFrame->AddHarmonyFrame(harmonyFrame);
-            }
-            else
-            {
-                // TODO!!
-            }
-            ScoreFrame* newFrame = new ScoreFrame();
-            m_StagedScoreFrames.PushBack(newFrame);
-        }
-        else
-        {
-            // TODO!!
-        }
-        ScoreFrame* scoreFrame = m_StagedScoreFrames.Front();
-        while (scoreFrame != nullptr && scoreFrame->startTime > harmonyFrame->startTime)
-        {
-            scoreFrame = scoreFrame->prev;
-        }
-        if (scoreFrame == nullptr)
-        {
-            
-        }
-        return Result::NotYetImplemented;
-    }
 
-    ScoreFrame* Score::AppendEmptyStagedScoreFrame()
-    {
-        ScoreFrame* newFrame = new ScoreFrame();
-        if (m_StagedScoreFrames.Empty())
+                scoreFrame->AddHarmonyFrame(harmonyFrame);
+                return Result::Success;
+            }
+            else if (scoreFrame->startTime > harmonyFrame->startTime)
+            {
+                // Insert the HarmonyFrame before the current ScoreFrame in a new ScoreFrame.
+                
+                ScoreFrame* newFrame = new ScoreFrame(harmonyFrame->startTime);
+                newFrame->AddHarmonyFrame(harmonyFrame);
+                newFrame->InsertBefore(scoreFrame);
+                return Result::Success;
+            }
+        }
+
+        // If we reach here, the HarmonyFrame's startTime is after all the staged ScoreFrames.
+        // Add it to the end.
+        ScoreFrame* newFrame = new ScoreFrame(harmonyFrame->startTime);
+        newFrame->AddHarmonyFrame(harmonyFrame);
+        scoreFrame = GetLastStagedFrame();
+        if (scoreFrame = nullptr)
         {
-            m_StagedScoreFrames.PushBack(newFrame);
+            GetLastStagedFrame() = newFrame;
+            GetFirstStagedFrame() = newFrame;
         }
         else
         {
-            ScoreFrame* lastFrame = m_StagedScoreFrames.Back();
-            lastFrame->next = newFrame;
-            newFrame->prev = lastFrame;
-            m_StagedScoreFrames.PushBack(newFrame);
+            newFrame->InsertAfter(scoreFrame);
         }
-        return newFrame;
+
+        return Result::Success;
     }
 }
