@@ -112,13 +112,10 @@ namespace Dryad
 
     // Handles adding or removing note to the uncommitted score space based on motif changes
     // that occured since the last update
-    // This is where ScoreFrames are added to or removed from the score ledger
-    // THIS FUNCTION IS INSANELY IMPORTANT! MUST RETHINK!!
-    // This is the basic point where mememento has to be implemented
     Result Score::UpdateNotes(Map<const Motif*, Int32>& motifsVariations, const HarmonyTransition& harmonyTransition)
     {
         const HarmonyFrame* harmonyFrame = CurrentHarmonyFrame();
-        ScoreFrame* firstUncommittedScoreFrame = GetFirstStagedFrame();
+        ScoreFrame* firstStagedScoreFrame = GetFirstStagedFrame();
 
         // Add motifs notes first, so all the notes can already be then when reharmonizing
         for (const auto& [motif, variation] : motifsVariations)
@@ -128,47 +125,14 @@ namespace Dryad
             {
                 m_MotifLevels[motif] = 0;
             }
-            int newLevel = m_MotifLevels[motif] += variation;
+            Int32 newLevelSigned = m_MotifLevels[motif] + variation;
+            UInt32 newLevel = newLevelSigned < 0 ? 0 : static_cast<UInt32>(newLevelSigned);
+            m_MotifLevels[motif] = newLevel;
 
             // Adding a motif
             if (variation > 0)
             {
-                // Find the best time to start the motif
-                ScoreTime motifStartTime = 0;
-                if (motif->alignRhythmToNode)
-                {
-                    // If the ledger and harmony frames are aligned, start the motif at the beginning of the frame
-                    if (firstUncommittedScoreFrame->startTime == harmonyFrame->startTime)
-                    {
-                        motifStartTime = firstUncommittedScoreFrame->startTime;
-                    }
-                    else
-                    {
-                        // If the time is not already aligned with the motif, find the next aligned time
-                        motifStartTime = NearestBeatAfter(motif->rhythmicAlignment, harmonyFrame->startTime);
-                        while (motifStartTime < firstUncommittedScoreFrame->startTime)
-                        {
-                            motifStartTime += motif->rhythmicAlignment;
-                        }
-
-                        // If the first aligned time is beyond the current frame, align it with the next frame
-                        if (motifStartTime > harmonyFrame->EndTime())
-                        {
-                            motifStartTime = harmonyFrame->EndTime();
-                        }
-                    }
-                }
-                else
-                {
-                    motifStartTime = NearestBeatAfter(motif->rhythmicAlignment, firstUncommittedScoreFrame->startTime);
-                }
-
-                MotifInstance* newMotifInstance = new MotifInstance(motif, motifStartTime);
-                NoteValue motifReferenceNote = GetLatestOctaveRoot();
-                m_MotifInstances[motif].PushBack(newMotifInstance);
-
-                // Naively align the motif on the root, the voicing/harmonization will be done later
-                newMotifInstance->UpdateNotes(motifReferenceNote);
+                return AddMotif(motif, variation, firstStagedScoreFrame);
             }
             // Removing a motif
             else
@@ -177,7 +141,7 @@ namespace Dryad
                 List<MotifInstance*> motifInstances = m_MotifInstances[motif];
                 if (motifInstances.Size() == 0)
                 {
-                    // Reaching this area is suspicious... at this point if we identified this
+                    // Reaching this area is suspicious, at this point if we identified this
                     // motif it should contain instances...
                     // Erase from the instances map and move on to the next motif
                     m_MotifInstances.Remove(motif);
@@ -185,40 +149,58 @@ namespace Dryad
                 }
                 if (newLevel == 0)
                 {
-                    // Remove any uncommitted notes of the motif
+                    // Remove any staged notes of the motif
                     if (motif->canBeTruncated)
                     {
-                        // From the first uncommitted frame to the end of the score,
-                        // remove any note event associated to the current motif
-                        ScoreFrame* scoreFrame = firstUncommittedScoreFrame;
+                        // HEY COULD I USE THE LISTED INSTANCES HERE??
+
+
+                        // From the first staged frame to the end of the score,
+                        // remove all note event associated to the current motif
+                        ScoreFrame* scoreFrame = firstStagedScoreFrame;
                         while (scoreFrame != nullptr)
                         {
                             for (ScoreEvent* scoreEvent : scoreFrame->scoreEvents)
                             {
-                                if (scoreEvent != nullptr && scoreEvent->IsPlayNote())
+                                if (scoreEvent != nullptr 
+                                    && scoreEvent->IsPlayNote()
+                                    && scoreEvent->GetNoteData().GetMotif() == motif)
                                 {
-                                    const MotifInstance* motifInstance = scoreEvent->GetNoteData().motifInstance;
-                                    if (motifInstance != nullptr && motifInstance->GetMotif() == motif)
-                                    {
-                                        scoreFrame->scoreEvents.Remove(scoreEvent);
-                                    }
+                                    scoreFrame->scoreEvents.Remove(scoreEvent);
                                 }
                             }
                             scoreFrame = scoreFrame->next;
                         }
                     }
-                    else
                     // Remove any next iteration of the motif
+                    else
                     {
                         // Ok now... how do we find the notes of specific motif instances now...
-                        // Check all the 
+                        // On all the staged frames
+                            // Check the presence of motif instances
+                            // Find if the start frame of this motif is already committed
+                            // If it is, go to the next note
+                            // If it isn't remove all the notes associated to that motif instance
                     }
 
                     m_MotifInstances.Remove(motif);
                 }
                 else
                 {
+                    // At first, try to remove staged motif instances only
+                    // Start by listing the instances?
 
+
+                    // Remove any staged notes of the motif
+                    if (motif->canBeTruncated)
+                    {
+
+                    }
+                    // Remove any next iteration of the motif
+                    else
+                    {
+
+                    }
                 }
                 return Result::NotYetImplemented;
             }
@@ -235,6 +217,71 @@ namespace Dryad
 
         return Result::NotYetImplemented;
     }
+
+    Result Score::AddMotif(const Motif* motif, UInt32 count, ScoreFrame* scoreFrame)
+    {
+        if (motif == nullptr)
+        {
+            return Result::InvalidMotif;
+        }
+        if (scoreFrame == nullptr)
+        {
+            return Result::InvalidScoreFrame;
+        }
+        HarmonyFrame* harmonyFrame = scoreFrame->GetHarmonyFrame();
+        if (harmonyFrame == nullptr)
+        {
+            return Result::InvalidHarmonyFrame;
+        }
+
+        // NOTE: It could be interesting to be able to inject a motif insertion strategy here!
+        while (count-- > 0)
+        {
+            // Find the best time to start the motif
+            ScoreTime motifStartTime = 0;
+            if (motif->alignRhythmToNode)
+            {
+                // If the score and harmony frames are aligned, start the motif at the beginning of the frame
+                if (scoreFrame->startTime == harmonyFrame->startTime)
+                {
+                    motifStartTime = scoreFrame->startTime;
+                }
+                else
+                {
+                    // If the time is not already aligned with the motif, find the next aligned time
+                    motifStartTime = NearestBeatAfter(motif->rhythmicAlignment, harmonyFrame->startTime);
+                    while (motifStartTime < scoreFrame->startTime)
+                    {
+                        motifStartTime += motif->rhythmicAlignment;
+                    }
+
+                    // If the first aligned time is beyond the current frame, align it with the next frame
+                    if (motifStartTime > harmonyFrame->EndTime())
+                    {
+                        motifStartTime = harmonyFrame->EndTime();
+                    }
+                }
+            }
+            else
+            {
+                motifStartTime = NearestBeatAfter(motif->rhythmicAlignment, scoreFrame->startTime);
+            }
+
+            MotifInstance* newMotifInstance = new MotifInstance(motif, motifStartTime);
+            NoteValue motifReferenceNote = GetLatestOctaveRoot();
+            m_MotifInstances[motif].PushBack(newMotifInstance);
+
+            // Naively align the motif on the root, the voicing/harmonization will be done later
+            Result result = newMotifInstance->UpdateNotes(motifReferenceNote);
+            RETURN_RESULT_ON_FAILURE(result);
+        }
+
+        return Result::Success;
+    }
+
+    //Result Score::RemoveMotif()
+    //{
+    //}
 
     Result Score::Commit(RealTime deltaTime, Vector<ScoreEvent>& newCommittedEvents)
     {

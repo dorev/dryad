@@ -9,6 +9,8 @@
 
 namespace Dryad
 {
+    class ScoreFrame;
+
     class MotifInstance
     {
     public:

@@ -36,6 +36,16 @@ namespace Dryad
                     return event->GetHarmonyFrameData();
                 }
             }
+            ScoreFrame* scoreFrame = this;
+            while (scoreFrame != nullptr)
+            {
+                HarmonyFrame* harmonyFrame = scoreFrame->HasHarmonyChanges();
+                if (harmonyFrame != nullptr)
+                {
+                    return harmonyFrame;
+                }
+                scoreFrame = prev;
+            }
             return nullptr;
         }
 
@@ -56,16 +66,16 @@ namespace Dryad
             return Result::InvalidHarmonyFrame;
         }
 
-        bool HasHarmonyChanges() const
+        HarmonyFrame* HasHarmonyChanges()
         {
             for (ScoreEvent* scoreEvent : scoreEvents)
             {
                 if (scoreEvent != nullptr && scoreEvent->IsHarmonyFrame())
                 {
-                    return true;
+                    scoreEvent->GetHarmonyFrameData();
                 }
             }
-            return false;
+            return nullptr;
         }
 
         Result Add(ScoreEvent* scoreEvent)
