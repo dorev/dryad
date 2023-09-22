@@ -36,14 +36,29 @@ namespace Dryad
                 {
                     return Result::InvalidNote;
                 }
-                m_Notes.PushBack(Note(static_cast<NoteValue>(noteValue), this, nullptr, m_StartTime + note.position, note.duration));
+                m_Notes.PushBack(Note(static_cast<NoteValue>(noteValue), this, nullptr, m_StartTime + note.startTime, note.duration));
             }
             return Result::Success;
+        }
+
+        Vector<Note>& GetNotes()
+        {
+            return m_Notes;
         }
 
         const Motif* GetMotif() const
         {
             return m_Motif;
+        }
+
+        void SetStartFrame(ScoreFrame* scoreFrame)
+        {
+            m_StartFrame = scoreFrame;
+        }
+
+        ScoreFrame* GetStartFrame()
+        {
+            return m_StartFrame;
         }
 
         const Motif* m_Motif;

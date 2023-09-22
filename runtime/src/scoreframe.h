@@ -66,6 +66,13 @@ namespace Dryad
             return Result::InvalidHarmonyFrame;
         }
 
+        Result AddNote(const Note& note)
+        {
+            ScoreNoteEvent noteEvent = ScoreNoteEvent(note);
+            ScoreEvent* scoreEvent = new ScoreEvent(ScoreNoteEvent(note), note.startTime);
+            return Add(scoreEvent);
+        }
+
         HarmonyFrame* HasHarmonyChanges()
         {
             for (ScoreEvent* scoreEvent : scoreEvents)

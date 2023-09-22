@@ -120,6 +120,12 @@ namespace Dryad
         // Add motifs notes first, so all the notes can already be then when reharmonizing
         for (const auto& [motif, variation] : motifsVariations)
         {
+            if (motif == nullptr)
+            {
+                LOG_ERROR("Motif variations vector contains a `nullptr` motif.");
+                continue;
+            }
+
             // If the motif is not already in the score, add it
             if (!m_MotifLevels.Contains(motif))
             {
@@ -181,6 +187,25 @@ namespace Dryad
                             // Find if the start frame of this motif is already committed
                             // If it is, go to the next note
                             // If it isn't remove all the notes associated to that motif instance
+                        ScoreFrame* scoreFrame = firstStagedScoreFrame;
+                        while (scoreFrame != nullptr)
+                        {
+                            // Find notes corresponding to that motif in the frame
+                            for (ScoreEvent* scoreEvent : scoreFrame->scoreEvents)
+                            {
+                                if (scoreEvent != nullptr
+                                    && scoreEvent->IsPlayNote()
+                                    && scoreEvent->GetNoteData().GetMotif() == motif)
+                                {
+                                    const ScoreNoteEvent& note = scoreEvent->GetNoteData();
+                                    const MotifInstance* motifInstance = note.motifInstance;
+
+
+                                    scoreFrame->scoreEvents.Remove(scoreEvent);
+                                }
+                            }
+                            scoreFrame = scoreFrame->next;
+                        }
                     }
 
                     m_MotifInstances.Remove(motif);
@@ -268,12 +293,50 @@ namespace Dryad
             }
 
             MotifInstance* newMotifInstance = new MotifInstance(motif, motifStartTime);
+
+            // Find score frame to associate with the motif instance beginning
+            bool foundScoreFrameMatchingTime = false;
+            while (scoreFrame != nullptr && scoreFrame->startTime <= motifStartTime)
+            {
+                if (motifStartTime == scoreFrame->startTime)
+                {
+                    newMotifInstance->SetStartFrame(scoreFrame);
+                    foundScoreFrameMatchingTime = true;
+                    break;
+                }
+            }
+            if (!foundScoreFrameMatchingTime)
+            {
+                scoreFrame = GetOrCreateScoreFrame(motifStartTime);
+                if (scoreFrame == nullptr)
+                {
+                    return Result::OperationFailed;
+                }
+                newMotifInstance->SetStartFrame(scoreFrame);
+            }
+
+            // Adjust note height to match the current notes
             NoteValue motifReferenceNote = GetLatestOctaveRoot();
             m_MotifInstances[motif].PushBack(newMotifInstance);
 
             // Naively align the motif on the root, the voicing/harmonization will be done later
             Result result = newMotifInstance->UpdateNotes(motifReferenceNote);
             RETURN_RESULT_ON_FAILURE(result);
+
+            for (Note& note : newMotifInstance->GetNotes())
+            {
+                scoreFrame = GetOrCreateScoreFrame(note.startTime);
+                if (scoreFrame != nullptr)
+                {
+                    scoreFrame->AddNote(note);
+                    note.scoreFrame = scoreFrame;
+                }
+                else
+                {
+                    LOG_ERROR("Unable to insert motif note in score frame.");
+                    return Result::OperationFailed;
+                }
+            }
         }
 
         return Result::Success;
@@ -326,9 +389,365 @@ namespace Dryad
                 nextNode,
                 nextNode->graph
             );
-            InsertHarmonyFrame(newFrame);
+            Result result = InsertHarmonyFrame(newFrame);
+            RETURN_RESULT_ON_FAILURE(result);
             scoreEnd = newFrame->EndTime();
         }
         return Result::Success;
+    }
+
+    void Score::Reset(RealTime startTime, Tempo startTempo, const Scale* startScale)
+    {
+        m_StartTime = startTime;
+        m_StartTempo = startTempo;
+        m_StartScale = startScale;
+
+        // Delete all the committed score frames
+        ScoreFrame* scoreFrameToDelete = GetFirstCommittedFrame();
+        ScoreFrame* nextScoreFrameToDelete = nullptr;
+        while(scoreFrameToDelete != nullptr)
+        {
+            nextScoreFrameToDelete = scoreFrameToDelete->next;
+            SafeDelete(scoreFrameToDelete);
+            scoreFrameToDelete = nextScoreFrameToDelete;
+        }
+        m_LastCommittedScoreFrame = nullptr;
+
+        // Delete all the staged score frames
+        scoreFrameToDelete = GetFirstStagedFrame();
+        while(scoreFrameToDelete != nullptr)
+        {
+            nextScoreFrameToDelete = scoreFrameToDelete->next;
+            SafeDelete(scoreFrameToDelete);
+            scoreFrameToDelete = nextScoreFrameToDelete;
+        }
+        m_LastStagedScoreFrame = nullptr;
+    }
+
+    HarmonyFrame* Score::CurrentHarmonyFrame()
+    {
+        return HarmonyFrameBackwardSearch(GetLastCommittedFrame());
+    }
+
+    const HarmonyFrame* Score::CurrentHarmonyFrame() const
+    {
+        return HarmonyFrameBackwardSearch(GetLastCommittedFrame());
+    }
+
+    HarmonyFrame* Score::LastHarmonyFrame()
+    {
+        return HarmonyFrameBackwardSearch(GetLastStagedFrame());
+    }
+
+    const HarmonyFrame* Score::LastHarmonyFrame() const
+    {
+        return HarmonyFrameBackwardSearch(GetLastStagedFrame());
+    }
+
+    HarmonyFrame* Score::HarmonyFrameBackwardSearch(const ScoreFrame* scoreFrame)
+    {
+        HarmonyFrame* harmonyFrame = nullptr;
+        while (scoreFrame != nullptr)
+        {
+            for (ScoreEvent* event : scoreFrame->scoreEvents)
+            {
+                if (event != nullptr && event->type == ScoreEventType::HarmonyFrameChange)
+                {
+                    return event->GetHarmonyFrameData();
+                }
+            }
+            scoreFrame = scoreFrame->prev;
+        }
+        return harmonyFrame;
+    }
+
+    const HarmonyFrame* Score::HarmonyFrameBackwardSearch(const ScoreFrame* scoreFrame) const
+    {
+        const HarmonyFrame* harmonyFrame = nullptr;
+        while (scoreFrame != nullptr)
+        {
+            for (const ScoreEvent* event : scoreFrame->scoreEvents)
+            {
+                if (event != nullptr && event->type == ScoreEventType::HarmonyFrameChange)
+                {
+                    return event->GetHarmonyFrameData();
+                }
+            }
+            scoreFrame = scoreFrame->prev;
+        }
+        return harmonyFrame;
+    }
+
+    ScoreFrame*& Score::GetFirstStagedFrame()
+    {
+        return m_FirstStagedScoreFrame;
+    }
+
+    ScoreFrame*& Score::GetFirstCommittedFrame()
+    {
+        return m_FirstCommittedScoreFrame;
+    }
+
+    ScoreFrame*& Score::GetLastCommittedFrame()
+    {
+        return m_LastCommittedScoreFrame;
+    }
+
+    ScoreFrame*& Score::GetLastStagedFrame()
+    {
+        return m_LastStagedScoreFrame;
+    }
+
+    const ScoreFrame* Score::GetLastStagedFrame() const
+    {
+        return m_LastStagedScoreFrame;
+    }
+
+    const ScoreFrame* Score::GetLastCommittedFrame() const
+    {
+        return m_LastCommittedScoreFrame;
+    }
+
+    Tempo Score::CurrentTempo() const
+    {
+        const HarmonyFrame* harmonyFrame = CurrentHarmonyFrame();
+        if (harmonyFrame == nullptr)
+        {
+            return DefaultTempo;
+        }
+        return harmonyFrame->tempo;
+    }
+
+    const Scale* Score::CurrentScale() const
+    {
+        const HarmonyFrame* harmonyFrame = CurrentHarmonyFrame();
+        if (harmonyFrame == nullptr)
+        {
+            return &MajorScale;
+        }
+        return harmonyFrame->scale;
+    }
+
+    const Node* Score::CurrentNode()
+    {
+        const HarmonyFrame* harmonyFrame = CurrentHarmonyFrame();
+        if (harmonyFrame == nullptr)
+        {
+            return nullptr;
+        }
+        return harmonyFrame->node;
+    }
+
+    ScoreTime Score::CurrentTime() const
+    {
+        const ScoreFrame* scoreFrame = GetLastCommittedFrame();
+        return scoreFrame == nullptr ? 0 : scoreFrame->startTime;
+    }
+
+    ScoreTime Score::TimeRemainingToCurrentHarmonyFrame() const
+    {
+        const HarmonyFrame* harmonyFrame = CurrentHarmonyFrame();
+        if (harmonyFrame == nullptr)
+        {
+            return 0;
+        }
+        return harmonyFrame->EndTime() - CurrentTime();
+    }
+
+    NoteValue Score::GetLastCommittedNoteValue() const
+    {
+        // Walk back through the frames from the last one and return the first note event found
+        const ScoreFrame* scoreFrame = GetLastCommittedFrame();
+        while (scoreFrame != nullptr)
+        {
+            for (const ScoreEvent* event : scoreFrame->scoreEvents)
+            {
+                if (event->type == ScoreEventType::PlayNote)
+                {
+                    return event->GetNoteData().value;
+                }
+            }
+            scoreFrame = scoreFrame->prev;
+        }
+        return MiddleC;
+    }
+
+    NoteValue Score::GetLatestOctaveRoot() const
+    {
+        const HarmonyFrame* harmonyFrame = CurrentHarmonyFrame();
+        if (harmonyFrame == nullptr)
+        {
+            const Scale* scale = CurrentScale();
+            return MiddleC + scale->root;
+        }
+        else
+        {
+            NoteValue root = harmonyFrame->scale->root;
+            NoteValue reference = GetLastCommittedNoteValue() % Notes[C][1];
+            return reference + root;
+        }
+    }
+
+    ScoreTime Score::GeneratedEndTime() const
+    {
+        const HarmonyFrame* harmonyFrame = CurrentHarmonyFrame();
+        if (harmonyFrame == nullptr)
+        {
+            return 0;
+        }
+        return harmonyFrame->EndTime();
+    }
+
+    Result Score::GenerateHarmonyFramesUntil(ScoreTime targetScoreTime)
+    {
+        ScoreTime currentScoreEnd = GeneratedEndTime();
+        if (targetScoreTime > currentScoreEnd)
+        {
+            return GenerateHarmonyFrames(targetScoreTime - currentScoreEnd);
+        }
+        return Result::Success;
+    }
+
+    Result Score::ClearHarmonyFramesAfter(HarmonyFrame* harmonyFrame)
+    {
+        if (harmonyFrame == nullptr)
+        {
+            return Result::UselessOperation;
+        }
+        ScoreFrame* scoreFrame = harmonyFrame->scoreFrame;
+        if (scoreFrame == nullptr)
+        {
+            return Result::InvalidHarmonyFrame;
+        }
+        harmonyFrame->next = nullptr;
+
+        // Find all the following score frames with harmony frame events and delete
+        // the harmony event
+        scoreFrame = scoreFrame->next;
+        while (scoreFrame != nullptr)
+        {
+            harmonyFrame = scoreFrame->GetHarmonyFrame();
+            if (harmonyFrame != nullptr)
+            {
+                scoreFrame->DeleteHarmonyFrame();
+            }
+            scoreFrame = scoreFrame->next;
+        }
+        return Result::Success;
+    }
+
+    Result Score::ClearHarmonyFramesAfter(ScoreTime time)
+    {
+        // We start at the latest committed harmony frame because we cannot clear frames from the past
+        HarmonyFrame* harmonyFrame = CurrentHarmonyFrame();
+        if (harmonyFrame == nullptr)
+        {
+            LOG_WARN("Cannot clear harmony frames after score time %d because there are no harmony frames", time);
+            return Result::UselessOperation;
+        }
+
+        // Find the latest frame possible
+        while (harmonyFrame->next != nullptr && harmonyFrame->next->startTime < time)
+        {
+            harmonyFrame = harmonyFrame->next;
+        }
+        return ClearHarmonyFramesAfter(harmonyFrame);
+    }
+
+    Result Score::InsertHarmonyFrame(HarmonyFrame* harmonyFrame)
+    {
+
+        if (harmonyFrame == nullptr)
+        {
+            LOG_WARN("Cannot insert null harmony frame");
+            return Result::UselessOperation;
+        }
+
+        if (CurrentTime() >= harmonyFrame->startTime)
+        {
+            LOG_WARN("Cannot insert harmony frame into a time slot that's already committed.");
+            return Result::OperationFailed;
+        }
+
+        // First, check if we can insert it into the staged frames.
+        ScoreFrame* scoreFrame = GetFirstStagedFrame();
+        while (scoreFrame != nullptr)
+        {
+            if (scoreFrame->startTime == harmonyFrame->startTime)
+            {
+                if (scoreFrame->HasHarmonyChanges())
+                {
+                    LOG_WARN("A ScoreFrame with matching start time already has a HarmonyFrame.");
+                    return Result::OperationFailed;
+                }
+
+                scoreFrame->AddHarmonyFrame(harmonyFrame);
+                return Result::Success;
+            }
+            else if (scoreFrame->startTime > harmonyFrame->startTime)
+            {
+                // Insert the HarmonyFrame before the current ScoreFrame in a new ScoreFrame.
+                
+                ScoreFrame* newFrame = new ScoreFrame(harmonyFrame->startTime);
+                newFrame->AddHarmonyFrame(harmonyFrame);
+                newFrame->InsertBefore(scoreFrame);
+                return Result::Success;
+            }
+        }
+
+        // If we reach here, the HarmonyFrame's startTime is after all the staged ScoreFrames.
+        // Add it to the end.
+        ScoreFrame* newFrame = new ScoreFrame(harmonyFrame->startTime);
+        newFrame->AddHarmonyFrame(harmonyFrame);
+        scoreFrame = GetLastStagedFrame();
+        if (scoreFrame = nullptr)
+        {
+            GetLastStagedFrame() = newFrame;
+            GetFirstStagedFrame() = newFrame;
+        }
+        else
+        {
+            newFrame->InsertAfter(scoreFrame);
+        }
+
+        return Result::Success;
+    }
+
+    ScoreFrame* Score::GetOrCreateScoreFrame(ScoreTime startTime)
+    {
+        ScoreFrame* scoreFrame = GetLastCommittedFrame();
+        if (scoreFrame != nullptr && scoreFrame->startTime <= startTime)
+        {
+            LOG_ERROR("Unable to insert ScoreFrame within committed frames.");
+            return nullptr;
+        }
+        scoreFrame = GetFirstStagedFrame();
+        while (scoreFrame != nullptr)
+        {
+            if (scoreFrame->startTime == startTime)
+            {
+                return scoreFrame;
+            }
+            else if(scoreFrame->startTime > startTime)
+            {
+                ScoreFrame* newScoreFrame = new ScoreFrame(startTime);
+                newScoreFrame->InsertBefore(scoreFrame);
+                return newScoreFrame;
+            }
+            scoreFrame = scoreFrame->next;
+        }
+
+        // Reaching this point, the new frame must be the last
+        scoreFrame = GetLastStagedFrame();
+        ScoreFrame* newScoreFrame = new ScoreFrame(startTime);
+        if (scoreFrame == nullptr)
+        {
+            m_FirstStagedScoreFrame = m_LastStagedScoreFrame = newScoreFrame;
+        }
+        else
+        {
+            newScoreFrame->InsertAfter(scoreFrame);
+        }
+        return newScoreFrame;
     }
 }

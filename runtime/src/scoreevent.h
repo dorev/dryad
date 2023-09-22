@@ -28,6 +28,17 @@ namespace Dryad
         const Scale* scale;
         const Node* node;
 
+        ScoreNoteEvent(const Note& note)
+            : duration(note.duration)
+            , value(note.value)
+            , velocity(DefaultVelocity)
+            , motifInstance(nullptr)
+            , scale(nullptr)
+            , node(nullptr)
+        {
+
+        }
+
         const Motif* GetMotif() const
         {
             if (motifInstance != nullptr)
@@ -53,6 +64,14 @@ namespace Dryad
             , committed(false)
             , type(ScoreEventType::Undefined)
             , data(static_cast<Graph*>(nullptr))
+        {
+        }
+
+        ScoreEvent(const ScoreNoteEvent& noteEvent, ScoreTime startTime)
+            : time(startTime)
+            , committed(false)
+            , type(ScoreEventType::PlayNote)
+            , data(noteEvent)
         {
         }
 

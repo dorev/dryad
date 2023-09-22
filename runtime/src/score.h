@@ -47,7 +47,8 @@ namespace Dryad
         ScoreFrame*& GetFirstCommittedFrame();
         Result ClearHarmonyFramesAfter(HarmonyFrame* harmonyFrame);
         Result ClearHarmonyFramesAfter(ScoreTime time);
-        Result InsertHarmonyFrame(HarmonyFrame* harmnyFrame);
+        Result InsertHarmonyFrame(HarmonyFrame* harmonyFrame);
+        ScoreFrame* GetOrCreateScoreFrame(ScoreTime startTime);
 
         ScoreTime GeneratedEndTime() const;
         ScoreTime TimeRemainingToCurrentHarmonyFrame() const;
