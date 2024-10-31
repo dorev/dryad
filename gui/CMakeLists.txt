@@ -1,6 +1,6 @@
 project(gui)
 
-find_package(SDL2 REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 
 set(IMGUI_DIR ${EXTERNAL_DIR}/imgui)
@@ -25,13 +25,4 @@ target_link_libraries(${PROJECT_NAME}
     OpenGL::GL
     SDL2::SDL2
     dryad
-)
-
-install(TARGETS ${PROJECT_NAME}
-    RUNTIME DESTINATION bin
-)
-
-install(DIRECTORY ${SDL_LIB_DIR}/
-    DESTINATION bin
-    FILES_MATCHING PATTERN ${PLATFORM_LIB_EXTENSION}
 )

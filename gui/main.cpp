@@ -20,6 +20,7 @@ int main(int argc, char* argv[])
         // ========================================================================================
         float windowWidth = io.DisplaySize.x;
         float windowHeight = io.DisplaySize.y;
+        float bottomSection = 200;
         float topSection = windowHeight - bottomSection - ImGui::GetStyle().WindowPadding.y * 2;
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
