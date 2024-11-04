@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 namespace Dryad
 {
@@ -14,6 +15,25 @@ namespace Dryad
     using UInt32 = unsigned int;
     using Int32 = int;
     using String = std::string;
+
+    //
+    // Shared pointer alias
+    //
+
+    template <class T>
+    using SharedPtr = std::shared_ptr<T>;
+    
+    template <class T, class... Args>
+    auto MakeShared(Args&&... args) -> SharedPtr<T>
+    {
+        return std::make_shared<T>(std::forward<Args>(args)...);
+    }
+
+    template <class T, class U>
+    SharedPtr<T> SharedPtrCast(const SharedPtr<U>& ptr) \
+    {
+        return std::static_pointer_cast<T>(ptr);
+    }
 
     //
     // Dryad basic types

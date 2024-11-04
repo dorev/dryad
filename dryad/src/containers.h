@@ -13,6 +13,8 @@ namespace Dryad
     // Internal container types using std:: interface used in wrappers below
     template <class T>
     using VectorInternal = std::vector<T>;
+    template <class T>
+    using SetInternal = std::set<T>;
     template <class K, class V>
     using MapInternal = std::map<K, V>;
     template <class K, class V>
@@ -133,6 +135,7 @@ namespace Dryad
         }
 
         using iterator = typename std::vector<ValueType>::iterator;
+        using const_iterator = typename std::vector<ValueType>::const_iterator;
 
         auto begin()
         {
@@ -154,6 +157,82 @@ namespace Dryad
             return m_Vector.cend();
         }
     };
+
+    //
+    // Set
+    //
+    template <class ValueType>
+    class Set
+    {
+    private:
+        SetInternal<ValueType> m_Set;
+
+    public:
+        template <class... Args>
+        Set(Args... args)
+            : m_Set(std::forward<Args>(args)...)
+        {
+        }
+
+        void Insert(const ValueType& item)
+        {
+            m_Set.insert(item);
+        }
+
+        bool Contains(const ValueType& item) const
+        {
+            return m_Set.find(item) != m_Set.end();
+        }
+
+        bool Remove(const ValueType& item)
+        {
+            return m_Set.erase(item) > 0;
+        }
+
+        unsigned int Size() const
+        {
+            return static_cast<unsigned int>(m_Set.size());
+        }
+
+        bool Empty() const
+        {
+            return m_Set.empty();
+        }
+
+        void Clear()
+        {
+            m_Set.clear();
+        }
+
+        using iterator = typename SetInternal<ValueType>::iterator;
+        using const_iterator = typename SetInternal<ValueType>::const_iterator;
+
+        iterator begin()
+        {
+            return m_Set.begin();
+        }
+
+        iterator end()
+        {
+            return m_Set.end();
+        }
+
+        const_iterator begin() const
+        {
+            return m_Set.cbegin();
+        }
+
+        const_iterator end() const
+        {
+            return m_Set.cend();
+        }
+
+        bool operator==(const Set& other) const
+        {
+            return m_Set == other.m_Set;
+        }
+    };
+
 
     //
     // Map
@@ -208,6 +287,7 @@ namespace Dryad
         }
 
         using iterator = typename std::map<KeyType, ValueType>::iterator;
+        using const_iterator  = typename std::map<KeyType, ValueType>::const_iterator;
 
         auto begin()
         {
@@ -232,82 +312,6 @@ namespace Dryad
         bool operator==(const Map& other) const
         {
             return m_Map == other.m_Map;
-        }
-    };
-
-    //
-    // Multimap
-    //
-
-    template <class KeyType, class ValueType>
-    class MultiMap
-    {
-    private:
-        MultiMapInternal<KeyType, ValueType> m_MultiMap;
-
-    public:
-        template <class... Args>
-        MultiMap(Args... args)
-            : m_MultiMap(std::forward<Args>(args)...)
-        {
-        }
-
-        ValueType& operator[](const KeyType& key)
-        {
-            return m_MultiMap[key];
-        }
-
-        bool Find(const KeyType& key, ValueType* outValuePtr)
-        {
-            auto itr = m_MultiMap.find(key);
-            if(itr != m_MultiMap.end())
-            {
-                outValuePtr = &itr->second;
-                return true;
-            }
-            return false;
-        }
-
-        UInt32 Size() const
-        {
-            return static_cast<unsigned int>(m_MultiMap.size());
-        }
-
-        bool Empty() const
-        {
-            return m_MultiMap.empty();
-        }
-
-        bool Remove(const KeyType& key)
-        {
-            return m_MultiMap.erase(key) > 0;
-        }
-
-        using iterator = typename std::multimap<KeyType, ValueType>::iterator;
-
-        auto begin()
-        {
-            return m_MultiMap.begin();
-        }
-
-        auto end()
-        {
-            return m_MultiMap.end();
-        }
-
-        const auto begin() const
-        {
-            return m_MultiMap.cbegin();
-        }
-
-        const auto end() const
-        {
-            return m_MultiMap.cend();
-        }
-
-        bool operator==(const MultiMap& other) const
-        {
-            return m_MultiMap == other.m_MultiMap;
         }
     };
 
@@ -427,6 +431,9 @@ namespace Dryad
             }
             return false;
         }
+
+        using iterator = typename ListInternal<T>::iterator;
+        using const_iterator = typename ListInternal<T>::const_iterator;
 
         auto begin()
         {

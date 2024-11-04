@@ -17,18 +17,29 @@ namespace Dryad
 }
 
 #ifdef _MSC_VER
-    #define FUNCTION_SIGNATURE __FUNCSIG__
+    #define DRYAD_FUNCTION __FUNCSIG__
 #else
-    #define FUNCTION_SIGNATURE __PRETTY_FUNCTION__
+    #define DRYAD_FUNCTION __PRETTY_FUNCTION__
 #endif
 
-#define LOG_DEBUG(format, ...) do { if (g_LogLevel <= LogLevel::Debug) { printf("[DEBUG] " format " (%s)\n", ##__VA_ARGS__, FUNCTION_SIGNATURE); } } while(0)
-#define LOG_INFO(format, ...) do { if (g_LogLevel <= LogLevel::Info) { printf("[INFO] " format " (%s)\n", ##__VA_ARGS__, FUNCTION_SIGNATURE); } } while(0)
-#define LOG_WARN(format, ...) do { if (g_LogLevel <= LogLevel::Warning) { printf("[WARNING] " format " (%s)\n", ##__VA_ARGS__, FUNCTION_SIGNATURE); } } while(0)
-#define LOG_ERROR(format, ...) do { if (g_LogLevel <= LogLevel::Error) { printf("[ERROR] " format " (%s)\n", ##__VA_ARGS__, FUNCTION_SIGNATURE); } } while(0)
-#define LOG_FATAL(format, ...) do { if (g_LogLevel <= LogLevel::Fatal) { printf("[FATAL] " format " (%s)\n", ##__VA_ARGS__, FUNCTION_SIGNATURE); } } while(0)
+#define DRYAD_COLOR_RESET "\033[0m"
+#define DRYAD_COLOR_GREEN "\033[32m"
+#define DRYAD_COLOR_WHITE "\033[37m"
+#define DRYAD_COLOR_YELLOW "\033[33m"
+#define DRYAD_COLOR_RED "\033[31m"
+#define DRYAD_COLOR_BRIGHT_RED "\033[91m"
 
+#define DRYAD_LOG(level, color, tag, format, ...) \
+    if (g_LogLevel <= LogLevel::level) \
+    { \
+        printf(color "[" tag "] " format " (%s)\n" DRYAD_COLOR_RESET, ##__VA_ARGS__, DRYAD_FUNCTION); \
+    }
 
+#define DRYAD_DEBUG(format, ...) DRYAD_LOG(Debug, DRYAD_COLOR_GREEN, "DEBUG", format, ##__VA_ARGS__)
+#define DRYAD_INFO(format, ...)  DRYAD_LOG(Info, DRYAD_COLOR_WHITE, "INFO", format, ##__VA_ARGS__)
+#define DRYAD_WARN(format, ...)  DRYAD_LOG(Warning, DRYAD_COLOR_YELLOW, "WARNING", format, ##__VA_ARGS__)
+#define DRYAD_ERROR(format, ...) DRYAD_LOG(Error, DRYAD_COLOR_RED, "ERROR", format, ##__VA_ARGS__)
+#define DRYAD_FATAL(format, ...) DRYAD_LOG(Fatal, DRYAD_COLOR_BRIGHT_RED, "FATAL", format, ##__VA_ARGS__)
 
 
 

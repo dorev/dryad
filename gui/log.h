@@ -44,8 +44,8 @@ private:
 #endif
 
 #define DRYAD_GUI_LOG(format, ...) printf("[DryadGUI] " format "\n", ##__VA_ARGS__); Logger::Log(format "\n", ##__VA_ARGS__)
-#define DRYAD_GUI_LOG_WARNING(format, ...) printf("[DryadGUI] [WARNING] {%s} " format "\n", DRYAD_GUI_FUNCTION, ##__VA_ARGS__); Logger::Log("[WARNING] {%s} " format "\n", DRYAD_GUI_FUNCTION, ##__VA_ARGS__)
-#define DRYAD_GUI_LOG_ERROR(format, ...) printf("[DryadGUI] [ERROR] {%s} " format " [%s l.%d]\n", DRYAD_GUI_FUNCTION, ##__VA_ARGS__, __FILE__, __LINE__);
+#define DRYAD_GUI_DRYAD_WARNING(format, ...) printf("[DryadGUI] [WARNING] {%s} " format "\n", DRYAD_GUI_FUNCTION, ##__VA_ARGS__); Logger::Log("[WARNING] {%s} " format "\n", DRYAD_GUI_FUNCTION, ##__VA_ARGS__)
+#define DRYAD_GUI_DRYAD_ERROR(format, ...) printf("[DryadGUI] [ERROR] {%s} " format " [%s l.%d]\n", DRYAD_GUI_FUNCTION, ##__VA_ARGS__, __FILE__, __LINE__);
 
 #define DRYAD_GUI_DEBUG_ASSERT(condition, format, ...) \
 if (!(condition)) \

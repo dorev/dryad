@@ -13,4 +13,13 @@ namespace Dryad
 
     template<bool B, class T = void>
     using EnableIf = typename std::enable_if<B, T>::type;
+
+    template <class T>
+    using Decay = typename std::decay<T>::type;
+
+    template <class Base, class Derived>
+    constexpr bool IsBaseOf = std::is_base_of<Base, Derived>::value;
+
+    template <class T, class U>
+    constexpr bool IsSame = std::is_same<T, U>::value;
 }

@@ -122,7 +122,7 @@ namespace Dryad
         {
             if (motif == nullptr)
             {
-                LOG_ERROR("Motif variations vector contains a `nullptr` motif.");
+                DRYAD_ERROR("Motif variations vector contains a `nullptr` motif.");
                 continue;
             }
 
@@ -333,7 +333,7 @@ namespace Dryad
                 }
                 else
                 {
-                    LOG_ERROR("Unable to insert motif note in score frame.");
+                    DRYAD_ERROR("Unable to insert motif note in score frame.");
                     return Result::OperationFailed;
                 }
             }
@@ -642,7 +642,7 @@ namespace Dryad
         HarmonyFrame* harmonyFrame = CurrentHarmonyFrame();
         if (harmonyFrame == nullptr)
         {
-            LOG_WARN("Cannot clear harmony frames after score time %d because there are no harmony frames", time);
+            DRYAD_WARN("Cannot clear harmony frames after score time %d because there are no harmony frames", time);
             return Result::UselessOperation;
         }
 
@@ -659,13 +659,13 @@ namespace Dryad
 
         if (harmonyFrame == nullptr)
         {
-            LOG_WARN("Cannot insert null harmony frame");
+            DRYAD_WARN("Cannot insert null harmony frame");
             return Result::UselessOperation;
         }
 
         if (CurrentTime() >= harmonyFrame->startTime)
         {
-            LOG_WARN("Cannot insert harmony frame into a time slot that's already committed.");
+            DRYAD_WARN("Cannot insert harmony frame into a time slot that's already committed.");
             return Result::OperationFailed;
         }
 
@@ -677,7 +677,7 @@ namespace Dryad
             {
                 if (scoreFrame->HasHarmonyChanges())
                 {
-                    LOG_WARN("A ScoreFrame with matching start time already has a HarmonyFrame.");
+                    DRYAD_WARN("A ScoreFrame with matching start time already has a HarmonyFrame.");
                     return Result::OperationFailed;
                 }
 
@@ -718,7 +718,7 @@ namespace Dryad
         ScoreFrame* scoreFrame = GetLastCommittedFrame();
         if (scoreFrame != nullptr && scoreFrame->startTime <= startTime)
         {
-            LOG_ERROR("Unable to insert ScoreFrame within committed frames.");
+            DRYAD_ERROR("Unable to insert ScoreFrame within committed frames.");
             return nullptr;
         }
         scoreFrame = GetFirstStagedFrame();
