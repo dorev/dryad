@@ -5,6 +5,7 @@
 #include <map>
 #include <list>
 
+#include "log.h"
 #include "types.h"
 #include "templateutils.h"
 
@@ -255,7 +256,7 @@ namespace Dryad
             return m_Map[key];
         }
 
-        bool Find(const KeyType& key, ValueType* outValuePtr)
+        bool Find(const KeyType& key, ValueType*& outValuePtr)
         {
             auto itr = m_Map.find(key);
             if(itr != m_Map.end())

@@ -27,40 +27,75 @@ namespace Dryad
     class ScoreGraph
     {
     public:
-        class Node;
-        class Link;
-
         class Node
         {
         public:
             virtual ClassID GetClassID() const = 0;
+
+            template <class T>
+            bool CastTo(T& outReference)
+            {
+                static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
+                if (T::ID == GetClassID())
+                {
+                    outReference = *(static_cast<T*>(this));
+                    return true;
+                }
+                return false;
+            }
+
             Vector<SharedPtr<Node>> edges;
         };
 
         template <class T>
-        void Insert(const SharedPtr<T>& element)
+        bool Insert(const SharedPtr<T>& element)
         {
             static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
             if (element != nullptr)
             {
                 _Nodes[T::ID].Insert(SharedPtrCast<Node>(element));
+                return true;
             }
+            return false;
         }
 
         template <class T>
-        bool Remove(const SharedPtr<T>& node)
+        bool Contains(const SharedPtr<T>& node)
         {
             static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
-            if (node != nullptr)
-            {
-                // Remove node from graph
-                return _Nodes[T::ID].Remove(SharedPtrCast<Node>(node));
+            Set<SharedPtr<Node>>* nodeSet = nullptr;
+            return _Nodes.Find(T::ID, nodeSet) && nodeSet->Contains(SharedPtrCast<Node>(node));
+        }
 
-                // Remove node reference to all edge nodes
-                for (SharedPtr<Node>& edgeNode : node.edges)
+        template <class T>
+        bool Remove(const SharedPtr<T>& scoreElement)
+        {
+            static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
+            if (scoreElement != nullptr)
+            {
+                Set<SharedPtr<Node>>* nodeSet = nullptr;
+                if (Contains(scoreElement))
                 {
-                    edgeNode.edges.Remove(node);
+                    SharedPtr<Node> node = SharedPtrCast<Node>(scoreElement);
+                    if (_Nodes[T::ID].Remove(node))
+                    {
+                        // Remove node reference to all edge nodes
+                        for (SharedPtr<Node>& edgeNode : node->edges)
+                        {
+                            edgeNode->edges.Erase(node);
+                        }
+
+                        // Remove all edges
+                        node->edges.Clean();
+                    }
+                    else
+                    {
+                        // Unable to remove node even if it was found
+                        DRYAD_ERROR("Unable to remove node from ScoreGraph even if it was found.");
+                        return false;
+                    }
                 }
+                return true;
             }
             return false;
         }
@@ -70,10 +105,10 @@ namespace Dryad
         {
             static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
             static_assert(IsBaseOf<Node, U>, "Class must derive from ScoreGraph::Node.");
-            if (a != nullptr && b != nullptr)
+            if (a != nullptr && b != nullptr && Contains(a) && Contains(b))
             {
-                a->edges.PushBack(Link(b));
-                b->edges.PushBack(Link(a));
+                a->edges.PushBack(b);
+                b->edges.PushBack(a);
                 return true;
             }
             return false;
@@ -81,17 +116,23 @@ namespace Dryad
 
         UInt32 Size() const
         {
-            return _Nodes.Size();
+            UInt32 size = 0;
+            for (const auto& [classID, nodeSet] : _Nodes)
+            {
+                size += nodeSet.Size();
+            }
+            return size;
         }
 
         bool Empty() const
         {
-            return _Nodes.Empty();
+            return Size() == 0;
         }
 
         //
         // Iterator
         //
+
         template <class MapIterator, class SetIterator>
         class NodeIteratorBase
         {
@@ -145,8 +186,8 @@ namespace Dryad
         class NodeIterator : public NodeIteratorBase<MapIterator, SetIterator>
         {
         public:
-            NodeIterator(MapIterator mapIt, MapIterator mapEnd)
-                : NodeIteratorBase(mapIt, mapEnd)
+            NodeIterator(MapIterator mapIterator, MapIterator mapEnd)
+                : NodeIteratorBase(mapIterator, mapEnd)
             {
             }
 
@@ -165,8 +206,8 @@ namespace Dryad
         class ConstNodeIterator : public NodeIteratorBase<ConstMapIterator, ConstSetIterator>
         {
         public:
-            ConstNodeIterator(ConstMapIterator mapIt, ConstMapIterator mapEnd)
-                : NodeIteratorBase(mapIt, mapEnd)
+            ConstNodeIterator(ConstMapIterator mapIterator, ConstMapIterator mapEnd)
+                : NodeIteratorBase(mapIterator, mapEnd)
             {
             }
 
