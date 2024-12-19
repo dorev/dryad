@@ -35,6 +35,21 @@ namespace Dryad
         return std::static_pointer_cast<T>(ptr);
     }
 
+    template <class T>
+    class EnableSharedFromThis : public std::enable_shared_from_this<T>
+    {
+    public:
+        SharedPtr<T> SharedFromThis()
+        {
+            return this->shared_from_this();
+        }
+
+        SharedPtr<const T> SharedFromThis() const
+        {
+            return this->shared_from_this();
+        }
+    };
+
     //
     // Dryad basic types
     //

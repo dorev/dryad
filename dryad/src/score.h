@@ -1,13 +1,41 @@
 #pragma once
 
 #include "types.h"
-#include "result.h"
-#include "flags.h"
 #include "containers.h"
-#include "memory.h"
+#include "graph.h"
 
-class ScoreData
+namespace Dryad
 {
-    Vector<Ptr<ScoreFrame>> scoreFrames;
+    class Score
+    {
 
-};
+        // has frames
+        // has progression
+
+        Graph graph;
+    };
+
+    class Progression : public Node
+    {
+        DRYAD_CLASS_ID(Progression);
+
+    };
+
+    class Chord : public Node
+    {
+        DRYAD_CLASS_ID(Chord);
+
+    };
+
+    class ScoreFrame : public Node
+    {
+        DRYAD_CLASS_ID(ScoreFrame);
+
+    };
+
+    class MotifInstance : public Node
+    {
+        DRYAD_CLASS_ID(MotifInstance);
+    };
+
+}

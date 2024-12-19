@@ -24,36 +24,53 @@ namespace Dryad
         inline ClassID GetClassID() const { return ID; }
 
 
-    class ScoreGraph
+    class Graph : public EnableSharedFromThis<Graph>
     {
     public:
-        class Node
+        class Node : public EnableSharedFromThis<Node>
         {
         public:
             virtual ClassID GetClassID() const = 0;
 
             template <class T>
-            bool CastTo(T& outReference)
+            bool GetElement(SharedPtr<T>& outReference)
             {
-                static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
+                static_assert(IsBaseOf<Node, T>, "Class must derive from Graph::Node.");
+
                 if (T::ID == GetClassID())
                 {
-                    outReference = *(static_cast<T*>(this));
+                    outReference = SharedPtrCast<T>(SharedFromThis());
                     return true;
                 }
                 return false;
             }
 
             Vector<SharedPtr<Node>> edges;
+            SharedPtr<Graph> graph;
         };
+
+        template <class T, class... Args>
+        SharedPtr<T> Emplace(Args ...args)
+        {
+            static_assert(IsBaseOf<Node, T>, "Class must derive from Graph::Node.");
+
+            SharedPtr<T> element = MakeShared<T>(std::forward<Args>(args)...);
+            if (Insert(element))
+                return element;
+
+            return nullptr;
+        }
 
         template <class T>
         bool Insert(const SharedPtr<T>& element)
         {
-            static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
+            static_assert(IsBaseOf<Node, T>, "Class must derive from Graph::Node.");
+
             if (element != nullptr)
             {
-                _Nodes[T::ID].Insert(SharedPtrCast<Node>(element));
+                SharedPtr<Node> node = SharedPtrCast<Node>(element);
+                node->graph = SharedFromThis();
+                _Nodes[T::ID].Insert(node);
                 return true;
             }
             return false;
@@ -62,7 +79,7 @@ namespace Dryad
         template <class T>
         bool Contains(const SharedPtr<T>& node)
         {
-            static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
+            static_assert(IsBaseOf<Node, T>, "Class must derive from Graph::Node.");
             Set<SharedPtr<Node>>* nodeSet = nullptr;
             return _Nodes.Find(T::ID, nodeSet) && nodeSet->Contains(SharedPtrCast<Node>(node));
         }
@@ -70,7 +87,8 @@ namespace Dryad
         template <class T>
         bool Remove(const SharedPtr<T>& scoreElement)
         {
-            static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
+            static_assert(IsBaseOf<Node, T>, "Class must derive from Graph::Node.");
+
             if (scoreElement != nullptr)
             {
                 Set<SharedPtr<Node>>* nodeSet = nullptr;
@@ -91,7 +109,7 @@ namespace Dryad
                     else
                     {
                         // Unable to remove node even if it was found
-                        DRYAD_ERROR("Unable to remove node from ScoreGraph even if it was found.");
+                        DRYAD_ERROR("Unable to remove node from Graph even if it was found.");
                         return false;
                     }
                 }
@@ -103,8 +121,9 @@ namespace Dryad
         template <class T, class U>
         bool LinkNodes(SharedPtr<T>& a, SharedPtr<U>& b)
         {
-            static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
-            static_assert(IsBaseOf<Node, U>, "Class must derive from ScoreGraph::Node.");
+            static_assert(IsBaseOf<Node, T>, "Class must derive from Graph::Node.");
+            static_assert(IsBaseOf<Node, U>, "Class must derive from Graph::Node.");
+
             if (a != nullptr && b != nullptr && Contains(a) && Contains(b))
             {
                 a->edges.PushBack(b);
@@ -222,5 +241,5 @@ namespace Dryad
         Map<ClassID, Set<SharedPtr<Node>>> _Nodes;
     };
 
-    using ScoreNode = ScoreGraph::Node;
+    using Node = Graph::Node;
 }

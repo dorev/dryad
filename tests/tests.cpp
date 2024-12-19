@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "dryad/src/scoregraph.h"
+#include "dryad/src/graph.h"
 #include "dryad/src/constants.h"
 
 using namespace Dryad;
@@ -8,7 +8,7 @@ class Tests : public ::testing::Test
 {
 };
 
-class TestElement : public ScoreNode
+class TestElement : public Node
 {
 public:
     DRYAD_CLASS_ID(TestElement);
@@ -21,22 +21,22 @@ public:
     int value;
 };
 
-TEST(ScoreGraph, CreateNode)
+TEST(Graph, InsertNode)
 {
     int testValue = 42;
 
-    ScoreGraph graph;
-    graph.Insert(MakeShared<TestElement>(testValue));
-    graph.Insert(MakeShared<TestElement>(testValue));
+    SharedPtr<Graph> graph = MakeShared<Graph>();
+    graph->Insert(MakeShared<TestElement>(testValue));
+    graph->Insert(MakeShared<TestElement>(testValue));
 
-    EXPECT_EQ(graph.Size(), 2) << "ScoreGraph contains the wrong count of elements";
+    EXPECT_EQ(graph->Size(), 2) << "Graph contains the wrong count of elements";
 
-    for (SharedPtr<ScoreNode>& node : graph)
+    for (SharedPtr<Node>& node : *graph)
     {
-        TestElement element;
-        if (node->CastTo<TestElement>(element))
+        SharedPtr<TestElement> element;
+        if (node->GetElement<TestElement>(element))
         {
-            EXPECT_EQ(element.value, testValue);
+            EXPECT_EQ(element->value, testValue);
         }
         else
         {
@@ -45,21 +45,45 @@ TEST(ScoreGraph, CreateNode)
     }
 }
 
-TEST(ScoreGraph, RemoveNode)
+TEST(Graph, EmplaceNode)
 {
-    ScoreGraph graph;
+    int testValue = 42;
+
+    SharedPtr<Graph> graph = MakeShared<Graph>();
+    graph->Emplace<TestElement>(testValue);
+    graph->Emplace<TestElement>(testValue);
+
+    EXPECT_EQ(graph->Size(), 2) << "Graph contains the wrong count of elements";
+
+    for (SharedPtr<Node>& node : *graph)
+    {
+        SharedPtr<TestElement> element;
+        if (node->GetElement<TestElement>(element))
+        {
+            EXPECT_EQ(element->value, testValue);
+        }
+        else
+        {
+            FAIL() << "Unable to cast node to underlying type";
+        }
+    }
+}
+
+TEST(Graph, RemoveNode)
+{
+    SharedPtr<Graph> graph = MakeShared<Graph>();
     int testValue = 42;
     SharedPtr<TestElement> elementPtr = MakeShared<TestElement>(testValue);
-    graph.Insert(elementPtr);
+    graph->Insert(elementPtr);
 
-    EXPECT_EQ(graph.Size(), 1) << "ScoreGraph contains the wrong count of elements";
+    EXPECT_EQ(graph->Size(), 1) << "Graph contains the wrong count of elements";
 
-    for (SharedPtr<ScoreNode>& node : graph)
+    for (SharedPtr<Node>& node : *graph)
     {
-        TestElement element;
-        if (node->CastTo<TestElement>(element))
+        SharedPtr<TestElement> element;
+        if (node->GetElement<TestElement>(element))
         {
-            EXPECT_EQ(element.value, testValue);
+            EXPECT_EQ(element->value, testValue);
         }
         else
         {
@@ -67,36 +91,36 @@ TEST(ScoreGraph, RemoveNode)
         }
     }
 
-    EXPECT_TRUE(graph.Remove(elementPtr)) << "Error while trying to remove a node from ScoreGraph.";
-    EXPECT_TRUE(graph.Empty()) << "ScoreGraph should be empty.";
+    EXPECT_TRUE(graph->Remove(elementPtr)) << "Error while trying to remove a node from Graph.";
+    EXPECT_TRUE(graph->Empty()) << "Graph should be empty.";
 }
 
-TEST(ScoreGraph, LinkNodes)
+TEST(Graph, LinkNodes)
 {
-    ScoreGraph graph;
+    SharedPtr<Graph> graph = MakeShared<Graph>();
     SharedPtr<TestElement> element1 = MakeShared<TestElement>(1);
     SharedPtr<TestElement> element2 = MakeShared<TestElement>(2);
     SharedPtr<TestElement> element3 = MakeShared<TestElement>(3);
 
-    EXPECT_FALSE(graph.LinkNodes(element1, element2)) << "Nodes not in the same graph should not be able to link.";
+    EXPECT_FALSE(graph->LinkNodes(element1, element2)) << "Nodes not in the same graph should not be able to link.";
 
-    graph.Insert(element1);
-    graph.Insert(element2);
-    graph.Insert(element3);
-    EXPECT_EQ(graph.Size(), 3) << "ScoreGraph contains the wrong count of elements";
+    graph->Insert(element1);
+    graph->Insert(element2);
+    graph->Insert(element3);
+    EXPECT_EQ(graph->Size(), 3) << "Graph contains the wrong count of elements";
 
-    EXPECT_TRUE(graph.LinkNodes(element1, element2));
-    EXPECT_TRUE(graph.LinkNodes(element1, element3));
+    EXPECT_TRUE(graph->LinkNodes(element1, element2));
+    EXPECT_TRUE(graph->LinkNodes(element1, element3));
 
     EXPECT_EQ(element1->edges.Size(), 2);
     EXPECT_EQ(element2->edges.Size(), 1);
     EXPECT_EQ(element3->edges.Size(), 1);
 
-    EXPECT_TRUE(graph.Remove(element1));
+    EXPECT_TRUE(graph->Remove(element1));
 
     EXPECT_EQ(element1->edges.Size(), 0) << "Removed source node edges should have been cleared.";
     EXPECT_EQ(element2->edges.Size(), 0) << "Edge node should not reference source node anymore.";
     EXPECT_EQ(element3->edges.Size(), 0) << "Edge node should not reference source node anymore.";
-    EXPECT_EQ(graph.Size(), 2);
+    EXPECT_EQ(graph->Size(), 2);
 }
 
