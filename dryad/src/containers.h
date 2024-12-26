@@ -9,21 +9,21 @@
 #include "types.h"
 #include "templateutils.h"
 
-namespace Dryad
+namespace dryad
 {
     // Internal container types using std:: interface used in wrappers below
     template <class T>
     using VectorInternal = std::vector<T>;
     template <class T>
-    using SetInternal = std::set<T>;
+    using SetInternal = std::dryad_set<T>;
     template <class K, class V>
-    using MapInternal = std::map<K, V>;
+    using MapInternal = std::dryad_map<K, V>;
     template <class K, class V>
     using MultiMapInternal = std::multimap<K, V>;
     template <class T>
     using ListInternal = std::list<T>;
-    template <class... Args>
-    using VariantInternal = std::variant<Args...>;
+    template <class... args_t>
+    using VariantInternal = std::variant<args_t...>;
 
     //
     // Vector
@@ -35,9 +35,9 @@ namespace Dryad
         VectorInternal<ValueType> m_Vector;
 
     public:
-        template <class... Args>
-        Vector(Args... args)
-            : m_Vector(std::forward<Args>(args)...)
+        template <class... args_t>
+        Vector(args_t... args)
+            : m_Vector(std::forward<args_t>(args)...)
         {
         }
 
@@ -85,7 +85,7 @@ namespace Dryad
         }
 
         template <class U = ValueType, class = EnableIf<!IsPointer<U>>>
-        bool Contains(const U& item) const
+        bool contains(const U& item) const
         {
             for (const U& content : m_Vector)
             {
@@ -98,7 +98,7 @@ namespace Dryad
         }
 
         template <class U = ValueType, class = EnableIf<IsPointer<U>>>
-        bool Contains(U item) const
+        bool contains(U item) const
         {
             for (const U& content : m_Vector)
             {
@@ -115,14 +115,14 @@ namespace Dryad
             return static_cast<unsigned int>(m_Vector.size());
         }
 
-        bool Empty() const
+        bool empty() const
         {
             return m_Vector.empty();
         }
 
         bool NotEmpty() const
         {
-            return !Empty();
+            return !empty();
         }
 
         void Resize(unsigned int size)
@@ -169,23 +169,23 @@ namespace Dryad
         SetInternal<ValueType> m_Set;
 
     public:
-        template <class... Args>
-        Set(Args... args)
-            : m_Set(std::forward<Args>(args)...)
+        template <class... args_t>
+        Set(args_t... args)
+            : m_Set(std::forward<args_t>(args)...)
         {
         }
 
-        void Insert(const ValueType& item)
+        void insert(const ValueType& item)
         {
             m_Set.insert(item);
         }
 
-        bool Contains(const ValueType& item) const
+        bool contains(const ValueType& item) const
         {
             return m_Set.find(item) != m_Set.end();
         }
 
-        bool Remove(const ValueType& item)
+        bool destroy(const ValueType& item)
         {
             return m_Set.erase(item) > 0;
         }
@@ -195,7 +195,7 @@ namespace Dryad
             return static_cast<unsigned int>(m_Set.size());
         }
 
-        bool Empty() const
+        bool empty() const
         {
             return m_Set.empty();
         }
@@ -245,9 +245,9 @@ namespace Dryad
         MapInternal<KeyType, ValueType> m_Map;
 
     public:
-        template <class... Args>
-        Map(Args... args)
-            : m_Map(std::forward<Args>(args)...)
+        template <class... args_t>
+        Map(args_t... args)
+            : m_Map(std::forward<args_t>(args)...)
         {
         }
 
@@ -267,28 +267,28 @@ namespace Dryad
             return false;
         }
 
-        bool Contains (const KeyType& key) const
+        bool contains (const KeyType& key) const
         {
             return m_Map.find(key) != m_Map.end();
         }
 
-        UInt32 Size() const
+        unsigned Size() const
         {
             return static_cast<unsigned int>(m_Map.size());
         }
 
-        bool Empty() const
+        bool empty() const
         {
             return m_Map.empty();
         }
 
-        bool Remove(const KeyType& key)
+        bool destroy(const KeyType& key)
         {
             return m_Map.erase(key) > 0;
         }
 
-        using iterator = typename std::map<KeyType, ValueType>::iterator;
-        using const_iterator  = typename std::map<KeyType, ValueType>::const_iterator;
+        using iterator = typename std::dryad_map<KeyType, ValueType>::iterator;
+        using const_iterator  = typename std::dryad_map<KeyType, ValueType>::const_iterator;
 
         auto begin()
         {
@@ -322,9 +322,9 @@ namespace Dryad
         ListInternal<T> m_List;
 
     public:
-        template <class... Args>
-        List(Args... args)
-            : m_List(std::forward<Args>(args)...)
+        template <class... args_t>
+        List(args_t... args)
+            : m_List(std::forward<args_t>(args)...)
         {
         }
 
@@ -333,19 +333,19 @@ namespace Dryad
             m_List.clear();
         }
 
-        UInt32 Size() const
+        unsigned Size() const
         {
-            return static_cast<UInt32>(m_List.size());
+            return static_cast<unsigned>(m_List.size());
         }
 
-        bool Empty() const
+        bool empty() const
         {
             return m_List.empty();
         }
 
         bool NotEmpty() const
         {
-            return !Empty();
+            return !empty();
         }
 
         void PushBack(const T& value)
@@ -420,7 +420,7 @@ namespace Dryad
             return false;
         }
 
-        bool Remove(const T& item)
+        bool destroy(const T& item)
         {
             for (auto it = m_List.begin(); it != m_List.end(); ++it)
             {
@@ -460,11 +460,11 @@ namespace Dryad
     //
     // Variant
     //
-    template <class... Args>
+    template <class... args_t>
     class Variant
     {
     private:
-        VariantInternal<Args...> m_Variant;
+        VariantInternal<args_t...> m_Variant;
 
     public:
         template <class ValueType>
@@ -481,7 +481,7 @@ namespace Dryad
         }
 
         template <class ValueType>
-        bool Contains() const
+        bool contains() const
         {
             return std::holds_alternative<ValueType>(m_Variant);
         }

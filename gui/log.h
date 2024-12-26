@@ -13,11 +13,11 @@ public:
     using LineBuffer = std::unique_ptr<char[]>;
     static constexpr size_t MaxLineSize = 256;
 
-    template <class... Args>
-    static void Log(const char* format, Args&&... args)
+    template <class... args_t>
+    static void Log(const char* format, args_t&&... args)
     {
         LineBuffer buffer = std::make_unique<char[]>(MaxLineSize);
-        std::snprintf(buffer.get(), MaxLineSize, format, std::forward<Args>(args)...);
+        std::snprintf(buffer.get(), MaxLineSize, format, std::forward<args_t>(args)...);
         std::lock_guard lock(_LogMutex);
         _LogLines.push_back(std::move(buffer));
     }

@@ -1,14 +1,14 @@
 #include "chord.h"
 #include "scale.h"
 
-namespace Dryad
+namespace dryad
 {
-    Chord::Chord
+    dryad_chord::dryad_chord
     (
-        NoteValue root,
-        Degree degree,
-        ChordQualities qualities,
-        Accidental accidental
+        dryad_note_value root,
+        dryad_degree degree,
+        dryad_chord_quality qualities,
+        dryad_accidental accidental
     )
         : root(root)
         , degree(degree)
@@ -17,7 +17,7 @@ namespace Dryad
     {
     }
 
-    bool Chord::operator==(const Chord& other) const
+    bool dryad_chord::operator==(const dryad_chord& other) const
     {
         return root == other.root
             && degree == other.degree
@@ -25,34 +25,34 @@ namespace Dryad
             && accidental == other.accidental;
     }
 
-    bool Chord::IsDominantOf(Chord other) const
+    bool dryad_chord::is_dominant_of(dryad_chord other) const
     {
-        if (FlagIsSet(qualities, ChordQualities::Major))
+        if (bool (qualities & dryad_chord_quality::major))
         {
-            other.root += PerfectFifth;
-            other.root %= Octave;
-            return AreSimilar(*this, other);
+            other.root += perfect_fifth;
+            other.root %= octave;
+            return are_similar(*this, other);
         }
         return false;
     }
 
-    bool Chord::AreSimilar(const Chord& left, const Chord& right)
+    bool dryad_chord::are_similar(const dryad_chord& left, const dryad_chord& right)
     {
-        ChordQualities leftQualitiesSimplified = left.qualities & SimplifiedChordQualities;
-        ChordQualities rightQualitiesSimplified = right.qualities & SimplifiedChordQualities;
+        dryad_chord_quality leftQualitiesSimplified = left.qualities & simlified_chord_qualities;
+        dryad_chord_quality rightQualitiesSimplified = right.qualities & simlified_chord_qualities;
         return left.root == right.root
             && left.accidental == right.accidental
             && leftQualitiesSimplified == rightQualitiesSimplified;
     }
 
-    Result Chord::ApplyScale(const Scale* scale)
+    Result dryad_chord::apply_scale(const dryad_scale* scale)
     {
         if (scale == nullptr)
         {
             return Result::InvalidScale;
         }
-        root = scale->GetDegreeRoot(degree);
-        if (root == Octave)
+        root = scale->get_degree_root(degree);
+        if (root == octave)
         {
             return Result::InvalidDegree;
         }

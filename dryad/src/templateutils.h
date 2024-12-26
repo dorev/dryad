@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Dryad
+namespace dryad
 {
     template<class T>
     constexpr bool IsPointer = std::is_pointer<T>::value;

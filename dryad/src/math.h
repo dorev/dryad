@@ -2,7 +2,7 @@
 
 #include "types.h"
 
-namespace Dryad
+namespace dryad
 {
     template <class T>
     T Min(const T& a, const T& b)

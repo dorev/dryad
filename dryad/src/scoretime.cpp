@@ -1,10 +1,10 @@
 #include "scoretime.h"
 
-namespace Dryad
+namespace dryad
 {
-    ScoreTime NearestBeatBefore(ScoreTime beatValue, ScoreTime scoreTime)
+    dryad_score_time nearest_beat_before(dryad_score_time beatValue, dryad_score_time scoreTime)
     {
-        ScoreTime remainder = scoreTime % beatValue;
+        dryad_score_time remainder = scoreTime % beatValue;
         if (remainder == 0)
         {
             return scoreTime - beatValue;
@@ -15,9 +15,9 @@ namespace Dryad
         }
     }
 
-    ScoreTime NearestBeatAfter(ScoreTime beatValue, ScoreTime scoreTime)
+    dryad_score_time nearest_beat_after(dryad_score_time beatValue, dryad_score_time scoreTime)
     {
-        ScoreTime remainder = scoreTime % beatValue;
+        dryad_score_time remainder = scoreTime % beatValue;
         if (remainder == 0)
         {
             return scoreTime + beatValue;

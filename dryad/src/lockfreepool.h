@@ -4,7 +4,7 @@
 #include <memory>
 #include <mutex>
 
-namespace Dryad
+namespace dryad
 {
     template<typename T, size_t PoolSize>
     class LockFreePool
@@ -78,8 +78,8 @@ namespace Dryad
             InitializeBlock(m_Blocks.back().get());
         }
 
-        template <typename... Args>
-        T* Create(Args&&... args)
+        template <typename... args_t>
+        T* Create(args_t&&... args)
         {
             // Load the current top index.
             size_t currentIndex = m_Top.load(std::memory_order_relaxed);
@@ -101,7 +101,7 @@ namespace Dryad
             // Try to get a free spot and construct the object at that spot.
             if (m_Top.compare_exchange_strong(currentIndex, m_Indices[currentIndex].load(std::memory_order_relaxed)))
             {
-                return new (&GetStorageLocation(currentIndex)) T(std::forward<Args>(args)...);
+                return new (&GetStorageLocation(currentIndex)) T(std::forward<args_t>(args)...);
             }
 
             // Something unexpected happened.

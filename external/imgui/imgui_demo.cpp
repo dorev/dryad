@@ -5151,32 +5151,32 @@ static void ShowDemoWindowTables()
                 int             Size;
                 int             ChildIdx;
                 int             ChildCount;
-                static void DisplayNode(const MyTreeNode* node, const MyTreeNode* all_nodes)
+                static void DisplayNode(const MyTreeNode* dryad_node, const MyTreeNode* all_nodes)
                 {
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
-                    const bool is_folder = (node->ChildCount > 0);
+                    const bool is_folder = (dryad_node->ChildCount > 0);
                     if (is_folder)
                     {
-                        bool open = ImGui::TreeNodeEx(node->Name, tree_node_flags);
+                        bool open = ImGui::TreeNodeEx(dryad_node->Name, tree_node_flags);
                         ImGui::TableNextColumn();
                         ImGui::TextDisabled("--");
                         ImGui::TableNextColumn();
-                        ImGui::TextUnformatted(node->Type);
+                        ImGui::TextUnformatted(dryad_node->Type);
                         if (open)
                         {
-                            for (int child_n = 0; child_n < node->ChildCount; child_n++)
-                                DisplayNode(&all_nodes[node->ChildIdx + child_n], all_nodes);
+                            for (int child_n = 0; child_n < dryad_node->ChildCount; child_n++)
+                                DisplayNode(&all_nodes[dryad_node->ChildIdx + child_n], all_nodes);
                             ImGui::TreePop();
                         }
                     }
                     else
                     {
-                        ImGui::TreeNodeEx(node->Name, tree_node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+                        ImGui::TreeNodeEx(dryad_node->Name, tree_node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet | ImGuiTreeNodeFlags_NoTreePushOnOpen);
                         ImGui::TableNextColumn();
-                        ImGui::Text("%d", node->Size);
+                        ImGui::Text("%d", dryad_node->Size);
                         ImGui::TableNextColumn();
-                        ImGui::TextUnformatted(node->Type);
+                        ImGui::TextUnformatted(dryad_node->Type);
                     }
                 }
             };

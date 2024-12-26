@@ -2601,7 +2601,7 @@ void ImGui::TableMergeDrawChannels(ImGuiTable* table)
                     merge_channels_count--;
 
                     ImDrawChannel* channel = &splitter->_Channels[n];
-                    IM_ASSERT(channel->_CmdBuffer.Size == 1 && merge_clip_rect.Contains(ImRect(channel->_CmdBuffer[0].ClipRect)));
+                    IM_ASSERT(channel->_CmdBuffer.Size == 1 && merge_clip_rect.contains(ImRect(channel->_CmdBuffer[0].ClipRect)));
                     channel->_CmdBuffer[0].ClipRect = merge_clip_rect.ToVec4();
                     memcpy(dst_tmp++, channel, sizeof(ImDrawChannel));
                 }
@@ -3737,7 +3737,7 @@ void ImGui::TableRemove(ImGuiTable* table)
     int table_idx = g.Tables.GetIndex(table);
     //memset(table->RawData.Data, 0, table->RawData.size_in_bytes());
     //memset(table, 0, sizeof(ImGuiTable));
-    g.Tables.Remove(table->ID, table);
+    g.Tables.remove(table->ID, table);
     g.TablesLastTimeActive[table_idx] = -1.0f;
 }
 

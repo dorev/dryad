@@ -4299,7 +4299,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         const ImFontGlyph* glyph = g.Font->FindGlyph('*');
         ImFont* password_font = &g.InputTextPasswordFont;
         password_font->FontSize = g.Font->FontSize;
-        password_font->Scale = g.Font->Scale;
+        password_font->dryad_scale = g.Font->dryad_scale;
         password_font->Ascent = g.Font->Ascent;
         password_font->Descent = g.Font->Descent;
         password_font->ContainerAtlas = g.Font->ContainerAtlas;
@@ -7027,7 +7027,7 @@ int ImGui::PlotEx(ImGuiPlotType plot_type, const char* label, float (*values_get
         int item_count = values_count + ((plot_type == ImGuiPlotType_Lines) ? -1 : 0);
 
         // Tooltip on hover
-        if (hovered && inner_bb.Contains(g.IO.MousePos))
+        if (hovered && inner_bb.contains(g.IO.MousePos))
         {
             const float t = ImClamp((g.IO.MousePos.x - inner_bb.Min.x) / (inner_bb.Max.x - inner_bb.Min.x), 0.0f, 0.9999f);
             const int v_idx = (int)(t * item_count);
@@ -7798,7 +7798,7 @@ static ImGuiTabBar* GetTabBarFromTabBarRef(const ImGuiPtrOrIndex& ref)
 static ImGuiPtrOrIndex GetTabBarRefFromTabBar(ImGuiTabBar* tab_bar)
 {
     ImGuiContext& g = *GImGui;
-    if (g.TabBars.Contains(tab_bar))
+    if (g.TabBars.contains(tab_bar))
         return ImGuiPtrOrIndex(g.TabBars.GetIndex(tab_bar));
     return ImGuiPtrOrIndex(tab_bar);
 }

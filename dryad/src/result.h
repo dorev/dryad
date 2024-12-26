@@ -1,12 +1,11 @@
 #pragma once
 
 #include "types.h"
-#include "flags.h"
-#include "log.h"
+#include "flag.h"
 
-namespace Dryad
+namespace dryad
 {
-    DRYAD_DECLARE_FLAG_ENUM(Result, UInt32)
+    DRYAD_DECLARE_FLAG_ENUM(Result, unsigned)
     {
         DRYAD_FLAG(Success, 0),
         DRYAD_FLAG(EmptyResult, 1),

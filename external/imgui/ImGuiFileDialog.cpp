@@ -1529,7 +1529,7 @@ void IGFD::FileType::SetSymLink(const bool& vIsSymlink) {
     m_Symlink = vIsSymlink;
 }
 bool IGFD::FileType::isValid() const {
-    return m_Content != ContentType::Invalid;
+    return m_Content != ContentType::invalid_value;
 }
 bool IGFD::FileType::isDir() const {
     return m_Content == ContentType::Directory;
@@ -2135,7 +2135,7 @@ void IGFD::FileManager::m_RemoveFileNameInSelection(const std::string& vFileName
 }
 
 void IGFD::FileManager::m_m_AddFileNameInSelection(const std::string& vFileName, bool vSetLastSelectionFileName) {
-    m_SelectedFileNames.emplace(vFileName);
+    m_SelectedFileNames.create(vFileName);
 
     if (m_SelectedFileNames.size() == 1) {
         snprintf(fileNameBuffer, MAX_FILE_DIALOG_NAME_BUFFER, "%s", vFileName.c_str());

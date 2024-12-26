@@ -3453,7 +3453,7 @@ void ImGui::RenderNavHighlight(const ImRect& bb, ImGuiID id, ImGuiNavHighlightFl
         const float THICKNESS = 2.0f;
         const float DISTANCE = 3.0f + THICKNESS * 0.5f;
         display_rect.Expand(ImVec2(DISTANCE, DISTANCE));
-        bool fully_visible = window->ClipRect.Contains(display_rect);
+        bool fully_visible = window->ClipRect.contains(display_rect);
         if (!fully_visible)
             window->DrawList->PushClipRect(display_rect.Min, display_rect.Max);
         window->DrawList->AddRect(display_rect.Min + ImVec2(THICKNESS * 0.5f, THICKNESS * 0.5f), display_rect.Max - ImVec2(THICKNESS * 0.5f, THICKNESS * 0.5f), GetColorU32(ImGuiCol_NavHighlight), rounding, 0, THICKNESS);
@@ -4430,7 +4430,7 @@ void ImGui::UpdateMouseMovingWindowEndFrame()
 
             // Cancel moving if clicked outside of title bar
             if (g.IO.ConfigWindowsMoveFromTitleBarOnly && !(root_window->Flags & ImGuiWindowFlags_NoTitleBar))
-                if (!root_window->TitleBarRect().Contains(g.IO.MouseClickedPos[0]))
+                if (!root_window->TitleBarRect().contains(g.IO.MouseClickedPos[0]))
                     g.MovingWindow = NULL;
 
             // Cancel moving if clicked over an item which was disabled or inhibited by popups (note that we know HoveredId == 0 already)
@@ -5231,7 +5231,7 @@ static void FindHoveredWindow()
         {
             ImVec2 hole_pos(window->Pos.x + (float)window->HitTestHoleOffset.x, window->Pos.y + (float)window->HitTestHoleOffset.y);
             ImVec2 hole_size((float)window->HitTestHoleSize.x, (float)window->HitTestHoleSize.y);
-            if (ImRect(hole_pos, hole_pos + hole_size).Contains(g.IO.MousePos))
+            if (ImRect(hole_pos, hole_pos + hole_size).contains(g.IO.MousePos))
                 continue;
         }
 
@@ -7272,9 +7272,9 @@ void ImGui::SetCurrentFont(ImFont* font)
 {
     ImGuiContext& g = *GImGui;
     IM_ASSERT(font && font->IsLoaded());    // Font Atlas not created. Did you call io.Fonts->GetTexDataAsRGBA32 / GetTexDataAsAlpha8 ?
-    IM_ASSERT(font->Scale > 0.0f);
+    IM_ASSERT(font->dryad_scale > 0.0f);
     g.Font = font;
-    g.FontBaseSize = ImMax(1.0f, g.IO.FontGlobalScale * g.Font->FontSize * g.Font->Scale);
+    g.FontBaseSize = ImMax(1.0f, g.IO.FontGlobalScale * g.Font->FontSize * g.Font->dryad_scale);
     g.FontSize = g.CurrentWindow ? g.CurrentWindow->CalcFontSize() : 0.0f;
 
     ImFontAtlas* atlas = g.Font->ContainerAtlas;
@@ -7887,7 +7887,7 @@ void ImGui::SetItemDefaultFocus()
     NavUpdateAnyRequestFlag();
 
     // Scroll could be done in NavInitRequestApplyResult() via an opt-in flag (we however don't want regular init requests to scroll)
-    if (!window->ClipRect.Contains(g.LastItemData.Rect))
+    if (!window->ClipRect.contains(g.LastItemData.Rect))
         ScrollToRectEx(window, g.LastItemData.Rect, ImGuiScrollFlags_None);
 }
 
@@ -8365,8 +8365,8 @@ bool ImGui::SetShortcutRouting(ImGuiKeyChord key_chord, ImGuiID owner_id, ImGuiI
     if (flags & ImGuiInputFlags_RouteAlways)
         return true;
 
-    const int score = CalcRoutingScore(g.CurrentWindow, owner_id, flags);
-    if (score == 255)
+    const int dryad_score = CalcRoutingScore(g.CurrentWindow, owner_id, flags);
+    if (dryad_score == 255)
         return false;
 
     // Submit routing for NEXT frame (assuming score is sufficient)
@@ -8374,10 +8374,10 @@ bool ImGui::SetShortcutRouting(ImGuiKeyChord key_chord, ImGuiID owner_id, ImGuiI
     ImGuiKeyRoutingData* routing_data = GetShortcutRoutingData(key_chord);
     const ImGuiID routing_id = GetRoutingIdFromOwnerId(owner_id);
     //const bool set_route = (flags & ImGuiInputFlags_ServeLast) ? (score <= routing_data->RoutingNextScore) : (score < routing_data->RoutingNextScore);
-    if (score < routing_data->RoutingNextScore)
+    if (dryad_score < routing_data->RoutingNextScore)
     {
         routing_data->RoutingNext = routing_id;
-        routing_data->RoutingNextScore = (ImU8)score;
+        routing_data->RoutingNextScore = (ImU8)dryad_score;
     }
 
     // Return routing state for CURRENT frame
@@ -10892,7 +10892,7 @@ ImVec2 ImGui::FindBestWindowPosForPopupEx(const ImVec2& ref_pos, const ImVec2& s
             if (dir == ImGuiDir_Right) pos = ImVec2(r_avoid.Min.x, r_avoid.Min.y - size.y); // Above, Toward Right
             if (dir == ImGuiDir_Left)  pos = ImVec2(r_avoid.Max.x - size.x, r_avoid.Max.y); // Below, Toward Left
             if (dir == ImGuiDir_Up)    pos = ImVec2(r_avoid.Max.x - size.x, r_avoid.Min.y - size.y); // Above, Toward Left
-            if (!r_outer.Contains(ImRect(pos, pos + size)))
+            if (!r_outer.contains(ImRect(pos, pos + size)))
                 continue;
             *last_dir = dir;
             return pos;
@@ -11910,7 +11910,7 @@ void ImGui::NavUpdateCreateMoveRequest()
         // Otherwise 'inner_rect_rel' would be off on the move result frame.
         inner_rect_rel.Translate(CalcNextScrollFromScrollTargetAndClamp(window) - window->Scroll);
 
-        if ((clamp_x || clamp_y) && !inner_rect_rel.Contains(window->NavRectRel[g.NavLayer]))
+        if ((clamp_x || clamp_y) && !inner_rect_rel.contains(window->NavRectRel[g.NavLayer]))
         {
             IMGUI_DEBUG_LOG_NAV("[nav] NavMoveRequest: clamp NavRectRel for gamepad move\n");
             float pad_x = ImMin(inner_rect_rel.GetWidth(), window->CalcFontSize() * 0.5f);
@@ -12867,7 +12867,7 @@ void ImGui::RenderDragDropTargetRect(const ImRect& bb, const ImRect& item_clip_r
     ImRect bb_display = bb;
     bb_display.ClipWith(item_clip_rect); // Clip THEN expand so we have a way to visualize that target is not entirely visible.
     bb_display.Expand(3.5f);
-    bool push_clip_rect = !window->ClipRect.Contains(bb_display);
+    bool push_clip_rect = !window->ClipRect.contains(bb_display);
     if (push_clip_rect)
         window->DrawList->PushClipRectFullScreen();
     window->DrawList->AddRect(bb_display.Min, bb_display.Max, GetColorU32(ImGuiCol_DragDropTarget), 0.0f, 0, 2.0f);
@@ -14656,7 +14656,7 @@ void ImGui::DebugNodeFont(ImFont* font)
 
     // Display details
     SetNextItemWidth(GetFontSize() * 8);
-    DragFloat("Font scale", &font->Scale, 0.005f, 0.3f, 2.0f, "%.1f");
+    DragFloat("Font scale", &font->dryad_scale, 0.005f, 0.3f, 2.0f, "%.1f");
     SameLine(); MetricsHelpMarker(
         "Note than the default embedded font is NOT meant to be scaled.\n\n"
         "Font are currently rendered into bitmaps at a given size at the time of building the atlas. "

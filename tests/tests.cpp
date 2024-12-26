@@ -2,18 +2,17 @@
 #include "dryad/src/graph.h"
 #include "dryad/src/constants.h"
 
-using namespace Dryad;
-
+using namespace dryad;
 class Tests : public ::testing::Test
 {
 };
 
-class TestElement : public Node
+class test_node : public dryad_node
 {
 public:
-    DRYAD_CLASS_ID(TestElement);
+    DRYAD_CLASS_ID(test_node);
 
-    TestElement(int value = 0)
+    test_node(int value = 0)
         : value(value)
     {
     }
@@ -21,106 +20,128 @@ public:
     int value;
 };
 
-TEST(Graph, InsertNode)
+
+class test_node2 : public dryad_node
 {
-    int testValue = 42;
+public:
+    DRYAD_CLASS_ID(test_node2);
 
-    SharedPtr<Graph> graph = MakeShared<Graph>();
-    graph->Insert(MakeShared<TestElement>(testValue));
-    graph->Insert(MakeShared<TestElement>(testValue));
-
-    EXPECT_EQ(graph->Size(), 2) << "Graph contains the wrong count of elements";
-
-    for (SharedPtr<Node>& node : *graph)
+    test_node2(int value = 0)
+        : value(value)
     {
-        SharedPtr<TestElement> element;
-        if (node->GetElement<TestElement>(element))
-        {
-            EXPECT_EQ(element->value, testValue);
-        }
+    }
+
+    int value;
+};
+
+
+TEST(drayd_graph, insert_node)
+{
+    int test_value = 42;
+
+    dryad_graph graph;
+
+    graph.insert(new test_node(test_value));
+    graph.insert(new test_node(test_value));
+
+    EXPECT_EQ(graph.size(), 2) << "Graph contains the wrong count of elements";
+
+    for (dryad_node* node : graph)
+    {
+        if (test_node* content = node->get_content<test_node>())
+            EXPECT_EQ(content->value, test_value);
         else
-        {
             FAIL() << "Unable to cast node to underlying type";
-        }
     }
 }
 
-TEST(Graph, EmplaceNode)
+TEST(drayd_graph, create_node)
 {
-    int testValue = 42;
+    int test_value = 42;
 
-    SharedPtr<Graph> graph = MakeShared<Graph>();
-    graph->Emplace<TestElement>(testValue);
-    graph->Emplace<TestElement>(testValue);
+    dryad_graph graph;
+    graph.create<test_node>(test_value);
+    graph.create<test_node>(test_value);
 
-    EXPECT_EQ(graph->Size(), 2) << "Graph contains the wrong count of elements";
+    EXPECT_EQ(graph.size(), 2) << "Graph contains the wrong count of elements";
 
-    for (SharedPtr<Node>& node : *graph)
+    for (dryad_node* node : graph)
     {
-        SharedPtr<TestElement> element;
-        if (node->GetElement<TestElement>(element))
-        {
-            EXPECT_EQ(element->value, testValue);
-        }
+        if (test_node* content = node->get_content<test_node>())
+            EXPECT_EQ(content->value, test_value);
         else
-        {
             FAIL() << "Unable to cast node to underlying type";
-        }
     }
 }
 
-TEST(Graph, RemoveNode)
+TEST(drayd_graph, destroy_node)
 {
-    SharedPtr<Graph> graph = MakeShared<Graph>();
-    int testValue = 42;
-    SharedPtr<TestElement> elementPtr = MakeShared<TestElement>(testValue);
-    graph->Insert(elementPtr);
+    dryad_graph graph;
+    int test_value = 42;
+    test_node* node_ptr = new test_node(test_value);
+    graph.insert(node_ptr);
 
-    EXPECT_EQ(graph->Size(), 1) << "Graph contains the wrong count of elements";
+    EXPECT_EQ(graph.size(), 1) << "Graph contains the wrong count of elements";
 
-    for (SharedPtr<Node>& node : *graph)
+    for (dryad_node* node : graph)
     {
-        SharedPtr<TestElement> element;
-        if (node->GetElement<TestElement>(element))
-        {
-            EXPECT_EQ(element->value, testValue);
-        }
+        if (test_node* content = node->get_content<test_node>())
+            EXPECT_EQ(content->value, test_value);
         else
-        {
             FAIL() << "Unable to cast node to underlying type";
-        }
     }
 
-    EXPECT_TRUE(graph->Remove(elementPtr)) << "Error while trying to remove a node from Graph.";
-    EXPECT_TRUE(graph->Empty()) << "Graph should be empty.";
+    EXPECT_TRUE(graph.destroy(node_ptr)) << "Error while trying to remove a node from Graph.";
+    EXPECT_TRUE(graph.empty()) << "Graph should be empty.";
 }
 
-TEST(Graph, LinkNodes)
+TEST(drayd_graph, link)
 {
-    SharedPtr<Graph> graph = MakeShared<Graph>();
-    SharedPtr<TestElement> element1 = MakeShared<TestElement>(1);
-    SharedPtr<TestElement> element2 = MakeShared<TestElement>(2);
-    SharedPtr<TestElement> element3 = MakeShared<TestElement>(3);
+    dryad_graph graph;
+    test_node* node1 = new test_node(1);
+    test_node* node2 = new test_node(2);
+    test_node* node3 = new test_node(3);
 
-    EXPECT_FALSE(graph->LinkNodes(element1, element2)) << "Nodes not in the same graph should not be able to link.";
+    EXPECT_FALSE(graph.link(node1, node2)) << "Nodes not in the same graph should not be able to link.";
 
-    graph->Insert(element1);
-    graph->Insert(element2);
-    graph->Insert(element3);
-    EXPECT_EQ(graph->Size(), 3) << "Graph contains the wrong count of elements";
+    graph.insert(node1);
+    graph.insert(node2);
+    graph.insert(node3);
+    EXPECT_EQ(graph.size(), 3) << "Graph contains the wrong count of elements";
 
-    EXPECT_TRUE(graph->LinkNodes(element1, element2));
-    EXPECT_TRUE(graph->LinkNodes(element1, element3));
+    EXPECT_TRUE(graph.link(node1, node2));
+    EXPECT_TRUE(graph.link(node1, node3));
 
-    EXPECT_EQ(element1->edges.Size(), 2);
-    EXPECT_EQ(element2->edges.Size(), 1);
-    EXPECT_EQ(element3->edges.Size(), 1);
+    EXPECT_EQ(node1->edges.size(), 2);
+    EXPECT_EQ(node2->edges.size(), 1);
+    EXPECT_EQ(node3->edges.size(), 1);
 
-    EXPECT_TRUE(graph->Remove(element1));
+    EXPECT_TRUE(graph.destroy(node1));
 
-    EXPECT_EQ(element1->edges.Size(), 0) << "Removed source node edges should have been cleared.";
-    EXPECT_EQ(element2->edges.Size(), 0) << "Edge node should not reference source node anymore.";
-    EXPECT_EQ(element3->edges.Size(), 0) << "Edge node should not reference source node anymore.";
-    EXPECT_EQ(graph->Size(), 2);
+    EXPECT_EQ(node1->edges.size(), 0) << "Removed source node edges should have been cleared.";
+    EXPECT_EQ(node2->edges.size(), 0) << "Edge node should not reference source node anymore.";
+    EXPECT_EQ(node3->edges.size(), 0) << "Edge node should not reference source node anymore.";
+    EXPECT_EQ(graph.size(), 2);
 }
 
+TEST(dryad_node, for_each)
+{
+    test_node node;
+
+    int test_value = 42;
+    test_node node1(test_value);
+    test_node node2(test_value);
+    test_node2 node3(test_value);
+
+    node.edges.push_back(&node1);
+    node.edges.push_back(&node2);
+    node.edges.push_back(&node3);
+
+    int result = 0;
+    node.for_each<test_node>([&](test_node* n)
+    {
+        result += n->value;
+    });
+
+    EXPECT_EQ(result, test_value * 2) << "Only and all nodes of selected type should have been processed.";
+}

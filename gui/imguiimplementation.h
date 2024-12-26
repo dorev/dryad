@@ -4,10 +4,10 @@ template <class ImGuiBackend>
 class ImGuiImplementation
 {
 #define BRIDGE_WITH_BACKEND(method) \
-    template <class... Args> \
-    auto method(Args&&... args) \
+    template <class... args_t> \
+    auto method(args_t&&... args) \
     { \
-        return _Backend.method(std::forward<Args>(args)...); \
+        return _Backend.method(std::forward<args_t>(args)...); \
     } \
 
 public:

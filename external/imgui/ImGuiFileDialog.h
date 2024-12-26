@@ -1645,14 +1645,14 @@ class IGFD_API FileType {
 public:
     enum class ContentType {
         // The ordering will be used during sort.
-        Invalid = -1,
+        invalid_value = -1,
         Directory = 0,
         File = 1,
         LinkToUnknown = 2,  // link to something that is not a regular file or directory.
     };
 
 private:
-    ContentType m_Content = ContentType::Invalid;
+    ContentType m_Content = ContentType::invalid_value;
     bool m_Symlink = false;
 
 public:

@@ -4,19 +4,19 @@
 #include "chord.h"
 #include "constants.h"
 
-namespace Dryad
+namespace dryad
 {
     struct ScaleOffsets
     {
         ScaleOffsets
         (
-            NoteValue tonic = 0,
-            NoteValue supertonic = MajorSecond,
-            NoteValue mediant = MajorThird,
-            NoteValue subdominant = PerfectFourth,
-            NoteValue dominant = PerfectFifth,
-            NoteValue submediant = MajorSixth,
-            NoteValue leadindTone = MajorSeventh
+            dryad_note_value tonic = 0,
+            dryad_note_value supertonic = major_second,
+            dryad_note_value mediant = major_third,
+            dryad_note_value subdominant = perfect_fourth,
+            dryad_note_value dominant = perfect_fifth,
+            dryad_note_value submediant = major_sixth,
+            dryad_note_value leadindTone = major_seventh
         )
             : offsets
             {
@@ -31,7 +31,7 @@ namespace Dryad
         {
         }
 
-        NoteValue offsets[7];
+        dryad_note_value offsets[7];
     };
 
     const ScaleOffsets MajorScaleOffsets = ScaleOffsets();
@@ -43,13 +43,13 @@ namespace Dryad
     {
         ScaleDegrees
         (
-            Chord first = Chord(C, Degree::Tonic, ChordQualities::Major | ChordQualities::MajorSeventh),
-            Chord second = Chord(D, Degree::Supertonic, ChordQualities::Minor | ChordQualities::Seventh),
-            Chord third = Chord(E, Degree::Mediant, ChordQualities::Minor | ChordQualities::Seventh),
-            Chord fourth = Chord(F, Degree::Subdominant, ChordQualities::Major | ChordQualities::MajorSeventh),
-            Chord fifth = Chord(G, Degree::Dominant, ChordQualities::Major | ChordQualities::MajorSeventh),
-            Chord sixth = Chord(A, Degree::Submediant, ChordQualities::Major | ChordQualities::Seventh),
-            Chord seventh = Chord(B, Degree::LeadingTone, ChordQualities::HalfDiminished)
+            dryad_chord first = dryad_chord(C, dryad_degree::tonic, dryad_chord_quality::major | dryad_chord_quality::major_seventh),
+            dryad_chord second = dryad_chord(D, dryad_degree::supertonic, dryad_chord_quality::minor | dryad_chord_quality::seventh),
+            dryad_chord third = dryad_chord(E, dryad_degree::mediant, dryad_chord_quality::minor | dryad_chord_quality::seventh),
+            dryad_chord fourth = dryad_chord(F, dryad_degree::subdominant, dryad_chord_quality::major | dryad_chord_quality::major_seventh),
+            dryad_chord fifth = dryad_chord(G, dryad_degree::dominant, dryad_chord_quality::major | dryad_chord_quality::major_seventh),
+            dryad_chord sixth = dryad_chord(A, dryad_degree::submediant, dryad_chord_quality::major | dryad_chord_quality::seventh),
+            dryad_chord seventh = dryad_chord(B, dryad_degree::leading_tone, dryad_chord_quality::half_diminished)
         )
             : chords
             {
@@ -64,18 +64,18 @@ namespace Dryad
         {
         }
 
-        Chord chords[7];
+        dryad_chord chords[7];
     };
 
-    class Scale
+    class dryad_scale
     {
     public:
-        Scale
+        dryad_scale
         (
             ScaleOffsets offsets = ScaleOffsets(),
             ScaleOffsets descendingOffsets = ScaleOffsets(),
             ScaleDegrees degrees = ScaleDegrees(),
-            NoteValue root = C
+            dryad_note_value root = C
         )
             : offsets(offsets)
             , descendingOffsets(descendingOffsets)
@@ -89,53 +89,53 @@ namespace Dryad
         {
             for (int i = 0; i < 7; ++i)
             {
-                degrees.chords[i].root = (root + offsets.offsets[i]) % Octave;
+                degrees.chords[i].root = (root + offsets.offsets[i]) % octave;
             }
         }
 
-        static UInt32 DegreeToScaleIndex(Degree degree)
+        static unsigned DegreeToScaleIndex(dryad_degree degree)
         {
             switch(degree)
             {
-            case Degree::Tonic: return 0;
-            case Degree::Supertonic: return 1;
-            case Degree::Mediant: return 2;
-            case Degree::Subdominant: return 3;
-            case Degree::Dominant: return 4;
-            case Degree::Submediant: return 5;
-            case Degree::LeadingTone: return 6;
+            case dryad_degree::tonic: return 0;
+            case dryad_degree::supertonic: return 1;
+            case dryad_degree::mediant: return 2;
+            case dryad_degree::subdominant: return 3;
+            case dryad_degree::dominant: return 4;
+            case dryad_degree::submediant: return 5;
+            case dryad_degree::leading_tone: return 6;
             default:
                 return 7;
             }
         }
 
-        NoteValue GetDegreeRoot(Degree degree) const
+        dryad_note_value get_degree_root(dryad_degree degree) const
         {
-            UInt32 degreeIndex = DegreeToScaleIndex(degree);
+            unsigned degreeIndex = DegreeToScaleIndex(degree);
             if (degreeIndex < 7)
             {
                 return degrees.chords[degreeIndex].root;
             }
-            return Octave;
+            return octave;
         }
 
         ScaleOffsets offsets;
         ScaleOffsets descendingOffsets;
         ScaleDegrees degrees;
-        NoteValue root;
+        dryad_note_value root;
 
-        const Chord& TonicChord() const { return degrees.chords[0]; }
-        const Chord& SupertonicChord() const { return degrees.chords[1]; }
-        const Chord& MediantChord() const { return degrees.chords[2]; }
-        const Chord& SubdominantChord() const { return degrees.chords[3]; }
-        const Chord& DominantChord() const { return degrees.chords[4]; }
-        const Chord& SubmediantChord() const { return degrees.chords[5]; }
-        const Chord& LeadingToneChord() const { return degrees.chords[6]; }
-        const Chord SecondaryDominantChord() const
+        const dryad_chord& TonicChord() const { return degrees.chords[0]; }
+        const dryad_chord& SupertonicChord() const { return degrees.chords[1]; }
+        const dryad_chord& MediantChord() const { return degrees.chords[2]; }
+        const dryad_chord& SubdominantChord() const { return degrees.chords[3]; }
+        const dryad_chord& DominantChord() const { return degrees.chords[4]; }
+        const dryad_chord& SubmediantChord() const { return degrees.chords[5]; }
+        const dryad_chord& LeadingToneChord() const { return degrees.chords[6]; }
+        const dryad_chord SecondaryDominantChord() const
         {
-            return Chord(DominantChord().root + PerfectFifth, Degree::Dominant, ChordQualities::Major | ChordQualities::MajorSeventh);
+            return dryad_chord(DominantChord().root + perfect_fifth, dryad_degree::dominant, dryad_chord_quality::major | dryad_chord_quality::major_seventh);
         }
     };
 
-    const Scale MajorScale = Scale();
+    const dryad_scale MajorScale = dryad_scale();
 }

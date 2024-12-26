@@ -4,12 +4,12 @@
 #include "result.h"
 #include "containers.h"
 
-namespace Dryad
+namespace dryad
 {
     template <class T>
-    Result RandomFrom(const Vector<T>& vector, const T& output)
+    Result RandomFrom(const vector<T>& vector, const T& output)
     {
-        if (vector.Empty())
+        if (vector.empty())
         {
             return Result::ContainerEmpty;
         }
@@ -21,9 +21,9 @@ namespace Dryad
     }
 
     template <class T>
-    Result RandomFrom(const Vector<T*>& vector, const T*& output)
+    Result RandomFrom(const vector<T*>& vector, const T*& output)
     {
-        if (vector.Empty())
+        if (vector.empty())
         {
             return Result::ContainerEmpty;
         }

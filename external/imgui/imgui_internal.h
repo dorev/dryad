@@ -537,8 +537,8 @@ struct IMGUI_API ImRect
     ImVec2      GetTR() const                       { return ImVec2(Max.x, Min.y); }  // Top-right
     ImVec2      GetBL() const                       { return ImVec2(Min.x, Max.y); }  // Bottom-left
     ImVec2      GetBR() const                       { return Max; }                   // Bottom-right
-    bool        Contains(const ImVec2& p) const     { return p.x     >= Min.x && p.y     >= Min.y && p.x     <  Max.x && p.y     <  Max.y; }
-    bool        Contains(const ImRect& r) const     { return r.Min.x >= Min.x && r.Min.y >= Min.y && r.Max.x <= Max.x && r.Max.y <= Max.y; }
+    bool        contains(const ImVec2& p) const     { return p.x     >= Min.x && p.y     >= Min.y && p.x     <  Max.x && p.y     <  Max.y; }
+    bool        contains(const ImRect& r) const     { return r.Min.x >= Min.x && r.Min.y >= Min.y && r.Max.x <= Max.x && r.Max.y <= Max.y; }
     bool        ContainsWithPad(const ImVec2& p, const ImVec2& pad) const { return p.x >= Min.x - pad.x && p.y >= Min.y - pad.y && p.x < Max.x + pad.x && p.y < Max.y + pad.y; }
     bool        Overlaps(const ImRect& r) const     { return r.Min.y <  Max.y && r.Max.y >  Min.y && r.Min.x <  Max.x && r.Max.x >  Min.x; }
     void        Add(const ImVec2& p)                { if (Min.x > p.x)     Min.x = p.x;     if (Min.y > p.y)     Min.y = p.y;     if (Max.x < p.x)     Max.x = p.x;     if (Max.y < p.y)     Max.y = p.y; }
@@ -666,29 +666,29 @@ template<typename T>
 struct ImPool
 {
     ImVector<T>     Buf;        // Contiguous data
-    ImGuiStorage    Map;        // ID->Index
+    ImGuiStorage    map;        // ID->Index
     ImPoolIdx       FreeIdx;    // Next free idx to use
     ImPoolIdx       AliveCount; // Number of active/alive items (for display purpose)
 
     ImPool()    { FreeIdx = AliveCount = 0; }
     ~ImPool()   { Clear(); }
-    T*          GetByKey(ImGuiID key)               { int idx = Map.GetInt(key, -1); return (idx != -1) ? &Buf[idx] : NULL; }
+    T*          GetByKey(ImGuiID key)               { int idx = map.GetInt(key, -1); return (idx != -1) ? &Buf[idx] : NULL; }
     T*          GetByIndex(ImPoolIdx n)             { return &Buf[n]; }
     ImPoolIdx   GetIndex(const T* p) const          { IM_ASSERT(p >= Buf.Data && p < Buf.Data + Buf.Size); return (ImPoolIdx)(p - Buf.Data); }
-    T*          GetOrAddByKey(ImGuiID key)          { int* p_idx = Map.GetIntRef(key, -1); if (*p_idx != -1) return &Buf[*p_idx]; *p_idx = FreeIdx; return Add(); }
-    bool        Contains(const T* p) const          { return (p >= Buf.Data && p < Buf.Data + Buf.Size); }
-    void        Clear()                             { for (int n = 0; n < Map.Data.Size; n++) { int idx = Map.Data[n].val_i; if (idx != -1) Buf[idx].~T(); } Map.Clear(); Buf.clear(); FreeIdx = AliveCount = 0; }
+    T*          GetOrAddByKey(ImGuiID key)          { int* p_idx = map.GetIntRef(key, -1); if (*p_idx != -1) return &Buf[*p_idx]; *p_idx = FreeIdx; return Add(); }
+    bool        contains(const T* p) const          { return (p >= Buf.Data && p < Buf.Data + Buf.Size); }
+    void        Clear()                             { for (int n = 0; n < map.Data.Size; n++) { int idx = map.Data[n].val_i; if (idx != -1) Buf[idx].~T(); } map.Clear(); Buf.clear(); FreeIdx = AliveCount = 0; }
     T*          Add()                               { int idx = FreeIdx; if (idx == Buf.Size) { Buf.resize(Buf.Size + 1); FreeIdx++; } else { FreeIdx = *(int*)&Buf[idx]; } IM_PLACEMENT_NEW(&Buf[idx]) T(); AliveCount++; return &Buf[idx]; }
-    void        Remove(ImGuiID key, const T* p)     { Remove(key, GetIndex(p)); }
-    void        Remove(ImGuiID key, ImPoolIdx idx)  { Buf[idx].~T(); *(int*)&Buf[idx] = FreeIdx; FreeIdx = idx; Map.SetInt(key, -1); AliveCount--; }
-    void        Reserve(int capacity)               { Buf.reserve(capacity); Map.Data.reserve(capacity); }
+    void        remove(ImGuiID key, const T* p)     { remove(key, GetIndex(p)); }
+    void        remove(ImGuiID key, ImPoolIdx idx)  { Buf[idx].~T(); *(int*)&Buf[idx] = FreeIdx; FreeIdx = idx; map.SetInt(key, -1); AliveCount--; }
+    void        Reserve(int capacity)               { Buf.reserve(capacity); map.Data.reserve(capacity); }
 
     // To iterate a ImPool: for (int n = 0; n < pool.GetMapSize(); n++) if (T* t = pool.TryGetMapData(n)) { ... }
     // Can be avoided if you know .Remove() has never been called on the pool, or AliveCount == GetMapSize()
     int         GetAliveCount() const               { return AliveCount; }      // Number of active/alive items in the pool (for display purpose)
     int         GetBufSize() const                  { return Buf.Size; }
-    int         GetMapSize() const                  { return Map.Data.Size; }   // It is the map we need iterate to find valid items, since we don't have "alive" storage anywhere
-    T*          TryGetMapData(ImPoolIdx n)          { int idx = Map.Data[n].val_i; if (idx == -1) return NULL; return GetByIndex(idx); }
+    int         GetMapSize() const                  { return map.Data.Size; }   // It is the map we need iterate to find valid items, since we don't have "alive" storage anywhere
+    T*          TryGetMapData(ImPoolIdx n)          { int idx = map.Data[n].val_i; if (idx == -1) return NULL; return GetByIndex(idx); }
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
     int         GetSize()                           { return GetMapSize(); } // For ImPlot: should use GetMapSize() from (IMGUI_VERSION_NUM >= 18304)
 #endif
