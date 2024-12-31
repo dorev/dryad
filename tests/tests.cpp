@@ -1,8 +1,7 @@
 #include "gtest/gtest.h"
 #include "dryad/src/graph.h"
-#include "dryad/src/constants.h"
+#include "dryad/src/dryad.h"
 
-using namespace dryad;
 class Tests : public ::testing::Test
 {
 };
@@ -145,3 +144,6 @@ TEST(dryad_node, for_each)
 
     EXPECT_EQ(result, test_value * 2) << "Only and all nodes of selected type should have been processed.";
 }
+
+// creating progression is the next thing to implement
+

@@ -1,17 +1,16 @@
-#include "chord.h"
-#include "scale.h"
 
 namespace dryad
 {
+    /*
     dryad_chord::dryad_chord
     (
         dryad_note_value root,
-        dryad_degree degree,
+        dryad_degree degrees,
         dryad_chord_quality qualities,
         dryad_accidental accidental
     )
         : root(root)
-        , degree(degree)
+        , degrees(degrees)
         , qualities(qualities)
         , accidental(accidental)
     {
@@ -20,7 +19,7 @@ namespace dryad
     bool dryad_chord::operator==(const dryad_chord& other) const
     {
         return root == other.root
-            && degree == other.degree
+            && degrees == other.degrees
             && qualities == other.qualities
             && accidental == other.accidental;
     }
@@ -51,11 +50,12 @@ namespace dryad
         {
             return Result::InvalidScale;
         }
-        root = scale->get_degree_root(degree);
+        root = scale->get_degree_root(degrees);
         if (root == octave)
         {
             return Result::InvalidDegree;
         }
-        return Result::Success;
+        return Result::NotImplementedYet;
     }
+    */
 }
