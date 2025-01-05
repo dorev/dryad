@@ -4,6 +4,24 @@
 
 namespace dryad_constants
 {
+    constexpr dryad_bpm default_tempo = 120.0f;
+
+    constexpr dryad_time whole = 96;
+    constexpr dryad_time half_dotted = 72;
+    constexpr dryad_time half = 48;
+    constexpr dryad_time quarter_dotted = 36;
+    constexpr dryad_time half_triplet = 32;
+    constexpr dryad_time quarter = 24;
+    constexpr dryad_time eighth_dotted = 18;
+    constexpr dryad_time quarter_triplet = 16;
+    constexpr dryad_time eighth = 12;
+    constexpr dryad_time eighth_triplet = 8;
+    constexpr dryad_time sixteenth = 6;
+    constexpr dryad_time sixteenth_triplet = 4;
+    constexpr dryad_time thirthy_seconth = 3;
+    constexpr dryad_time thirthy_seconthTriplet = 2;
+    constexpr dryad_time default_beat_alignement = eighth;
+
     constexpr unsigned scale_limit = 12;
     constexpr unsigned octave_limit = 11;
 

@@ -11,5 +11,5 @@ using dryad_error = unsigned;
 
 constexpr unsigned dryad_invalid = unsigned(-1);
 
-constexpr dryad_error dryad_no_error = 0;
+#include "errors.h"
 

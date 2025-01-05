@@ -1,5 +1,4 @@
 #include "gtest/gtest.h"
-#include "dryad/src/graph.h"
 #include "dryad/src/dryad.h"
 
 class Tests : public ::testing::Test
@@ -18,7 +17,6 @@ public:
 
     int value;
 };
-
 
 class test_node2 : public dryad_node
 {
@@ -47,7 +45,7 @@ TEST(drayd_graph, insert_node)
 
     for (dryad_node* node : graph)
     {
-        if (test_node* content = node->get_content<test_node>())
+        if (test_node* content = node->get<test_node>())
             EXPECT_EQ(content->value, test_value);
         else
             FAIL() << "Unable to cast node to underlying type";
@@ -66,7 +64,7 @@ TEST(drayd_graph, create_node)
 
     for (dryad_node* node : graph)
     {
-        if (test_node* content = node->get_content<test_node>())
+        if (test_node* content = node->get<test_node>())
             EXPECT_EQ(content->value, test_value);
         else
             FAIL() << "Unable to cast node to underlying type";
@@ -84,7 +82,7 @@ TEST(drayd_graph, destroy_node)
 
     for (dryad_node* node : graph)
     {
-        if (test_node* content = node->get_content<test_node>())
+        if (test_node* content = node->get<test_node>())
             EXPECT_EQ(content->value, test_value);
         else
             FAIL() << "Unable to cast node to underlying type";
@@ -138,12 +136,75 @@ TEST(dryad_node, for_each)
 
     int result = 0;
     node.for_each<test_node>([&](test_node* n)
-    {
-        result += n->value;
-    });
+        {
+            result += n->value;
+        });
 
     EXPECT_EQ(result, test_value * 2) << "Only and all nodes of selected type should have been processed.";
 }
 
-// creating progression is the next thing to implement
+TEST(dryad_score, MVP)
+{
+    // Add voice to score
+    dryad_score score;
 
+    dryad_voice* voice = score.create<dryad_voice>();
+    EXPECT_NE(voice, nullptr);
+    voice->id = 2;
+
+    score.for_each<dryad_voice>([](dryad_voice* v)
+        {
+            EXPECT_EQ(v->id, 2);
+        });
+
+    // Add motif to voice
+    dryad_motif* motif = score.create<dryad_motif>();
+    EXPECT_NE(motif, nullptr);
+
+    motif->harmonic_anchor = dryad_harmonic_anchor::chord;
+    motif->rhythmic_anchor = dryad_rhythmic_anchor::any_beat;
+
+    dryad_time duration = eighth;
+    dryad_time position = 0;
+    dryad_note_relative value = 0;
+    dryad_motif_note* motif_note = motif->add_note(value, duration, position);
+
+    bool link_result = score.link(voice, motif);
+    EXPECT_EQ(link_result, true);
+
+    // Set score scale
+    dryad_scale* scale = score.create<dryad_scale>(dryad_scale_library::major_scale);
+    EXPECT_NE(scale, nullptr);
+
+    score.current_scale = scale;
+
+    // Set score progression
+    dryad_progression* progression = score.create<dryad_progression>();
+    EXPECT_NE(progression, nullptr);
+
+    dryad_progression_chord* chord1 = score.create<dryad_progression_chord>(dryad_chord(dryad_degree::tonic), whole);
+    EXPECT_NE(chord1, nullptr);
+    dryad_progression_chord* chord2 = score.create<dryad_progression_chord>(dryad_chord(dryad_degree::dominant), whole);
+    EXPECT_NE(chord2, nullptr);
+
+    progression->nodes.push_back(chord1);
+    progression->nodes.push_back(chord2);
+    progression->entry_node = chord1;
+    chord1->next = chord2;
+
+    score.current_progression = progression;
+
+    // Commit score duration
+    dryad_error error = score.commit(4 * whole);
+    EXPECT_EQ(error, dryad_no_error);
+
+    // Dump score
+    dryad_serialized_score serialized_score;
+    error = score.dump(serialized_score);
+    //EXPECT_EQ(error, dryad_no_error);
+}
+
+
+
+// Most additions to the score should have an .add_<something> method,
+// so it's added to the graph but also to the 'shortcut' vectors (voices, motifs, frames, progressions)
