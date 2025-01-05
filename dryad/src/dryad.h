@@ -7,6 +7,14 @@
 
 using namespace dryad_constants;
 
+class dryad_motif;
+class dryad_motif_instance;
+class dryad_voice;
+class dryad_score;
+class dryad_scale;
+class dryad_chord;
+class dryad_progression;
+
 DRYAD_DECLARE_FLAG_ENUM(dryad_degree, unsigned)
 {
     DRYAD_FLAG(tonic, 1),
@@ -76,7 +84,9 @@ public:
         dryad_degree degrees = dryad_degree::tonic,
         dryad_chord_quality qualities = dryad_chord_quality::default,
         dryad_accidental accidental = dryad_accidental::natural
-    );
+    )
+    {
+    }
 
     dryad_degree degree;
     dryad_chord_quality qualities;
@@ -86,16 +96,51 @@ public:
 class dryad_progression_node : public dryad_node
 {
 public:
-    virtual dryad_progression_node* get_next() = 0;
+    dryad_progression_node* next;
 };
 
-class dryad_progression_sequential_switcher : public dryad_progression_node
+class dryad_progression : public dryad_node
 {
 public:
-    DRYAD_CLASS_ID(dryad_progression_switcher);
+    DRYAD_CLASS_ID(dryad_progression);
+
+    dryad_error set_entry_node(dryad_progression_node* node);
+
+    dryad_progression_node* entry_node;
+    dryad_vector<dryad_progression_node*> nodes;
+};
+
+class dryad_progression_switch_sequence : public dryad_progression_node
+{
+public:
+    DRYAD_CLASS_ID(dryad_progression_switch_sequence);
 
     dryad_vector<dryad_progression_node*> outputs;
     int output_index;
+};
+
+struct dryad_motif_change
+{
+    dryad_motif* old_motif;
+    dryad_motif* new_motif;
+};
+
+struct dryad_voice_change
+{
+    dryad_voice* old_voice;
+    dryad_voice* new_voice;
+};
+
+class dryad_progression_score_event : public dryad_progression_node
+{
+public:
+    DRYAD_CLASS_ID(dryad_progression_score_event);
+
+    dryad_progression* progression_change;
+    dryad_scale* scale_change;
+    dryad_vector<dryad_motif_change> motif_changes;
+    dryad_vector<dryad_voice_change> voice_changes;
+    bool score_end;
 };
 
 class dryad_progression_chord : public dryad_progression_node
@@ -108,31 +153,25 @@ public:
     int duration;
 };
 
-class dryad_progression : public dryad_node
+class dryad_progression_chord_instance : public dryad_node
 {
 public:
-    DRYAD_CLASS_ID(dryad_progression);
+    DRYAD_CLASS_ID(dryad_progression_chord_instance);
 
-    dryad_error set_entry_node(dryad_progression_node* node);
-    dryad_error add_node(dryad_progression_node* node);
-    dryad_error remove_node(dryad_progression_node* node);
-
-
-    dryad_progression_node* entry_node;
+    int position;
 };
 
 struct dryad_scale_note_offsets
 {
-    // Defaults to major scale
     dryad_scale_note_offsets
     (
-        dryad_note_value tonic = 0,
-        dryad_note_value supertonic     = major_second,
-        dryad_note_value mediant        = major_third,
-        dryad_note_value subdominant    = perfect_fourth,
-        dryad_note_value dominant       = perfect_fifth,
-        dryad_note_value submediant     = major_sixth,
-        dryad_note_value leading_tone   = major_seventh
+        dryad_note_value tonic,
+        dryad_note_value supertonic,
+        dryad_note_value mediant,
+        dryad_note_value subdominant,
+        dryad_note_value dominant,
+        dryad_note_value submediant,
+        dryad_note_value leading_tone
     )
         : degrees
         {
@@ -294,16 +333,16 @@ public:
 
     dryad_scale
     (
-        dryad_scale_note_offsets note_offsets,
+        dryad_scale_note_offsets scale_note_offsets,
         dryad_scale_degree_qualities degree_qualities
     )
-        : note_offsets(note_offsets)
-        , dryad_scale_degree_qualities(degree_qualities)
+        : note_offsets(scale_note_offsets)
+        , degree_qualities(degree_qualities)
     {
     }
 
     dryad_scale_note_offsets note_offsets;
-    dryad_scale_degree_qualities dryad_scale_degree_qualities;
+    dryad_scale_degree_qualities degree_qualities;
 };
 
 class dryad_voice : public dryad_node
@@ -314,12 +353,34 @@ public:
     int id;
 };
 
+enum class dryad_harmonic_anchor
+{
+    scale,
+    chord
+};
+
+enum class dryad_rhythmic_anchor
+{
+    chord_beginning,
+    strong_beat,
+    weak_beat,
+    any_beat
+};
+
+enum class dryad_note_offset_type
+{
+    diatonic,
+    chromatic
+};
+
 class dryad_motif : public dryad_node
 {
 public:
     DRYAD_CLASS_ID(dryad_motif);
 
-
+    dryad_harmonic_anchor harmonic_anchor;
+    dryad_rhythmic_anchor rhythmic_anchor;
+    dryad_note_offset_type note_offset_type;
 };
 
 class dryad_motif_note : public dryad_node
@@ -360,9 +421,11 @@ public:
     dryad_error commit(dryad_time duration_step);
     dryad_error dump(dryad_serialized_score& serialized_score);
 
+    dryad_vector<dryad_voice*> voices;
+    dryad_vector<dryad_motif*> motifs;
     dryad_progression* current_progression;
     dryad_scale* current_scale;
-    dryad_time committed_end;
+    dryad_time committed_position_end;
 
 };
 
@@ -385,12 +448,14 @@ public:
     dryad_motif* get_motif();
     dryad_score_frame* get_score_frame();
     dryad_voice* get_voice();
+
+    int position;
 };
 
-class dryad_note : public dryad_node
+class dryad_note_instance : public dryad_node
 {
 public:
-    DRYAD_CLASS_ID(dryad_note);
+    DRYAD_CLASS_ID(dryad_note_instance);
 
     dryad_motif_note* get_motif_note();
     dryad_motif_instance* get_motif_instance();
