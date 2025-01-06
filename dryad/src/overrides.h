@@ -62,8 +62,8 @@ using dryad_string = std::string;
 template <class T>
 using dryad_vector = std::vector<T>;
 
-template <class T>
-using dryad_set = std::set<T>;
+template <class T, class compare = std::less<T>>
+using dryad_set = std::set<T, compare>;
 
-template <class K, class V>
-using dryad_map = std::map<K, V>;
+template <class key, class value>
+using dryad_map = std::map<key, value>;

@@ -272,19 +272,19 @@ public:
 
 struct dryad_scale_library
 {
-    static const inline dryad_scale_note_offsets ionian_offsets{0, 2, 4, 5, 7, 9, 11};
-    static const inline dryad_scale_note_offsets major_offsets = ionian_offsets;
-    static const inline dryad_scale_note_offsets dorian_offsets{0, 2, 3, 5, 7, 9, 10};
-    static const inline dryad_scale_note_offsets phrygian_offsets{0, 1, 3, 5, 7, 8, 10};
-    static const inline dryad_scale_note_offsets lydian_offsets{0, 2, 4, 6, 7, 9, 11};
-    static const inline dryad_scale_note_offsets mixolydian_offsets{0, 2, 4, 5, 7, 9, 10};
-    static const inline dryad_scale_note_offsets aeolian_offsets{0, 2, 3, 5, 7, 8, 10};
-    static const inline dryad_scale_note_offsets minor_natural_offsets = aeolian_offsets;
-    static const inline dryad_scale_note_offsets locrian_offsets{0, 1, 3, 5, 6, 8, 10};
-    static const inline dryad_scale_note_offsets minor_harmonic_offsets{0, 2, 3, 5, 7, 8, 11};
-    static const inline dryad_scale_note_offsets minor_melodic_offsets{0, 2, 3, 5, 7, 9, 11};
+    inline static const dryad_scale_note_offsets ionian_offsets{0, 2, 4, 5, 7, 9, 11};
+    inline static const dryad_scale_note_offsets major_offsets = ionian_offsets;
+    inline static const dryad_scale_note_offsets dorian_offsets{0, 2, 3, 5, 7, 9, 10};
+    inline static const dryad_scale_note_offsets phrygian_offsets{0, 1, 3, 5, 7, 8, 10};
+    inline static const dryad_scale_note_offsets lydian_offsets{0, 2, 4, 6, 7, 9, 11};
+    inline static const dryad_scale_note_offsets mixolydian_offsets{0, 2, 4, 5, 7, 9, 10};
+    inline static const dryad_scale_note_offsets aeolian_offsets{0, 2, 3, 5, 7, 8, 10};
+    inline static const dryad_scale_note_offsets minor_natural_offsets = aeolian_offsets;
+    inline static const dryad_scale_note_offsets locrian_offsets{0, 1, 3, 5, 6, 8, 10};
+    inline static const dryad_scale_note_offsets minor_harmonic_offsets{0, 2, 3, 5, 7, 8, 11};
+    inline static const dryad_scale_note_offsets minor_melodic_offsets{0, 2, 3, 5, 7, 9, 11};
 
-    static const inline dryad_scale_degree_qualities ionian_degree_qualities
+    inline static const dryad_scale_degree_qualities ionian_degree_qualities
     {
         dryad_chord_quality::major | dryad_chord_quality::seventh_major,
         dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
@@ -295,9 +295,9 @@ struct dryad_scale_library
         dryad_chord_quality::half_diminished
     };
     
-    static const inline dryad_scale_degree_qualities major_degree_qualities = ionian_degree_qualities;
+    inline static const dryad_scale_degree_qualities major_degree_qualities = ionian_degree_qualities;
 
-    static const inline dryad_scale_degree_qualities dorian_degree_qualities
+    inline static const dryad_scale_degree_qualities dorian_degree_qualities
     {
         dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
         dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
@@ -308,7 +308,7 @@ struct dryad_scale_library
         dryad_chord_quality::major | dryad_chord_quality::seventh_major
     };
 
-    static const inline dryad_scale_degree_qualities phrygian_degree_qualities
+    inline static const dryad_scale_degree_qualities phrygian_degree_qualities
     {
         dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
         dryad_chord_quality::major | dryad_chord_quality::seventh_minor,
@@ -319,7 +319,7 @@ struct dryad_scale_library
         dryad_chord_quality::minor | dryad_chord_quality::seventh_minor
     };
 
-    static const inline dryad_scale_degree_qualities lydian_degree_qualities
+    inline static const dryad_scale_degree_qualities lydian_degree_qualities
     {
         dryad_chord_quality::major | dryad_chord_quality::seventh_major,
         dryad_chord_quality::major | dryad_chord_quality::seventh_minor,
@@ -330,7 +330,7 @@ struct dryad_scale_library
         dryad_chord_quality::major | dryad_chord_quality::seventh_minor
     };
 
-    static const inline dryad_scale_degree_qualities mixolydian_degree_qualitie
+    inline static const dryad_scale_degree_qualities mixolydian_degree_qualitie
     {
         dryad_chord_quality::major | dryad_chord_quality::seventh_minor,
         dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
@@ -341,7 +341,7 @@ struct dryad_scale_library
         dryad_chord_quality::minor | dryad_chord_quality::seventh_minor
     };
 
-    static const inline dryad_scale_degree_qualities aeolian_degree_qualities
+    inline static const dryad_scale_degree_qualities aeolian_degree_qualities
     {
         dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
         dryad_chord_quality::diminished,
@@ -352,9 +352,9 @@ struct dryad_scale_library
         dryad_chord_quality::major | dryad_chord_quality::seventh_minor
     };
 
-    static const inline dryad_scale_degree_qualities minor_natural_degree_qualities = aeolian_degree_qualities;
+    inline static const dryad_scale_degree_qualities minor_natural_degree_qualities = aeolian_degree_qualities;
 
-    static const inline dryad_scale_degree_qualities locrian_degree_qualities
+    inline static const dryad_scale_degree_qualities locrian_degree_qualities
     {
         dryad_chord_quality::half_diminished,
         dryad_chord_quality::major | dryad_chord_quality::seventh_major,
@@ -365,7 +365,7 @@ struct dryad_scale_library
         dryad_chord_quality::minor | dryad_chord_quality::seventh_minor
     };
 
-    static const inline dryad_scale_degree_qualities minor_harmonic_degree_qualities
+    inline static const dryad_scale_degree_qualities minor_harmonic_degree_qualities
     {
         dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
         dryad_chord_quality::diminished,
@@ -376,7 +376,7 @@ struct dryad_scale_library
         dryad_chord_quality::diminished
     };
 
-    static const inline dryad_scale_degree_qualities minor_melodic_degree_qualities
+    inline static const dryad_scale_degree_qualities minor_melodic_degree_qualities
     {
         dryad_chord_quality::minor | dryad_chord_quality::seventh_major,
         dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
@@ -387,17 +387,17 @@ struct dryad_scale_library
         dryad_chord_quality::diminished
     };
 
-    static const inline dryad_scale ionian_scale{ionian_offsets, ionian_degree_qualities};
-    static const inline dryad_scale major_scale{ionian_scale};
-    static const inline dryad_scale dorian_scale{dorian_offsets, dorian_degree_qualities};
-    static const inline dryad_scale phrygian_scale{phrygian_offsets, phrygian_degree_qualities};
-    static const inline dryad_scale lydian_scale{lydian_offsets, lydian_degree_qualities};
-    static const inline dryad_scale mixolydian_scale{mixolydian_offsets, mixolydian_degree_qualitie};
-    static const inline dryad_scale aeolian_scale{aeolian_offsets, aeolian_degree_qualities};
-    static const inline dryad_scale minor_natural_scale{aeolian_scale};
-    static const inline dryad_scale locrian_scale{locrian_offsets, locrian_degree_qualities};
-    static const inline dryad_scale minor_harmonic_scale{minor_harmonic_offsets, minor_harmonic_degree_qualities};
-    static const inline dryad_scale minor_melodic_scale{minor_melodic_offsets, minor_melodic_degree_qualities};
+    inline static const dryad_scale ionian_scale{ionian_offsets, ionian_degree_qualities};
+    inline static const dryad_scale major_scale{ionian_scale};
+    inline static const dryad_scale dorian_scale{dorian_offsets, dorian_degree_qualities};
+    inline static const dryad_scale phrygian_scale{phrygian_offsets, phrygian_degree_qualities};
+    inline static const dryad_scale lydian_scale{lydian_offsets, lydian_degree_qualities};
+    inline static const dryad_scale mixolydian_scale{mixolydian_offsets, mixolydian_degree_qualitie};
+    inline static const dryad_scale aeolian_scale{aeolian_offsets, aeolian_degree_qualities};
+    inline static const dryad_scale minor_natural_scale{aeolian_scale};
+    inline static const dryad_scale locrian_scale{locrian_offsets, locrian_degree_qualities};
+    inline static const dryad_scale minor_harmonic_scale{minor_harmonic_offsets, minor_harmonic_degree_qualities};
+    inline static const dryad_scale minor_melodic_scale{minor_melodic_offsets, minor_melodic_degree_qualities};
 };
 
 class dryad_voice : public dryad_node
@@ -405,8 +405,43 @@ class dryad_voice : public dryad_node
 public:
     DRYAD_CLASS_ID(dryad_voice);
 
+    struct compare_by_id
+    {
+        bool operator()(const dryad_voice* a, const dryad_voice* b) const
+        {
+            return a->id < b->id;
+        }
+    };
+
+    dryad_voice(int id, dryad_string name)
+        : id(id)
+        , name(name)
+    {
+    }
+
+    dryad_error add_motif(dryad_motif* motif)
+    {
+        if (!graph->contains(motif))
+            return dryad_node_not_in_graph;
+
+        if (std::find(motifs.begin(), motifs.end(), motif) != motifs.end())
+            return dryad_already_exists;
+
+        graph->link(this, motif);
+
+        motifs.push_back(motif);
+
+        return dryad_no_error;
+    }
+
+    dryad_error remove_motif(dryad_motif* motif)
+    {
+        return dryad_not_implemented;
+    }
+
     int id;
     dryad_string name;
+
     dryad_vector<dryad_motif*> motifs;
 };
 
@@ -452,7 +487,19 @@ class dryad_score_frame : public dryad_node
 public:
     DRYAD_CLASS_ID(dryad_score_frame);
 
-    dryad_score* get_score();
+    dryad_score_frame(dryad_time position = 0)
+        : position(position)
+        , committed(false)
+    {
+    }
+
+    struct compare_by_position
+    {
+        bool operator()(const dryad_score_frame* a, const dryad_score_frame* b) const
+        {
+            return a->position < b->position;
+        }
+    };
 
     dryad_time position;
     bool committed;
@@ -499,6 +546,7 @@ public:
         for_each<dryad_motif_note>([&](dryad_motif_note* note)
             {
                 dryad_time note_end = note->position + note->duration;
+
                 if (note_end > calculated_duration)
                     calculated_duration = note_end;
             });
@@ -532,6 +580,8 @@ public:
 
         return graph->destroy(motif_note_to_remove);
     }
+
+
 };
 
 struct dryad_serialized_note
@@ -564,10 +614,43 @@ public:
     {
     }
 
+    dryad_voice* add_voice(int id, dryad_string name)
+    {
+        dryad_voice* voice = create<dryad_voice>(id, name);
+
+        if (voice)
+            voices.insert(voice);
+
+        return voice;
+    }
+
     dryad_error commit(dryad_time duration_to_commit)
     {
+        dryad_score_frame* frame = find_last_committed_frame();
+
+        if (!frame)
+            frame = get_or_create_frame(0);
+
+        dryad_time score_position_after_commit = frame->position + duration_to_commit;
+
+        for (dryad_voice* voice : voices)
+        {
+            for (dryad_motif* motif : voice->motifs)
+            {
+                // TODO: start writing epic comments RIGHT NOW!!! this is the weird ass part!!
+
+                // find latest note instance
+                    // if it's beyond the score_position_after_commit, nothing to do
+                    // if it's before, check if the motif duration, from the instance position, extends beyond the score_position_after_commit
+                    // if it doesn't print an additional instance of the motif
+                    // redo all the checks above until we're beyond
+            }
+
+
+        }
+
         // for all voices
-            // check if motifs are printed on the frames until the final committed duration
+            // check if motifs notes are framed until the final committed duration
                 // print them if they are not
                 // how do we 'print' a motif?
                     // consider the current scale and progression chords
@@ -585,10 +668,52 @@ public:
         return dryad_not_implemented;
     }
 
+    dryad_score_frame* get_or_create_frame(dryad_time position)
+    {
+        dryad_score_frame* frame = find_frame_at_position(position);
+
+        if (frame)
+            return frame;
+
+        frame = create<dryad_score_frame>(position);
+
+        frames.insert(frame);
+
+        return frame;
+    }
+
+    dryad_score_frame* find_frame_at_position(dryad_time position)
+    {
+        dryad_score_frame dummy_frame(position);
+
+        auto it = frames.find(&dummy_frame);
+
+        if (it == frames.end())
+            return nullptr;
+
+        return *it;
+    }
+
+    dryad_score_frame* find_last_committed_frame()
+    {
+        dryad_score_frame* frame = nullptr;
+
+        for (auto it = frames.rbegin(); it != frames.rend(); ++it)
+        {
+            if ((*it)->committed)
+            {
+                frame = *it;
+                break;
+            }
+        }
+
+        return frame;
+    }
+
     dryad_progression* current_progression;
     dryad_scale* current_scale;
-    dryad_vector<dryad_voice*> voices;
-    dryad_vector<dryad_score_frame*> frames;
+    dryad_set<dryad_voice*, dryad_voice::compare_by_id> voices;
+    dryad_set<dryad_score_frame*, dryad_score_frame::compare_by_position> frames;
 
 };
 

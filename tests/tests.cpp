@@ -143,19 +143,61 @@ TEST(dryad_node, for_each)
     EXPECT_EQ(result, test_value * 2) << "Only and all nodes of selected type should have been processed.";
 }
 
+TEST(dryad_voice, set_compare_by_id)
+{
+    dryad_set<dryad_voice*, dryad_voice::compare_by_id> set;
+    dryad_voice a(3, "3");
+    dryad_voice b(1, "1");
+    dryad_voice c(2, "2");
+
+    set.insert(&a);
+    set.insert(&b);
+    set.insert(&c);
+
+    dryad_voice dummy(2, "0");
+
+    auto it = set.find(&dummy);
+    EXPECT_NE(it, set.end());
+
+    dryad_voice* voice_found = *it;
+
+    EXPECT_EQ(voice_found, &c);
+}
+
+TEST(dryad_score_frame, set_compare_by_position)
+{
+    dryad_set<dryad_score_frame*, dryad_score_frame::compare_by_position> set;
+    dryad_score_frame a(3);
+    dryad_score_frame b(1);
+    dryad_score_frame c(2);
+
+    set.insert(&a);
+    set.insert(&b);
+    set.insert(&c);
+
+    dryad_score_frame dummy(2);
+
+    auto it = set.find(&dummy);
+    EXPECT_NE(it, set.end());
+
+    dryad_score_frame* frame_found = *it;
+
+    EXPECT_EQ(frame_found, &c);
+
+}
+
 TEST(dryad_score, MVP)
 {
     // Add voice to score
     dryad_score score;
 
-    dryad_voice* voice = score.create<dryad_voice>();
+    int id = 1;
+    dryad_string name = "test_voice";
+    dryad_voice* voice = score.add_voice(id, name);
     EXPECT_NE(voice, nullptr);
-    voice->id = 2;
 
-    score.for_each<dryad_voice>([](dryad_voice* v)
-        {
-            EXPECT_EQ(v->id, 2);
-        });
+    for (dryad_voice* v : score.voices)
+        EXPECT_EQ(v->id, id);
 
     // Add motif to voice
     dryad_motif* motif = score.create<dryad_motif>();
@@ -169,8 +211,8 @@ TEST(dryad_score, MVP)
     dryad_note_relative value = 0;
     dryad_motif_note* motif_note = motif->add_note(value, duration, position);
 
-    bool link_result = score.link(voice, motif);
-    EXPECT_EQ(link_result, true);
+    dryad_error error = voice->add_motif(motif);
+    EXPECT_EQ(error, dryad_no_error);
 
     // Set score scale
     dryad_scale* scale = score.create<dryad_scale>(dryad_scale_library::major_scale);
@@ -195,8 +237,8 @@ TEST(dryad_score, MVP)
     score.current_progression = progression;
 
     // Commit score duration
-    dryad_error error = score.commit(4 * whole);
-    EXPECT_EQ(error, dryad_no_error);
+    error = score.commit(4 * whole);
+    EXPECT_EQ(error, dryad_no_error) << "error: " << dryad_error_string(error);
 
     // Dump score
     dryad_serialized_score serialized_score;
