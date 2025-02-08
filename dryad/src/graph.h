@@ -15,7 +15,7 @@ constexpr unsigned fnv_hash(const char* str, unsigned hash = 2166136261)
 }
 
 using dryad_class_id = unsigned;
-#define DRYAD_CLASS_ID(className) \
+#define DRYAD_NODE_CLASS_ID(className) \
     static constexpr dryad_class_id ID = fnv_hash(#className); \
     inline dryad_class_id get_class_id() const { return ID; } \
 

@@ -8,7 +8,7 @@ class Tests : public ::testing::Test
 class test_node : public dryad_node
 {
 public:
-    DRYAD_CLASS_ID(test_node);
+    DRYAD_NODE_CLASS_ID(test_node);
 
     test_node(int value = 0)
         : value(value)
@@ -21,7 +21,7 @@ public:
 class test_node2 : public dryad_node
 {
 public:
-    DRYAD_CLASS_ID(test_node2);
+    DRYAD_NODE_CLASS_ID(test_node2);
 
     test_node2(int value = 0)
         : value(value)
