@@ -19,11 +19,8 @@ namespace dryad_constants
     constexpr dryad_time sixteenth = 6;
     constexpr dryad_time sixteenth_triplet = 4;
     constexpr dryad_time thirthy_seconth = 3;
-    constexpr dryad_time thirthy_seconthTriplet = 2;
+    constexpr dryad_time thirthy_seconth_triplet = 2;
     constexpr dryad_time default_beat_alignement = eighth;
-
-    constexpr unsigned scale_limit = 12;
-    constexpr unsigned octave_limit = 11;
 
     constexpr dryad_note_value minor_second = 1;
     constexpr dryad_note_value major_second = 2;
@@ -37,6 +34,9 @@ namespace dryad_constants
     constexpr dryad_note_value minor_seventh = 10;
     constexpr dryad_note_value major_seventh = 11;
     constexpr dryad_note_value octave = 12;
+
+    constexpr unsigned scale_limit = 12;
+    constexpr unsigned octave_limit = 11;
 
     constexpr float frequencies[scale_limit][octave_limit] =
     {

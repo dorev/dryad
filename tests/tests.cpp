@@ -183,7 +183,16 @@ TEST(dryad_score_frame, set_compare_by_position)
     dryad_score_frame* frame_found = *it;
 
     EXPECT_EQ(frame_found, &c);
+}
 
+TEST(dryad_score, find_frame_at_position)
+{
+    //FAIL() << "Test not implemented.";
+}
+
+TEST(dryad_score, find_last_committed_frame)
+{
+    //FAIL() << "Test not implemented.";
 }
 
 TEST(dryad_score, MVP)
@@ -212,7 +221,7 @@ TEST(dryad_score, MVP)
     dryad_motif_note* motif_note = motif->add_note(value, duration, position);
 
     dryad_error error = voice->add_motif(motif);
-    EXPECT_EQ(error, dryad_no_error);
+    EXPECT_EQ(error, dryad_error_success);
 
     // Set score scale
     dryad_scale* scale = score.create<dryad_scale>(dryad_scale_library::major_scale);
@@ -238,7 +247,7 @@ TEST(dryad_score, MVP)
 
     // Commit score duration
     error = score.commit(4 * whole);
-    EXPECT_EQ(error, dryad_no_error) << "error: " << dryad_error_string(error);
+    EXPECT_EQ(error, dryad_error_success) << "error: " << dryad_error_string(error);
 
     // Dump score
     dryad_serialized_score serialized_score;
@@ -249,4 +258,4 @@ TEST(dryad_score, MVP)
 
 
 // Most additions to the score should have an .add_<something> method,
-// so it's added to the graph but also to the 'shortcut' vectors (voices, motifs, frames, progressions)
+// so it's added to the graph but also to the cache vectors (voices, motifs, frames, progressions)

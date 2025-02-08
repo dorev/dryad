@@ -9,4 +9,4 @@ set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external)
 
 add_subdirectory(dryad)
 add_subdirectory(tests)
-add_subdirectory(gui)
+#add_subdirectory(gui)

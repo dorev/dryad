@@ -27,6 +27,8 @@ inline static dryad_log_level g_log_level = dryad_log_level::debug;
 #define DRYAD_FUNCTION __PRETTY_FUNCTION__
 #endif
 
+#define DRYAD_UNUSED(variable) (void) variable
+
 #define DRYAD_COLOR_RESET       "\033[0m"
 #define DRYAD_COLOR_GREEN       "\033[32m"
 #define DRYAD_COLOR_WHITE       "\033[37m"

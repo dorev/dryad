@@ -422,26 +422,73 @@ public:
     dryad_error add_motif(dryad_motif* motif)
     {
         if (!graph->contains(motif))
-            return dryad_node_not_in_graph;
+            return dryad_error_node_not_in_graph;
 
         if (std::find(motifs.begin(), motifs.end(), motif) != motifs.end())
-            return dryad_already_exists;
+            return dryad_error_already_exists;
 
         graph->link(this, motif);
 
+        // Keep a cached pointer to avoid cycling through all edges
         motifs.push_back(motif);
 
-        return dryad_no_error;
+        return dryad_error_success;
     }
 
     dryad_error remove_motif(dryad_motif* motif)
     {
-        return dryad_not_implemented;
+        return dryad_error_not_implemented;
+    }
+
+    dryad_motif_instance* get_last_motif_instance()
+    {
+
+    }
+
+    dryad_error generate_until(dryad_time position_target)
+    {
+        dryad_score* score = static_cast<dryad_score*>(graph);
+        if (!score)
+            return dryad_error_node_not_in_graph;
+
+        for (dryad_motif* motif : motifs)
+        {
+            dryad_motif_instance* motif_instance = get_last_motif_instance();
+            dryad_time next_instance_time = 0;
+
+            if (!motif_instance)
+                next_instance_time = motif->get_next_instance_time_allowed();
+            else
+                next_instance_time = motif_instance->get_end_time();
+
+            if (next_instance_time >= position_target)
+            {
+                // Committing the requested duration doesn't required additional
+                // instances generation for this motif
+                continue;
+            }
+            else
+            {
+                while (next_instance_time < position_target)
+                {
+                    dryad_score_frame* frame = score->get_or_create_frame(next_instance_time);
+                    if (!frame)
+                        return dryad_error_invalid_frame;
+
+                    dryad_error error = frame->append_motif_instance(this, motif, next_instance_time, motif_instance);
+                    if (error)
+                        return error;
+
+                    next_instance_time = motif_instance->get_end_time();
+                }
+            }
+        }
+
+        return dryad_error_success;
     }
 
     int id;
     dryad_string name;
-
     dryad_vector<dryad_motif*> motifs;
 };
 
@@ -493,6 +540,7 @@ public:
     {
     }
 
+    // Comparison helper to automate the ordering in a set
     struct compare_by_position
     {
         bool operator()(const dryad_score_frame* a, const dryad_score_frame* b) const
@@ -514,6 +562,15 @@ public:
     dryad_note_value value;
     dryad_score_frame* score_frame;
     const dryad_motif_note* motif_note;
+};
+
+class dryad_motif_instance : public dryad_node
+{
+public:
+    DRYAD_CLASS_ID(dryad_motif_instance);
+
+    dryad_time position;
+    const dryad_motif* motif;
 };
 
 class dryad_motif : public dryad_node
@@ -540,6 +597,9 @@ public:
 
     // void update_note(dryad_motif_note* motif_note);
 
+    // Evaluates the duration of the motif by checking the end time
+    // of each note. The duration can be specified beyond that time
+    // so the silence at the end of the motif is also included
     void update_duration()
     {
         dryad_time calculated_duration = 0;
@@ -560,7 +620,7 @@ public:
     {
         bool motif_note_owned = false;
 
-        // for loop breaks when returning true
+        // this for loop breaks when returning true
         for_each_breakable<dryad_motif_note>([&](dryad_motif_note* motif_note) -> bool
             {
                 return motif_note_owned = (motif_note_to_remove == motif_note);
@@ -581,6 +641,51 @@ public:
         return graph->destroy(motif_note_to_remove);
     }
 
+    dryad_motif_instance* get_last_instance()
+    {
+        dryad_motif_instance* last_instance = nullptr;
+        dryad_time last_instance_end = 0;
+
+        for_each<dryad_motif_instance>([&](dryad_motif_instance* instance)
+            {
+                dryad_time instance_end = instance->position + duration;
+                if (instance_end > last_instance_end)
+                {
+                    last_instance_end = instance_end;
+                    last_instance = instance;
+                }
+            });
+
+        return last_instance;
+    }
+
+    dryad_error generate_instances_until(dryad_voice* voice, dryad_time position)
+    {
+        if (!voice)
+            return dryad_error_invalid_voice;
+
+        dryad_motif_instance* last_instance = get_last_instance();
+
+        dryad_time last_instance_end = 0;
+
+        if (dryad_motif_instance* last_instance = get_last_instance())
+            last_instance_end = last_instance->position + duration;
+
+        dryad_score* score = static_cast<dryad_score*>(graph);
+        if (!score)
+            return dryad_error_node_not_in_graph;
+
+        while (last_instance_end < position)
+        {
+            dryad_error error = voice->append_motif_instance(motif, last_instance);
+            if (error)
+                return error;
+
+            last_instance_end = last_instance->position + duration;
+        }
+
+        return dryad_error_not_implemented;
+    }
 
 };
 
@@ -624,6 +729,16 @@ public:
         return voice;
     }
 
+    // Calling this will set in stone the notes within the specified duration,
+    // effectively appending 'real' notes to the score.
+    //
+    // The steps of this process are:
+    //
+    // - Check that all motifs in all voices are generated at least until the end of
+    //   the committed duration (include the duration appended by this call)
+    //
+    // - Each newly committed frame will then evaluate its notes based on the associated
+    //   motif parameters and considering the scale and progression chord of the frame
     dryad_error commit(dryad_time duration_to_commit)
     {
         dryad_score_frame* frame = find_last_committed_frame();
@@ -631,21 +746,13 @@ public:
         if (!frame)
             frame = get_or_create_frame(0);
 
-        dryad_time score_position_after_commit = frame->position + duration_to_commit;
+        dryad_time total_committed_time = frame->position + duration_to_commit;
 
+        // For every motif of each voice, generate instances until the total committed
+        // duration is reached
         for (dryad_voice* voice : voices)
         {
-            for (dryad_motif* motif : voice->motifs)
-            {
-                // TODO: start writing epic comments RIGHT NOW!!! this is the weird ass part!!
-
-                // find latest note instance
-                    // if it's beyond the score_position_after_commit, nothing to do
-                    // if it's before, check if the motif duration, from the instance position, extends beyond the score_position_after_commit
-                    // if it doesn't print an additional instance of the motif
-                    // redo all the checks above until we're beyond
-            }
-
+            voice->generate_until(position);
 
         }
 
@@ -660,12 +767,12 @@ public:
                         // have score_frame generate the note_instances
             // commit all frames within the committed duration
 
-        return dryad_not_implemented;
+        return dryad_error_not_implemented;
     }
 
     dryad_error dump(dryad_serialized_score& serialized_score)
     {
-        return dryad_not_implemented;
+        return dryad_error_not_implemented;
     }
 
     dryad_score_frame* get_or_create_frame(dryad_time position)
@@ -684,6 +791,7 @@ public:
 
     dryad_score_frame* find_frame_at_position(dryad_time position)
     {
+        // Creating a dummy frame with the searched position to leverage std::find
         dryad_score_frame dummy_frame(position);
 
         auto it = frames.find(&dummy_frame);
@@ -715,15 +823,6 @@ public:
     dryad_set<dryad_voice*, dryad_voice::compare_by_id> voices;
     dryad_set<dryad_score_frame*, dryad_score_frame::compare_by_position> frames;
 
-};
-
-class dryad_motif_instance : public dryad_node
-{
-public:
-    DRYAD_CLASS_ID(dryad_motif_instance);
-
-    int position;
-    const dryad_motif* motif;
 };
 
 class dryad_exporter
