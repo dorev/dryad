@@ -15,8 +15,9 @@ constexpr unsigned fnv_hash(const char* str, unsigned hash = 2166136261)
 }
 
 using dryad_class_id = unsigned;
-#define DRYAD_NODE_CLASS_ID(className) \
-    static constexpr dryad_class_id ID = fnv_hash(#className); \
+#define DRYAD_NODE_CLASS_ID(class_name) \
+    static constexpr dryad_class_id ID = fnv_hash(#class_name); \
+    static constexpr const char* NAME = #class_name; \
     inline dryad_class_id get_class_id() const { return ID; } \
 
 class dryad_graph
@@ -54,8 +55,9 @@ public:
             return false;
         }
 
+        // Loop through all edges of type T.
         template <class T, class function_t>
-        void for_each(function_t&& function)
+        void for_each_edge(function_t&& function)
         {
             static_assert(std::is_base_of<dryad_node, T>::value, "Class must derive from dryad_node.");
 
@@ -66,8 +68,9 @@ public:
             }
         }
 
+        // Loop trough all edges of typpe T, breaks when returning `true`.
         template <class T, class function_t>
-        void for_each_breakable(function_t&& function)
+        void for_each_edge_breakable(function_t&& function)
         {
             static_assert(std::is_base_of<dryad_node, T>::value, "Class must derive from dryad_node.");
 
@@ -99,11 +102,15 @@ public:
         T* content = DRYAD_NEW(T, std::forward<args_t>(args)...);
 
         if (insert(content))
+        {
             return content;
+        }
         else
+        {
+            DRYAD_ERROR("Unable to create %s node in graph.", T::NAME);
             DRYAD_DELETE(content);
-
-        return nullptr;
+            return nullptr;
+        }
     }
 
     // Once a node is inserted, the graph takes ownership of its lifetime
@@ -124,7 +131,7 @@ public:
     }
 
     template <class T, class function_t>
-    void for_each(function_t&& function)
+    void for_each_edge(function_t&& function)
     {
         static_assert(std::is_base_of<dryad_node, T>::value, "Class must derive from dryad_node.");
 
@@ -133,7 +140,7 @@ public:
     }
 
     template <class T, class function_t>
-    void for_each_breakable(function_t&& function)
+    void for_each_edge_breakable(function_t&& function)
     {
         static_assert(std::is_base_of<dryad_node, T>::value, "Class must derive from dryad_node.");
 

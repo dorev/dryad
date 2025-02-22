@@ -4,7 +4,7 @@
 
 struct dryad_serialized_note
 {
-    dryad_time position;
+    dryad_time relative_position;
     dryad_time duration;
     dryad_note_value value;
 };

@@ -3,23 +3,24 @@
 #include "types.h"
 #include "flag.h"
 
-DRYAD_DECLARE_FLAG_ENUM(dryad_degree, unsigned)
+enum class dryad_degree
 {
-    invalid = 0,
-    DRYAD_FLAG(tonic, 1),
+    tonic = 0,
     root = tonic,
-    DRYAD_FLAG(supertonic, 2),
+    supertonic = 1,
     second = supertonic,
-    DRYAD_FLAG(mediant, 3),
+    mediant = 2,
     third = mediant,
-    DRYAD_FLAG(subdominant, 4),
+    subdominant = 3,
     fourth = subdominant,
-    DRYAD_FLAG(dominant, 5),
+    dominant = 4,
     fifth = dominant,
-    DRYAD_FLAG(submediant, 6),
+    submediant = 5,
     sixth = submediant,
-    DRYAD_FLAG(leading_tone, 7),
-    seventh = leading_tone
+    leading_tone = 7,
+    seventh = leading_tone,
+    limit = 8,
+    invalid = limit
 };
 
 DRYAD_DECLARE_FLAG_ENUM(dryad_chord_quality, unsigned)
@@ -73,7 +74,7 @@ struct dryad_chord
 {
     dryad_chord
     (
-        dryad_degree degree,
+        dryad_degree degree = dryad_degree::invalid,
         dryad_chord_quality qualities = dryad_chord_quality::default,
         dryad_accidental accidental = dryad_accidental::natural
     )

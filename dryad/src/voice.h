@@ -23,7 +23,7 @@ public:
     dryad_error remove_motif(dryad_motif* motif);
     dryad_motif_instance* get_last_motif_instance();
     dryad_error generate_until(dryad_time position_target);
-    dryad_error append_motif_instance(dryad_motif* motif, dryad_motif_instance*& instance);
+    dryad_error add_motif_instance(dryad_motif* motif, dryad_motif_instance*& instance);
 
     int id;
     dryad_string name;

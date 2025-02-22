@@ -121,7 +121,7 @@ TEST(drayd_graph, link)
     EXPECT_EQ(graph.size(), 2);
 }
 
-TEST(dryad_node, for_each)
+TEST(dryad_node, for_each_edge)
 {
     test_node node;
 
@@ -135,7 +135,7 @@ TEST(dryad_node, for_each)
     node.edges.push_back(&node3);
 
     int result = 0;
-    node.for_each<test_node>([&](test_node* n)
+    node.for_each_edge<test_node>([&](test_node* n)
         {
             result += n->value;
         });
@@ -216,9 +216,9 @@ TEST(dryad_score, MVP)
     motif->rhythmic_anchor = dryad_rhythmic_anchor::any_beat;
 
     dryad_time duration = eighth;
-    dryad_time position = 0;
+    dryad_time relative_position = 0;
     dryad_note_relative value = 0;
-    dryad_motif_note* motif_note = motif->add_note(value, duration, position);
+    dryad_motif_note* motif_note = motif->add_note(value, duration, relative_position);
 
     dryad_error error = voice->add_motif(motif);
     EXPECT_EQ(error, dryad_error_success);

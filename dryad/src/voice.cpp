@@ -44,22 +44,22 @@ dryad_error dryad_voice::generate_until(dryad_time position_target)
     for (dryad_motif* motif : motifs)
     {
         dryad_motif_instance* motif_instance = get_last_motif_instance();
-        dryad_time next_instance_time = 0;
+        dryad_time next_motif_time = 0;
 
         if (!motif_instance)
         {
-            dryad_error error = motif->get_next_instance_time_allowed(this, next_instance_time);
+            dryad_error error = motif->get_instances_end_time(this, next_motif_time);
             if (error)
                 return error;
         }
         else
         {
-            next_instance_time = motif_instance->get_end_time();
-            if (next_instance_time == dryad_invalid)
+            next_motif_time = motif_instance->get_end_time();
+            if (next_motif_time == dryad_invalid)
                 return dryad_error_invalid_instance;
         }
 
-        if (next_instance_time >= position_target)
+        if (next_motif_time >= position_target)
         {
             // Committing the requested duration doesn't required additional
             // instances generation for this motif
@@ -67,17 +67,13 @@ dryad_error dryad_voice::generate_until(dryad_time position_target)
         }
         else
         {
-            while (next_instance_time < position_target)
+            while (next_motif_time < position_target)
             {
-                dryad_score_frame* frame = score->get_or_create_frame(next_instance_time);
-                if (!frame)
-                    return dryad_error_invalid_frame;
-
-                dryad_error error = frame->append_motif_instance(this, motif, motif_instance);
+                dryad_error error = score->add_motif_instance(this, motif, next_motif_time, motif_instance);
                 if (error)
                     return error;
 
-                next_instance_time = motif_instance->get_end_time();
+                next_motif_time = motif_instance->get_end_time();
             }
         }
     }

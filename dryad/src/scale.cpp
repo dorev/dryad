@@ -2,13 +2,13 @@
 
 dryad_scale_note_offsets::dryad_scale_note_offsets
 (
-    dryad_note_value tonic,
-    dryad_note_value supertonic,
-    dryad_note_value mediant,
-    dryad_note_value subdominant,
-    dryad_note_value dominant,
-    dryad_note_value submediant,
-    dryad_note_value leading_tone
+    dryad_note_relative tonic,
+    dryad_note_relative supertonic,
+    dryad_note_relative mediant,
+    dryad_note_relative subdominant,
+    dryad_note_relative dominant,
+    dryad_note_relative submediant,
+    dryad_note_relative leading_tone
 )
     : degrees
     {
@@ -71,4 +71,14 @@ dryad_scale& dryad_scale::operator=(const dryad_scale& other)
     }
 
     return *this;
+}
+
+dryad_note_relative dryad_scale::get_degree_note_offset(dryad_degree degree)
+{
+    return note_offsets.degrees[static_cast<int>(degree) - 1];
+}
+
+dryad_chord_quality dryad_scale::get_degree_chord_quality(dryad_degree degree)
+{
+    return degree_qualities.degrees[static_cast<int>(degree) - 1];
 }

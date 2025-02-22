@@ -22,12 +22,14 @@ public:
     dryad_progression_node* next;
 };
 
+class dryad_progression_chord;
 class dryad_progression : public dryad_node
 {
 public:
     DRYAD_NODE_CLASS_ID(dryad_progression);
 
     dryad_progression_node* entry_node;
+    dryad_progression_chord* current_progression_chord;
     dryad_vector<dryad_progression_node*> nodes;
 };
 
@@ -86,5 +88,5 @@ public:
 
     dryad_progression_chord* progression_chord;
     dryad_note_value root;
-    dryad_time position;
+    dryad_time relative_position;
 };

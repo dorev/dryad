@@ -33,11 +33,12 @@ class dryad_motif_note : public dryad_node
 public:
     DRYAD_NODE_CLASS_ID(dryad_motif_note);
 
-    dryad_motif_note(dryad_note_relative value = 0, dryad_time duration = dryad_constants::quarter, dryad_time position = 0);
+    dryad_motif_note(dryad_motif* motif = nullptr, dryad_note_relative relative_value = dryad_invalid, dryad_time duration = dryad_invalid, dryad_time relative_position = dryad_invalid);
 
-    dryad_note_relative value;
+    dryad_motif* motif;
+    dryad_note_relative relative_value;
     dryad_time duration;
-    dryad_time position;
+    dryad_time relative_position;
 };
 
 
@@ -46,10 +47,12 @@ class dryad_note_instance : public dryad_node
 public:
     DRYAD_NODE_CLASS_ID(dryad_note_instance);
 
-    dryad_time duration;
-    dryad_note_value value;
+    dryad_note_instance(dryad_score_frame* score_frame = nullptr, dryad_motif_note* motif_note = nullptr, dryad_note_value value = dryad_invalid, dryad_time duration = dryad_invalid);
+
     dryad_score_frame* score_frame;
     const dryad_motif_note* motif_note;
+    dryad_note_value value;
+    dryad_time duration;
 };
 
 
@@ -62,8 +65,9 @@ public:
     dryad_rhythmic_anchor rhythmic_anchor;
     dryad_note_offset_type note_offset_type;
     dryad_time duration;
+    dryad_vector<dryad_motif_note*> notes;
 
-    dryad_motif_note* add_note(dryad_note_relative value, dryad_time duration, dryad_time position);
+    dryad_motif_note* add_note(dryad_note_relative relative_value, dryad_time duration, dryad_time relative_position);
 
     // Evaluates the duration of the motif by checking the end time
     // of each note. The duration can be specified beyond that time
@@ -74,7 +78,7 @@ public:
     bool destroy_note(dryad_motif_note* motif_note_to_remove);
 
     dryad_motif_instance* get_last_instance();
-    dryad_error get_next_instance_time_allowed(dryad_voice* voice, dryad_time& time);
+    dryad_error get_instances_end_time(dryad_voice* voice, dryad_time& time);
 
 };
 
@@ -83,8 +87,11 @@ class dryad_motif_instance : public dryad_node
 public:
     DRYAD_NODE_CLASS_ID(dryad_motif_instance);
 
+    dryad_motif_instance(dryad_voice* voice = nullptr, dryad_motif* motif = nullptr, dryad_time position = dryad_invalid);
+
     dryad_time get_end_time();
 
     dryad_time position;
     const dryad_motif* motif;
+    const dryad_voice* voice;
 };
