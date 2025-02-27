@@ -84,6 +84,20 @@ public:
             }
         }
 
+        template <class T>
+        T* find_first_edge()
+        {
+            static_assert(std::is_base_of<dryad_node, T>::value, "Class must derive from dryad_node.");
+
+            for (dryad_node* edge : edges)
+            {
+                if (edge && edge->get_class_id() == T::ID)
+                    return static_cast<T*>(edge);
+            }
+
+            return nullptr;
+        }
+
         dryad_vector<dryad_node*> edges;
         dryad_graph* graph;
     };

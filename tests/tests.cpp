@@ -205,7 +205,7 @@ TEST(dryad_score, MVP)
     dryad_voice* voice = score.add_voice(id, name);
     EXPECT_NE(voice, nullptr);
 
-    for (dryad_voice* v : score.voices)
+    for (dryad_voice* v : score.cached_voices)
         EXPECT_EQ(v->id, id);
 
     // Add motif to voice
@@ -221,7 +221,7 @@ TEST(dryad_score, MVP)
     dryad_motif_note* motif_note = motif->add_note(value, duration, relative_position);
 
     dryad_error error = voice->add_motif(motif);
-    EXPECT_EQ(error, dryad_error_success);
+    EXPECT_EQ(error, dryad_success);
 
     // Set score scale
     dryad_scale* scale = score.create<dryad_scale>(dryad_scale_library::major_scale);
@@ -247,7 +247,7 @@ TEST(dryad_score, MVP)
 
     // Commit score duration
     error = score.commit(4 * whole);
-    EXPECT_EQ(error, dryad_error_success) << "error: " << dryad_error_string(error);
+    EXPECT_EQ(error, dryad_success) << "error: " << dryad_error_string(error);
 
     // Dump score
     dryad_serialized_score serialized_score;

@@ -21,7 +21,7 @@ dryad_error dryad_voice::add_motif(dryad_motif* motif)
     // Keep a cached pointer to avoid cycling through all edges
     motifs.push_back(motif);
 
-    return dryad_error_success;
+    return dryad_success;
 }
 
 dryad_error dryad_voice::remove_motif(dryad_motif* motif)
@@ -78,5 +78,5 @@ dryad_error dryad_voice::generate_until(dryad_time position_target)
         }
     }
 
-    return dryad_error_success;
+    return dryad_success;
 }

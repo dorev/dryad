@@ -3,21 +3,16 @@
 #include "voice.h"
 
 dryad_motif_note::dryad_motif_note(dryad_motif* motif, dryad_note_relative relative_value, dryad_time duration, dryad_time relative_position)
-    : motif(motif)
-    , relative_value(relative_value)
+    : relative_value(relative_value)
     , duration(duration)
     , relative_position(relative_position)
 {
 }
 
-
-dryad_note_instance::dryad_note_instance(dryad_score_frame* score_frame, dryad_motif_note* motif_note, dryad_note_value value, dryad_time duration)
-    : score_frame(score_frame)
-    , motif_note(motif_note)
-    , value(value)
+dryad_note_instance::dryad_note_instance(dryad_note_value value, dryad_time duration)
+    : value(value)
     , duration(duration)
 {
-
 }
 
 dryad_motif_note* dryad_motif::add_note(dryad_note_relative relative_value, dryad_time duration, dryad_time relative_position)
@@ -30,8 +25,6 @@ dryad_motif_note* dryad_motif::add_note(dryad_note_relative relative_value, drya
     graph->link(this, motif_note);
 
     update_duration();
-
-    notes.push_back(motif_note);
 
     return motif_note;
 }
@@ -67,7 +60,9 @@ bool dryad_motif::destroy_note(dryad_motif_note* motif_note_to_remove)
     // Remove all uncommitted notes instances bound to motif_note_to_remove
     for_each_edge<dryad_note_instance>([&](dryad_note_instance* note)
         {
-            if (!note->score_frame->committed)
+            dryad_score_frame* note_frame = note->find_first_edge<dryad_score_frame>();
+
+            if (note_frame && !note_frame->committed)
                 graph->destroy(note);
             else
                 note->remove_edge(motif_note_to_remove);
@@ -99,23 +94,16 @@ dryad_error dryad_motif::get_instances_end_time(dryad_voice* voice, dryad_time& 
     return dryad_error_not_implemented;
 }
 
-dryad_motif_instance::dryad_motif_instance(dryad_voice* voice, dryad_motif* motif, dryad_time position)
-    : voice(voice)
-    , motif(motif)
-    , position(position)
+dryad_motif_instance::dryad_motif_instance(dryad_time position)
+    : position(position)
 {
-    if (!voice)
-        DRYAD_ERROR("Motif instance constructed with invalid voice.");
-
-    if (!motif)
-        DRYAD_ERROR("Motif instance constructed with invalid motif.");
-
     if (position == dryad_invalid)
         DRYAD_ERROR("Motif instance constructed with invalid position.");
 }
 
 dryad_time dryad_motif_instance::get_end_time()
 {
+    dryad_motif* motif = find_first_edge<dryad_motif>();
     if (!motif)
         return dryad_invalid;
 

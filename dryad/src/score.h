@@ -68,6 +68,6 @@ public:
     dryad_note_value current_root;
     dryad_progression* current_progression;
     dryad_scale* current_scale;
-    dryad_set<dryad_voice*, dryad_voice::compare_by_id> voices;
-    dryad_set<dryad_score_frame*, dryad_score_frame::compare_by_position> frames;
+    dryad_set<dryad_voice*, dryad_voice::compare_by_id> cached_voices;
+    dryad_set<dryad_score_frame*, dryad_score_frame::compare_by_position> cached_frames;
 };

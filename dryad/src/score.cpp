@@ -35,8 +35,9 @@ dryad_error dryad_score_frame::add_motif_note(dryad_motif_note* motif_note)
     if (!motif_note)
         return dryad_error_invalid_motif_note;
 
-    dryad_motif* motif = motif_note->motif;
-    if (!motif)
+    dryad_motif* motif = motif_note->find_first_edge<dryad_motif>();
+
+    if (motif)
         return dryad_error_invalid_motif;
 
     dryad_note_value note_anchor = get_current_root();
@@ -54,7 +55,7 @@ dryad_error dryad_score_frame::add_motif_note(dryad_motif_note* motif_note)
         dryad_note_relative note_offset = scale->note_offsets.degrees[motif_note->relative_value % static_cast<int>(dryad_degree::limit)];
         dryad_note_value note = dryad_constants::notes[C][4] + 12 * note_octave + note_offset;
 
-        dryad_note_instance* note_instance = graph->create<dryad_note_instance>(this, motif_note, note, motif_note->duration);
+        dryad_note_instance* note_instance = graph->create<dryad_note_instance>(note, motif_note->duration);
         graph->link(note_instance, this);
         graph->link(note_instance, motif_note);
 
@@ -76,7 +77,7 @@ dryad_voice* dryad_score::add_voice(int id, dryad_string name)
     dryad_voice* voice = create<dryad_voice>(id, name);
 
     if (voice)
-        voices.insert(voice);
+        cached_voices.insert(voice);
 
     return voice;
 }
@@ -92,25 +93,25 @@ dryad_error dryad_score::add_motif_instance(dryad_voice* voice, dryad_motif* mot
     if (position == dryad_invalid)
         return dryad_error_invalid_position;
 
-    instance = create<dryad_motif_instance>(voice, motif, position);
+    instance = create<dryad_motif_instance>(position);
     if (!instance)
         return dryad_error_invalid_instance;
 
     // TODO: we have to identify of there is a rythmic anchor to respect for the motif!!
 
     // Add each note of the motif in already existing or new frames
-    for (dryad_motif_note* note : motif->notes)
-    {
-        dryad_score_frame* frame = get_or_create_frame(position + note->relative_position);
-        if (!frame)
-            return dryad_error_invalid_frame;
 
-        dryad_error error = frame->add_motif_note(note);
-        if (error)
-            return error;
-    }
+    dryad_error error = dryad_success;
+    motif->for_each_edge_breakable<dryad_motif_note>([&](dryad_motif_note* note) -> bool
+        {
+            dryad_score_frame* frame = get_or_create_frame(position + note->relative_position);
 
-    return dryad_error_success;
+            error = frame->add_motif_note(note);
+            if (error)
+                return error;
+        });
+
+    return error;
 }
 
 dryad_error dryad_score::commit(dryad_time duration_to_commit)
@@ -124,7 +125,7 @@ dryad_error dryad_score::commit(dryad_time duration_to_commit)
 
     // For every motif of each voice, generate instances until the total committed
     // duration is reached
-    for (dryad_voice* voice : voices)
+    for (dryad_voice* voice : cached_voices)
         voice->generate_until(relative_position);
 
     // for all voices
@@ -150,18 +151,19 @@ dryad_score_frame* dryad_score::get_or_create_frame(dryad_time relative_position
 {
     dryad_score_frame* frame = find_frame_at_position(relative_position);
 
-    if (frame)
-        return frame;
-
-    frame = create<dryad_score_frame>(relative_position);
-
     if (!frame)
     {
-        DRYAD_ERROR("Unable to create a new frame at position %d", relative_position)
-    }
-    else
-    {
-        frames.insert(frame);
+        frame = create<dryad_score_frame>(relative_position);
+
+        if (!frame)
+        {
+            DRYAD_FATAL("Unable to create a new frame at position %d.", relative_position);
+
+        }
+        else
+        {
+            cached_frames.insert(frame);
+        }
     }
 
     return frame;
@@ -172,9 +174,9 @@ dryad_score_frame* dryad_score::find_frame_at_position(dryad_time relative_posit
     // Creating a dummy frame with the searched position to leverage std::find
     dryad_score_frame dummy_frame(relative_position);
 
-    auto it = frames.find(&dummy_frame);
+    auto it = cached_frames.find(&dummy_frame);
 
-    if (it == frames.end())
+    if (it == cached_frames.end())
         return nullptr;
 
     return *it;
@@ -184,7 +186,7 @@ dryad_score_frame* dryad_score::find_last_committed_frame()
 {
     dryad_score_frame* frame = nullptr;
 
-    for (auto it = frames.rbegin(); it != frames.rend(); ++it)
+    for (auto it = cached_frames.rbegin(); it != cached_frames.rend(); ++it)
     {
         if ((*it)->committed)
         {

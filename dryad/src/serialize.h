@@ -18,7 +18,7 @@ struct dryad_serialized_voice
 
 struct dryad_serialized_score
 {
-    dryad_vector<dryad_serialized_voice> voices;
+    dryad_vector<dryad_serialized_voice> cached_voices;
 };
 
 class dryad_exporter

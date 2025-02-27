@@ -33,9 +33,8 @@ class dryad_motif_note : public dryad_node
 public:
     DRYAD_NODE_CLASS_ID(dryad_motif_note);
 
-    dryad_motif_note(dryad_motif* motif = nullptr, dryad_note_relative relative_value = dryad_invalid, dryad_time duration = dryad_invalid, dryad_time relative_position = dryad_invalid);
+    dryad_motif_note(dryad_motif* motif, dryad_note_relative relative_value, dryad_time duration, dryad_time relative_position);
 
-    dryad_motif* motif;
     dryad_note_relative relative_value;
     dryad_time duration;
     dryad_time relative_position;
@@ -47,10 +46,8 @@ class dryad_note_instance : public dryad_node
 public:
     DRYAD_NODE_CLASS_ID(dryad_note_instance);
 
-    dryad_note_instance(dryad_score_frame* score_frame = nullptr, dryad_motif_note* motif_note = nullptr, dryad_note_value value = dryad_invalid, dryad_time duration = dryad_invalid);
+    dryad_note_instance(dryad_note_value value, dryad_time duration);
 
-    dryad_score_frame* score_frame;
-    const dryad_motif_note* motif_note;
     dryad_note_value value;
     dryad_time duration;
 };
@@ -65,7 +62,6 @@ public:
     dryad_rhythmic_anchor rhythmic_anchor;
     dryad_note_offset_type note_offset_type;
     dryad_time duration;
-    dryad_vector<dryad_motif_note*> notes;
 
     dryad_motif_note* add_note(dryad_note_relative relative_value, dryad_time duration, dryad_time relative_position);
 
@@ -87,11 +83,9 @@ class dryad_motif_instance : public dryad_node
 public:
     DRYAD_NODE_CLASS_ID(dryad_motif_instance);
 
-    dryad_motif_instance(dryad_voice* voice = nullptr, dryad_motif* motif = nullptr, dryad_time position = dryad_invalid);
+    dryad_motif_instance(dryad_time position);
 
     dryad_time get_end_time();
 
     dryad_time position;
-    const dryad_motif* motif;
-    const dryad_voice* voice;
 };
