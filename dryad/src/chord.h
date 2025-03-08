@@ -19,8 +19,8 @@ enum class dryad_degree
     sixth = submediant,
     leading_tone = 7,
     seventh = leading_tone,
-    limit = 8,
-    invalid = limit
+    limit = 8, 
+    invalid = -1
 };
 
 DRYAD_DECLARE_FLAG_ENUM(dryad_chord_quality, unsigned)
@@ -61,6 +61,7 @@ DRYAD_DECLARE_FLAG_ENUM(dryad_chord_quality, unsigned)
     //DRYAD_FLAG(PLACEHOLDER_BIT1, 29),
     //DRYAD_FLAG(PLACEHOLDER_BIT2, 30),
     //DRYAD_FLAG(PLACEHOLDER_BIT3, 31),
+    invalid = unsigned(-1)
 };
 
 enum class dryad_accidental

@@ -47,20 +47,52 @@ dryad_error dryad_score_frame::add_motif_note(dryad_motif_note* motif_note)
     // if it's the scale...
     // if it's the chord...
     // TODO: at some point we will also have to take the voice range in consideration
-    if (motif->harmonic_anchor == dryad_harmonic_anchor::scale)
+    dryad_note_value note_value = dryad_invalid;
+
+    switch (motif->harmonic_anchor)
     {
+    case dryad_harmonic_anchor::scale:
+    {
+        // targeting the 4th octave by default
+        dryad_note_relative relative_value = motif_note->relative_value;
+        dryad_note_relative note_octave = 4 + (relative_value / 12);
+
+        // calculating the distance & direction from the root
         dryad_scale* scale = get_current_scale();
+        dryad_note_relative note_offset = scale->note_offsets.degrees[relative_value % static_cast<int>(dryad_degree::limit)];
 
-        dryad_note_relative note_octave = motif_note->relative_value / 12;
-        dryad_note_relative note_offset = scale->note_offsets.degrees[motif_note->relative_value % static_cast<int>(dryad_degree::limit)];
-        dryad_note_value note = dryad_constants::notes[C][4] + 12 * note_octave + note_offset;
+        // final note value
+        dryad_note_value root = get_current_root();
+        note_value = dryad_constants::notes[root][note_octave] + note_offset;
+    }
+    break;
 
-        dryad_note_instance* note_instance = graph->create<dryad_note_instance>(note, motif_note->duration);
-        graph->link(note_instance, this);
-        graph->link(note_instance, motif_note);
+    case dryad_harmonic_anchor::chord:
+    {
+        dryad_chord chord = get_current_chord();
+
+        // find the offsets of the chord notes based on its qualities
+        // if the qualities == default, use the scale degrees
+        // 
+
+
+        // we have to find the chord notes in the scale corresponding to that degree
+        // the we have to apply the additional accidental and alterations
+        // then we scroll through the notes of that chord, which might have more than 3 notes, based on the chord type
 
         // CATCH UP HERE
     }
+    break;
+
+    default:
+        return dryad_error_not_implemented;
+    }
+
+
+    dryad_note_instance* note_instance = graph->create<dryad_note_instance>(note_value, motif_note->duration);
+    graph->link(note_instance, this);
+    graph->link(note_instance, motif_note);
+
 
     return dryad_error_not_implemented;
 }
@@ -107,8 +139,7 @@ dryad_error dryad_score::add_motif_instance(dryad_voice* voice, dryad_motif* mot
             dryad_score_frame* frame = get_or_create_frame(position + note->relative_position);
 
             error = frame->add_motif_note(note);
-            if (error)
-                return error;
+            return error != dryad_success;
         });
 
     return error;

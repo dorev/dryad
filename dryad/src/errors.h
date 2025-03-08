@@ -15,6 +15,8 @@ enum dryad_error
     dryad_error_invalid_position,
     dryad_error_invalid_motif_note,
     dryad_error_invalid_edge,
+    dryad_error_invalid_degree,
+    dryad_error_invalid_scale,
     dryad_error_invalid = -1
 };
 

@@ -8,7 +8,7 @@ using dryad_bpm = float;
 using dryad_time_real = float;
 using dryad_time = unsigned;
 
-constexpr unsigned dryad_invalid = unsigned(-1);
+constexpr unsigned dryad_invalid = INT32_MAX;
 
 #include "errors.h"
 
