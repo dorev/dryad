@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include <algorithm>
 
 //
 // Class ID declaration macro
@@ -102,7 +103,7 @@ public:
         dryad_graph* graph;
     };
 
-    virtual dryad_graph::~dryad_graph()
+    virtual ~dryad_graph()
     {
         for (dryad_node* node : *this)
             DRYAD_DELETE(node);
@@ -199,7 +200,8 @@ public:
                 for (dryad_node* edge : node->edges)
                     edge->remove_edge(node);
 
-                DRYAD_DELETE(node);
+                node->edges.clear();
+                node->graph = nullptr;
 
                 return true;
             }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "overrides.h"
+#include <cstdint>
 
 using dryad_note_value = unsigned;
 using dryad_note_relative = int;

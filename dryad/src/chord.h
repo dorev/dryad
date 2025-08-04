@@ -25,7 +25,7 @@ enum class dryad_degree
 
 DRYAD_DECLARE_FLAG_ENUM(dryad_chord_quality, unsigned)
 {
-    default = 0,
+    none = 0,
     minor = 1,
     major = 2,
     half_diminished = 3,
@@ -76,7 +76,7 @@ struct dryad_chord
     dryad_chord
     (
         dryad_degree degree = dryad_degree::invalid,
-        dryad_chord_quality qualities = dryad_chord_quality::default,
+        dryad_chord_quality qualities = dryad_chord_quality::none,
         dryad_accidental accidental = dryad_accidental::natural
     )
         : degree(degree)

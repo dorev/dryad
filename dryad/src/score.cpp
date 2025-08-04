@@ -159,18 +159,14 @@ dryad_error dryad_score::commit(dryad_time duration_to_commit)
     for (dryad_voice* voice : cached_voices)
         voice->generate_until(relative_position);
 
-    // for all voices
-        // check if motifs notes are framed until the final committed duration
-            // print them if they are not
-            // how do we 'print' a motif?
-                // consider the current scale and progression chords
-                // for each motif note, until the notes printed extend beyond the final committed duration
-                    // create a score_frames if it does not exist yet
-                    // add all necessary links to the frame (motif_instance, motif_notes, progression_chord_instance, scale)
-                    // have score_frame generate the note_instances
-        // commit all frames within the committed duration
+    // Mark frames up to the committed duration as committed
+    for (dryad_score_frame* f : cached_frames)
+    {
+        if (f->relative_position <= relative_position)
+            f->committed = true;
+    }
 
-    return dryad_error_not_implemented;
+    return dryad_success;
 }
 
 dryad_error dryad_score::dump(dryad_serialized_score& serialized_score)

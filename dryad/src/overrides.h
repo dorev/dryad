@@ -52,7 +52,7 @@ inline static dryad_log_level g_log_level = dryad_log_level::debug;
 // ALLOCATION
 //
 
-#define DRYAD_NEW(type, ...) new type(##__VA_ARGS__)
+#define DRYAD_NEW(type, ...) new type(__VA_ARGS__)
 #define DRYAD_DELETE(pointer) if (pointer) { delete pointer; pointer = nullptr; }
 
 //
