@@ -129,7 +129,7 @@ struct dryad_scale_library
         dryad_chord_quality::major | dryad_chord_quality::seventh_minor
     };
 
-    inline static const dryad_scale_degree_qualities mixolydian_degree_qualitie
+    inline static const dryad_scale_degree_qualities mixolydian_degree_qualities
     {
         dryad_chord_quality::major | dryad_chord_quality::seventh_minor,
         dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
@@ -191,7 +191,7 @@ struct dryad_scale_library
     inline static const dryad_scale dorian_scale{dorian_offsets, dorian_degree_qualities};
     inline static const dryad_scale phrygian_scale{phrygian_offsets, phrygian_degree_qualities};
     inline static const dryad_scale lydian_scale{lydian_offsets, lydian_degree_qualities};
-    inline static const dryad_scale mixolydian_scale{mixolydian_offsets, mixolydian_degree_qualitie};
+    inline static const dryad_scale mixolydian_scale{mixolydian_offsets, mixolydian_degree_qualities};
     inline static const dryad_scale aeolian_scale{aeolian_offsets, aeolian_degree_qualities};
     inline static const dryad_scale minor_natural_scale{aeolian_scale};
     inline static const dryad_scale locrian_scale{locrian_offsets, locrian_degree_qualities};
@@ -217,7 +217,7 @@ inline dryad_error get_chord_offsets_from_root(const dryad_chord& chord, const d
 
     // NOTE:
     // default scale qualities will bring in seventh notes, is that something we want or should sevenths be explicitely added (even for fifth degree)?
-    if (qualities != dryad_chord_quality::default)
+    if (qualities != dryad_chord_quality::none)
     {
         if (bool(qualities & dryad_chord_quality::major))
         {
