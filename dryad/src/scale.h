@@ -208,144 +208,170 @@ inline dryad_error get_chord_offsets_from_root(const dryad_chord& chord, const d
         return dryad_error_invalid_degree;
 
     dryad_degree degree = chord.degree;
+
     dryad_chord_quality qualities = scale->degree_qualities[degree];
+    unsigned qualities_bits = static_cast<unsigned>(qualities);
+    unsigned chord_bits = static_cast<unsigned>(chord.qualities);
+    unsigned base_mask = 0x7;
+
+    if (chord_bits & base_mask)
+        qualities_bits = (qualities_bits & ~base_mask) | (chord_bits & base_mask);
+    qualities_bits |= (chord_bits & ~base_mask);
+    qualities = static_cast<dryad_chord_quality>(qualities_bits);
+
     dryad_note_relative degree_offset_from_root = scale->note_offsets[degree];
 
-    // CATCH UP HERE!!!
+    offsets.clear();
 
-    // TODO: Prepare offsets of default chord
+    dryad_vector<dryad_note_relative> intervals;
+    intervals.push_back(0);
 
-    // NOTE:
-    // default scale qualities will bring in seventh notes, is that something we want or should sevenths be explicitely added (even for fifth degree)?
-    if (qualities != dryad_chord_quality::none)
+    unsigned base_quality = qualities_bits & base_mask;
+
+    switch (base_quality)
     {
-        if (bool(qualities & dryad_chord_quality::major))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::minor))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::half_diminished))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::augmented))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::sus2))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::sus4))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::diminished))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::seventh_minor))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::seventh_major))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::add6))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::add9))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::add11))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::add13))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::flat2))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::flat3))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::flat4))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::flat5))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::flat6))
-        {
-        
-        }
-        if (bool(qualities & dryad_chord_quality::flat7))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::flat9))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::flat11))
-        {
-        
-        }
-        if (bool(qualities & dryad_chord_quality::flat13))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::sharp2))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::sharp3))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::sharp4))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::sharp5))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::sharp6))
-        {
-        
-        }
-        if (bool(qualities & dryad_chord_quality::sharp7))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::sharp9))
-        {
-
-        }
-        if (bool(qualities & dryad_chord_quality::sharp11))
-        {
-        
-        }
-        if (bool(qualities & dryad_chord_quality::sharp13))
-        {
-
-        }
+    case static_cast<unsigned>(dryad_chord_quality::minor):
+        intervals.push_back(3);
+        intervals.push_back(7);
+        break;
+    case static_cast<unsigned>(dryad_chord_quality::major):
+        intervals.push_back(4);
+        intervals.push_back(7);
+        break;
+    case static_cast<unsigned>(dryad_chord_quality::half_diminished):
+        intervals.push_back(3);
+        intervals.push_back(6);
+        intervals.push_back(10);
+        break;
+    case static_cast<unsigned>(dryad_chord_quality::augmented):
+        intervals.push_back(4);
+        intervals.push_back(8);
+        break;
+    case static_cast<unsigned>(dryad_chord_quality::sus2):
+        intervals.push_back(2);
+        intervals.push_back(7);
+        break;
+    case static_cast<unsigned>(dryad_chord_quality::sus4):
+        intervals.push_back(5);
+        intervals.push_back(7);
+        break;
+    case static_cast<unsigned>(dryad_chord_quality::diminished):
+        intervals.push_back(3);
+        intervals.push_back(6);
+        break;
+    default:
+        break;
     }
 
-    // TODO: shift everything based on accidental (maybe accidental should become a dryad_note_relative!!)
+    auto push_unique = [&](dryad_note_relative interval)
+    {
+        for (dryad_note_relative value : intervals)
+            if (value == interval)
+                return;
+        intervals.push_back(interval);
+    };
 
-    return dryad_error_not_implemented;
+    if (bool(qualities & dryad_chord_quality::seventh_minor))
+        push_unique(10);
+    if (bool(qualities & dryad_chord_quality::seventh_major))
+        push_unique(11);
+    if (bool(qualities & dryad_chord_quality::add6))
+        push_unique(9);
+    if (bool(qualities & dryad_chord_quality::add9))
+        push_unique(14);
+    if (bool(qualities & dryad_chord_quality::add11))
+        push_unique(17);
+    if (bool(qualities & dryad_chord_quality::add13))
+        push_unique(21);
+
+    auto alter_interval = [&](dryad_note_relative interval, int delta) -> bool
+    {
+        for (dryad_note_relative& value : intervals)
+        {
+            if (value == interval)
+            {
+                value += delta;
+                return true;
+            }
+        }
+        return false;
+    };
+
+    auto alter_base = [&](dryad_note_relative interval, int delta) -> bool
+    {
+        if (alter_interval(interval, delta))
+            return true;
+        return alter_interval(interval + 12, delta);
+    };
+
+    if (bool(qualities & dryad_chord_quality::flat2))
+        alter_base(2, -1);
+    if (bool(qualities & dryad_chord_quality::flat3))
+    {
+        alter_base(4, -1);
+        alter_base(3, -1);
+    }
+    if (bool(qualities & dryad_chord_quality::flat4))
+        alter_base(5, -1);
+    if (bool(qualities & dryad_chord_quality::flat5))
+    {
+        if (!alter_base(7, -1))
+            alter_base(8, -1);
+    }
+    if (bool(qualities & dryad_chord_quality::flat6))
+    {
+        if (!alter_base(9, -1))
+            alter_base(8, -1);
+    }
+    if (bool(qualities & dryad_chord_quality::flat7))
+    {
+        if (!alter_base(11, -1))
+            alter_base(10, -1);
+    }
+    if (bool(qualities & dryad_chord_quality::flat9))
+        alter_interval(14, -1);
+    if (bool(qualities & dryad_chord_quality::flat11))
+        alter_interval(17, -1);
+    if (bool(qualities & dryad_chord_quality::flat13))
+        alter_interval(21, -1);
+    if (bool(qualities & dryad_chord_quality::sharp2))
+        alter_base(2, 1);
+    if (bool(qualities & dryad_chord_quality::sharp3))
+    {
+        alter_base(3, 1);
+        alter_base(4, 1);
+    }
+    if (bool(qualities & dryad_chord_quality::sharp4))
+        alter_base(5, 1);
+    if (bool(qualities & dryad_chord_quality::sharp5))
+    {
+        if (!alter_base(7, 1))
+            alter_base(6, 1);
+    }
+    if (bool(qualities & dryad_chord_quality::sharp6))
+    {
+        if (!alter_base(8, 1))
+            alter_base(9, 1);
+    }
+    if (bool(qualities & dryad_chord_quality::sharp7))
+    {
+        if (!alter_base(10, 1))
+            alter_base(11, 1);
+    }
+    if (bool(qualities & dryad_chord_quality::sharp9))
+        alter_interval(14, 1);
+    if (bool(qualities & dryad_chord_quality::sharp11))
+        alter_interval(17, 1);
+    if (bool(qualities & dryad_chord_quality::sharp13))
+        alter_interval(21, 1);
+
+    if (chord.accidental == dryad_accidental::flat)
+        degree_offset_from_root--;
+    else if (chord.accidental == dryad_accidental::sharp)
+        degree_offset_from_root++;
+
+    for (dryad_note_relative interval : intervals)
+        offsets.push_back(degree_offset_from_root + interval);
+
+    return dryad_success;
 }
