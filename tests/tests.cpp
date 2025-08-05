@@ -259,3 +259,44 @@ TEST(dryad_score, MVP)
 
 // Most additions to the score should have an .add_<something> method,
 // so it's added to the graph but also to the cache vectors (voices, motifs, frames, progressions)
+
+TEST(dryad_scale, chord_offsets_default_degree_quality)
+{
+    dryad_vector<dryad_note_relative> offsets;
+    dryad_chord chord(dryad_degree::tonic);
+
+    dryad_error error = get_chord_offsets_from_root(chord, &dryad_scale_library::major_scale, offsets);
+    EXPECT_EQ(error, dryad_success);
+
+    dryad_vector<dryad_note_relative> expected{0, 4, 7, 11};
+    EXPECT_EQ(offsets, expected);
+}
+
+TEST(dryad_scale, chord_offsets_override_base_quality)
+{
+    dryad_vector<dryad_note_relative> offsets;
+    dryad_chord chord(dryad_degree::tonic, dryad_chord_quality::minor);
+
+    dryad_error error = get_chord_offsets_from_root(chord, &dryad_scale_library::major_scale, offsets);
+    EXPECT_EQ(error, dryad_success);
+
+    dryad_vector<dryad_note_relative> expected{0, 3, 7, 11};
+    EXPECT_EQ(offsets, expected);
+}
+
+TEST(dryad_scale, chord_offsets_extensions_alterations_and_accidental)
+{
+    dryad_vector<dryad_note_relative> offsets;
+    dryad_chord chord
+    (
+        dryad_degree::dominant,
+        dryad_chord_quality::add9 | dryad_chord_quality::flat5,
+        dryad_accidental::sharp
+    );
+
+    dryad_error error = get_chord_offsets_from_root(chord, &dryad_scale_library::major_scale, offsets);
+    EXPECT_EQ(error, dryad_success);
+
+    dryad_vector<dryad_note_relative> expected{8, 12, 14, 18, 22};
+    EXPECT_EQ(offsets, expected);
+}
