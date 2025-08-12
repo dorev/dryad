@@ -1,6 +1,7 @@
 #pragma once
 
-#include "containers.h"
+#include <algorithm>
+
 #include "types.h"
 
 namespace Dryad
@@ -53,7 +54,7 @@ namespace Dryad
             static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
             if (element != nullptr)
             {
-                _Nodes[T::ID].Insert(SharedPtrCast<Node>(element));
+                _Nodes[T::ID].insert(SharedPtrCast<Node>(element));
                 return true;
             }
             return false;
@@ -63,8 +64,13 @@ namespace Dryad
         bool Contains(const SharedPtr<T>& node)
         {
             static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
-            Set<SharedPtr<Node>>* nodeSet = nullptr;
-            return _Nodes.Find(T::ID, nodeSet) && nodeSet->Contains(SharedPtrCast<Node>(node));
+            auto mapIt = _Nodes.find(T::ID);
+            if (mapIt != _Nodes.end())
+            {
+                const auto& nodeSet = mapIt->second;
+                return nodeSet.find(SharedPtrCast<Node>(node)) != nodeSet.end();
+            }
+            return false;
         }
 
         template <class T>
@@ -73,20 +79,21 @@ namespace Dryad
             static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
             if (scoreElement != nullptr)
             {
-                Set<SharedPtr<Node>>* nodeSet = nullptr;
                 if (Contains(scoreElement))
                 {
                     SharedPtr<Node> node = SharedPtrCast<Node>(scoreElement);
-                    if (_Nodes[T::ID].Remove(node))
+                    if (_Nodes[T::ID].erase(node))
                     {
                         // Remove node reference to all edge nodes
                         for (SharedPtr<Node>& edgeNode : node->edges)
                         {
-                            edgeNode->edges.Erase(node);
+                            auto& edges = edgeNode->edges;
+                            edges.erase(std::remove(edges.begin(), edges.end(), node), edges.end());
                         }
 
                         // Remove all edges
-                        node->edges.Clean();
+                        node->edges.clear();
+                        node->edges.shrink_to_fit();
                     }
                     else
                     {
@@ -107,8 +114,8 @@ namespace Dryad
             static_assert(IsBaseOf<Node, U>, "Class must derive from ScoreGraph::Node.");
             if (a != nullptr && b != nullptr && Contains(a) && Contains(b))
             {
-                a->edges.PushBack(b);
-                b->edges.PushBack(a);
+                a->edges.push_back(b);
+                b->edges.push_back(a);
                 return true;
             }
             return false;
@@ -119,7 +126,8 @@ namespace Dryad
             UInt32 size = 0;
             for (const auto& [classID, nodeSet] : _Nodes)
             {
-                size += nodeSet.Size();
+                DRYAD_UNUSED(classID);
+                size += static_cast<UInt32>(nodeSet.size());
             }
             return size;
         }
