@@ -3258,7 +3258,7 @@ ImFont::ImFont()
     ConfigData = NULL;
     ConfigDataCount = 0;
     DirtyLookupTables = false;
-    dryad_scale = 1.0f;
+    Scale = 1.0f;
     Ascent = Descent = 0.0f;
     MetricsTotalSurface = 0;
     memset(Used4kPagesMap, 0, sizeof(Used4kPagesMap));

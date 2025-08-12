@@ -4,70 +4,75 @@
 #include "voice.h"
 #include "chord.h"
 
-class dryad_motif_note;
-class dryad_scale;
-class dryad_score;
-
-class dryad_score_frame : public dryad_node
+namespace Dryad
 {
-public:
-    DRYAD_NODE_CLASS_ID(dryad_score_frame);
 
-    dryad_score_frame(dryad_time relative_position = 0);
+    class MotifNote;
+    class Scale;
+    class Score;
 
-    // Comparison helper to automate the ordering in a set
-    struct compare_by_position
+    class ScoreFrame : public Node
     {
-        bool operator()(const dryad_score_frame* a, const dryad_score_frame* b) const
+    public:
+        DRYAD_NODE_CLASS_ID(ScoreFrame);
+
+        ScoreFrame(Time relativePosition = 0);
+
+        // Comparison helper to automate the ordering in a set
+        struct compare_by_position
         {
-            return a->relative_position < b->relative_position;
-        }
+            bool operator()(const ScoreFrame* a, const ScoreFrame* b) const
+            {
+                return a->relativePosition < b->relativePosition;
+            }
+        };
+
+        Score* getScore();
+        NoteValue getCurrentRoot();
+        Scale* getCurrentScale();
+        Chord getCurrentChord();
+        Error addMotifNote(MotifNote* motifNote);
+
+        Time relativePosition;
+        bool committed;
     };
 
-    dryad_score* get_score();
-    dryad_note_value get_current_root();
-    dryad_scale* get_current_scale();
-    dryad_chord get_current_chord();
-    dryad_error add_motif_note(dryad_motif_note* motif_note);
+    class Progression;
+    class Scale;
+    struct SerializedScore;
 
-    dryad_time relative_position;
-    bool committed;
-};
+    class Score : public Graph
+    {
+    public:
+        DRYAD_NODE_CLASS_ID(Score);
 
-class dryad_progression;
-class dryad_scale;
-struct dryad_serialized_score;
+        Score();
 
-class dryad_score : public dryad_graph
-{
-public:
-    DRYAD_NODE_CLASS_ID(dryad_score);
+        Voice* addVoice(int id, String name);
+        Error addMotifInstance(Voice* voice, Motif* motif, Time position, MotifInstance*& instance);
 
-    dryad_score();
+        // Calling this will set in stone the notes within the specified duration,
+        // effectively appending 'real' notes to the score.
+        //
+        // The steps of this process are:
+        //
+        // - Check that all motifs in all voices are generated at least until the end of
+        //   the committed duration (include the duration appended by this call)
+        //
+        // - Each newly committed frame will then evaluate its notes based on the associated
+        //   motif parameters and considering the scale and progression chord of the frame
+        Error commit(Time durationToCommit);
 
-    dryad_voice* add_voice(int id, dryad_string name);
-    dryad_error add_motif_instance(dryad_voice* voice, dryad_motif* motif, dryad_time position, dryad_motif_instance*& instance);
+        Error dump(SerializedScore& serializedScore);
+        ScoreFrame* getOrCreateFrame(Time relativePosition);
+        ScoreFrame* findFrameAtPosition(Time relativePosition);
+        ScoreFrame* findLastCommittedFrame();
 
-    // Calling this will set in stone the notes within the specified duration,
-    // effectively appending 'real' notes to the score.
-    //
-    // The steps of this process are:
-    //
-    // - Check that all motifs in all voices are generated at least until the end of
-    //   the committed duration (include the duration appended by this call)
-    //
-    // - Each newly committed frame will then evaluate its notes based on the associated
-    //   motif parameters and considering the scale and progression chord of the frame
-    dryad_error commit(dryad_time duration_to_commit);
+        NoteValue currentRoot;
+        Progression* currentProgression;
+        Scale* currentScale;
+        Set<Voice*, Voice::compareByID> cachedVoices;
+        Set<ScoreFrame*, ScoreFrame::compare_by_position> cached_frames;
+    };
 
-    dryad_error dump(dryad_serialized_score& serialized_score);
-    dryad_score_frame* get_or_create_frame(dryad_time relative_position);
-    dryad_score_frame* find_frame_at_position(dryad_time relative_position);
-    dryad_score_frame* find_last_committed_frame();
-
-    dryad_note_value current_root;
-    dryad_progression* current_progression;
-    dryad_scale* current_scale;
-    dryad_set<dryad_voice*, dryad_voice::compare_by_id> cached_voices;
-    dryad_set<dryad_score_frame*, dryad_score_frame::compare_by_position> cached_frames;
-};
+} // namespace Dryad

@@ -3,375 +3,380 @@
 #include "chord.h"
 #include "graph.h"
 
-struct dryad_scale_note_offsets
+namespace Dryad
 {
-    dryad_scale_note_offsets
-    (
-        dryad_note_relative tonic,
-        dryad_note_relative supertonic,
-        dryad_note_relative mediant,
-        dryad_note_relative subdominant,
-        dryad_note_relative dominant,
-        dryad_note_relative submediant,
-        dryad_note_relative leading_tone
-    );
 
-    inline dryad_note_relative operator[](dryad_degree degree) const
+    struct ScaleNoteOffsets
     {
-        if (degree >= dryad_degree::tonic && degree < dryad_degree::limit)
-            return degrees[static_cast<int>(degree)];
+        ScaleNoteOffsets
+        (
+            NoteRelative tonic,
+            NoteRelative supertonic,
+            NoteRelative mediant,
+            NoteRelative subdominant,
+            NoteRelative dominant,
+            NoteRelative submediant,
+            NoteRelative leadingTone
+        );
 
-        return static_cast<dryad_note_relative>(dryad_invalid);
-    }
-
-    dryad_note_relative degrees[7];
-};
-
-struct dryad_scale_degree_qualities
-{
-    dryad_scale_degree_qualities
-    (
-        dryad_chord_quality tonic,
-        dryad_chord_quality supertonic,
-        dryad_chord_quality mediant,
-        dryad_chord_quality subdominant,
-        dryad_chord_quality dominant,
-        dryad_chord_quality submediant,
-        dryad_chord_quality leading_tone
-    );
-
-    inline dryad_chord_quality operator[](dryad_degree degree) const
-    {
-        if (degree >= dryad_degree::tonic && degree < dryad_degree::limit)
-            return degrees[static_cast<int>(degree)];
-
-        return dryad_chord_quality::invalid;
-    }
-
-    dryad_chord_quality degrees[7];
-};
-
-class dryad_scale : public dryad_node
-{
-public:
-    DRYAD_NODE_CLASS_ID(dryad_scale);
-
-    dryad_scale(dryad_scale_note_offsets scale_note_offsets, dryad_scale_degree_qualities degree_qualities);
-
-    dryad_scale(const dryad_scale& other);
-
-    dryad_scale& operator=(const dryad_scale& other);
-
-    dryad_note_relative get_degree_note_offset(dryad_degree degree);
-    dryad_chord_quality get_degree_chord_quality(dryad_degree degree);
-
-    dryad_scale_note_offsets note_offsets;
-    dryad_scale_degree_qualities degree_qualities;
-};
-
-struct dryad_scale_library
-{
-    inline static const dryad_scale_note_offsets ionian_offsets{0, 2, 4, 5, 7, 9, 11};
-    inline static const dryad_scale_note_offsets major_offsets = ionian_offsets;
-    inline static const dryad_scale_note_offsets dorian_offsets{0, 2, 3, 5, 7, 9, 10};
-    inline static const dryad_scale_note_offsets phrygian_offsets{0, 1, 3, 5, 7, 8, 10};
-    inline static const dryad_scale_note_offsets lydian_offsets{0, 2, 4, 6, 7, 9, 11};
-    inline static const dryad_scale_note_offsets mixolydian_offsets{0, 2, 4, 5, 7, 9, 10};
-    inline static const dryad_scale_note_offsets aeolian_offsets{0, 2, 3, 5, 7, 8, 10};
-    inline static const dryad_scale_note_offsets minor_natural_offsets = aeolian_offsets;
-    inline static const dryad_scale_note_offsets locrian_offsets{0, 1, 3, 5, 6, 8, 10};
-    inline static const dryad_scale_note_offsets minor_harmonic_offsets{0, 2, 3, 5, 7, 8, 11};
-    inline static const dryad_scale_note_offsets minor_melodic_offsets{0, 2, 3, 5, 7, 9, 11};
-
-    inline static const dryad_scale_degree_qualities ionian_degree_qualities
-    {
-        dryad_chord_quality::major | dryad_chord_quality::seventh_major,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_major,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::half_diminished
-    };
-    
-    inline static const dryad_scale_degree_qualities major_degree_qualities = ionian_degree_qualities;
-
-    inline static const dryad_scale_degree_qualities dorian_degree_qualities
-    {
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_major,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::half_diminished,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_major
-    };
-
-    inline static const dryad_scale_degree_qualities phrygian_degree_qualities
-    {
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::half_diminished,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_major,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor
-    };
-
-    inline static const dryad_scale_degree_qualities lydian_degree_qualities
-    {
-        dryad_chord_quality::major | dryad_chord_quality::seventh_major,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::half_diminished,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_major,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_minor
-    };
-
-    inline static const dryad_scale_degree_qualities mixolydian_degree_qualities
-    {
-        dryad_chord_quality::major | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::half_diminished,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_major,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor
-    };
-
-    inline static const dryad_scale_degree_qualities aeolian_degree_qualities
-    {
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::diminished,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_major,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_major,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_minor
-    };
-
-    inline static const dryad_scale_degree_qualities minor_natural_degree_qualities = aeolian_degree_qualities;
-
-    inline static const dryad_scale_degree_qualities locrian_degree_qualities
-    {
-        dryad_chord_quality::half_diminished,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_major,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor
-    };
-
-    inline static const dryad_scale_degree_qualities minor_harmonic_degree_qualities
-    {
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::diminished,
-        dryad_chord_quality::augmented,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_major,
-        dryad_chord_quality::diminished
-    };
-
-    inline static const dryad_scale_degree_qualities minor_melodic_degree_qualities
-    {
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_major,
-        dryad_chord_quality::minor | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::augmented,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_major,
-        dryad_chord_quality::major | dryad_chord_quality::seventh_minor,
-        dryad_chord_quality::diminished,
-        dryad_chord_quality::diminished
-    };
-
-    inline static const dryad_scale ionian_scale{ionian_offsets, ionian_degree_qualities};
-    inline static const dryad_scale major_scale{ionian_scale};
-    inline static const dryad_scale dorian_scale{dorian_offsets, dorian_degree_qualities};
-    inline static const dryad_scale phrygian_scale{phrygian_offsets, phrygian_degree_qualities};
-    inline static const dryad_scale lydian_scale{lydian_offsets, lydian_degree_qualities};
-    inline static const dryad_scale mixolydian_scale{mixolydian_offsets, mixolydian_degree_qualities};
-    inline static const dryad_scale aeolian_scale{aeolian_offsets, aeolian_degree_qualities};
-    inline static const dryad_scale minor_natural_scale{aeolian_scale};
-    inline static const dryad_scale locrian_scale{locrian_offsets, locrian_degree_qualities};
-    inline static const dryad_scale minor_harmonic_scale{minor_harmonic_offsets, minor_harmonic_degree_qualities};
-    inline static const dryad_scale minor_melodic_scale{minor_melodic_offsets, minor_melodic_degree_qualities};
-};
-
-inline dryad_error get_chord_offsets_from_root(const dryad_chord& chord, const dryad_scale* scale, dryad_vector<dryad_note_relative>& offsets)
-{
-    if (!scale)
-        return dryad_error_invalid_scale;
-
-    if (chord.degree == dryad_degree::invalid)
-        return dryad_error_invalid_degree;
-
-    dryad_degree degree = chord.degree;
-
-    dryad_chord_quality qualities = scale->degree_qualities[degree];
-    unsigned qualities_bits = static_cast<unsigned>(qualities);
-    unsigned chord_bits = static_cast<unsigned>(chord.qualities);
-    unsigned base_mask = 0x7;
-
-    if (chord_bits & base_mask)
-        qualities_bits = (qualities_bits & ~base_mask) | (chord_bits & base_mask);
-    qualities_bits |= (chord_bits & ~base_mask);
-    qualities = static_cast<dryad_chord_quality>(qualities_bits);
-
-    dryad_note_relative degree_offset_from_root = scale->note_offsets[degree];
-
-    offsets.clear();
-
-    dryad_vector<dryad_note_relative> intervals;
-    intervals.push_back(0);
-
-    unsigned base_quality = qualities_bits & base_mask;
-
-    switch (base_quality)
-    {
-    case static_cast<unsigned>(dryad_chord_quality::minor):
-        intervals.push_back(3);
-        intervals.push_back(7);
-        break;
-    case static_cast<unsigned>(dryad_chord_quality::major):
-        intervals.push_back(4);
-        intervals.push_back(7);
-        break;
-    case static_cast<unsigned>(dryad_chord_quality::half_diminished):
-        intervals.push_back(3);
-        intervals.push_back(6);
-        intervals.push_back(10);
-        break;
-    case static_cast<unsigned>(dryad_chord_quality::augmented):
-        intervals.push_back(4);
-        intervals.push_back(8);
-        break;
-    case static_cast<unsigned>(dryad_chord_quality::sus2):
-        intervals.push_back(2);
-        intervals.push_back(7);
-        break;
-    case static_cast<unsigned>(dryad_chord_quality::sus4):
-        intervals.push_back(5);
-        intervals.push_back(7);
-        break;
-    case static_cast<unsigned>(dryad_chord_quality::diminished):
-        intervals.push_back(3);
-        intervals.push_back(6);
-        break;
-    default:
-        break;
-    }
-
-    auto push_unique = [&](dryad_note_relative interval)
-    {
-        for (dryad_note_relative value : intervals)
-            if (value == interval)
-                return;
-        intervals.push_back(interval);
-    };
-
-    if (bool(qualities & dryad_chord_quality::seventh_minor))
-        push_unique(10);
-    if (bool(qualities & dryad_chord_quality::seventh_major))
-        push_unique(11);
-    if (bool(qualities & dryad_chord_quality::add6))
-        push_unique(9);
-    if (bool(qualities & dryad_chord_quality::add9))
-        push_unique(14);
-    if (bool(qualities & dryad_chord_quality::add11))
-        push_unique(17);
-    if (bool(qualities & dryad_chord_quality::add13))
-        push_unique(21);
-
-    auto alter_interval = [&](dryad_note_relative interval, int delta) -> bool
-    {
-        for (dryad_note_relative& value : intervals)
+        inline NoteRelative operator[](Degree degree) const
         {
-            if (value == interval)
-            {
-                value += delta;
-                return true;
-            }
+            if (degree >= Degree::tonic && degree < Degree::limit)
+                return degrees[static_cast<int>(degree)];
+
+            return static_cast<NoteRelative>(Invalid);
         }
-        return false;
+
+        NoteRelative degrees[7];
     };
 
-    auto alter_base = [&](dryad_note_relative interval, int delta) -> bool
+    struct ScaleDegreeQualities
     {
-        if (alter_interval(interval, delta))
-            return true;
-        return alter_interval(interval + 12, delta);
+        ScaleDegreeQualities
+        (
+            ChordQuality tonic,
+            ChordQuality supertonic,
+            ChordQuality mediant,
+            ChordQuality subdominant,
+            ChordQuality dominant,
+            ChordQuality submediant,
+            ChordQuality leadingTone
+        );
+
+        inline ChordQuality operator[](Degree degree) const
+        {
+            if (degree >= Degree::tonic && degree < Degree::limit)
+                return degrees[static_cast<int>(degree)];
+
+            return ChordQuality::invalid;
+        }
+
+        ChordQuality degrees[7];
     };
 
-    if (bool(qualities & dryad_chord_quality::flat2))
-        alter_base(2, -1);
-    if (bool(qualities & dryad_chord_quality::flat3))
+    class Scale : public Node
     {
-        alter_base(4, -1);
-        alter_base(3, -1);
-    }
-    if (bool(qualities & dryad_chord_quality::flat4))
-        alter_base(5, -1);
-    if (bool(qualities & dryad_chord_quality::flat5))
-    {
-        if (!alter_base(7, -1))
-            alter_base(8, -1);
-    }
-    if (bool(qualities & dryad_chord_quality::flat6))
-    {
-        if (!alter_base(9, -1))
-            alter_base(8, -1);
-    }
-    if (bool(qualities & dryad_chord_quality::flat7))
-    {
-        if (!alter_base(11, -1))
-            alter_base(10, -1);
-    }
-    if (bool(qualities & dryad_chord_quality::flat9))
-        alter_interval(14, -1);
-    if (bool(qualities & dryad_chord_quality::flat11))
-        alter_interval(17, -1);
-    if (bool(qualities & dryad_chord_quality::flat13))
-        alter_interval(21, -1);
-    if (bool(qualities & dryad_chord_quality::sharp2))
-        alter_base(2, 1);
-    if (bool(qualities & dryad_chord_quality::sharp3))
-    {
-        alter_base(3, 1);
-        alter_base(4, 1);
-    }
-    if (bool(qualities & dryad_chord_quality::sharp4))
-        alter_base(5, 1);
-    if (bool(qualities & dryad_chord_quality::sharp5))
-    {
-        if (!alter_base(7, 1))
-            alter_base(6, 1);
-    }
-    if (bool(qualities & dryad_chord_quality::sharp6))
-    {
-        if (!alter_base(8, 1))
-            alter_base(9, 1);
-    }
-    if (bool(qualities & dryad_chord_quality::sharp7))
-    {
-        if (!alter_base(10, 1))
-            alter_base(11, 1);
-    }
-    if (bool(qualities & dryad_chord_quality::sharp9))
-        alter_interval(14, 1);
-    if (bool(qualities & dryad_chord_quality::sharp11))
-        alter_interval(17, 1);
-    if (bool(qualities & dryad_chord_quality::sharp13))
-        alter_interval(21, 1);
+    public:
+        DRYAD_NODE_CLASS_ID(Scale);
 
-    if (chord.accidental == dryad_accidental::flat)
-        degree_offset_from_root--;
-    else if (chord.accidental == dryad_accidental::sharp)
-        degree_offset_from_root++;
+        Scale(ScaleNoteOffsets noteOffsets, ScaleDegreeQualities degreeQualities);
 
-    for (dryad_note_relative interval : intervals)
-        offsets.push_back(degree_offset_from_root + interval);
+        Scale(const Scale& other);
 
-    return dryad_success;
-}
+        Scale& operator=(const Scale& other);
+
+        NoteRelative getDegreeNoteOffset(Degree degree);
+        ChordQuality getDegreeChordQuality(Degree degree);
+
+        ScaleNoteOffsets noteOffsets;
+        ScaleDegreeQualities degreeQualities;
+    };
+
+    struct ScaleLibrary
+    {
+        inline static const ScaleNoteOffsets ionianOffsets{0, 2, 4, 5, 7, 9, 11};
+        inline static const ScaleNoteOffsets majorOffsets = ionianOffsets;
+        inline static const ScaleNoteOffsets dorianOffsets{0, 2, 3, 5, 7, 9, 10};
+        inline static const ScaleNoteOffsets phrygianOffsets{0, 1, 3, 5, 7, 8, 10};
+        inline static const ScaleNoteOffsets lydianOffsets{0, 2, 4, 6, 7, 9, 11};
+        inline static const ScaleNoteOffsets mixolydianOffsets{0, 2, 4, 5, 7, 9, 10};
+        inline static const ScaleNoteOffsets aeolianOffsets{0, 2, 3, 5, 7, 8, 10};
+        inline static const ScaleNoteOffsets minorNaturalOffsets = aeolianOffsets;
+        inline static const ScaleNoteOffsets locrianOffsets{0, 1, 3, 5, 6, 8, 10};
+        inline static const ScaleNoteOffsets minorHarmonicOffsets{0, 2, 3, 5, 7, 8, 11};
+        inline static const ScaleNoteOffsets minorMelodicOffsets{0, 2, 3, 5, 7, 9, 11};
+
+        inline static const ScaleDegreeQualities ionianDegreeQualities
+        {
+            ChordQuality::major | ChordQuality::seventhMajor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::major | ChordQuality::seventhMajor,
+            ChordQuality::major | ChordQuality::seventhMinor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::halfDiminished
+        };
+        
+        inline static const ScaleDegreeQualities majorDegreeQualities = ionianDegreeQualities;
+
+        inline static const ScaleDegreeQualities dorianDegreeQualities
+        {
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::major | ChordQuality::seventhMajor,
+            ChordQuality::major | ChordQuality::seventhMinor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::halfDiminished,
+            ChordQuality::major | ChordQuality::seventhMajor
+        };
+
+        inline static const ScaleDegreeQualities phrygianDegreeQualities
+        {
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::major | ChordQuality::seventhMinor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::halfDiminished,
+            ChordQuality::major | ChordQuality::seventhMajor,
+            ChordQuality::minor | ChordQuality::seventhMinor
+        };
+
+        inline static const ScaleDegreeQualities lydianDegreeQualities
+        {
+            ChordQuality::major | ChordQuality::seventhMajor,
+            ChordQuality::major | ChordQuality::seventhMinor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::halfDiminished,
+            ChordQuality::major | ChordQuality::seventhMajor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::major | ChordQuality::seventhMinor
+        };
+
+        inline static const ScaleDegreeQualities mixolydianDegreeQualities
+        {
+            ChordQuality::major | ChordQuality::seventhMinor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::halfDiminished,
+            ChordQuality::major | ChordQuality::seventhMajor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::major | ChordQuality::seventhMinor,
+            ChordQuality::minor | ChordQuality::seventhMinor
+        };
+
+        inline static const ScaleDegreeQualities aeolianDegreeQualities
+        {
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::diminished,
+            ChordQuality::major | ChordQuality::seventhMajor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::major | ChordQuality::seventhMajor,
+            ChordQuality::major | ChordQuality::seventhMinor
+        };
+
+        inline static const ScaleDegreeQualities minorNaturalDegreeQualities = aeolianDegreeQualities;
+
+        inline static const ScaleDegreeQualities locrianDegreeQualities
+        {
+            ChordQuality::halfDiminished,
+            ChordQuality::major | ChordQuality::seventhMajor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::major | ChordQuality::seventhMinor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::minor | ChordQuality::seventhMinor
+        };
+
+        inline static const ScaleDegreeQualities minorHarmonicDegreeQualities
+        {
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::diminished,
+            ChordQuality::augmented,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::major | ChordQuality::seventhMinor,
+            ChordQuality::major | ChordQuality::seventhMajor,
+            ChordQuality::diminished
+        };
+
+        inline static const ScaleDegreeQualities minorMelodicDegreeQualities
+        {
+            ChordQuality::minor | ChordQuality::seventhMajor,
+            ChordQuality::minor | ChordQuality::seventhMinor,
+            ChordQuality::augmented,
+            ChordQuality::major | ChordQuality::seventhMajor,
+            ChordQuality::major | ChordQuality::seventhMinor,
+            ChordQuality::diminished,
+            ChordQuality::diminished
+        };
+
+        inline static const Scale ionian_scale{ionianOffsets, ionianDegreeQualities};
+        inline static const Scale major_scale{ionian_scale};
+        inline static const Scale dorian_scale{dorianOffsets, dorianDegreeQualities};
+        inline static const Scale phrygian_scale{phrygianOffsets, phrygianDegreeQualities};
+        inline static const Scale lydian_scale{lydianOffsets, lydianDegreeQualities};
+        inline static const Scale mixolydian_scale{mixolydianOffsets, mixolydianDegreeQualities};
+        inline static const Scale aeolian_scale{aeolianOffsets, aeolianDegreeQualities};
+        inline static const Scale minor_natural_scale{aeolian_scale};
+        inline static const Scale locrian_scale{locrianOffsets, locrianDegreeQualities};
+        inline static const Scale minor_harmonic_scale{minorHarmonicOffsets, minorHarmonicDegreeQualities};
+        inline static const Scale minor_melodic_scale{minorMelodicOffsets, minorMelodicDegreeQualities};
+    };
+
+    inline Error getChordOffsetsFromRoot(const Chord& chord, const Scale* scale, Vector<NoteRelative>& offsets)
+    {
+        if (!scale)
+            return InvalidScale;
+
+        if (chord.degree == Degree::invalid)
+            return InvalidDegree;
+
+        Degree degree = chord.degree;
+
+        ChordQuality qualities = scale->degreeQualities[degree];
+        unsigned qualitiesBits = static_cast<unsigned>(qualities);
+        unsigned chordBits = static_cast<unsigned>(chord.qualities);
+        unsigned baseMask = 0x7;
+
+        if (chordBits & baseMask)
+            qualitiesBits = (qualitiesBits & ~baseMask) | (chordBits & baseMask);
+        qualitiesBits |= (chordBits & ~baseMask);
+        qualities = static_cast<ChordQuality>(qualitiesBits);
+
+        NoteRelative degreeOffsetFromRoot = scale->noteOffsets[degree];
+
+        offsets.clear();
+
+        Vector<NoteRelative> intervals;
+        intervals.push_back(0);
+
+        unsigned baseQuality = qualitiesBits & baseMask;
+
+        switch (baseQuality)
+        {
+        case static_cast<unsigned>(ChordQuality::minor):
+            intervals.push_back(3);
+            intervals.push_back(7);
+            break;
+        case static_cast<unsigned>(ChordQuality::major):
+            intervals.push_back(4);
+            intervals.push_back(7);
+            break;
+        case static_cast<unsigned>(ChordQuality::halfDiminished):
+            intervals.push_back(3);
+            intervals.push_back(6);
+            intervals.push_back(10);
+            break;
+        case static_cast<unsigned>(ChordQuality::augmented):
+            intervals.push_back(4);
+            intervals.push_back(8);
+            break;
+        case static_cast<unsigned>(ChordQuality::sus2):
+            intervals.push_back(2);
+            intervals.push_back(7);
+            break;
+        case static_cast<unsigned>(ChordQuality::sus4):
+            intervals.push_back(5);
+            intervals.push_back(7);
+            break;
+        case static_cast<unsigned>(ChordQuality::diminished):
+            intervals.push_back(3);
+            intervals.push_back(6);
+            break;
+        default:
+            break;
+        }
+
+        auto pushUnique = [&](NoteRelative interval)
+        {
+            for (NoteRelative value : intervals)
+                if (value == interval)
+                    return;
+            intervals.push_back(interval);
+        };
+
+        if (bool(qualities & ChordQuality::seventhMinor))
+            pushUnique(10);
+        if (bool(qualities & ChordQuality::seventhMajor))
+            pushUnique(11);
+        if (bool(qualities & ChordQuality::add6))
+            pushUnique(9);
+        if (bool(qualities & ChordQuality::add9))
+            pushUnique(14);
+        if (bool(qualities & ChordQuality::add11))
+            pushUnique(17);
+        if (bool(qualities & ChordQuality::add13))
+            pushUnique(21);
+
+        auto alterInterval = [&](NoteRelative interval, int delta) -> bool
+        {
+            for (NoteRelative& value : intervals)
+            {
+                if (value == interval)
+                {
+                    value += delta;
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        auto alterBase = [&](NoteRelative interval, int delta) -> bool
+        {
+            if (alterInterval(interval, delta))
+                return true;
+            return alterInterval(interval + 12, delta);
+        };
+
+        if (bool(qualities & ChordQuality::flat2))
+            alterBase(2, -1);
+        if (bool(qualities & ChordQuality::flat3))
+        {
+            alterBase(4, -1);
+            alterBase(3, -1);
+        }
+        if (bool(qualities & ChordQuality::flat4))
+            alterBase(5, -1);
+        if (bool(qualities & ChordQuality::flat5))
+        {
+            if (!alterBase(7, -1))
+                alterBase(8, -1);
+        }
+        if (bool(qualities & ChordQuality::flat6))
+        {
+            if (!alterBase(9, -1))
+                alterBase(8, -1);
+        }
+        if (bool(qualities & ChordQuality::flat7))
+        {
+            if (!alterBase(11, -1))
+                alterBase(10, -1);
+        }
+        if (bool(qualities & ChordQuality::flat9))
+            alterInterval(14, -1);
+        if (bool(qualities & ChordQuality::flat11))
+            alterInterval(17, -1);
+        if (bool(qualities & ChordQuality::flat13))
+            alterInterval(21, -1);
+        if (bool(qualities & ChordQuality::sharp2))
+            alterBase(2, 1);
+        if (bool(qualities & ChordQuality::sharp3))
+        {
+            alterBase(3, 1);
+            alterBase(4, 1);
+        }
+        if (bool(qualities & ChordQuality::sharp4))
+            alterBase(5, 1);
+        if (bool(qualities & ChordQuality::sharp5))
+        {
+            if (!alterBase(7, 1))
+                alterBase(6, 1);
+        }
+        if (bool(qualities & ChordQuality::sharp6))
+        {
+            if (!alterBase(8, 1))
+                alterBase(9, 1);
+        }
+        if (bool(qualities & ChordQuality::sharp7))
+        {
+            if (!alterBase(10, 1))
+                alterBase(11, 1);
+        }
+        if (bool(qualities & ChordQuality::sharp9))
+            alterInterval(14, 1);
+        if (bool(qualities & ChordQuality::sharp11))
+            alterInterval(17, 1);
+        if (bool(qualities & ChordQuality::sharp13))
+            alterInterval(21, 1);
+
+        if (chord.accidental == Accidental::flat)
+            degreeOffsetFromRoot--;
+        else if (chord.accidental == Accidental::sharp)
+            degreeOffsetFromRoot++;
+
+        for (NoteRelative interval : intervals)
+            offsets.push_back(degreeOffsetFromRoot + interval);
+
+        return Success;
+    }
+
+} // namespace Dryad

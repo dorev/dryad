@@ -4,223 +4,228 @@
 #include "progression.h"
 #include "chord.h"
 
-dryad_score_frame::dryad_score_frame(dryad_time relative_position)
-    : relative_position(relative_position)
-    , committed(false)
+namespace Dryad
 {
-}
 
-dryad_score* dryad_score_frame::get_score()
-{
-    return static_cast<dryad_score*>(graph);
-}
-
-dryad_note_value dryad_score_frame::get_current_root()
-{
-    return get_score()->current_root;
-}
-
-dryad_scale* dryad_score_frame::get_current_scale()
-{
-    return get_score()->current_scale;
-}
-
-dryad_chord dryad_score_frame::get_current_chord()
-{
-    return get_score()->current_progression->current_progression_chord->chord;
-}
-
-dryad_error dryad_score_frame::add_motif_note(dryad_motif_note* motif_note)
-{
-    if (!motif_note)
-        return dryad_error_invalid_motif_note;
-
-    dryad_motif* motif = motif_note->find_first_edge<dryad_motif>();
-
-    if (motif)
-        return dryad_error_invalid_motif;
-
-    dryad_note_value note_anchor = get_current_root();
-
-    // we have to find the current scale to know the root
-    // then we check the harmonic anchor of the motif
-    // if it's the scale...
-    // if it's the chord...
-    // TODO: at some point we will also have to take the voice range in consideration
-    dryad_note_value note_value = dryad_invalid;
-
-    switch (motif->harmonic_anchor)
+    ScoreFrame::ScoreFrame(Time relativePosition)
+        : relativePosition(relativePosition)
+        , committed(false)
     {
-    case dryad_harmonic_anchor::scale:
-    {
-        // targeting the 4th octave by default
-        dryad_note_relative relative_value = motif_note->relative_value;
-        dryad_note_relative note_octave = 4 + (relative_value / 12);
-
-        // calculating the distance & direction from the root
-        dryad_scale* scale = get_current_scale();
-        dryad_note_relative note_offset = scale->note_offsets.degrees[relative_value % static_cast<int>(dryad_degree::limit)];
-
-        // final note value
-        dryad_note_value root = get_current_root();
-        note_value = dryad_constants::notes[root][note_octave] + note_offset;
-    }
-    break;
-
-    case dryad_harmonic_anchor::chord:
-    {
-        dryad_chord chord = get_current_chord();
-
-        // find the offsets of the chord notes based on its qualities
-        // if the qualities == default, use the scale degrees
-        // 
-
-
-        // we have to find the chord notes in the scale corresponding to that degree
-        // the we have to apply the additional accidental and alterations
-        // then we scroll through the notes of that chord, which might have more than 3 notes, based on the chord type
-
-        // CATCH UP HERE
-    }
-    break;
-
-    default:
-        return dryad_error_not_implemented;
     }
 
+    Score* ScoreFrame::getScore()
+    {
+        return static_cast<Score*>(graph);
+    }
 
-    dryad_note_instance* note_instance = graph->create<dryad_note_instance>(note_value, motif_note->duration);
-    graph->link(note_instance, this);
-    graph->link(note_instance, motif_note);
+    NoteValue ScoreFrame::getCurrentRoot()
+    {
+        return getScore()->currentRoot;
+    }
 
+    Scale* ScoreFrame::getCurrentScale()
+    {
+        return getScore()->currentScale;
+    }
 
-    return dryad_error_not_implemented;
-}
+    Chord ScoreFrame::getCurrentChord()
+    {
+        return getScore()->currentProgression->currentProgressionChord->chord;
+    }
 
-dryad_score::dryad_score()
-    : current_root(dryad_constants::C)
-    , current_progression(nullptr)
-    , current_scale(nullptr)
-{
-}
+    Error ScoreFrame::addMotifNote(MotifNote* motifNote)
+    {
+        if (!motifNote)
+            return InvalidMotifNote;
 
-dryad_voice* dryad_score::add_voice(int id, dryad_string name)
-{
-    dryad_voice* voice = create<dryad_voice>(id, name);
+        Motif* motif = motifNote->findFirstEdge<Motif>();
 
-    if (voice)
-        cached_voices.insert(voice);
+        if (motif)
+            return InvalidMotif;
 
-    return voice;
-}
+        NoteValue noteAnchor = getCurrentRoot();
 
-dryad_error dryad_score::add_motif_instance(dryad_voice* voice, dryad_motif* motif, dryad_time position, dryad_motif_instance*& instance)
-{
-    if (!voice)
-        return dryad_error_invalid_voice;
+        // we have to find the current scale to know the root
+        // then we check the harmonic anchor of the motif
+        // if it's the scale...
+        // if it's the chord...
+        // TODO: at some point we will also have to take the voice range in consideration
+        NoteValue noteValue = Invalid;
 
-    if (!motif)
-        return dryad_error_invalid_motif;
-
-    if (position == dryad_invalid)
-        return dryad_error_invalid_position;
-
-    instance = create<dryad_motif_instance>(position);
-    if (!instance)
-        return dryad_error_invalid_instance;
-
-    // TODO: we have to identify of there is a rythmic anchor to respect for the motif!!
-
-    // Add each note of the motif in already existing or new frames
-
-    dryad_error error = dryad_success;
-    motif->for_each_edge_breakable<dryad_motif_note>([&](dryad_motif_note* note) -> bool
+        switch (motif->harmonicAnchor)
         {
-            dryad_score_frame* frame = get_or_create_frame(position + note->relative_position);
+        case HarmonicAnchor::scale:
+        {
+            // targeting the 4th octave by default
+            NoteRelative relativeValue = motifNote->relativeValue;
+            NoteRelative noteOctave = 4 + (relativeValue / 12);
 
-            error = frame->add_motif_note(note);
-            return error != dryad_success;
-        });
+            // calculating the distance & direction from the root
+            Scale* scale = getCurrentScale();
+            NoteRelative noteOffset = scale->noteOffsets.degrees[relativeValue % static_cast<int>(Degree::limit)];
 
-    return error;
-}
+            // final note value
+            NoteValue root = getCurrentRoot();
+            noteValue = notes[root][noteOctave] + noteOffset;
+        }
+        break;
 
-dryad_error dryad_score::commit(dryad_time duration_to_commit)
-{
-    dryad_score_frame* frame = find_last_committed_frame();
+        case HarmonicAnchor::chord:
+        {
+            Chord chord = getCurrentChord();
 
-    if (!frame)
-        frame = get_or_create_frame(0);
+            // find the offsets of the chord notes based on its qualities
+            // if the qualities == default, use the scale degrees
+            // 
 
-    dryad_time relative_position = frame->relative_position + duration_to_commit;
 
-    // For every motif of each voice, generate instances until the total committed
-    // duration is reached
-    for (dryad_voice* voice : cached_voices)
-        voice->generate_until(relative_position);
+            // we have to find the chord notes in the scale corresponding to that degree
+            // the we have to apply the additional accidental and alterations
+            // then we scroll through the notes of that chord, which might have more than 3 notes, based on the chord type
 
-    // Mark frames up to the committed duration as committed
-    for (dryad_score_frame* f : cached_frames)
-    {
-        if (f->relative_position <= relative_position)
-            f->committed = true;
+            // CATCH UP HERE
+        }
+        break;
+
+        default:
+            return NotImplemented;
+        }
+
+
+        NoteInstance* noteInstance = graph->create<NoteInstance>(noteValue, motifNote->duration);
+        graph->link(noteInstance, this);
+        graph->link(noteInstance, motifNote);
+
+
+        return NotImplemented;
     }
 
-    return dryad_success;
-}
-
-dryad_error dryad_score::dump(dryad_serialized_score& serialized_score)
-{
-    return dryad_error_not_implemented;
-}
-
-dryad_score_frame* dryad_score::get_or_create_frame(dryad_time relative_position)
-{
-    dryad_score_frame* frame = find_frame_at_position(relative_position);
-
-    if (!frame)
+    Score::Score()
+        : currentRoot(C)
+        , currentProgression(nullptr)
+        , currentScale(nullptr)
     {
-        frame = create<dryad_score_frame>(relative_position);
+    }
+
+    Voice* Score::addVoice(int id, String name)
+    {
+        Voice* voice = create<Voice>(id, name);
+
+        if (voice)
+            cachedVoices.insert(voice);
+
+        return voice;
+    }
+
+    Error Score::addMotifInstance(Voice* voice, Motif* motif, Time position, MotifInstance*& instance)
+    {
+        if (!voice)
+            return InvalidVoice;
+
+        if (!motif)
+            return InvalidMotif;
+
+        if (position == Invalid)
+            return InvalidPosition;
+
+        instance = create<MotifInstance>(position);
+        if (!instance)
+            return InvalidMotifInstance;
+
+        // TODO: we have to identify of there is a rythmic anchor to respect for the motif!!
+
+        // Add each note of the motif in already existing or new frames
+
+        Error error = Success;
+        motif->forEachEdgeBreakable<MotifNote>([&](MotifNote* note) -> bool
+            {
+                ScoreFrame* frame = getOrCreateFrame(position + note->relativePosition);
+
+                error = frame->addMotifNote(note);
+                return error != Success;
+            });
+
+        return error;
+    }
+
+    Error Score::commit(Time durationToCommit)
+    {
+        ScoreFrame* frame = findLastCommittedFrame();
+
+        if (!frame)
+            frame = getOrCreateFrame(0);
+
+        Time relativePosition = frame->relativePosition + durationToCommit;
+
+        // For every motif of each voice, generate instances until the total committed
+        // duration is reached
+        for (Voice* voice : cachedVoices)
+            voice->generateUntil(relativePosition);
+
+        // Mark frames up to the committed duration as committed
+        for (ScoreFrame* f : cached_frames)
+        {
+            if (f->relativePosition <= relativePosition)
+                f->committed = true;
+        }
+
+        return Success;
+    }
+
+    Error Score::dump(SerializedScore& serializedScore)
+    {
+        return NotImplemented;
+    }
+
+    ScoreFrame* Score::getOrCreateFrame(Time relativePosition)
+    {
+        ScoreFrame* frame = findFrameAtPosition(relativePosition);
 
         if (!frame)
         {
-            DRYAD_FATAL("Unable to create a new frame at position %d.", relative_position);
+            frame = create<ScoreFrame>(relativePosition);
 
+            if (!frame)
+            {
+                DRYAD_FATAL("Unable to create a new frame at position %d.", relativePosition);
+
+            }
+            else
+            {
+                cached_frames.insert(frame);
+            }
         }
-        else
-        {
-            cached_frames.insert(frame);
-        }
+
+        return frame;
     }
 
-    return frame;
-}
-
-dryad_score_frame* dryad_score::find_frame_at_position(dryad_time relative_position)
-{
-    // Creating a dummy frame with the searched position to leverage std::find
-    dryad_score_frame dummy_frame(relative_position);
-
-    auto it = cached_frames.find(&dummy_frame);
-
-    if (it == cached_frames.end())
-        return nullptr;
-
-    return *it;
-}
-
-dryad_score_frame* dryad_score::find_last_committed_frame()
-{
-    dryad_score_frame* frame = nullptr;
-
-    for (auto it = cached_frames.rbegin(); it != cached_frames.rend(); ++it)
+    ScoreFrame* Score::findFrameAtPosition(Time relativePosition)
     {
-        if ((*it)->committed)
-        {
-            frame = *it;
-            break;
-        }
+        // Creating a dummy frame with the searched position to leverage std::find
+        ScoreFrame dummy_frame(relativePosition);
+
+        auto it = cached_frames.find(&dummy_frame);
+
+        if (it == cached_frames.end())
+            return nullptr;
+
+        return *it;
     }
 
-    return frame;
-}
+    ScoreFrame* Score::findLastCommittedFrame()
+    {
+        ScoreFrame* frame = nullptr;
+
+        for (auto it = cached_frames.rbegin(); it != cached_frames.rend(); ++it)
+        {
+            if ((*it)->committed)
+            {
+                frame = *it;
+                break;
+            }
+        }
+
+        return frame;
+    }
+
+} // namespace Dryad

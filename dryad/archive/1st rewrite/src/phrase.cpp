@@ -164,13 +164,13 @@ void phrase_t::fit_melodies(fitting_strategy /*strategy*/)
         // NOTE
         // currently completely disregarding the delta between the melody duration and the bar duration
 
-        //while (add_note(melody[note_index++ % melody_size]));
+        //while (addNote(melody[note_index++ % melody_size]));
         // something is wrong in there!!
         for (;;)
         {
             for (const auto& note : melody)
             {
-                if (!add_note(note))
+                if (!addNote(note))
                 {
                     return;
                 }
@@ -187,7 +187,7 @@ void phrase_t::fit_melodies(fitting_strategy /*strategy*/)
             {
                 for (const auto& note : melody)
                 {
-                    if (!add_note(note))
+                    if (!addNote(note))
                     {
                         return;
                     }
@@ -199,7 +199,7 @@ void phrase_t::fit_melodies(fitting_strategy /*strategy*/)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool phrase_t::add_note(const note_t& note)
+bool phrase_t::addNote(const note_t& note)
 {
     int measure_index = 0;
 
@@ -220,18 +220,18 @@ bool phrase_t::add_note(const note_t& note)
             // Add the note if it fits completely in this measure
             if (note_duration <= delta)
             {
-                measure.get_voice().add_note(note);
+                measure.get_voice().addNote(note);
             }
             // Otherwise add as much as possible in this measure
             else
             {
                 int duration_overflow = note_duration - delta;
-                measure.get_voice().add_note(note.get_offset(), delta);
+                measure.get_voice().addNote(note.get_offset(), delta);
 
                 // Put the remaining duration of the note in the next measure
                 if (measure_index < (_measures.size() - 1))
                 {
-                    _measures[measure_index + 1].get_voice().add_note(note.get_offset(), duration_overflow);
+                    _measures[measure_index + 1].get_voice().addNote(note.get_offset(), duration_overflow);
                 }
                 else
                 {

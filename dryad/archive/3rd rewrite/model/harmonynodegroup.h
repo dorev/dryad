@@ -14,7 +14,7 @@ class HarmonyNodeGroup
 {
     Id _id;
     Scale _scale;
-    Vector<HarmonyNode> _nodes;
+    Vector<HarmonyNode> nodes;
     Vector<Progression> _progressions;
     HarmonyGraph* _graph;
 

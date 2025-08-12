@@ -1,23 +1,26 @@
 #include "errors.h"
 
-const char* dryad_error_string(dryad_error error)
+namespace Dryad
 {
-    switch (error)
+
+    const char* dryad_error_string(Error error)
     {
-    default: return "unknown error";
-    case dryad_success: return "no error";
-    case dryad_error_not_implemented: return "not implemented";
-    case dryad_error_node_not_in_graph: return "node not in graph";
-    case dryad_error_already_exists: return "already exists";
-    case dryad_error_invalid_voice: return "invalid voice";
-    case dryad_error_invalid_frame: return "invalid frame";
-    case dryad_error_invalid_instance: return "invalid instance";
-    case dryad_error_invalid_motif: return "invalid motif";
-    case dryad_error_invalid_position: return "invalid position";
-    case dryad_error_invalid_motif_note: return "invalid";
-    case dryad_error_invalid_edge: return "invalid";
-    case dryad_error_invalid: return "invalid value";
-
+        switch (error)
+        {
+            default: return "unknown error";
+            case Success: return "no error";
+            case NotImplemented: return "not implemented";
+            case NodeNotInGraph: return "node not in graph";
+            case AlreadyExists: return "already exists";
+            case InvalidVoice: return "invalid voice";
+            case InvalidFrame: return "invalid frame";
+            case InvalidMotifInstance: return "invalid motif instance";
+            case InvalidMotif: return "invalid motif";
+            case InvalidPosition: return "invalid position";
+            case InvalidMotifNote: return "invalid motif note";
+            case InvalidEdge: return "invalid edge";
+            case Invalid: return "invalid value";
+        }
     }
-}
 
+}

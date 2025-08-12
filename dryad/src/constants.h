@@ -2,38 +2,39 @@
 
 #include "types.h"
 
-namespace dryad_constants
+namespace Dryad
 {
-    constexpr dryad_bpm default_tempo = 120.0f;
 
-    constexpr dryad_time whole = 96;
-    constexpr dryad_time half_dotted = 72;
-    constexpr dryad_time half = 48;
-    constexpr dryad_time quarter_dotted = 36;
-    constexpr dryad_time half_triplet = 32;
-    constexpr dryad_time quarter = 24;
-    constexpr dryad_time eighth_dotted = 18;
-    constexpr dryad_time quarter_triplet = 16;
-    constexpr dryad_time eighth = 12;
-    constexpr dryad_time eighth_triplet = 8;
-    constexpr dryad_time sixteenth = 6;
-    constexpr dryad_time sixteenth_triplet = 4;
-    constexpr dryad_time thirthy_seconth = 3;
-    constexpr dryad_time thirthy_seconth_triplet = 2;
-    constexpr dryad_time default_beat_alignement = eighth;
+    constexpr BPM default_tempo = 120.0f;
 
-    constexpr dryad_note_value minor_second = 1;
-    constexpr dryad_note_value major_second = 2;
-    constexpr dryad_note_value minor_third = 3;
-    constexpr dryad_note_value major_third = 4;
-    constexpr dryad_note_value perfect_fourth = 5;
-    constexpr dryad_note_value tritone = 6;
-    constexpr dryad_note_value perfect_fifth = 7;
-    constexpr dryad_note_value minor_sixth = 8;
-    constexpr dryad_note_value major_sixth = 9;
-    constexpr dryad_note_value minor_seventh = 10;
-    constexpr dryad_note_value major_seventh = 11;
-    constexpr dryad_note_value octave = 12;
+    constexpr Time whole = 96;
+    constexpr Time half_dotted = 72;
+    constexpr Time half = 48;
+    constexpr Time quarter_dotted = 36;
+    constexpr Time half_triplet = 32;
+    constexpr Time quarter = 24;
+    constexpr Time eighth_dotted = 18;
+    constexpr Time quarter_triplet = 16;
+    constexpr Time eighth = 12;
+    constexpr Time eighth_triplet = 8;
+    constexpr Time sixteenth = 6;
+    constexpr Time sixteenth_triplet = 4;
+    constexpr Time thirthy_seconth = 3;
+    constexpr Time thirthy_seconth_triplet = 2;
+    constexpr Time default_beat_alignement = eighth;
+
+    constexpr NoteValue minor_second = 1;
+    constexpr NoteValue major_second = 2;
+    constexpr NoteValue minor_third = 3;
+    constexpr NoteValue major_third = 4;
+    constexpr NoteValue perfect_fourth = 5;
+    constexpr NoteValue tritone = 6;
+    constexpr NoteValue perfect_fifth = 7;
+    constexpr NoteValue minor_sixth = 8;
+    constexpr NoteValue major_sixth = 9;
+    constexpr NoteValue minor_seventh = 10;
+    constexpr NoteValue major_seventh = 11;
+    constexpr NoteValue octave = 12;
 
     constexpr unsigned scale_limit = 12;
     constexpr unsigned octave_limit = 11;
@@ -54,7 +55,7 @@ namespace dryad_constants
         { 30.8677f, 61.7354f, 123.471f, 246.94f, 493.88f, 987.77f, 1975.5f, 3940.0f, 7880.0f, 15760.0f, 31520.0f },
     };
 
-    constexpr dryad_note_value notes[scale_limit][octave_limit] =
+    constexpr NoteValue notes[scale_limit][octave_limit] =
     {
         { 0,  12, 24, 36, 48, 60, 72, 84,  96, 108, 120 },
         { 1,  13, 25, 37, 49, 61, 73, 85,  97, 109, 121 },
@@ -70,30 +71,31 @@ namespace dryad_constants
         { 11, 23, 35, 47, 59, 71, 83, 95, 107, 119, 131 },
     };
 
-    constexpr dryad_note_value C = 0;
-    constexpr dryad_note_value Cs = 1;
-    constexpr dryad_note_value Db = 1;
-    constexpr dryad_note_value D = 2;
-    constexpr dryad_note_value Ds = 3;
-    constexpr dryad_note_value Eb = 3;
-    constexpr dryad_note_value E = 4;
-    constexpr dryad_note_value F = 5;
-    constexpr dryad_note_value Fs = 6;
-    constexpr dryad_note_value Gb = 6;
-    constexpr dryad_note_value G = 7;
-    constexpr dryad_note_value Gs = 8;
-    constexpr dryad_note_value Ab = 8;
-    constexpr dryad_note_value A = 9;
-    constexpr dryad_note_value As = 10;
-    constexpr dryad_note_value Bb = 10;
-    constexpr dryad_note_value B = 11;
+    constexpr NoteValue C = 0;
+    constexpr NoteValue Cs = 1;
+    constexpr NoteValue Db = 1;
+    constexpr NoteValue D = 2;
+    constexpr NoteValue Ds = 3;
+    constexpr NoteValue Eb = 3;
+    constexpr NoteValue E = 4;
+    constexpr NoteValue F = 5;
+    constexpr NoteValue Fs = 6;
+    constexpr NoteValue Gb = 6;
+    constexpr NoteValue G = 7;
+    constexpr NoteValue Gs = 8;
+    constexpr NoteValue Ab = 8;
+    constexpr NoteValue A = 9;
+    constexpr NoteValue As = 10;
+    constexpr NoteValue Bb = 10;
+    constexpr NoteValue B = 11;
 
-    constexpr dryad_note_value middle_c = notes[C][4];
-}
+    constexpr NoteValue middle_c = notes[C][4];
 
-    float constexpr dryad_midi_to_frequency(dryad_note_value midi)
+    float constexpr dryad_midi_to_frequency(NoteValue midi)
     {
         int note = midi % 12;
         int octave = midi / 12 - 1;
-        return dryad_constants::frequencies[note][octave];
+        return frequencies[note][octave];
     }
+
+} // namespace Dryad

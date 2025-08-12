@@ -3,89 +3,94 @@
 #include "graph.h"
 #include "constants.h"
 
-enum class dryad_harmonic_anchor
+namespace Dryad
 {
-    scale,
-    chord
-};
 
-enum class dryad_rhythmic_anchor
-{
-    chord_beginning,
-    strong_beat,
-    weak_beat,
-    any_beat
-};
+    enum class HarmonicAnchor
+    {
+        scale,
+        chord
+    };
 
-enum class dryad_note_offset_type
-{
-    diatonic,
-    chromatic
-};
+    enum class AnchorRhythmic
+    {
+        chord_beginning,
+        strong_beat,
+        weak_beat,
+        any_beat
+    };
 
-class dryad_motif;
-class dryad_motif_instance;
-class dryad_score_frame;
-class dryad_voice;
+    enum class NoteIntervalType
+    {
+        diatonic,
+        chromatic
+    };
 
-class dryad_motif_note : public dryad_node
-{
-public:
-    DRYAD_NODE_CLASS_ID(dryad_motif_note);
+    class Motif;
+    class MotifInstance;
+    class ScoreFrame;
+    class Voice;
 
-    dryad_motif_note(dryad_motif* motif, dryad_note_relative relative_value, dryad_time duration, dryad_time relative_position);
+    class MotifNote : public Node
+    {
+    public:
+        DRYAD_NODE_CLASS_ID(MotifNote);
 
-    dryad_note_relative relative_value;
-    dryad_time duration;
-    dryad_time relative_position;
-};
+        MotifNote(Motif* motif, NoteRelative relativeValue, Time duration, Time relativePosition);
 
-
-class dryad_note_instance : public dryad_node
-{
-public:
-    DRYAD_NODE_CLASS_ID(dryad_note_instance);
-
-    dryad_note_instance(dryad_note_value value, dryad_time duration);
-
-    dryad_note_value value;
-    dryad_time duration;
-};
+        NoteRelative relativeValue;
+        Time duration;
+        Time relativePosition;
+    };
 
 
-class dryad_motif : public dryad_node
-{
-public:
-    DRYAD_NODE_CLASS_ID(dryad_motif);
+    class NoteInstance : public Node
+    {
+    public:
+        DRYAD_NODE_CLASS_ID(NoteInstance);
 
-    dryad_harmonic_anchor harmonic_anchor;
-    dryad_rhythmic_anchor rhythmic_anchor;
-    dryad_note_offset_type note_offset_type;
-    dryad_time duration;
+        NoteInstance(NoteValue value, Time duration);
 
-    dryad_motif_note* add_note(dryad_note_relative relative_value, dryad_time duration, dryad_time relative_position);
+        NoteValue value;
+        Time duration;
+    };
 
-    // Evaluates the duration of the motif by checking the end time
-    // of each note. The duration can be specified beyond that time
-    // so the silence at the end of the motif is also included
-    void update_duration();
 
-    // A motif_note should never be reused once it's destroyed
-    bool destroy_note(dryad_motif_note* motif_note_to_remove);
+    class Motif : public Node
+    {
+    public:
+        DRYAD_NODE_CLASS_ID(Motif);
 
-    dryad_motif_instance* get_last_instance();
-    dryad_error get_instances_end_time(dryad_voice* voice, dryad_time& time);
+        HarmonicAnchor harmonicAnchor;
+        AnchorRhythmic rhythmicAnchor;
+        NoteIntervalType noteIntervalType;
+        Time duration;
 
-};
+        MotifNote* addNote(NoteRelative relativeValue, Time duration, Time relativePosition);
 
-class dryad_motif_instance : public dryad_node
-{
-public:
-    DRYAD_NODE_CLASS_ID(dryad_motif_instance);
+        // Evaluates the duration of the motif by checking the end time
+        // of each note. The duration can be specified beyond that time
+        // so the silence at the end of the motif is also included
+        void updateDuration();
 
-    dryad_motif_instance(dryad_time position);
+        // A motifNote should never be reused once it's destroyed
+        bool destroyNote(MotifNote* motifNoteToRemove);
 
-    dryad_time get_end_time();
+        MotifInstance* getLastInstance();
+        Error getInstancesEndTime(Voice* voice, Time& time);
 
-    dryad_time position;
-};
+    };
+
+    class MotifInstance : public Node
+    {
+    public:
+        DRYAD_NODE_CLASS_ID(MotifInstance);
+
+        MotifInstance(Time position);
+
+        Time getEndTime();
+
+        Time position;
+    };
+
+} // namespace Dryad

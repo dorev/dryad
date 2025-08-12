@@ -290,7 +290,7 @@ STBRP_DEF void stbrp_init_target(stbrp_context *context, int width, int height, 
 // find minimum y position if it starts at x1
 static int stbrp__skyline_find_min_y(stbrp_context *c, stbrp_node *first, int x0, int width, int *pwaste)
 {
-   stbrp_node *dryad_node = first;
+   stbrp_node *Node = first;
    int x1 = x0 + width;
    int min_y, visited_width, waste_area;
 
@@ -303,35 +303,35 @@ static int stbrp__skyline_find_min_y(stbrp_context *c, stbrp_node *first, int x0
    while (node->next->x <= x0)
       ++node;
    #else
-   STBRP_ASSERT(dryad_node->next->x > x0); // we ended up handling this in the caller for efficiency
+   STBRP_ASSERT(Node->next->x > x0); // we ended up handling this in the caller for efficiency
    #endif
 
-   STBRP_ASSERT(dryad_node->x <= x0);
+   STBRP_ASSERT(Node->x <= x0);
 
    min_y = 0;
    waste_area = 0;
    visited_width = 0;
-   while (dryad_node->x < x1) {
-      if (dryad_node->y > min_y) {
+   while (Node->x < x1) {
+      if (Node->y > min_y) {
          // raise min_y higher.
          // we've accounted for all waste up to min_y,
          // but we'll now add more waste for everything we've visted
-         waste_area += visited_width * (dryad_node->y - min_y);
-         min_y = dryad_node->y;
+         waste_area += visited_width * (Node->y - min_y);
+         min_y = Node->y;
          // the first time through, visited_width might be reduced
-         if (dryad_node->x < x0)
-            visited_width += dryad_node->next->x - x0;
+         if (Node->x < x0)
+            visited_width += Node->next->x - x0;
          else
-            visited_width += dryad_node->next->x - dryad_node->x;
+            visited_width += Node->next->x - Node->x;
       } else {
          // add waste area
-         int under_width = dryad_node->next->x - dryad_node->x;
+         int under_width = Node->next->x - Node->x;
          if (under_width + visited_width > width)
             under_width = width - visited_width;
-         waste_area += under_width * (min_y - dryad_node->y);
+         waste_area += under_width * (min_y - Node->y);
          visited_width += under_width;
       }
-      dryad_node = dryad_node->next;
+      Node = Node->next;
    }
 
    *pwaste = waste_area;
@@ -348,7 +348,7 @@ static stbrp__findresult stbrp__skyline_find_best_pos(stbrp_context *c, int widt
 {
    int best_waste = (1<<30), best_x, best_y = (1 << 30);
    stbrp__findresult fr;
-   stbrp_node **prev, *dryad_node, *tail, **best = NULL;
+   stbrp_node **prev, *Node, *tail, **best = NULL;
 
    // align to multiple of c->align
    width = (width + c->align - 1);
@@ -362,11 +362,11 @@ static stbrp__findresult stbrp__skyline_find_best_pos(stbrp_context *c, int widt
       return fr;
    }
 
-   dryad_node = c->active_head;
+   Node = c->active_head;
    prev = &c->active_head;
-   while (dryad_node->x + width <= c->width) {
+   while (Node->x + width <= c->width) {
       int y,waste;
-      y = stbrp__skyline_find_min_y(c, dryad_node, dryad_node->x, width, &waste);
+      y = stbrp__skyline_find_min_y(c, Node, Node->x, width, &waste);
       if (c->heuristic == STBRP_HEURISTIC_Skyline_BL_sortHeight) { // actually just want to test BL
          // bottom left
          if (y < best_y) {
@@ -384,8 +384,8 @@ static stbrp__findresult stbrp__skyline_find_best_pos(stbrp_context *c, int widt
             }
          }
       }
-      prev = &dryad_node->next;
-      dryad_node = dryad_node->next;
+      prev = &Node->next;
+      Node = Node->next;
    }
 
    best_x = (best == NULL) ? 0 : (*best)->x;
@@ -409,7 +409,7 @@ static stbrp__findresult stbrp__skyline_find_best_pos(stbrp_context *c, int widt
 
    if (c->heuristic == STBRP_HEURISTIC_Skyline_BF_sortHeight) {
       tail = c->active_head;
-      dryad_node = c->active_head;
+      Node = c->active_head;
       prev = &c->active_head;
       // find first node that's admissible
       while (tail->x < width)
@@ -419,12 +419,12 @@ static stbrp__findresult stbrp__skyline_find_best_pos(stbrp_context *c, int widt
          int y,waste;
          STBRP_ASSERT(xpos >= 0);
          // find the left position that matches this
-         while (dryad_node->next->x <= xpos) {
-            prev = &dryad_node->next;
-            dryad_node = dryad_node->next;
+         while (Node->next->x <= xpos) {
+            prev = &Node->next;
+            Node = Node->next;
          }
-         STBRP_ASSERT(dryad_node->next->x > xpos && dryad_node->x <= xpos);
-         y = stbrp__skyline_find_min_y(c, dryad_node, xpos, width, &waste);
+         STBRP_ASSERT(Node->next->x > xpos && Node->x <= xpos);
+         y = stbrp__skyline_find_min_y(c, Node, xpos, width, &waste);
          if (y + height <= c->height) {
             if (y <= best_y) {
                if (y < best_y || waste < best_waste || (waste==best_waste && xpos < best_x)) {
@@ -450,7 +450,7 @@ static stbrp__findresult stbrp__skyline_pack_rectangle(stbrp_context *context, i
 {
    // find best position according to heuristic
    stbrp__findresult res = stbrp__skyline_find_best_pos(context, width, height);
-   stbrp_node *dryad_node, *cur;
+   stbrp_node *Node, *cur;
 
    // bail if:
    //    1. it failed
@@ -462,11 +462,11 @@ static stbrp__findresult stbrp__skyline_pack_rectangle(stbrp_context *context, i
    }
 
    // on success, create new node
-   dryad_node = context->free_head;
-   dryad_node->x = (stbrp_coord) res.x;
-   dryad_node->y = (stbrp_coord) (res.y + height);
+   Node = context->free_head;
+   Node->x = (stbrp_coord) res.x;
+   Node->y = (stbrp_coord) (res.y + height);
 
-   context->free_head = dryad_node->next;
+   context->free_head = Node->next;
 
    // insert the new node into the right starting point, and
    // let 'cur' point to the remaining nodes needing to be
@@ -476,10 +476,10 @@ static stbrp__findresult stbrp__skyline_pack_rectangle(stbrp_context *context, i
    if (cur->x < res.x) {
       // preserve the existing one, so start testing with the next one
       stbrp_node *next = cur->next;
-      cur->next = dryad_node;
+      cur->next = Node;
       cur = next;
    } else {
-      *res.prev_link = dryad_node;
+      *res.prev_link = Node;
    }
 
    // from here, traverse cur and free the nodes, until we get to one
@@ -493,7 +493,7 @@ static stbrp__findresult stbrp__skyline_pack_rectangle(stbrp_context *context, i
    }
 
    // stitch the list back in
-   dryad_node->next = cur;
+   Node->next = cur;
 
    if (cur->x < res.x + width)
       cur->x = (stbrp_coord) (res.x + width);

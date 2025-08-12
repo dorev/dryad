@@ -4299,7 +4299,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         const ImFontGlyph* glyph = g.Font->FindGlyph('*');
         ImFont* password_font = &g.InputTextPasswordFont;
         password_font->FontSize = g.Font->FontSize;
-        password_font->dryad_scale = g.Font->dryad_scale;
+        password_font->Scale = g.Font->Scale;
         password_font->Ascent = g.Font->Ascent;
         password_font->Descent = g.Font->Descent;
         password_font->ContainerAtlas = g.Font->ContainerAtlas;

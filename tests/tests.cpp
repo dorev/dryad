@@ -1,11 +1,13 @@
 #include "gtest/gtest.h"
 #include "dryad/src/dryad.h"
 
+using namespace Dryad;
+
 class Tests : public ::testing::Test
 {
 };
 
-class test_node : public dryad_node
+class test_node : public Node
 {
 public:
     DRYAD_NODE_CLASS_ID(test_node);
@@ -18,7 +20,7 @@ public:
     int value;
 };
 
-class test_node2 : public dryad_node
+class test_node2 : public Node
 {
 public:
     DRYAD_NODE_CLASS_ID(test_node2);
@@ -36,14 +38,14 @@ TEST(drayd_graph, insert_node)
 {
     int test_value = 42;
 
-    dryad_graph graph;
+    Graph graph;
 
     graph.insert(new test_node(test_value));
     graph.insert(new test_node(test_value));
 
     EXPECT_EQ(graph.size(), 2) << "Graph contains the wrong count of elements";
 
-    for (dryad_node* node : graph)
+    for (Node* node : graph)
     {
         if (test_node* content = node->get<test_node>())
             EXPECT_EQ(content->value, test_value);
@@ -56,13 +58,13 @@ TEST(drayd_graph, create_node)
 {
     int test_value = 42;
 
-    dryad_graph graph;
+    Graph graph;
     graph.create<test_node>(test_value);
     graph.create<test_node>(test_value);
 
     EXPECT_EQ(graph.size(), 2) << "Graph contains the wrong count of elements";
 
-    for (dryad_node* node : graph)
+    for (Node* node : graph)
     {
         if (test_node* content = node->get<test_node>())
             EXPECT_EQ(content->value, test_value);
@@ -73,14 +75,14 @@ TEST(drayd_graph, create_node)
 
 TEST(drayd_graph, destroy_node)
 {
-    dryad_graph graph;
+    Graph graph;
     int test_value = 42;
     test_node* node_ptr = new test_node(test_value);
     graph.insert(node_ptr);
 
     EXPECT_EQ(graph.size(), 1) << "Graph contains the wrong count of elements";
 
-    for (dryad_node* node : graph)
+    for (Node* node : graph)
     {
         if (test_node* content = node->get<test_node>())
             EXPECT_EQ(content->value, test_value);
@@ -94,7 +96,7 @@ TEST(drayd_graph, destroy_node)
 
 TEST(drayd_graph, link)
 {
-    dryad_graph graph;
+    Graph graph;
     test_node* node1 = new test_node(1);
     test_node* node2 = new test_node(2);
     test_node* node3 = new test_node(3);
@@ -121,7 +123,7 @@ TEST(drayd_graph, link)
     EXPECT_EQ(graph.size(), 2);
 }
 
-TEST(dryad_node, for_each_edge)
+TEST(Node, forEachEdge)
 {
     test_node node;
 
@@ -135,7 +137,7 @@ TEST(dryad_node, for_each_edge)
     node.edges.push_back(&node3);
 
     int result = 0;
-    node.for_each_edge<test_node>([&](test_node* n)
+    node.forEachEdge<test_node>([&](test_node* n)
         {
             result += n->value;
         });
@@ -143,115 +145,115 @@ TEST(dryad_node, for_each_edge)
     EXPECT_EQ(result, test_value * 2) << "Only and all nodes of selected type should have been processed.";
 }
 
-TEST(dryad_voice, set_compare_by_id)
+TEST(Voice, set_compare_by_id)
 {
-    dryad_set<dryad_voice*, dryad_voice::compare_by_id> set;
-    dryad_voice a(3, "3");
-    dryad_voice b(1, "1");
-    dryad_voice c(2, "2");
+    Set<Voice*, Voice::compareByID> set;
+    Voice a(3, "3");
+    Voice b(1, "1");
+    Voice c(2, "2");
 
     set.insert(&a);
     set.insert(&b);
     set.insert(&c);
 
-    dryad_voice dummy(2, "0");
+    Voice dummy(2, "0");
 
     auto it = set.find(&dummy);
     EXPECT_NE(it, set.end());
 
-    dryad_voice* voice_found = *it;
+    Voice* voice_found = *it;
 
     EXPECT_EQ(voice_found, &c);
 }
 
-TEST(dryad_score_frame, set_compare_by_position)
+TEST(ScoreFrame, set_compare_by_position)
 {
-    dryad_set<dryad_score_frame*, dryad_score_frame::compare_by_position> set;
-    dryad_score_frame a(3);
-    dryad_score_frame b(1);
-    dryad_score_frame c(2);
+    Set<ScoreFrame*, ScoreFrame::compare_by_position> set;
+    ScoreFrame a(3);
+    ScoreFrame b(1);
+    ScoreFrame c(2);
 
     set.insert(&a);
     set.insert(&b);
     set.insert(&c);
 
-    dryad_score_frame dummy(2);
+    ScoreFrame dummy(2);
 
     auto it = set.find(&dummy);
     EXPECT_NE(it, set.end());
 
-    dryad_score_frame* frame_found = *it;
+    ScoreFrame* frame_found = *it;
 
     EXPECT_EQ(frame_found, &c);
 }
 
-TEST(dryad_score, find_frame_at_position)
+TEST(Score, findFrameAtPosition)
 {
     //FAIL() << "Test not implemented.";
 }
 
-TEST(dryad_score, find_last_committed_frame)
+TEST(Score, findLastCommittedFrame)
 {
     //FAIL() << "Test not implemented.";
 }
 
-TEST(dryad_score, MVP)
+TEST(Score, MVP)
 {
     // Add voice to score
-    dryad_score score;
+    Score score;
 
     int id = 1;
-    dryad_string name = "test_voice";
-    dryad_voice* voice = score.add_voice(id, name);
+    String name = "test_voice";
+    Voice* voice = score.addVoice(id, name);
     EXPECT_NE(voice, nullptr);
 
-    for (dryad_voice* v : score.cached_voices)
+    for (Voice* v : score.cachedVoices)
         EXPECT_EQ(v->id, id);
 
     // Add motif to voice
-    dryad_motif* motif = score.create<dryad_motif>();
+    Motif* motif = score.create<Motif>();
     EXPECT_NE(motif, nullptr);
 
-    motif->harmonic_anchor = dryad_harmonic_anchor::chord;
-    motif->rhythmic_anchor = dryad_rhythmic_anchor::any_beat;
+    motif->harmonicAnchor = HarmonicAnchor::chord;
+    motif->rhythmicAnchor = AnchorRhythmic::any_beat;
 
-    dryad_time duration = eighth;
-    dryad_time relative_position = 0;
-    dryad_note_relative value = 0;
-    dryad_motif_note* motif_note = motif->add_note(value, duration, relative_position);
+    Time duration = eighth;
+    Time relativePosition = 0;
+    NoteRelative value = 0;
+    MotifNote* motifNote = motif->addNote(value, duration, relativePosition);
 
-    dryad_error error = voice->add_motif(motif);
-    EXPECT_EQ(error, dryad_success);
+    Error error = voice->addMotif(motif);
+    EXPECT_EQ(error, Success);
 
     // Set score scale
-    dryad_scale* scale = score.create<dryad_scale>(dryad_scale_library::major_scale);
+    Scale* scale = score.create<Scale>(ScaleLibrary::major_scale);
     EXPECT_NE(scale, nullptr);
 
-    score.current_scale = scale;
+    score.currentScale = scale;
 
     // Set score progression
-    dryad_progression* progression = score.create<dryad_progression>();
+    Progression* progression = score.create<Progression>();
     EXPECT_NE(progression, nullptr);
 
-    dryad_progression_chord* chord1 = score.create<dryad_progression_chord>(dryad_chord(dryad_degree::tonic), whole);
+    ProgressionChord* chord1 = score.create<ProgressionChord>(Chord(Degree::tonic), whole);
     EXPECT_NE(chord1, nullptr);
-    dryad_progression_chord* chord2 = score.create<dryad_progression_chord>(dryad_chord(dryad_degree::dominant), whole);
+    ProgressionChord* chord2 = score.create<ProgressionChord>(Chord(Degree::dominant), whole);
     EXPECT_NE(chord2, nullptr);
 
     progression->nodes.push_back(chord1);
     progression->nodes.push_back(chord2);
-    progression->entry_node = chord1;
+    progression->entryNode = chord1;
     chord1->next = chord2;
 
-    score.current_progression = progression;
+    score.currentProgression = progression;
 
     // Commit score duration
     error = score.commit(4 * whole);
-    EXPECT_EQ(error, dryad_success) << "error: " << dryad_error_string(error);
+    EXPECT_EQ(error, Success) << "error: " << ToString(error);
 
     // Dump score
-    dryad_serialized_score serialized_score;
-    error = score.dump(serialized_score);
+    SerializedScore serializedScore;
+    error = score.dump(serializedScore);
     //EXPECT_EQ(error, dryad_no_error);
 }
 
@@ -260,43 +262,43 @@ TEST(dryad_score, MVP)
 // Most additions to the score should have an .add_<something> method,
 // so it's added to the graph but also to the cache vectors (voices, motifs, frames, progressions)
 
-TEST(dryad_scale, chord_offsets_default_degree_quality)
+TEST(Scale, chord_offsets_default_degree_quality)
 {
-    dryad_vector<dryad_note_relative> offsets;
-    dryad_chord chord(dryad_degree::tonic);
+    Vector<NoteRelative> offsets;
+    Chord chord(Degree::tonic);
 
-    dryad_error error = get_chord_offsets_from_root(chord, &dryad_scale_library::major_scale, offsets);
-    EXPECT_EQ(error, dryad_success);
+    Error error = getChordOffsetsFromRoot(chord, &ScaleLibrary::major_scale, offsets);
+    EXPECT_EQ(error, Success);
 
-    dryad_vector<dryad_note_relative> expected{0, 4, 7, 11};
+    Vector<NoteRelative> expected{0, 4, 7, 11};
     EXPECT_EQ(offsets, expected);
 }
 
-TEST(dryad_scale, chord_offsets_override_base_quality)
+TEST(Scale, chord_offsets_override_base_quality)
 {
-    dryad_vector<dryad_note_relative> offsets;
-    dryad_chord chord(dryad_degree::tonic, dryad_chord_quality::minor);
+    Vector<NoteRelative> offsets;
+    Chord chord(Degree::tonic, ChordQuality::minor);
 
-    dryad_error error = get_chord_offsets_from_root(chord, &dryad_scale_library::major_scale, offsets);
-    EXPECT_EQ(error, dryad_success);
+    Error error = getChordOffsetsFromRoot(chord, &ScaleLibrary::major_scale, offsets);
+    EXPECT_EQ(error, Success);
 
-    dryad_vector<dryad_note_relative> expected{0, 3, 7, 11};
+    Vector<NoteRelative> expected{0, 3, 7, 11};
     EXPECT_EQ(offsets, expected);
 }
 
-TEST(dryad_scale, chord_offsets_extensions_alterations_and_accidental)
+TEST(Scale, chord_offsets_extensions_alterations_and_accidental)
 {
-    dryad_vector<dryad_note_relative> offsets;
-    dryad_chord chord
+    Vector<NoteRelative> offsets;
+    Chord chord
     (
-        dryad_degree::dominant,
-        dryad_chord_quality::add9 | dryad_chord_quality::flat5,
-        dryad_accidental::sharp
+        Degree::dominant,
+        ChordQuality::add9 | ChordQuality::flat5,
+        Accidental::sharp
     );
 
-    dryad_error error = get_chord_offsets_from_root(chord, &dryad_scale_library::major_scale, offsets);
-    EXPECT_EQ(error, dryad_success);
+    Error error = getChordOffsetsFromRoot(chord, &ScaleLibrary::major_scale, offsets);
+    EXPECT_EQ(error, Success);
 
-    dryad_vector<dryad_note_relative> expected{8, 12, 14, 18, 22};
+    Vector<NoteRelative> expected{8, 12, 14, 18, 22};
     EXPECT_EQ(offsets, expected);
 }

@@ -7272,9 +7272,9 @@ void ImGui::SetCurrentFont(ImFont* font)
 {
     ImGuiContext& g = *GImGui;
     IM_ASSERT(font && font->IsLoaded());    // Font Atlas not created. Did you call io.Fonts->GetTexDataAsRGBA32 / GetTexDataAsAlpha8 ?
-    IM_ASSERT(font->dryad_scale > 0.0f);
+    IM_ASSERT(font->Scale > 0.0f);
     g.Font = font;
-    g.FontBaseSize = ImMax(1.0f, g.IO.FontGlobalScale * g.Font->FontSize * g.Font->dryad_scale);
+    g.FontBaseSize = ImMax(1.0f, g.IO.FontGlobalScale * g.Font->FontSize * g.Font->Scale);
     g.FontSize = g.CurrentWindow ? g.CurrentWindow->CalcFontSize() : 0.0f;
 
     ImFontAtlas* atlas = g.Font->ContainerAtlas;
@@ -8365,8 +8365,8 @@ bool ImGui::SetShortcutRouting(ImGuiKeyChord key_chord, ImGuiID owner_id, ImGuiI
     if (flags & ImGuiInputFlags_RouteAlways)
         return true;
 
-    const int dryad_score = CalcRoutingScore(g.CurrentWindow, owner_id, flags);
-    if (dryad_score == 255)
+    const int Score = CalcRoutingScore(g.CurrentWindow, owner_id, flags);
+    if (Score == 255)
         return false;
 
     // Submit routing for NEXT frame (assuming score is sufficient)
@@ -8374,10 +8374,10 @@ bool ImGui::SetShortcutRouting(ImGuiKeyChord key_chord, ImGuiID owner_id, ImGuiI
     ImGuiKeyRoutingData* routing_data = GetShortcutRoutingData(key_chord);
     const ImGuiID routing_id = GetRoutingIdFromOwnerId(owner_id);
     //const bool set_route = (flags & ImGuiInputFlags_ServeLast) ? (score <= routing_data->RoutingNextScore) : (score < routing_data->RoutingNextScore);
-    if (dryad_score < routing_data->RoutingNextScore)
+    if (Score < routing_data->RoutingNextScore)
     {
         routing_data->RoutingNext = routing_id;
-        routing_data->RoutingNextScore = (ImU8)dryad_score;
+        routing_data->RoutingNextScore = (ImU8)Score;
     }
 
     // Return routing state for CURRENT frame
@@ -14656,7 +14656,7 @@ void ImGui::DebugNodeFont(ImFont* font)
 
     // Display details
     SetNextItemWidth(GetFontSize() * 8);
-    DragFloat("Font scale", &font->dryad_scale, 0.005f, 0.3f, 2.0f, "%.1f");
+    DragFloat("Font scale", &font->Scale, 0.005f, 0.3f, 2.0f, "%.1f");
     SameLine(); MetricsHelpMarker(
         "Note than the default embedded font is NOT meant to be scaled.\n\n"
         "Font are currently rendered into bitmaps at a given size at the time of building the atlas. "

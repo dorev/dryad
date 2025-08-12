@@ -79,9 +79,9 @@ int step_up_duration(int duration, const std::vector<int>& duration_vector)
 void integer_to_step_and_alteration(int integer, const char*& output_step, int& output_alteration, accidental accidental_type)
 {
     static int notes[7] = {0, 2, 4, 5, 7, 9, 11 };
-    int note_value = integer % 12;
+    int noteValue = integer % 12;
 
-    switch (note_value)
+    switch (noteValue)
     {
         case 0: output_step = "C"; return;
         case 2: output_step = "D"; return;
@@ -96,7 +96,7 @@ void integer_to_step_and_alteration(int integer, const char*& output_step, int& 
                 default:
                 case accidental::sharp:
                 case accidental::double_sharp:
-                    switch (note_value)
+                    switch (noteValue)
                     {
                         case 1: output_step =  "C"; break;
                         case 3: output_step = "D"; break;
@@ -111,7 +111,7 @@ void integer_to_step_and_alteration(int integer, const char*& output_step, int& 
 
                 case accidental::flat:
                 case accidental::double_flat:
-                    switch (note_value)
+                    switch (noteValue)
                     {
                         case 1: output_step = "D"; break;
                         case 3: output_step = "E"; break;

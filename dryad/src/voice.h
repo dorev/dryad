@@ -2,30 +2,35 @@
 
 #include "graph.h"
 
-class dryad_motif;
-class dryad_motif_instance;
-
-class dryad_voice : public dryad_node
+namespace Dryad
 {
-public:
-    DRYAD_NODE_CLASS_ID(dryad_voice);
 
-    struct compare_by_id
+    class Motif;
+    class MotifInstance;
+
+    class Voice : public Node
     {
-        bool operator()(const dryad_voice* a, const dryad_voice* b) const
+    public:
+        DRYAD_NODE_CLASS_ID(Voice);
+
+        struct compareByID
         {
-            return a->id < b->id;
-        }
+            bool operator()(const Voice* a, const Voice* b) const
+            {
+                return a->id < b->id;
+            }
+        };
+
+        Voice(int id, String name);
+        Error addMotif(Motif* motif);
+        Error removeMotif(Motif* motif);
+        MotifInstance* getLastMotifInstance();
+        Error generateUntil(Time positionTarget);
+        Error addMotifInstance(Motif* motif, MotifInstance*& instance);
+
+        int id;
+        String name;
+        Vector<Motif*> motifs;
     };
 
-    dryad_voice(int id, dryad_string name);
-    dryad_error add_motif(dryad_motif* motif);
-    dryad_error remove_motif(dryad_motif* motif);
-    dryad_motif_instance* get_last_motif_instance();
-    dryad_error generate_until(dryad_time position_target);
-    dryad_error add_motif_instance(dryad_motif* motif, dryad_motif_instance*& instance);
-
-    int id;
-    dryad_string name;
-    dryad_vector<dryad_motif*> motifs;
-};
+} // namespace Dryad

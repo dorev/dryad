@@ -32,7 +32,7 @@ public:
 
 private:
 
-    bool add_note(const note_t& note);
+    bool addNote(const note_t& note);
 
     std::vector<measure_t> _measures;
     std::vector<melody_t> _melodies;

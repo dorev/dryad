@@ -2,31 +2,35 @@
 
 #include "types.h"
 
-namespace dryad
+namespace Dryad
 {
-    inline dryad_time nearest_beat_before(dryad_time beat_value, dryad_time score_time)
+
+    inline Time nearestBeatBefore(Time beatValue, Time scoreTime)
     {
-        dryad_time remainder = score_time % beat_value;
+        Time remainder = scoreTime % beatValue;
+
         if (remainder == 0)
         {
-            return score_time - beat_value;
+            return scoreTime - beatValue;
         }
         else
         {
-            return score_time - remainder;
+            return scoreTime - remainder;
         }
     }
 
-    inline dryad_time nearest_beat_after(dryad_time beat_value, dryad_time score_time)
+    inline Time nearestBeatAfter(Time beatValue, Time scoreTime)
     {
-        dryad_time remainder = score_time % beat_value;
+        Time remainder = scoreTime % beatValue;
+
         if (remainder == 0)
         {
-            return score_time + beat_value;
+            return scoreTime + beatValue;
         }
         else
         {
-            return score_time + (beat_value - remainder);
+            return scoreTime + (beatValue - remainder);
         }
     }
-}
+
+} // namespace Dryad

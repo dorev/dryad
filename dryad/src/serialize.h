@@ -2,31 +2,36 @@
 
 #include "types.h"
 
-struct dryad_serialized_note
+namespace Dryad
 {
-    dryad_time relative_position;
-    dryad_time duration;
-    dryad_note_value value;
-};
 
-struct dryad_serialized_voice
-{
-    dryad_string name;
-    int id;
-    dryad_vector<dryad_serialized_voice> notes;
-};
-
-struct dryad_serialized_score
-{
-    dryad_vector<dryad_serialized_voice> cached_voices;
-};
-
-class dryad_exporter
-{
-public:
-    virtual ~dryad_exporter()
+    struct SerializedNote
     {
-    }
+        Time relativePosition;
+        Time duration;
+        NoteValue value;
+    };
 
-    virtual dryad_error export_score(const dryad_serialized_score& score, dryad_string export_path) = 0;
-};
+    struct SerializedVoice
+    {
+        String name;
+        int id;
+        Vector<SerializedVoice> notes;
+    };
+
+    struct SerializedScore
+    {
+        Vector<SerializedVoice> cachedVoices;
+    };
+
+    class IExporter
+    {
+    public:
+        virtual ~IExporter()
+        {
+        }
+
+        virtual Error exportScore(const SerializedScore& score, String export_path) = 0;
+    };
+
+} // namespace Dryad

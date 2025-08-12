@@ -9,7 +9,7 @@ class HarmonyNode;
 
 class Progression
 {
-    Vector<HarmonyNode*> _nodes;
+    Vector<HarmonyNode*> nodes;
 };
 
 } // namespace Dryad::Model

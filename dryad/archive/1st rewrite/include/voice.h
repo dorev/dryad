@@ -10,8 +10,8 @@ namespace dryad
     {
     public:
 
-        void add_note(note_t note);
-        void add_note(int offset, int duration);
+        void addNote(note_t note);
+        void addNote(int offset, int duration);
 
         int get_total_duration();
 

@@ -4,89 +4,93 @@
 #include "graph.h"
 #include "chord.h"
 #include "constants.h"
-using namespace dryad_constants;
 
-class dryad_motif;
-class dryad_voice;
-class dryad_scale;
-
-class dryad_progression_node : public dryad_node
+namespace Dryad
 {
-public:
 
-    dryad_progression_node()
-        : next(nullptr)
+    class Motif;
+    class Voice;
+    class Scale;
+
+    class ProgressionNode : public Node
     {
-    }
+    public:
 
-    dryad_progression_node* next;
-};
+        ProgressionNode()
+            : next(nullptr)
+        {
+        }
 
-class dryad_progression_chord;
-class dryad_progression : public dryad_node
-{
-public:
-    DRYAD_NODE_CLASS_ID(dryad_progression);
+        ProgressionNode* next;
+    };
 
-    dryad_progression_node* entry_node;
-    dryad_progression_chord* current_progression_chord;
-    dryad_vector<dryad_progression_node*> nodes;
-};
-
-class dryad_progression_switch_sequence : public dryad_progression_node
-{
-public:
-    DRYAD_NODE_CLASS_ID(dryad_progression_switch_sequence);
-
-    dryad_vector<dryad_progression_node*> outputs;
-    int output_index;
-};
-
-struct dryad_motif_change
-{
-    dryad_motif* old_motif;
-    dryad_motif* new_motif;
-};
-
-struct dryad_voice_change
-{
-    dryad_voice* old_voice;
-    dryad_voice* new_voice;
-};
-
-class dryad_progression_score_event : public dryad_progression_node
-{
-public:
-    DRYAD_NODE_CLASS_ID(dryad_progression_score_event);
-
-    dryad_progression* progression_change;
-    dryad_scale* scale_change;
-    dryad_vector<dryad_motif_change> motif_changes;
-    dryad_vector<dryad_voice_change> voice_changes;
-    bool score_end;
-};
-
-class dryad_progression_chord : public dryad_progression_node
-{
-public:
-    DRYAD_NODE_CLASS_ID(dryad_progression_chord);
-
-    dryad_progression_chord(dryad_chord chord, dryad_time duration)
-        : chord(chord)
-        , duration(duration)
+    class ProgressionChord;
+    class Progression : public Node
     {
-    }
+    public:
+        DRYAD_NODE_CLASS_ID(Progression);
 
-    dryad_chord chord;
-    dryad_time duration;
-};
+        ProgressionNode* entryNode;
+        ProgressionChord* currentProgressionChord;
+        Vector<ProgressionNode*> nodes;
+    };
 
-class dryad_progression_chord_instance : public dryad_node
-{
-public:
-    DRYAD_NODE_CLASS_ID(dryad_progression_chord_instance);
+    class ProgressionSwitchSequence : public ProgressionNode
+    {
+    public:
+        DRYAD_NODE_CLASS_ID(ProgressionSwitchSequence);
 
-    dryad_progression_chord* progression_chord;
-    dryad_note_value root;
-    dryad_time relative_position;
-};
+        Vector<ProgressionNode*> outputs;
+        int outputIndex;
+    };
+
+    struct MotifChange
+    {
+        Motif* oldMotif;
+        Motif* newMotif;
+    };
+
+    struct VoiceChange
+    {
+        Voice* oldVoice;
+        Voice* newVoice;
+    };
+
+    class ProgressionEvent : public ProgressionNode
+    {
+    public:
+        DRYAD_NODE_CLASS_ID(ProgressionEvent);
+
+        Progression* progressionChange;
+        Scale* scaleChange;
+        Vector<MotifChange> motifChanges;
+        Vector<VoiceChange> voiceChanges;
+        bool scoreEnd;
+    };
+
+    class ProgressionChord : public ProgressionNode
+    {
+    public:
+        DRYAD_NODE_CLASS_ID(ProgressionChord);
+
+        ProgressionChord(Chord chord, Time duration)
+            : chord(chord)
+            , duration(duration)
+        {
+        }
+
+        Chord chord;
+        Time duration;
+    };
+
+    class ProgressionChordInstance : public Node
+    {
+    public:
+        DRYAD_NODE_CLASS_ID(ProgressionChordInstance);
+
+        ProgressionChord* progressionChord;
+        NoteValue root;
+        Time relativePosition;
+    };
+
+} // namespace Dryad
