@@ -50,7 +50,7 @@ namespace Dryad
         // if it's the scale...
         // if it's the chord...
         // TODO: at some point we will also have to take the voice range in consideration
-        NoteValue noteValue = Invalid;
+        NoteValue noteValue = InvalidValue;
 
         switch (motif->harmonicAnchor)
         {

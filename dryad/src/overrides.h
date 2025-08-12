@@ -16,14 +16,14 @@ namespace Dryad
 
     enum class LogLevel
     {
-        debug = 0,
-        info,
-        warning,
-        error,
-        fatal
+        Debug = 0,
+        Info,
+        Warning,
+        Error,
+        Fatal
     };
 
-    inline static LogLevel gLogLevel = LogLevel::debug;
+    inline static LogLevel gLogLevel = LogLevel::Debug;
 
     #ifdef _MSC_VER
     #define DRYAD_FUNCTION __FUNCSIG__
@@ -46,11 +46,11 @@ namespace Dryad
             printf(color "[" tag "] " format " (%s)\n" DRYAD_COLOR_RESET, ##__VA_ARGS__, DRYAD_FUNCTION); \
         }
 
-    #define DRYAD_DEBUG(format, ...) DRYAD_LOG(debug,   DRYAD_COLOR_GREEN,      "DEBUG",    format, ##__VA_ARGS__)
-    #define DRYAD_INFO(format, ...)  DRYAD_LOG(info,    DRYAD_COLOR_WHITE,      "INFO",     format, ##__VA_ARGS__)
-    #define DRYAD_WARN(format, ...)  DRYAD_LOG(warning, DRYAD_COLOR_YELLOW,     "WARNING",  format, ##__VA_ARGS__)
-    #define DRYAD_ERROR(format, ...) DRYAD_LOG(error,   DRYAD_COLOR_RED,        "ERROR",    format, ##__VA_ARGS__)
-    #define DRYAD_FATAL(format, ...) DRYAD_LOG(fatal,   DRYAD_COLOR_BRIGHT_RED, "FATAL",    format, ##__VA_ARGS__)
+    #define DRYAD_DEBUG(format, ...) DRYAD_LOG(Debug,   DRYAD_COLOR_GREEN,      "DEBUG",    format, ##__VA_ARGS__)
+    #define DRYAD_INFO(format, ...)  DRYAD_LOG(Info,    DRYAD_COLOR_WHITE,      "INFO",     format, ##__VA_ARGS__)
+    #define DRYAD_WARN(format, ...)  DRYAD_LOG(Warning, DRYAD_COLOR_YELLOW,     "WARNING",  format, ##__VA_ARGS__)
+    #define DRYAD_ERROR(format, ...) DRYAD_LOG(Error,   DRYAD_COLOR_RED,        "ERROR",    format, ##__VA_ARGS__)
+    #define DRYAD_FATAL(format, ...) DRYAD_LOG(Fatal,   DRYAD_COLOR_BRIGHT_RED, "FATAL",    format, ##__VA_ARGS__)
 
     //
     // Allocation
