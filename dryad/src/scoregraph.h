@@ -10,16 +10,17 @@ namespace Dryad
     // Class ID declaration macro
     //
 
-    constexpr UInt32 FNVHash(const char* str, UInt32 hash = 2166136261)
+    constexpr unsigned FNVHash(const char* str, unsigned hash = 2166136261)
     {
         while (*str)
         {
             hash = (hash ^ *str++) * 16777619;
         }
+
         return hash;
     }
 
-    using ClassID = UInt32;
+    using ClassID = unsigned;
     #define DRYAD_CLASS_ID(className) \
         static constexpr ClassID ID = FNVHash(#className); \
         inline ClassID getClassID() const { return ID; }
@@ -36,7 +37,7 @@ namespace Dryad
             template <class T>
             bool CastTo(T& outReference)
             {
-                static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
+                static_assert(std::is_base_of<Node, T>, "Class must derive from ScoreGraph::Node.");
                 if (T::ID == getClassID())
                 {
                     outReference = *(static_cast<T*>(this));
@@ -51,37 +52,43 @@ namespace Dryad
         template <class T>
         bool Insert(const SharedPtr<T>& element)
         {
-            static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
+            static_assert(std::is_base_of<Node, T>, "Class must derive from ScoreGraph::Node.");
+
             if (element != nullptr)
             {
                 _Nodes[T::ID].insert(SharedPtrCast<Node>(element));
                 return true;
             }
+
             return false;
         }
 
         template <class T>
         bool Contains(const SharedPtr<T>& node)
         {
-            static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
+            static_assert(std::is_base_of<Node, T>, "Class must derive from ScoreGraph::Node.");
+
             auto mapIt = _Nodes.find(T::ID);
+
             if (mapIt != _Nodes.end())
             {
                 const auto& nodeSet = mapIt->second;
                 return nodeSet.find(SharedPtrCast<Node>(node)) != nodeSet.end();
             }
+
             return false;
         }
 
         template <class T>
         bool Remove(const SharedPtr<T>& scoreElement)
         {
-            static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
+            static_assert(std::is_base_of<Node, T>, "Class must derive from ScoreGraph::Node.");
             if (scoreElement != nullptr)
             {
                 if (Contains(scoreElement))
                 {
                     SharedPtr<Node> node = SharedPtrCast<Node>(scoreElement);
+
                     if (_Nodes[T::ID].erase(node))
                     {
                         // Remove node reference to all edge nodes
@@ -102,33 +109,40 @@ namespace Dryad
                         return false;
                     }
                 }
+
                 return true;
             }
+
             return false;
         }
 
         template <class T, class U>
         bool LinkNodes(SharedPtr<T>& a, SharedPtr<U>& b)
         {
-            static_assert(IsBaseOf<Node, T>, "Class must derive from ScoreGraph::Node.");
-            static_assert(IsBaseOf<Node, U>, "Class must derive from ScoreGraph::Node.");
+            static_assert(std::is_base_of<Node, T>, "Class must derive from ScoreGraph::Node.");
+            static_assert(std::is_base_of<Node, U>, "Class must derive from ScoreGraph::Node.");
+
             if (a != nullptr && b != nullptr && Contains(a) && Contains(b))
             {
                 a->edges.push_back(b);
                 b->edges.push_back(a);
+
                 return true;
             }
+
             return false;
         }
 
-        UInt32 Size() const
+        unsigned Size() const
         {
-            UInt32 size = 0;
+            unsigned size = 0;
+
             for (const auto& [classID, nodeSet] : _Nodes)
             {
                 DRYAD_UNUSED(classID);
-                size += static_cast<UInt32>(nodeSet.size());
+                size += static_cast<unsigned>(nodeSet.size());
             }
+
             return size;
         }
 
@@ -174,6 +188,7 @@ namespace Dryad
                 while (_MapIterator != _MapEnd && _SetIterator == _MapIterator->second.end())
                 {
                     ++_MapIterator;
+
                     if (_MapIterator != _MapEnd)
                     {
                         _SetIterator = _MapIterator->second.begin();
