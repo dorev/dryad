@@ -3,7 +3,7 @@
 namespace Dryad
 {
 
-    const char* dryad_error_string(Error error)
+    const char* ToString(Error error)
     {
         switch (error)
         {
@@ -19,6 +19,8 @@ namespace Dryad
             case InvalidPosition: return "invalid position";
             case InvalidMotifNote: return "invalid motif note";
             case InvalidEdge: return "invalid edge";
+            case InvalidDegree: return "invalid degree";
+            case InvalidScale: return "invalid scale";
             case Invalid: return "invalid value";
         }
     }
