@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.h"
+#include "chord.h"
 
 namespace Dryad
 {
@@ -36,8 +37,10 @@ namespace Dryad
     constexpr NoteValue MajorSeventh = 11;
     constexpr NoteValue Octave = 12;
 
-    constexpr unsigned ScaleLimit = 12;
-    constexpr unsigned OctaveLimit = 11;
+    constexpr int ScaleLimit = 12;
+    constexpr int OctaveLimit = 11;
+    constexpr int MiddleOctave = 4;
+    constexpr int DegreesPerOctave = static_cast<int>(Degree::limit) - 1;
 
     constexpr float frequencies[ScaleLimit][OctaveLimit] =
     {
@@ -89,7 +92,7 @@ namespace Dryad
     constexpr NoteValue Bb = 10;
     constexpr NoteValue B = 11;
 
-    constexpr NoteValue MiddleC = notes[C][4];
+    constexpr NoteValue MiddleC = notes[C][MiddleOctave];
 
     float constexpr MidiToFrequency(NoteValue midi)
     {

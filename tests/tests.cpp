@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "dryad/src/dryad.h"
+#include "dryad/src/constants.h"
 
 using namespace Dryad;
 
@@ -217,7 +218,7 @@ TEST(Score, MVP)
     motif->harmonicAnchor = HarmonicAnchor::chord;
     motif->rhythmicAnchor = AnchorRhythmic::any_beat;
 
-    Time duration = eighth;
+    Time duration = Eighth;
     Time relativePosition = 0;
     NoteRelative value = 0;
     MotifNote* motifNote = motif->addNote(value, duration, relativePosition);
@@ -235,9 +236,9 @@ TEST(Score, MVP)
     Progression* progression = score.create<Progression>();
     EXPECT_NE(progression, nullptr);
 
-    ProgressionChord* chord1 = score.create<ProgressionChord>(Chord(Degree::tonic), whole);
+    ProgressionChord* chord1 = score.create<ProgressionChord>(Chord(Degree::tonic), Whole);
     EXPECT_NE(chord1, nullptr);
-    ProgressionChord* chord2 = score.create<ProgressionChord>(Chord(Degree::dominant), whole);
+    ProgressionChord* chord2 = score.create<ProgressionChord>(Chord(Degree::dominant), Whole);
     EXPECT_NE(chord2, nullptr);
 
     progression->nodes.push_back(chord1);
@@ -248,13 +249,40 @@ TEST(Score, MVP)
     score.currentProgression = progression;
 
     // Commit score duration
-    error = score.commit(4 * whole);
+    error = score.commit(4 * Whole);
     EXPECT_EQ(error, Success) << "error: " << ToString(error);
 
     // Dump score
     SerializedScore serializedScore;
     error = score.dump(serializedScore);
     //EXPECT_EQ(error, dryad_no_error);
+}
+
+TEST(ScoreFrame, chord_anchor_uses_scale_degrees)
+{
+    Score score;
+
+    Motif* motif = score.create<Motif>();
+    motif->harmonicAnchor = HarmonicAnchor::chord;
+    MotifNote* motifNote = motif->addNote(1, Eighth, 0);
+
+    Scale* scale = score.create<Scale>(ScaleLibrary::major_scale);
+    score.currentScale = scale;
+
+    Progression* progression = score.create<Progression>();
+    ProgressionChord* chord = score.create<ProgressionChord>(Chord(Degree::mediant), Whole);
+    progression->nodes.push_back(chord);
+    progression->entryNode = chord;
+    progression->currentProgressionChord = chord;
+    score.currentProgression = progression;
+
+    ScoreFrame* frame = score.getOrCreateFrame(0);
+    Error err = frame->addMotifNote(motifNote);
+    EXPECT_EQ(err, Success);
+
+    NoteInstance* instance = motifNote->findFirstEdge<NoteInstance>();
+    ASSERT_NE(instance, nullptr);
+    EXPECT_EQ(instance->value, notes[F][MiddleOctave]);
 }
 
 
