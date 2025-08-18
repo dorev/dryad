@@ -3,6 +3,7 @@
 #include "scale.h"
 #include "progression.h"
 #include "chord.h"
+#include "constants.h"
 
 namespace Dryad
 {
@@ -40,10 +41,8 @@ namespace Dryad
 
         Motif* motif = motifNote->findFirstEdge<Motif>();
 
-        if (motif)
+        if (!motif)
             return InvalidMotif;
-
-        NoteValue noteAnchor = getCurrentRoot();
 
         // we have to find the current scale to know the root
         // then we check the harmonic anchor of the motif
@@ -56,34 +55,70 @@ namespace Dryad
         {
         case HarmonicAnchor::scale:
         {
-            // targeting the 4th octave by default
-            NoteRelative relativeValue = motifNote->relativeValue;
-            NoteRelative noteOctave = 4 + (relativeValue / 12);
+            // Interpret the relative value as a scale degree offset from the
+            // current root. We wrap around every octave using the scale degree
+            // count and adjust the octave accordingly.
+            int noteIndex = motifNote->relativeValue;
+            int octaveOffset = noteIndex / DegreesPerOctave;
+            int degreeIndex = noteIndex % DegreesPerOctave;
+            if (degreeIndex < 0)
+            {
+                degreeIndex += DegreesPerOctave;
+                --octaveOffset;
+            }
 
-            // calculating the distance & direction from the root
             Scale* scale = getCurrentScale();
-            NoteRelative noteOffset = scale->noteOffsets.degrees[relativeValue % static_cast<int>(Degree::limit)];
+            if (!scale)
+                return InvalidScale;
 
-            // final note value
+            NoteRelative degreeOffset = scale->noteOffsets.degrees[degreeIndex];
+
+            int octaveIndex = MiddleOctave + octaveOffset;
+            if (octaveIndex < 0 || octaveIndex >= OctaveLimit)
+                return InvalidMotifNote;
+
             NoteValue root = getCurrentRoot();
-            noteValue = notes[root][noteOctave] + noteOffset;
+            noteValue = notes[root][octaveIndex] + degreeOffset;
         }
         break;
 
         case HarmonicAnchor::chord:
         {
+            // Use the chord's root as the starting scale degree and interpret
+            // the motif's relative value as additional scale degrees from that
+            // point. This allows motif notes to wander outside the chord while
+            // remaining on the scale.
             Chord chord = getCurrentChord();
+            if (chord.degree == Degree::invalid)
+                return InvalidDegree;
 
-            // find the offsets of the chord notes based on its qualities
-            // if the qualities == default, use the scale degrees
-            // 
+            int step = static_cast<int>(chord.degree) + motifNote->relativeValue;
+            int octaveOffset = step / DegreesPerOctave;
+            int degreeIndex = step % DegreesPerOctave;
+            if (degreeIndex < 0)
+            {
+                degreeIndex += DegreesPerOctave;
+                --octaveOffset;
+            }
 
+            Scale* scale = getCurrentScale();
+            if (!scale)
+                return InvalidScale;
 
-            // we have to find the chord notes in the scale corresponding to that degree
-            // the we have to apply the additional accidental and alterations
-            // then we scroll through the notes of that chord, which might have more than 3 notes, based on the chord type
+            NoteRelative degreeOffset = scale->noteOffsets.degrees[degreeIndex];
 
-            // CATCH UP HERE
+            NoteRelative accidentalOffset = 0;
+            if (chord.accidental == Accidental::flat)
+                accidentalOffset = -1;
+            else if (chord.accidental == Accidental::sharp)
+                accidentalOffset = 1;
+
+            int octaveIndex = MiddleOctave + octaveOffset;
+            if (octaveIndex < 0 || octaveIndex >= OctaveLimit)
+                return InvalidMotifNote;
+
+            NoteValue root = getCurrentRoot();
+            noteValue = notes[root][octaveIndex] + degreeOffset + accidentalOffset;
         }
         break;
 
@@ -91,13 +126,11 @@ namespace Dryad
             return NotImplemented;
         }
 
-
         NoteInstance* noteInstance = graph->create<NoteInstance>(noteValue, motifNote->duration);
         graph->link(noteInstance, this);
         graph->link(noteInstance, motifNote);
 
-
-        return NotImplemented;
+        return Success;
     }
 
     Score::Score()
