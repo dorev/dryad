@@ -40,9 +40,9 @@ namespace Dryad
     constexpr int ScaleLimit = 12;
     constexpr int OctaveLimit = 11;
     constexpr int MiddleOctave = 4;
-    constexpr int DegreesPerOctave = static_cast<int>(Degree::limit) - 1;
+    constexpr int DegreesPerOctave = static_cast<int>(Degree::Limit) - 1;
 
-    constexpr float frequencies[ScaleLimit][OctaveLimit] =
+    constexpr float Frequencies[ScaleLimit][OctaveLimit] =
     {
         { 16.3516f, 32.7032f, 65.4064f, 130.81f, 261.63f, 523.25f, 1046.5f, 2093.0f, 4186.0f, 8372.0f,  16744.0f },
         { 17.3239f, 34.6478f, 69.2957f, 138.59f, 277.18f, 554.37f, 1108.7f, 2217.5f, 4434.9f, 8869.8f,  17740.0f },
@@ -98,7 +98,7 @@ namespace Dryad
     {
         int note = midi % 12;
         int octave = midi / 12 - 1;
-        return frequencies[note][octave];
+        return Frequencies[note][octave];
     }
 
 } // namespace Dryad

@@ -53,7 +53,7 @@ namespace Dryad
 
         switch (motif->harmonicAnchor)
         {
-        case HarmonicAnchor::scale:
+        case HarmonicAnchor::Scale:
         {
             // Interpret the relative value as a scale degree offset from the
             // current root. We wrap around every octave using the scale degree
@@ -82,14 +82,14 @@ namespace Dryad
         }
         break;
 
-        case HarmonicAnchor::chord:
+        case HarmonicAnchor::Chord:
         {
             // Use the chord's root as the starting scale degree and interpret
             // the motif's relative value as additional scale degrees from that
             // point. This allows motif notes to wander outside the chord while
             // remaining on the scale.
             Chord chord = getCurrentChord();
-            if (chord.degree == Degree::invalid)
+            if (chord.degree == Degree::Invalid)
                 return InvalidDegree;
 
             int step = static_cast<int>(chord.degree) + motifNote->relativeValue;
@@ -108,9 +108,9 @@ namespace Dryad
             NoteRelative degreeOffset = scale->noteOffsets.degrees[degreeIndex];
 
             NoteRelative accidentalOffset = 0;
-            if (chord.accidental == Accidental::flat)
+            if (chord.accidental == Accidental::Flat)
                 accidentalOffset = -1;
-            else if (chord.accidental == Accidental::sharp)
+            else if (chord.accidental == Accidental::Sharp)
                 accidentalOffset = 1;
 
             int octaveIndex = MiddleOctave + octaveOffset;
@@ -196,7 +196,7 @@ namespace Dryad
             voice->generateUntil(relativePosition);
 
         // Mark frames up to the committed duration as committed
-        for (ScoreFrame* f : cached_frames)
+        for (ScoreFrame* f : cachedFrames)
         {
             if (f->relativePosition <= relativePosition)
                 f->committed = true;
@@ -225,7 +225,7 @@ namespace Dryad
             }
             else
             {
-                cached_frames.insert(frame);
+                cachedFrames.insert(frame);
             }
         }
 
@@ -237,9 +237,9 @@ namespace Dryad
         // Creating a dummy frame with the searched position to leverage std::find
         ScoreFrame dummy_frame(relativePosition);
 
-        auto it = cached_frames.find(&dummy_frame);
+        auto it = cachedFrames.find(&dummy_frame);
 
-        if (it == cached_frames.end())
+        if (it == cachedFrames.end())
             return nullptr;
 
         return *it;
@@ -249,7 +249,7 @@ namespace Dryad
     {
         ScoreFrame* frame = nullptr;
 
-        for (auto it = cached_frames.rbegin(); it != cached_frames.rend(); ++it)
+        for (auto it = cachedFrames.rbegin(); it != cachedFrames.rend(); ++it)
         {
             if ((*it)->committed)
             {

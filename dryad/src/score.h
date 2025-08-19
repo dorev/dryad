@@ -19,7 +19,7 @@ namespace Dryad
         ScoreFrame(Time relativePosition = 0);
 
         // Comparison helper to automate the ordering in a set
-        struct compare_by_position
+        struct CompareByPosition
         {
             bool operator()(const ScoreFrame* a, const ScoreFrame* b) const
             {
@@ -71,8 +71,8 @@ namespace Dryad
         NoteValue currentRoot;
         Progression* currentProgression;
         Scale* currentScale;
-        Set<Voice*, Voice::compareByID> cachedVoices;
-        Set<ScoreFrame*, ScoreFrame::compare_by_position> cached_frames;
+        Set<Voice*, Voice::CompareByID> cachedVoices;
+        Set<ScoreFrame*, ScoreFrame::CompareByPosition> cachedFrames;
     };
 
 } // namespace Dryad

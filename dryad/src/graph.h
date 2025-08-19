@@ -315,13 +315,13 @@ namespace Dryad
 
         // Const iterator
 
-        using const_map_iterator = typename Map<ClassID, Set<Node*>>::const_iterator;
-        using const_set_iterator = typename Set<Node*>::const_iterator;
+        using ConstMapIterator = typename Map<ClassID, Set<Node*>>::const_iterator;
+        using ConstSetIterator = typename Set<Node*>::const_iterator;
 
-        class const_node_iterator : public NodeIteratorBase<const_map_iterator, const_set_iterator>
+        class ConstNodeIterator : public NodeIteratorBase<ConstMapIterator, ConstSetIterator>
         {
         public:
-            const_node_iterator(const_map_iterator mapIterator, const_map_iterator mapEnd)
+            ConstNodeIterator(ConstMapIterator mapIterator, ConstMapIterator mapEnd)
                 : NodeIteratorBase(mapIterator, mapEnd)
             {
             }
@@ -330,8 +330,8 @@ namespace Dryad
             const Node* const* operator->() const { return &(*setIterator); }
         };
 
-        const_node_iterator begin() const { return const_node_iterator(nodes.begin(), nodes.end()); }
-        const_node_iterator end() const { return const_node_iterator(nodes.end(), nodes.end()); }
+        ConstNodeIterator begin() const { return ConstNodeIterator(nodes.begin(), nodes.end()); }
+        ConstNodeIterator end() const { return ConstNodeIterator(nodes.end(), nodes.end()); }
 
     private:
         Map<ClassID, Set<Node*>> nodes;

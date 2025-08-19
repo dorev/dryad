@@ -13,7 +13,7 @@ namespace Dryad
     public:
         DRYAD_NODE_CLASS_ID(Voice);
 
-        struct compareByID
+        struct CompareByID
         {
             bool operator()(const Voice* a, const Voice* b) const
             {

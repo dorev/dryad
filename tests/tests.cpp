@@ -8,12 +8,12 @@ class Tests : public ::testing::Test
 {
 };
 
-class test_node : public Node
+class TestNode : public Node
 {
 public:
-    DRYAD_NODE_CLASS_ID(test_node);
+    DRYAD_NODE_CLASS_ID(TestNode);
 
-    test_node(int value = 0)
+    TestNode(int value = 0)
         : value(value)
     {
     }
@@ -21,12 +21,12 @@ public:
     int value;
 };
 
-class test_node2 : public Node
+class TestNode2 : public Node
 {
 public:
-    DRYAD_NODE_CLASS_ID(test_node2);
+    DRYAD_NODE_CLASS_ID(TestNode2);
 
-    test_node2(int value = 0)
+    TestNode2(int value = 0)
         : value(value)
     {
     }
@@ -35,57 +35,57 @@ public:
 };
 
 
-TEST(drayd_graph, insert_node)
+TEST(Graph, InsertNode)
 {
     int test_value = 42;
 
     Graph graph;
 
-    graph.insert(new test_node(test_value));
-    graph.insert(new test_node(test_value));
+    graph.insert(new TestNode(test_value));
+    graph.insert(new TestNode(test_value));
 
     EXPECT_EQ(graph.size(), 2) << "Graph contains the wrong count of elements";
 
     for (Node* node : graph)
     {
-        if (test_node* content = node->get<test_node>())
+        if (TestNode* content = node->get<TestNode>())
             EXPECT_EQ(content->value, test_value);
         else
             FAIL() << "Unable to cast node to underlying type";
     }
 }
 
-TEST(drayd_graph, create_node)
+TEST(Graph, CreateNode)
 {
     int test_value = 42;
 
     Graph graph;
-    graph.create<test_node>(test_value);
-    graph.create<test_node>(test_value);
+    graph.create<TestNode>(test_value);
+    graph.create<TestNode>(test_value);
 
     EXPECT_EQ(graph.size(), 2) << "Graph contains the wrong count of elements";
 
     for (Node* node : graph)
     {
-        if (test_node* content = node->get<test_node>())
+        if (TestNode* content = node->get<TestNode>())
             EXPECT_EQ(content->value, test_value);
         else
             FAIL() << "Unable to cast node to underlying type";
     }
 }
 
-TEST(drayd_graph, destroy_node)
+TEST(Graph, DestroyNode)
 {
     Graph graph;
     int test_value = 42;
-    test_node* node_ptr = new test_node(test_value);
+    TestNode* node_ptr = new TestNode(test_value);
     graph.insert(node_ptr);
 
     EXPECT_EQ(graph.size(), 1) << "Graph contains the wrong count of elements";
 
     for (Node* node : graph)
     {
-        if (test_node* content = node->get<test_node>())
+        if (TestNode* content = node->get<TestNode>())
             EXPECT_EQ(content->value, test_value);
         else
             FAIL() << "Unable to cast node to underlying type";
@@ -95,12 +95,12 @@ TEST(drayd_graph, destroy_node)
     EXPECT_TRUE(graph.empty()) << "Graph should be empty.";
 }
 
-TEST(drayd_graph, link)
+TEST(Graph, LinkNodes)
 {
     Graph graph;
-    test_node* node1 = new test_node(1);
-    test_node* node2 = new test_node(2);
-    test_node* node3 = new test_node(3);
+    TestNode* node1 = new TestNode(1);
+    TestNode* node2 = new TestNode(2);
+    TestNode* node3 = new TestNode(3);
 
     EXPECT_FALSE(graph.link(node1, node2)) << "Nodes not in the same graph should not be able to link.";
 
@@ -124,21 +124,21 @@ TEST(drayd_graph, link)
     EXPECT_EQ(graph.size(), 2);
 }
 
-TEST(Node, forEachEdge)
+TEST(Node, ForEachEdge)
 {
-    test_node node;
+    TestNode node;
 
     int test_value = 42;
-    test_node node1(test_value);
-    test_node node2(test_value);
-    test_node2 node3(test_value);
+    TestNode node1(test_value);
+    TestNode node2(test_value);
+    TestNode2 node3(test_value);
 
     node.edges.push_back(&node1);
     node.edges.push_back(&node2);
     node.edges.push_back(&node3);
 
     int result = 0;
-    node.forEachEdge<test_node>([&](test_node* n)
+    node.forEachEdge<TestNode>([&](TestNode* n)
         {
             result += n->value;
         });
@@ -146,9 +146,9 @@ TEST(Node, forEachEdge)
     EXPECT_EQ(result, test_value * 2) << "Only and all nodes of selected type should have been processed.";
 }
 
-TEST(Voice, set_compare_by_id)
+TEST(Voice, SetCompareById)
 {
-    Set<Voice*, Voice::compareByID> set;
+    Set<Voice*, Voice::CompareByID> set;
     Voice a(3, "3");
     Voice b(1, "1");
     Voice c(2, "2");
@@ -167,9 +167,9 @@ TEST(Voice, set_compare_by_id)
     EXPECT_EQ(voice_found, &c);
 }
 
-TEST(ScoreFrame, set_compare_by_position)
+TEST(ScoreFrame, SetCompareByPosition)
 {
-    Set<ScoreFrame*, ScoreFrame::compare_by_position> set;
+    Set<ScoreFrame*, ScoreFrame::CompareByPosition> set;
     ScoreFrame a(3);
     ScoreFrame b(1);
     ScoreFrame c(2);
@@ -188,12 +188,12 @@ TEST(ScoreFrame, set_compare_by_position)
     EXPECT_EQ(frame_found, &c);
 }
 
-TEST(Score, findFrameAtPosition)
+TEST(Score, FindFrameAtPosition)
 {
     //FAIL() << "Test not implemented.";
 }
 
-TEST(Score, findLastCommittedFrame)
+TEST(Score, FindLastCommittedFrame)
 {
     //FAIL() << "Test not implemented.";
 }
@@ -215,8 +215,8 @@ TEST(Score, MVP)
     Motif* motif = score.create<Motif>();
     EXPECT_NE(motif, nullptr);
 
-    motif->harmonicAnchor = HarmonicAnchor::chord;
-    motif->rhythmicAnchor = AnchorRhythmic::any_beat;
+    motif->harmonicAnchor = HarmonicAnchor::Chord;
+    motif->rhythmicAnchor = AnchorRhythmic::AnyBeat;
 
     Time duration = Eighth;
     Time relativePosition = 0;
@@ -227,7 +227,7 @@ TEST(Score, MVP)
     EXPECT_EQ(error, Success);
 
     // Set score scale
-    Scale* scale = score.create<Scale>(ScaleLibrary::major_scale);
+    Scale* scale = score.create<Scale>(ScaleLibrary::MajorScale);
     EXPECT_NE(scale, nullptr);
 
     score.currentScale = scale;
@@ -236,9 +236,9 @@ TEST(Score, MVP)
     Progression* progression = score.create<Progression>();
     EXPECT_NE(progression, nullptr);
 
-    ProgressionChord* chord1 = score.create<ProgressionChord>(Chord(Degree::tonic), Whole);
+    ProgressionChord* chord1 = score.create<ProgressionChord>(Chord(Degree::Tonic), Whole);
     EXPECT_NE(chord1, nullptr);
-    ProgressionChord* chord2 = score.create<ProgressionChord>(Chord(Degree::dominant), Whole);
+    ProgressionChord* chord2 = score.create<ProgressionChord>(Chord(Degree::Dominant), Whole);
     EXPECT_NE(chord2, nullptr);
 
     progression->nodes.push_back(chord1);
@@ -258,19 +258,19 @@ TEST(Score, MVP)
     //EXPECT_EQ(error, dryad_no_error);
 }
 
-TEST(ScoreFrame, chord_anchor_uses_scale_degrees)
+TEST(ScoreFrame, ChordAnchorUsesScaleDegrees)
 {
     Score score;
 
     Motif* motif = score.create<Motif>();
-    motif->harmonicAnchor = HarmonicAnchor::chord;
+    motif->harmonicAnchor = HarmonicAnchor::Chord;
     MotifNote* motifNote = motif->addNote(1, Eighth, 0);
 
-    Scale* scale = score.create<Scale>(ScaleLibrary::major_scale);
+    Scale* scale = score.create<Scale>(ScaleLibrary::MajorScale);
     score.currentScale = scale;
 
     Progression* progression = score.create<Progression>();
-    ProgressionChord* chord = score.create<ProgressionChord>(Chord(Degree::mediant), Whole);
+    ProgressionChord* chord = score.create<ProgressionChord>(Chord(Degree::Mediant), Whole);
     progression->nodes.push_back(chord);
     progression->entryNode = chord;
     progression->currentProgressionChord = chord;
@@ -290,41 +290,41 @@ TEST(ScoreFrame, chord_anchor_uses_scale_degrees)
 // Most additions to the score should have an .add_<something> method,
 // so it's added to the graph but also to the cache vectors (voices, motifs, frames, progressions)
 
-TEST(Scale, chord_offsets_default_degree_quality)
+TEST(Scale, ChordOffsetsDefaultDegreeQuality)
 {
     Vector<NoteRelative> offsets;
-    Chord chord(Degree::tonic);
+    Chord chord(Degree::Tonic);
 
-    Error error = getChordOffsetsFromRoot(chord, &ScaleLibrary::major_scale, offsets);
+    Error error = getChordOffsetsFromRoot(chord, &ScaleLibrary::MajorScale, offsets);
     EXPECT_EQ(error, Success);
 
     Vector<NoteRelative> expected{0, 4, 7, 11};
     EXPECT_EQ(offsets, expected);
 }
 
-TEST(Scale, chord_offsets_override_base_quality)
+TEST(Scale, ChordOffsetsOverrideBaseQuality)
 {
     Vector<NoteRelative> offsets;
-    Chord chord(Degree::tonic, ChordQuality::minor);
+    Chord chord(Degree::Tonic, ChordQuality::Minor);
 
-    Error error = getChordOffsetsFromRoot(chord, &ScaleLibrary::major_scale, offsets);
+    Error error = getChordOffsetsFromRoot(chord, &ScaleLibrary::MajorScale, offsets);
     EXPECT_EQ(error, Success);
 
     Vector<NoteRelative> expected{0, 3, 7, 11};
     EXPECT_EQ(offsets, expected);
 }
 
-TEST(Scale, chord_offsets_extensions_alterations_and_accidental)
+TEST(Scale, ChordOffsetsExtensionsAlterationsAndAccidental)
 {
     Vector<NoteRelative> offsets;
     Chord chord
     (
-        Degree::dominant,
-        ChordQuality::add9 | ChordQuality::flat5,
-        Accidental::sharp
+        Degree::Dominant,
+        ChordQuality::Add9 | ChordQuality::Flat5,
+        Accidental::Sharp
     );
 
-    Error error = getChordOffsetsFromRoot(chord, &ScaleLibrary::major_scale, offsets);
+    Error error = getChordOffsetsFromRoot(chord, &ScaleLibrary::MajorScale, offsets);
     EXPECT_EQ(error, Success);
 
     Vector<NoteRelative> expected{8, 12, 14, 18, 22};

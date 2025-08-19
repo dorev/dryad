@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdio.h>
-#include <memory>
 #include <string>
 #include <vector>
 #include <set>
@@ -58,15 +57,6 @@ namespace Dryad
 
     #define DRYAD_NEW(type, ...) new type(__VA_ARGS__)
     #define DRYAD_DELETE(pointer) if (pointer) { delete pointer; pointer = nullptr; }
-
-    template<class T>
-    using SharedPtr = std::shared_ptr<T>;
-
-    template<class To, class From>
-    SharedPtr<To> SharedPtrCast(const SharedPtr<From>& sharedPointer)
-    {
-        return std::static_pointer_cast<To>(sharedPointer);
-    }
 
     //
     // Containers

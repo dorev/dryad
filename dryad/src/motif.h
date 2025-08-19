@@ -8,22 +8,22 @@ namespace Dryad
 
     enum class HarmonicAnchor
     {
-        scale,
-        chord
+        Scale,
+        Chord
     };
 
     enum class AnchorRhythmic
     {
-        chord_beginning,
-        strong_beat,
-        weak_beat,
-        any_beat
+        ChordBeginning,
+        StrongBeat,
+        WeakBeat,
+        AnyBeat
     };
 
     enum class NoteIntervalType
     {
-        diatonic,
-        chromatic
+        Diatonic,
+        Chromatic
     };
 
     class Motif;
