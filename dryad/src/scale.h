@@ -2,6 +2,7 @@
 
 #include "chord.h"
 #include "graph.h"
+#include "constants.h"
 
 namespace Dryad
 {
