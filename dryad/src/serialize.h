@@ -16,7 +16,7 @@ namespace Dryad
     {
         String name;
         int id;
-        Vector<SerializedVoice> notes;
+        Vector<SerializedNote> notes;
     };
 
     struct SerializedScore

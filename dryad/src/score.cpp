@@ -4,6 +4,7 @@
 #include "progression.h"
 #include "chord.h"
 #include "constants.h"
+#include "serialize.h"
 
 namespace Dryad
 {
@@ -165,6 +166,10 @@ namespace Dryad
         if (!instance)
             return InvalidMotifInstance;
 
+        // Link the new instance with its motif and voice so it can be queried later
+        link(instance, motif);
+        link(instance, voice);
+
         // TODO: we have to identify of there is a rythmic anchor to respect for the motif!!
 
         // Add each note of the motif in already existing or new frames
@@ -207,7 +212,37 @@ namespace Dryad
 
     Error Score::dump(SerializedScore& serializedScore)
     {
-        return NotImplemented;
+        serializedScore.cachedVoices.clear();
+
+        for (Voice* voice : cachedVoices)
+        {
+            SerializedVoice serializedVoice;
+            serializedVoice.name = voice->name;
+            serializedVoice.id = voice->id;
+
+            for (Motif* motif : voice->motifs)
+            {
+                motif->forEachEdge<MotifNote>([&](MotifNote* note)
+                    {
+                        note->forEachEdge<NoteInstance>([&](NoteInstance* instance)
+                            {
+                                ScoreFrame* frame = instance->findFirstEdge<ScoreFrame>();
+                                if (!frame || !frame->committed)
+                                    return;
+
+                                SerializedNote serializedNote;
+                                serializedNote.relativePosition = frame->relativePosition;
+                                serializedNote.duration = instance->duration;
+                                serializedNote.value = instance->value;
+                                serializedVoice.notes.push_back(serializedNote);
+                            });
+                    });
+            }
+
+            serializedScore.cachedVoices.push_back(std::move(serializedVoice));
+        }
+
+        return Success;
     }
 
     ScoreFrame* Score::getOrCreateFrame(Time relativePosition)

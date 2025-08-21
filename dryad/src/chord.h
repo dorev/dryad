@@ -20,9 +20,9 @@ namespace Dryad
         Fifth = Dominant,
         Submediant = 5,
         Sixth = Submediant,
-        LeadingTone = 7,
+        LeadingTone = 6,
         Seventh = LeadingTone,
-        Limit = 8, 
+        Limit = 7,
         Invalid = -1
     };
 

@@ -34,8 +34,24 @@ namespace Dryad
 
     MotifInstance* Voice::getLastMotifInstance()
     {
-        // TODO : implement
-        return nullptr;
+        MotifInstance* lastInstance = nullptr;
+        Time lastEnd = 0;
+
+        for (Motif* motif : motifs)
+        {
+            MotifInstance* instance = motif->getLastInstance();
+            if (!instance)
+                continue;
+
+            Time end = instance->getEndTime();
+            if (end > lastEnd)
+            {
+                lastEnd = end;
+                lastInstance = instance;
+            }
+        }
+
+        return lastInstance;
     }
 
     Error Voice::generateUntil(Time positionTarget)
