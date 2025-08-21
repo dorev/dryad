@@ -94,7 +94,41 @@ namespace Dryad
 
     Error Motif::getInstancesEndTime(Voice* voice, Time& time)
     {
-        return NotImplemented;
+        if (!voice)
+            return InvalidVoice;
+
+        if (!graph->contains(voice))
+            return NodeNotInGraph;
+
+        time = 0;
+        bool foundInstance = false;
+
+        forEachEdge<MotifInstance>([&](MotifInstance* instance)
+            {
+                Voice* instanceVoice = instance->findFirstEdge<Voice>();
+                if (instanceVoice != voice)
+                    return;
+
+                Time end = instance->getEndTime();
+                if (end == Invalid)
+                {
+                    time = Invalid;
+                    return;
+                }
+
+                if (end > time)
+                    time = end;
+
+                foundInstance = true;
+            });
+
+        if (!foundInstance)
+            time = 0;
+
+        if (time == Invalid)
+            return InvalidMotifInstance;
+
+        return Success;
     }
 
     MotifInstance::MotifInstance(Time position)

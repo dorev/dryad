@@ -29,7 +29,20 @@ namespace Dryad
 
     Error Voice::removeMotif(Motif* motif)
     {
-        return NotImplemented;
+        if (!graph->contains(motif))
+            return NodeNotInGraph;
+
+        auto it = std::find(motifs.begin(), motifs.end(), motif);
+        if (it == motifs.end())
+            return InvalidMotif;
+
+        // Remove linkage between this voice and the motif
+        removeEdge(motif);
+        motif->removeEdge(this);
+
+        motifs.erase(it);
+
+        return Success;
     }
 
     MotifInstance* Voice::getLastMotifInstance()
