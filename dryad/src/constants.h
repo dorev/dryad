@@ -40,7 +40,7 @@ namespace Dryad
     constexpr int ScaleLimit = 12;
     constexpr int OctaveLimit = 11;
     constexpr int MiddleOctave = 4;
-    constexpr int DegreesPerOctave = static_cast<int>(Degree::Limit) - 1;
+    constexpr int DegreesPerOctave = static_cast<int>(Degree::Limit);
 
     constexpr float Frequencies[ScaleLimit][OctaveLimit] =
     {
