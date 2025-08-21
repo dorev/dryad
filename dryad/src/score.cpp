@@ -32,7 +32,15 @@ namespace Dryad
 
     Chord ScoreFrame::getCurrentChord()
     {
-        return getScore()->currentProgression->currentProgressionChord->chord;
+        Score* score = getScore();
+        if (!score || !score->currentProgression)
+            return Chord();
+
+        ProgressionChord* chord = score->currentProgression->currentProgressionChord;
+        if (!chord)
+            return Chord();
+
+        return chord->chord;
     }
 
     Error ScoreFrame::addMotifNote(MotifNote* motifNote)
@@ -194,6 +202,13 @@ namespace Dryad
             frame = getOrCreateFrame(0);
 
         Time relativePosition = frame->relativePosition + durationToCommit;
+
+        if (currentProgression && !currentProgression->currentProgressionChord)
+        {
+            if (currentProgression->entryNode)
+                currentProgression->currentProgressionChord =
+                    currentProgression->entryNode->get<ProgressionChord>();
+        }
 
         // For every motif of each voice, generate instances until the total committed
         // duration is reached
