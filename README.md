@@ -1,54 +1,86 @@
-## TODO
+# Dryad API for JUCE
 
-* Make a DryadGUI "Hello World!"
+Dryad is a small harmony engine that turns chord progressions and motivic fragments
+into streams of note events.  This repository provides an imagined developer-friendly
+C++ API that can be embedded in a JUCE application to drive a sequencer, a game
+engine or any other target that consumes note information.
 
-Dryad, again!
+## Building
 
-## Another rework?
+```bash
+cmake -S . -B build
+cmake --build build
+```
 
-The idea would be to make Dryad more of an harmony analyzer and incremental score ledger/stream.
-The point is also really to minimize the API surface, limit multithreading risks.
+The build produces a static library `libdryad.a` and a small test binary.
 
-How different would that be from the current setup?
+## Core Concepts
 
-Leveraging preexisting progressions would be amazing, and bypass the editor aspect for now.
+* **Voice** – a playable range of notes, e.g. "Bass" or "Lead".
+* **Motif** – a sequence of `MotifNote` objects aligned to harmonic and
+  rhythmic anchors.
+* **Progression** – a list of `Chord` definitions describing the harmonic flow.
+* **Transition** – tells the engine when and how to move to a new progression.
+* **ScoreEvent** – a note-on or note-off that should be forwarded to a MIDI
+  buffer, a synthesiser or a game event queue.
 
-It would do the following:
-* Maintain a score, with already committed and pending notes
-* Manage 3 types of voice:
-  * Chords
-  * Melodies
-  * Percs (TBD)
+## C++ API
 
-* User API:
-    * Data
-        * RegisterProgression(Progression{})
-        * RegisterMelody(Melody{})
-        * RegisterVoice(Voice{})
-    * Communication
-        * CommitBeats()
-        * PopNewCommittedEvent() --> ScoreEvent
-    * Changes
-        * SetupTransition(Transition)
-        * SetChordsVoice(VoiceId)
-        * SetVoiceMelody(MelodyId) // null == kill
-    * Info
-        * GetPendingTransition()
-        * GetCurrentProgression()
-        * GetCurrentMelodies()
-    * Callbacks
-        * OnTransition (to change voices, melodies, etc..)
-        * OnBeat
-        * OnBar
-        * OnProgression
+Dryad defines aliases for its core types in `dryad/src/overrides.h`.  They map to
+standard library containers by default but can be changed to custom
+implementations before building the library.
 
-constexpr int MaxNameSize = 128;
-constexpr int MaxNotesPerMelody = 128;
-constexpr int MaxChordsPerProgression = 32;
+```cpp
+namespace dryad
+{
+
+struct Voice
+{
+    int id;
+    String name;
+    int rangeTop;
+    int rangeBottom;
+};
+
+struct MotifNote
+{
+    int offset;    // semitone offset from the anchor
+    int position;  // beat position within the bar
+    int duration;  // beats
+};
+
+struct Motif
+{
+    int id;
+    String name;
+    Vector<MotifNote> notes;
+};
+
+enum class Quality
+{
+    Minor,
+    Major,
+    Diminished,
+    Augmented
+};
+
+struct Chord
+{
+    int degree;      // scale degree
+    int accidental;  // -1,0,+1
+    Quality quality;
+    int duration;    // beats
+};
+
+struct Progression
+{
+    int id;
+    String name;
+    Vector<Chord> chords;
+};
 
 enum class EventType
 {
-    Invalid,
     NoteOn,
     NoteOff
 };
@@ -56,99 +88,81 @@ enum class EventType
 struct ScoreEvent
 {
     int voiceId;
-    int value;
+    int value;           // MIDI note number
     EventType event;
-    int scorePosition;
-};
-
-struct Voice
-{
-    int id;
-    char name[MaxNameSize];
-    int rangeTop;
-    int rangeBottom;
-};
-
-enum class HarmonicAnchor
-{
-    Invalid,
-    Chord,
-    Scale
-};
-
-enum class RythmicAnchor
-{
-    Invalid,
-    AnyBeat,
-    StrongBeat,
-    WeakBeat
-};
-
-struct MelodyNote
-{
-    int offset;
-    int position;
-    int duration;
-};
-
-struct Melody
-{
-    int id;
-    char name[MaxNameSize];
-    HarmonicAnchor harmonicAnchor;
-    RythmicAnchor rythmicAnchor;
-    MelodyNote notes[MaxNotesPerMelody];
-};
-
-enum class Quality
-{
-    Default = 0,
-    Minor = 1,
-    Major = 2,
-    Diminished = 3,
-    Augmented = 4,
-    Sus2 = 5,
-    Sus4 = 6,
-    DiminishedSeventh = 7,
-    Seventh = 1 >> 4,
-    MajorSeventh = 1 >> 5
-};
-
-struct Chord
-{
-    int degree;
-    int accidental;
-    Quality quality;
-    Duration;
-};
-
-struct Progression
-{
-    int id;
-    char name[MaxNameSize];
-    Chord chords[MaxChordsPerProgression];
-};
-
-enum class TransitionPosition
-{
-    EndOfProgression,
-    EndOfBar,
-    NextBeat
+    int position;        // sample position within the block
 };
 
 struct Transition
 {
-    int userTag;
+    int userTag;         // forwarded to callbacks
     int progressionId;
-    int root;
-    TransitionPosition type;
+    int root;            // MIDI note number of the tonic
 };
 
-// Internal
-
-Score
+class Engine
 {
-    RegisterVoice();
-    RegisterMelody();
-    RegisterProgression();
-}
+public:
+    using Callback = void (*)(int);
+
+    void registerVoice(const Voice&);
+    void registerMotif(const Motif&);
+    void registerProgression(const Progression&);
+
+    void setChordsVoice(int voiceId);
+    void setVoiceMotif(int voiceId, int motifId); // motifId < 0 disables
+
+    void queueTransition(const Transition&);
+    void commitBeats(int beats);          // advance the timeline
+    bool popEvent(ScoreEvent&);           // fetch generated notes
+
+    void onBeat(Callback);       // called every beat
+    void onBar(Callback);        // called every bar
+    void onProgression(Callback); // called on progression change
+};
+
+} // namespace dryad
+```
+
+## Using the Engine in JUCE
+
+```cpp
+class MyPluginProcessor : public juce::AudioProcessor
+{
+    dryad::Engine engine;
+
+public:
+    void prepareToPlay(double, int) override
+    {
+        engine.registerVoice({1, "Lead", 96, 60});
+        engine.registerProgression(makeProgression());
+        engine.setChordsVoice(1);
+        engine.queueTransition({0, /*progId*/1, /*root*/60});
+    }
+
+    void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer& midi) override
+    {
+        engine.commitBeats(getBeatsThisBlock());
+        dryad::ScoreEvent ev;
+        while (engine.popEvent(ev))
+        {
+            if (ev.event == dryad::EventType::NoteOn)
+            {
+                midi.addEvent(juce::MidiMessage::noteOn(1, ev.value, (juce::uint8)100), ev.position);
+            }
+            else
+            {
+                midi.addEvent(juce::MidiMessage::noteOff(1, ev.value), ev.position);
+            }
+        }
+    }
+};
+```
+
+The same `Engine` can feed note events into a game engine by converting each
+`ScoreEvent` into whatever event system the game uses.  Callbacks such as
+`onBeat` or `onProgression` are useful to synchronise visual effects with the
+music.
+
+This API description is conceptual and intended as a guide for building a
+friendly interface around the Dryad harmony core.
