@@ -31,58 +31,77 @@ standard library containers by default but can be changed to custom
 implementations before building the library.
 
 ```cpp
-namespace dryad {
+namespace dryad
+{
 
-struct Voice {
+struct Voice
+{
     int id;
     String name;
     int rangeTop;
     int rangeBottom;
 };
 
-struct MotifNote {
+struct MotifNote
+{
     int offset;    // semitone offset from the anchor
     int position;  // beat position within the bar
     int duration;  // beats
 };
 
-struct Motif {
+struct Motif
+{
     int id;
     String name;
     Vector<MotifNote> notes;
 };
 
-enum class Quality { Minor, Major, Diminished, Augmented };
+enum class Quality
+{
+    Minor,
+    Major,
+    Diminished,
+    Augmented
+};
 
-struct Chord {
+struct Chord
+{
     int degree;      // scale degree
     int accidental;  // -1,0,+1
     Quality quality;
     int duration;    // beats
 };
 
-struct Progression {
+struct Progression
+{
     int id;
     String name;
     Vector<Chord> chords;
 };
 
-enum class EventType { NoteOn, NoteOff };
+enum class EventType
+{
+    NoteOn,
+    NoteOff
+};
 
-struct ScoreEvent {
+struct ScoreEvent
+{
     int voiceId;
     int value;           // MIDI note number
     EventType event;
     int position;        // sample position within the block
 };
 
-struct Transition {
+struct Transition
+{
     int userTag;         // forwarded to callbacks
     int progressionId;
     int root;            // MIDI note number of the tonic
 };
 
-class Engine {
+class Engine
+{
 public:
     using Callback = void (*)(int);
 
@@ -108,24 +127,33 @@ public:
 ## Using the Engine in JUCE
 
 ```cpp
-class MyPluginProcessor : public juce::AudioProcessor {
+class MyPluginProcessor : public juce::AudioProcessor
+{
     dryad::Engine engine;
+
 public:
-    void prepareToPlay(double, int) override {
+    void prepareToPlay(double, int) override
+    {
         engine.registerVoice({1, "Lead", 96, 60});
         engine.registerProgression(makeProgression());
         engine.setChordsVoice(1);
         engine.queueTransition({0, /*progId*/1, /*root*/60});
     }
 
-    void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer& midi) override {
+    void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer& midi) override
+    {
         engine.commitBeats(getBeatsThisBlock());
         dryad::ScoreEvent ev;
-        while (engine.popEvent(ev)) {
+        while (engine.popEvent(ev))
+        {
             if (ev.event == dryad::EventType::NoteOn)
+            {
                 midi.addEvent(juce::MidiMessage::noteOn(1, ev.value, (juce::uint8)100), ev.position);
+            }
             else
+            {
                 midi.addEvent(juce::MidiMessage::noteOff(1, ev.value), ev.position);
+            }
         }
     }
 };
