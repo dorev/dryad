@@ -1,6 +1,6 @@
 # Dryad API for JUCE
 
-Dryad is a small harmony engine that turns chord progressions and melodic fragments
+Dryad is a small harmony engine that turns chord progressions and motivic fragments
 into streams of note events.  This repository provides an imagined developer-friendly
 C++ API that can be embedded in a JUCE application to drive a sequencer, a game
 engine or any other target that consumes note information.
@@ -17,7 +17,7 @@ The build produces a static library `libdryad.a` and a small test binary.
 ## Core Concepts
 
 * **Voice** – a playable range of notes, e.g. "Bass" or "Lead".
-* **Melody** – a sequence of `MelodyNote` objects aligned to harmonic and
+* **Motif** – a sequence of `MotifNote` objects aligned to harmonic and
   rhythmic anchors.
 * **Progression** – a list of `Chord` definitions describing the harmonic flow.
 * **Transition** – tells the engine when and how to move to a new progression.
@@ -40,16 +40,16 @@ struct Voice {
     int rangeBottom;
 };
 
-struct MelodyNote {
+struct MotifNote {
     int offset;    // semitone offset from the anchor
     int position;  // beat position within the bar
     int duration;  // beats
 };
 
-struct Melody {
+struct Motif {
     int id;
     String name;
-    Vector<MelodyNote> notes;
+    Vector<MotifNote> notes;
 };
 
 enum class Quality { Minor, Major, Diminished, Augmented };
@@ -87,11 +87,11 @@ public:
     using Callback = void (*)(int);
 
     void registerVoice(const Voice&);
-    void registerMelody(const Melody&);
+    void registerMotif(const Motif&);
     void registerProgression(const Progression&);
 
     void setChordsVoice(int voiceId);
-    void setVoiceMelody(int voiceId, int melodyId); // melodyId < 0 disables
+    void setVoiceMotif(int voiceId, int motifId); // motifId < 0 disables
 
     void queueTransition(const Transition&);
     void commitBeats(int beats);          // advance the timeline
