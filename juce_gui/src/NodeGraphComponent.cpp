@@ -25,7 +25,8 @@ void NodeGraphComponent::paint(juce::Graphics &g) {
 
     if (i > 0) {
       auto &prev = nodes[i - 1];
-      g.drawLine(static_cast<float>(prev.position.x), static_cast<float>(prev.position.y), static_cast<float>(node.position.x), static_cast<float>(node.position.y), 2.0f);
+      juce::Line<float> connection(prev.position.toFloat(), node.position.toFloat());
+      g.drawLine(connection, 2.0f);
     }
   }
 }
