@@ -33,11 +33,11 @@ void TransportComponent::play() {
 
 void TransportComponent::stop() {
   stopTimer();
-  synthesiser.allNotesOff(0);
+  synthesiser.allNotesOff(1, true);
 }
 
 void TransportComponent::timerCallback() {
-  synthesiser.allNotesOff(0);
+  synthesiser.allNotesOff(1, true);
   for (auto midi : dryad.getMotifNotesForStep(step))
     synthesiser.noteOn(1, midi, 0.8f);
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include <dryad/dryad.h>
+#include <dryad.h>
 #include <map>
 #include <optional>
 
