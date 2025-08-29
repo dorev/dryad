@@ -14,6 +14,13 @@ cmake --build build
 
 The build produces a static library `libdryad.a` and a small test binary.
 
+### JUCE GUI demo
+
+Enable `DRYAD_BUILD_JUCE_DEMO` during configuration to compile a minimal JUCE
+application for experimenting with Dryad. The demo offers a node-based
+progression editor, a piano-roll motif sequencer, and a simple built-in
+synthesiser for auditioning the results.
+
 ## Core Concepts
 
 * **Voice** – a playable range of notes, e.g. "Bass" or "Lead".

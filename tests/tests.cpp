@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "dryad/src/dryad.h"
-#include "dryad/src/constants.h"
+#include <dryad.h>
+#include <constants.h>
 
 using namespace Dryad;
 
