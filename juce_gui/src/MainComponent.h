@@ -3,8 +3,8 @@
 #include "NodeGraphComponent.h"
 #include "PianoRollComponent.h"
 #include "TransportComponent.h"
+#include "DryadInterface.h"
 #include <JuceHeader.h>
-#include <dryad/dryad.h>
 
 class MainComponent : public juce::AudioAppComponent {
 public:
@@ -24,6 +24,7 @@ private:
 
   NodeGraphComponent nodeGraph;
   PianoRollComponent pianoRoll;
+  DryadInterface dryadInterface;
   TransportComponent transport;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)

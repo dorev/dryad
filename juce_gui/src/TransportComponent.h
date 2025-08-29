@@ -4,11 +4,12 @@
 
 class NodeGraphComponent;
 class PianoRollComponent;
+class DryadInterface;
 
 class TransportComponent : public juce::Component, private juce::Timer {
 public:
   TransportComponent(NodeGraphComponent &graph, PianoRollComponent &roll,
-                     juce::Synthesiser &synth);
+                     juce::Synthesiser &synth, DryadInterface &dryad);
   ~TransportComponent() override = default;
 
   void paint(juce::Graphics &) override;
@@ -22,6 +23,7 @@ private:
   NodeGraphComponent &nodeGraph;
   PianoRollComponent &pianoRoll;
   juce::Synthesiser &synthesiser;
+  DryadInterface &dryad;
 
   juce::TextButton playButton{"Play"};
   juce::TextButton stopButton{"Stop"};

@@ -74,7 +74,8 @@ struct SineWaveVoice : public juce::SynthesiserVoice {
 };
 } // namespace
 
-MainComponent::MainComponent() : transport(nodeGraph, pianoRoll, synthesiser) {
+MainComponent::MainComponent()
+    : transport(nodeGraph, pianoRoll, synthesiser, dryadInterface) {
   for (int i = 0; i < 8; ++i)
     synthesiser.addVoice(new SineWaveVoice());
   synthesiser.addSound(new SineWaveSound());

@@ -28,6 +28,8 @@ target_sources(DryadJuceDemo
         src/NodeGraphComponent.h
         src/PianoRollComponent.cpp
         src/PianoRollComponent.h
+        src/DryadInterface.cpp
+        src/DryadInterface.h
         src/TransportComponent.cpp
         src/TransportComponent.h
 )
