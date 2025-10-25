@@ -9,4 +9,9 @@ set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external)
 
 add_subdirectory(dryad)
 add_subdirectory(tests)
+
+option(DRYAD_BUILD_JUCE_DEMO "Build the JUCE GUI demo" OFF)
+if(DRYAD_BUILD_JUCE_DEMO)
+    add_subdirectory(juce_gui)
+endif()
 #add_subdirectory(gui)
