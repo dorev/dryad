@@ -1,6 +1,7 @@
 #include "score.h"
 #include "motif.h"
 #include "scale.h"
+#include "harmony.h"
 #include "progression.h"
 #include "chord.h"
 #include "constants.h"
