@@ -8,7 +8,7 @@ namespace Dryad
     namespace
     {
         constexpr char kMagic[] = "DRYADGPH";
-        constexpr uint32_t kVersion = 2;
+        constexpr uint32_t kVersion = 0;
 
         bool writeBytes(std::ofstream& stream, const void* data, size_t size)
         {
@@ -51,6 +51,26 @@ namespace Dryad
         {
             return readBytes(stream, &value, sizeof(value));
         }
+
+        bool writeString(std::ofstream& stream, const String& value)
+        {
+            if (!writeUint32(stream, static_cast<uint32_t>(value.size())))
+                return false;
+            return writeBytes(stream, value.data(), value.size());
+        }
+
+        bool readString(std::ifstream& stream, String& value)
+        {
+            uint32_t length = 0;
+            if (!readUint32(stream, length))
+                return false;
+
+            value.resize(length);
+            if (length == 0)
+                return true;
+
+            return readBytes(stream, value.data(), length);
+        }
     }
 
     Error writeGraphToFile(const SerializedGraph& graph, const String& path)
@@ -68,6 +88,22 @@ namespace Dryad
             return Invalid;
         if (!writeInt32(stream, static_cast<int32_t>(graph.activeProgressionIndex)))
             return Invalid;
+
+        if (!writeUint32(stream, static_cast<uint32_t>(graph.currentRoot)))
+            return Invalid;
+        if (!writeUint8(stream, static_cast<uint8_t>(graph.hasScale ? 1 : 0)))
+            return Invalid;
+
+        if (graph.hasScale)
+        {
+            for (int i = 0; i < 7; ++i)
+            {
+                if (!writeInt32(stream, static_cast<int32_t>(graph.scaleOffsets[i])))
+                    return Invalid;
+                if (!writeInt32(stream, static_cast<int32_t>(graph.scaleDegreeQualities[i])))
+                    return Invalid;
+            }
+        }
 
         for (const SerializedProgression& progression : graph.progressions)
         {
@@ -100,6 +136,60 @@ namespace Dryad
                 if (!writeUint32(stream, static_cast<uint32_t>(node.duration)))
                     return Invalid;
                 if (!writeUint8(stream, static_cast<uint8_t>(node.scoreEnd ? 1 : 0)))
+                    return Invalid;
+
+                if (!writeInt32(stream, static_cast<int32_t>(node.progressionChangeIndex)))
+                    return Invalid;
+                if (!writeUint8(stream, static_cast<uint8_t>(node.hasScaleChange ? 1 : 0)))
+                    return Invalid;
+                if (node.hasScaleChange)
+                {
+                    for (int i = 0; i < 7; ++i)
+                    {
+                        if (!writeInt32(stream, static_cast<int32_t>(node.scaleOffsets[i])))
+                            return Invalid;
+                        if (!writeInt32(stream, static_cast<int32_t>(node.scaleDegreeQualities[i])))
+                            return Invalid;
+                    }
+                }
+
+                if (!writeUint32(stream, static_cast<uint32_t>(node.motifChanges.size())))
+                    return Invalid;
+                for (const SerializedMotifChange& change : node.motifChanges)
+                {
+                    if (!writeInt32(stream, static_cast<int32_t>(change.oldMotifIndex)))
+                        return Invalid;
+                    if (!writeInt32(stream, static_cast<int32_t>(change.newMotifIndex)))
+                        return Invalid;
+                }
+
+                if (!writeUint32(stream, static_cast<uint32_t>(node.voiceChanges.size())))
+                    return Invalid;
+                for (const SerializedVoiceChange& change : node.voiceChanges)
+                {
+                    if (!writeInt32(stream, static_cast<int32_t>(change.oldVoiceIndex)))
+                        return Invalid;
+                    if (!writeInt32(stream, static_cast<int32_t>(change.newVoiceIndex)))
+                        return Invalid;
+                }
+            }
+        }
+
+        if (!writeUint32(stream, static_cast<uint32_t>(graph.voices.size())))
+            return Invalid;
+
+        for (const SerializedVoiceDefinition& voice : graph.voices)
+        {
+            if (!writeInt32(stream, static_cast<int32_t>(voice.id)))
+                return Invalid;
+            if (!writeString(stream, voice.name))
+                return Invalid;
+            if (!writeUint32(stream, static_cast<uint32_t>(voice.motifIndices.size())))
+                return Invalid;
+
+            for (int motifIndex : voice.motifIndices)
+            {
+                if (!writeInt32(stream, static_cast<int32_t>(motifIndex)))
                     return Invalid;
             }
         }
@@ -152,30 +242,50 @@ namespace Dryad
         if (!readUint32(stream, version))
             return Invalid;
 
-        if (version != kVersion && version != 1)
+        if (version != kVersion)
             return Invalid;
 
         graph.progressions.clear();
         graph.activeProgressionIndex = -1;
+        graph.currentRoot = 0;
+        graph.hasScale = false;
+        graph.voices.clear();
 
         uint32_t progressionCount = 0;
         int32_t activeIndex = -1;
 
-        if (version == 1)
-        {
-            progressionCount = 1;
-            activeIndex = 0;
-        }
-        else
-        {
-            if (!readUint32(stream, progressionCount))
-                return Invalid;
-            if (!readInt32(stream, activeIndex))
-                return Invalid;
-        }
+        if (!readUint32(stream, progressionCount))
+            return Invalid;
+        if (!readInt32(stream, activeIndex))
+            return Invalid;
 
         graph.progressions.reserve(progressionCount);
         graph.activeProgressionIndex = activeIndex;
+
+        uint32_t currentRoot = 0;
+        if (!readUint32(stream, currentRoot))
+            return Invalid;
+        graph.currentRoot = currentRoot;
+
+        uint8_t hasScale = 0;
+        if (!readUint8(stream, hasScale))
+            return Invalid;
+        graph.hasScale = (hasScale != 0);
+
+        if (graph.hasScale)
+        {
+            for (int i = 0; i < 7; ++i)
+            {
+                int32_t offset = 0;
+                int32_t quality = 0;
+                if (!readInt32(stream, offset))
+                    return Invalid;
+                if (!readInt32(stream, quality))
+                    return Invalid;
+                graph.scaleOffsets[i] = offset;
+                graph.scaleDegreeQualities[i] = static_cast<ChordQuality>(quality);
+            }
+        }
 
         for (uint32_t progressionIndex = 0; progressionIndex < progressionCount; ++progressionIndex)
         {
@@ -247,10 +357,108 @@ namespace Dryad
 
                 node.scoreEnd = (scoreEnd != 0);
 
+                node.progressionChangeIndex = -1;
+                node.hasScaleChange = false;
+                node.motifChanges.clear();
+                node.voiceChanges.clear();
+
+                int32_t progressionChangeIndex = -1;
+                if (!readInt32(stream, progressionChangeIndex))
+                    return Invalid;
+                node.progressionChangeIndex = progressionChangeIndex;
+
+                uint8_t hasScaleChange = 0;
+                if (!readUint8(stream, hasScaleChange))
+                    return Invalid;
+                node.hasScaleChange = (hasScaleChange != 0);
+
+                if (node.hasScaleChange)
+                {
+                    for (int i = 0; i < 7; ++i)
+                    {
+                        int32_t offset = 0;
+                        int32_t quality = 0;
+                        if (!readInt32(stream, offset))
+                            return Invalid;
+                        if (!readInt32(stream, quality))
+                            return Invalid;
+                        node.scaleOffsets[i] = offset;
+                        node.scaleDegreeQualities[i] = static_cast<ChordQuality>(quality);
+                    }
+                }
+
+                uint32_t motifChangeCount = 0;
+                if (!readUint32(stream, motifChangeCount))
+                    return Invalid;
+                node.motifChanges.reserve(motifChangeCount);
+                for (uint32_t changeIndex = 0; changeIndex < motifChangeCount; ++changeIndex)
+                {
+                    int32_t oldIndex = -1;
+                    int32_t newIndex = -1;
+                    if (!readInt32(stream, oldIndex))
+                        return Invalid;
+                    if (!readInt32(stream, newIndex))
+                        return Invalid;
+                    SerializedMotifChange change;
+                    change.oldMotifIndex = oldIndex;
+                    change.newMotifIndex = newIndex;
+                    node.motifChanges.push_back(change);
+                }
+
+                uint32_t voiceChangeCount = 0;
+                if (!readUint32(stream, voiceChangeCount))
+                    return Invalid;
+                node.voiceChanges.reserve(voiceChangeCount);
+                for (uint32_t changeIndex = 0; changeIndex < voiceChangeCount; ++changeIndex)
+                {
+                    int32_t oldIndex = -1;
+                    int32_t newIndex = -1;
+                    if (!readInt32(stream, oldIndex))
+                        return Invalid;
+                    if (!readInt32(stream, newIndex))
+                        return Invalid;
+                    SerializedVoiceChange change;
+                    change.oldVoiceIndex = oldIndex;
+                    change.newVoiceIndex = newIndex;
+                    node.voiceChanges.push_back(change);
+                }
+
                 progression.nodes.push_back(std::move(node));
             }
 
             graph.progressions.push_back(std::move(progression));
+        }
+
+        uint32_t voiceCount = 0;
+        if (!readUint32(stream, voiceCount))
+            return Invalid;
+
+        graph.voices.clear();
+        graph.voices.reserve(voiceCount);
+        for (uint32_t voiceIndex = 0; voiceIndex < voiceCount; ++voiceIndex)
+        {
+            SerializedVoiceDefinition voice;
+            int32_t id = 0;
+            if (!readInt32(stream, id))
+                return Invalid;
+            voice.id = id;
+            if (!readString(stream, voice.name))
+                return Invalid;
+
+            uint32_t motifIndicesCount = 0;
+            if (!readUint32(stream, motifIndicesCount))
+                return Invalid;
+            voice.motifIndices.clear();
+            voice.motifIndices.reserve(motifIndicesCount);
+            for (uint32_t motifIndex = 0; motifIndex < motifIndicesCount; ++motifIndex)
+            {
+                int32_t motifValue = -1;
+                if (!readInt32(stream, motifValue))
+                    return Invalid;
+                voice.motifIndices.push_back(motifValue);
+            }
+
+            graph.voices.push_back(std::move(voice));
         }
 
         uint32_t motifCount = 0;

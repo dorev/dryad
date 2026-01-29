@@ -9,6 +9,11 @@ namespace Dryad
     {
         Vector<SerializedProgression> progressions;
         int activeProgressionIndex = -1;
+        NoteValue currentRoot = 0;
+        bool hasScale = false;
+        NoteRelative scaleOffsets[7]{};
+        ChordQuality scaleDegreeQualities[7]{};
+        Vector<SerializedVoiceDefinition> voices;
         Vector<SerializedMotif> motifs;
     };
 

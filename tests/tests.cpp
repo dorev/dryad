@@ -331,6 +331,11 @@ TEST(GraphFile, SaveLoad)
     Session session;
     Score& score = session.getScore();
 
+    score.currentRoot = C;
+    Scale* scale = score.create<Scale>(ScaleLibrary::MajorScale);
+    ASSERT_NE(scale, nullptr);
+    score.currentScale = scale;
+
     Progression* progressionA = session.createProgression();
     Progression* progressionB = session.createProgression();
     ASSERT_NE(progressionA, nullptr);
@@ -350,16 +355,40 @@ TEST(GraphFile, SaveLoad)
     session.setEntry(*progressionB, chordB1);
     session.link(chordB1, chordB2);
 
+    ProgressionEvent* eventNode = session.addEvent(*progressionA);
+    ASSERT_NE(eventNode, nullptr);
+    session.link(chordA2, eventNode);
+    eventNode->progressionChange = progressionB;
+    eventNode->scaleChange = score.create<Scale>(ScaleLibrary::MinorNaturalScale);
+
     session.setActiveProgression(progressionB);
 
-    Motif* motif = session.createMotif();
-    ASSERT_NE(motif, nullptr);
-    motif->harmonicAnchor = HarmonicAnchor::Chord;
-    motif->rhythmicAnchor = AnchorRhythmic::AnyBeat;
-    motif->noteIntervalType = NoteIntervalType::Diatonic;
-    motif->duration = Quarter;
-    ASSERT_NE(motif->addNote(0, Eighth, 0), nullptr);
-    ASSERT_NE(motif->addNote(2, Eighth, Eighth), nullptr);
+    Motif* motifA = session.createMotif();
+    Motif* motifB = session.createMotif();
+    ASSERT_NE(motifA, nullptr);
+    ASSERT_NE(motifB, nullptr);
+    motifA->harmonicAnchor = HarmonicAnchor::Chord;
+    motifA->rhythmicAnchor = AnchorRhythmic::AnyBeat;
+    motifA->noteIntervalType = NoteIntervalType::Diatonic;
+    motifA->duration = Quarter;
+    ASSERT_NE(motifA->addNote(0, Eighth, 0), nullptr);
+    ASSERT_NE(motifA->addNote(2, Eighth, Eighth), nullptr);
+
+    motifB->harmonicAnchor = HarmonicAnchor::Scale;
+    motifB->rhythmicAnchor = AnchorRhythmic::StrongBeat;
+    motifB->noteIntervalType = NoteIntervalType::Chromatic;
+    motifB->duration = Half;
+    ASSERT_NE(motifB->addNote(1, Quarter, 0), nullptr);
+
+    Voice* voiceA = session.createVoice(1, "Lead");
+    Voice* voiceB = session.createVoice(2, "Bass");
+    ASSERT_NE(voiceA, nullptr);
+    ASSERT_NE(voiceB, nullptr);
+    ASSERT_EQ(voiceA->addMotif(motifA), Success);
+    ASSERT_EQ(voiceB->addMotif(motifB), Success);
+
+    eventNode->motifChanges.push_back({motifA, motifB});
+    eventNode->voiceChanges.push_back({voiceA, voiceB});
 
     SerializedGraph original;
     Error error = session.serializeGraph(original);
@@ -381,6 +410,8 @@ TEST(GraphFile, SaveLoad)
 
     ASSERT_EQ(roundTrip.progressions.size(), original.progressions.size());
     EXPECT_EQ(roundTrip.activeProgressionIndex, original.activeProgressionIndex);
+    EXPECT_EQ(roundTrip.currentRoot, original.currentRoot);
+    EXPECT_EQ(roundTrip.hasScale, original.hasScale);
     ASSERT_EQ(roundTrip.motifs.size(), original.motifs.size());
     EXPECT_EQ(session.getMotifs().size(), original.motifs.size());
 
@@ -403,6 +434,10 @@ TEST(GraphFile, SaveLoad)
             EXPECT_EQ(a.chord.accidental, b.chord.accidental);
             EXPECT_EQ(a.duration, b.duration);
             EXPECT_EQ(a.scoreEnd, b.scoreEnd);
+            EXPECT_EQ(a.progressionChangeIndex, b.progressionChangeIndex);
+            EXPECT_EQ(a.hasScaleChange, b.hasScaleChange);
+            EXPECT_EQ(a.motifChanges.size(), b.motifChanges.size());
+            EXPECT_EQ(a.voiceChanges.size(), b.voiceChanges.size());
         }
     }
 
@@ -422,6 +457,16 @@ TEST(GraphFile, SaveLoad)
             EXPECT_EQ(a.notes[noteIndex].duration, b.notes[noteIndex].duration);
             EXPECT_EQ(a.notes[noteIndex].offset, b.notes[noteIndex].offset);
         }
+    }
+
+    ASSERT_EQ(roundTrip.voices.size(), original.voices.size());
+    for (size_t i = 0; i < original.voices.size(); ++i)
+    {
+        const SerializedVoiceDefinition& a = original.voices[i];
+        const SerializedVoiceDefinition& b = roundTrip.voices[i];
+        EXPECT_EQ(a.id, b.id);
+        EXPECT_EQ(a.name, b.name);
+        EXPECT_EQ(a.motifIndices, b.motifIndices);
     }
 }
 

@@ -42,6 +42,25 @@ namespace Dryad
         Vector<SerializedMotifNote> notes;
     };
 
+    struct SerializedVoiceDefinition
+    {
+        int id;
+        String name;
+        Vector<int> motifIndices;
+    };
+
+    struct SerializedMotifChange
+    {
+        int oldMotifIndex;
+        int newMotifIndex;
+    };
+
+    struct SerializedVoiceChange
+    {
+        int oldVoiceIndex;
+        int newVoiceIndex;
+    };
+
     enum class SerializedProgressionNodeType
     {
         Chord,
@@ -57,6 +76,12 @@ namespace Dryad
         Chord chord;
         Time duration;
         bool scoreEnd;
+        int progressionChangeIndex;
+        bool hasScaleChange;
+        NoteRelative scaleOffsets[7]{};
+        ChordQuality scaleDegreeQualities[7]{};
+        Vector<SerializedMotifChange> motifChanges;
+        Vector<SerializedVoiceChange> voiceChanges;
     };
 
     struct SerializedProgression

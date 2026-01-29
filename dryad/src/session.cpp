@@ -1,5 +1,6 @@
 #include "session.h"
 #include "errors.h"
+#include "scale.h"
 #include <algorithm>
 
 namespace Dryad
@@ -246,6 +247,18 @@ namespace Dryad
         for (ProgressionNode* node : progression.nodes)
             indexByNode[node] = index++;
 
+        Map<const Progression*, int> progressionIndex;
+        for (size_t i = 0; i < m_progressions.size(); ++i)
+            progressionIndex[m_progressions[i]] = static_cast<int>(i);
+
+        Map<const Motif*, int> motifIndex;
+        for (size_t i = 0; i < m_motifs.size(); ++i)
+            motifIndex[m_motifs[i]] = static_cast<int>(i);
+
+        Map<const Voice*, int> voiceIndex;
+        for (size_t i = 0; i < m_voices.size(); ++i)
+            voiceIndex[m_voices[i]] = static_cast<int>(i);
+
         if (progression.entryNode)
         {
             auto entryIt = indexByNode.find(progression.entryNode);
@@ -263,6 +276,10 @@ namespace Dryad
             serializedNode.nextIndex = -1;
             serializedNode.outputs.clear();
             serializedNode.scoreEnd = false;
+            serializedNode.progressionChangeIndex = -1;
+            serializedNode.hasScaleChange = false;
+            serializedNode.motifChanges.clear();
+            serializedNode.voiceChanges.clear();
 
             if (!node)
                 return Invalid;
@@ -295,11 +312,55 @@ namespace Dryad
             }
             else if (ProgressionEvent* eventNode = node->get<ProgressionEvent>())
             {
-                if (eventNode->scaleChange || eventNode->progressionChange || !eventNode->motifChanges.empty() || !eventNode->voiceChanges.empty())
-                    return NotImplemented;
-
                 serializedNode.type = SerializedProgressionNodeType::Event;
                 serializedNode.scoreEnd = eventNode->scoreEnd;
+
+                if (eventNode->progressionChange)
+                {
+                    auto progressionIt = progressionIndex.find(eventNode->progressionChange);
+                    if (progressionIt == progressionIndex.end())
+                        return Invalid;
+
+                    serializedNode.progressionChangeIndex = progressionIt->second;
+                }
+
+                if (eventNode->scaleChange)
+                {
+                    serializedNode.hasScaleChange = true;
+                    for (int degreeIndex = 0; degreeIndex < 7; ++degreeIndex)
+                    {
+                        serializedNode.scaleOffsets[degreeIndex] = eventNode->scaleChange->noteOffsets.degrees[degreeIndex];
+                        serializedNode.scaleDegreeQualities[degreeIndex] = eventNode->scaleChange->degreeQualities.degrees[degreeIndex];
+                    }
+                }
+
+                serializedNode.motifChanges.reserve(eventNode->motifChanges.size());
+                for (const MotifChange& change : eventNode->motifChanges)
+                {
+                    auto oldIt = motifIndex.find(change.oldMotif);
+                    auto newIt = motifIndex.find(change.newMotif);
+                    if (oldIt == motifIndex.end() || newIt == motifIndex.end())
+                        return Invalid;
+
+                    SerializedMotifChange serializedChange;
+                    serializedChange.oldMotifIndex = oldIt->second;
+                    serializedChange.newMotifIndex = newIt->second;
+                    serializedNode.motifChanges.push_back(serializedChange);
+                }
+
+                serializedNode.voiceChanges.reserve(eventNode->voiceChanges.size());
+                for (const VoiceChange& change : eventNode->voiceChanges)
+                {
+                    auto oldIt = voiceIndex.find(change.oldVoice);
+                    auto newIt = voiceIndex.find(change.newVoice);
+                    if (oldIt == voiceIndex.end() || newIt == voiceIndex.end())
+                        return Invalid;
+
+                    SerializedVoiceChange serializedChange;
+                    serializedChange.oldVoiceIndex = oldIt->second;
+                    serializedChange.newVoiceIndex = newIt->second;
+                    serializedNode.voiceChanges.push_back(serializedChange);
+                }
             }
             else
             {
@@ -442,6 +503,18 @@ namespace Dryad
         outSerialized.motifs.clear();
         outSerialized.progressions.clear();
         outSerialized.activeProgressionIndex = -1;
+        outSerialized.voices.clear();
+        outSerialized.currentRoot = m_score.currentRoot;
+        outSerialized.hasScale = (m_score.currentScale != nullptr);
+
+        if (outSerialized.hasScale)
+        {
+            for (int degreeIndex = 0; degreeIndex < 7; ++degreeIndex)
+            {
+                outSerialized.scaleOffsets[degreeIndex] = m_score.currentScale->noteOffsets.degrees[degreeIndex];
+                outSerialized.scaleDegreeQualities[degreeIndex] = m_score.currentScale->degreeQualities.degrees[degreeIndex];
+            }
+        }
 
         Vector<Progression*> progressionsToSerialize = m_progressions;
         if (progressionsToSerialize.empty() && m_score.currentProgression)
@@ -491,6 +564,46 @@ namespace Dryad
             outSerialized.motifs.push_back(std::move(serializedMotif));
         }
 
+        Vector<const Voice*> voicesToSerialize;
+        voicesToSerialize.reserve(m_voices.size());
+        for (Voice* voice : m_voices)
+            voicesToSerialize.push_back(voice);
+        if (voicesToSerialize.empty())
+        {
+            m_score.forEachEdge<Voice>([&](const Voice* voice)
+                {
+                    voicesToSerialize.push_back(voice);
+                });
+        }
+
+        Map<const Motif*, int> motifIndex;
+        for (size_t i = 0; i < motifsToSerialize.size(); ++i)
+            motifIndex[motifsToSerialize[i]] = static_cast<int>(i);
+
+        outSerialized.voices.reserve(voicesToSerialize.size());
+        for (const Voice* voice : voicesToSerialize)
+        {
+            if (!voice)
+                return Invalid;
+
+            SerializedVoiceDefinition serializedVoice;
+            serializedVoice.id = voice->id;
+            serializedVoice.name = voice->name;
+            serializedVoice.motifIndices.clear();
+
+            serializedVoice.motifIndices.reserve(voice->motifs.size());
+            for (Motif* motif : voice->motifs)
+            {
+                auto motifIt = motifIndex.find(motif);
+                if (motifIt == motifIndex.end())
+                    return Invalid;
+
+                serializedVoice.motifIndices.push_back(motifIt->second);
+            }
+
+            outSerialized.voices.push_back(std::move(serializedVoice));
+        }
+
         return Success;
     }
 
@@ -499,6 +612,36 @@ namespace Dryad
         unloadAllProgressions();
         unloadAllMotifs();
         unloadAllVoices();
+
+        m_score.currentRoot = serialized.currentRoot;
+        if (serialized.hasScale)
+        {
+            ScaleNoteOffsets offsets(
+                serialized.scaleOffsets[0],
+                serialized.scaleOffsets[1],
+                serialized.scaleOffsets[2],
+                serialized.scaleOffsets[3],
+                serialized.scaleOffsets[4],
+                serialized.scaleOffsets[5],
+                serialized.scaleOffsets[6]
+            );
+
+            ScaleDegreeQualities qualities(
+                serialized.scaleDegreeQualities[0],
+                serialized.scaleDegreeQualities[1],
+                serialized.scaleDegreeQualities[2],
+                serialized.scaleDegreeQualities[3],
+                serialized.scaleDegreeQualities[4],
+                serialized.scaleDegreeQualities[5],
+                serialized.scaleDegreeQualities[6]
+            );
+
+            m_score.currentScale = m_score.create<Scale>(offsets, qualities);
+        }
+        else
+        {
+            m_score.currentScale = nullptr;
+        }
 
         for (const SerializedProgression& progression : serialized.progressions)
         {
@@ -524,6 +667,113 @@ namespace Dryad
                 return error;
 
             m_motifs.push_back(createdMotif);
+        }
+
+        m_voices.reserve(serialized.voices.size());
+        for (const SerializedVoiceDefinition& voice : serialized.voices)
+        {
+            Voice* createdVoice = m_score.addVoice(voice.id, voice.name);
+            if (!createdVoice)
+                return Invalid;
+
+            for (int motifIndex : voice.motifIndices)
+            {
+                if (motifIndex < 0 || motifIndex >= static_cast<int>(m_motifs.size()))
+                    return Invalid;
+
+                Error error = createdVoice->addMotif(m_motifs[motifIndex]);
+                if (error)
+                    return error;
+            }
+
+            m_voices.push_back(createdVoice);
+        }
+
+        for (size_t progressionIndex = 0; progressionIndex < serialized.progressions.size(); ++progressionIndex)
+        {
+            const SerializedProgression& serializedProgression = serialized.progressions[progressionIndex];
+            Progression* progression = m_progressions[progressionIndex];
+            if (!progression)
+                return Invalid;
+
+            if (serializedProgression.nodes.size() != progression->nodes.size())
+                return Invalid;
+
+            for (size_t nodeIndex = 0; nodeIndex < serializedProgression.nodes.size(); ++nodeIndex)
+            {
+                const SerializedProgressionNode& serializedNode = serializedProgression.nodes[nodeIndex];
+                if (serializedNode.type != SerializedProgressionNodeType::Event)
+                    continue;
+
+                ProgressionEvent* eventNode = progression->nodes[nodeIndex]->get<ProgressionEvent>();
+                if (!eventNode)
+                    return Invalid;
+
+                eventNode->scoreEnd = serializedNode.scoreEnd;
+
+                if (serializedNode.progressionChangeIndex >= 0)
+                {
+                    if (serializedNode.progressionChangeIndex >= static_cast<int>(m_progressions.size()))
+                        return Invalid;
+
+                    eventNode->progressionChange = m_progressions[serializedNode.progressionChangeIndex];
+                }
+
+                if (serializedNode.hasScaleChange)
+                {
+                    ScaleNoteOffsets offsets(
+                        serializedNode.scaleOffsets[0],
+                        serializedNode.scaleOffsets[1],
+                        serializedNode.scaleOffsets[2],
+                        serializedNode.scaleOffsets[3],
+                        serializedNode.scaleOffsets[4],
+                        serializedNode.scaleOffsets[5],
+                        serializedNode.scaleOffsets[6]
+                    );
+
+                    ScaleDegreeQualities qualities(
+                        serializedNode.scaleDegreeQualities[0],
+                        serializedNode.scaleDegreeQualities[1],
+                        serializedNode.scaleDegreeQualities[2],
+                        serializedNode.scaleDegreeQualities[3],
+                        serializedNode.scaleDegreeQualities[4],
+                        serializedNode.scaleDegreeQualities[5],
+                        serializedNode.scaleDegreeQualities[6]
+                    );
+
+                    eventNode->scaleChange = m_score.create<Scale>(offsets, qualities);
+                }
+
+                eventNode->motifChanges.clear();
+                eventNode->motifChanges.reserve(serializedNode.motifChanges.size());
+                for (const SerializedMotifChange& change : serializedNode.motifChanges)
+                {
+                    if (change.oldMotifIndex < 0 || change.oldMotifIndex >= static_cast<int>(m_motifs.size()))
+                        return Invalid;
+                    if (change.newMotifIndex < 0 || change.newMotifIndex >= static_cast<int>(m_motifs.size()))
+                        return Invalid;
+
+                    MotifChange motifChange;
+                    motifChange.oldMotif = m_motifs[change.oldMotifIndex];
+                    motifChange.newMotif = m_motifs[change.newMotifIndex];
+                    eventNode->motifChanges.push_back(motifChange);
+                }
+
+                eventNode->voiceChanges.clear();
+                eventNode->voiceChanges.reserve(serializedNode.voiceChanges.size());
+                for (const SerializedVoiceChange& change : serializedNode.voiceChanges)
+                {
+                    if (change.oldVoiceIndex < 0 || change.oldVoiceIndex >= static_cast<int>(m_voices.size()))
+                        return Invalid;
+                    if (change.newVoiceIndex < 0 || change.newVoiceIndex >= static_cast<int>(m_voices.size()))
+                        return Invalid;
+
+                    VoiceChange voiceChange;
+                    voiceChange.oldVoice = m_voices[change.oldVoiceIndex];
+                    voiceChange.newVoice = m_voices[change.newVoiceIndex];
+                    eventNode->voiceChanges.push_back(voiceChange);
+                }
+            }
         }
 
         return Success;
