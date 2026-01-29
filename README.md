@@ -151,7 +151,7 @@ struct Transition
     int root;            // MIDI note number of the tonic
 };
 
-class Engine
+class Session
 {
 public:
     using Callback = void (*)(int);
@@ -175,27 +175,27 @@ public:
 } // namespace dryad
 ```
 
-## Using the Engine in JUCE
+## Using the Session in JUCE
 
 ```cpp
 class MyPluginProcessor : public juce::AudioProcessor
 {
-    dryad::Engine engine;
+    dryad::Session session;
 
 public:
     void prepareToPlay(double, int) override
     {
-        engine.registerVoice({1, "Lead", {}});
-        engine.registerProgression(makeProgression());
-        engine.setChordsVoice(1);
-        engine.queueTransition({0, /*progId*/1, /*root*/60});
+        session.registerVoice({1, "Lead", {}});
+        session.registerProgression(makeProgression());
+        session.setChordsVoice(1);
+        session.queueTransition({0, /*progId*/1, /*root*/60});
     }
 
     void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer& midi) override
     {
-        engine.commitBeats(getBeatsThisBlock());
+        session.commitBeats(getBeatsThisBlock());
         dryad::ScoreEvent ev;
-        while (engine.popEvent(ev))
+        while (session.popEvent(ev))
         {
             if (ev.type == dryad::ScoreEventType::NoteOn)
             {
@@ -210,7 +210,7 @@ public:
 };
 ```
 
-The same `Engine` can feed note events into a game engine by converting each
+The same `Session` can feed note events into a game engine by converting each
 `ScoreEvent` into whatever event system the game uses.  Callbacks such as
 `onBeat` or `onProgression` are useful to synchronise visual effects with the
 music.

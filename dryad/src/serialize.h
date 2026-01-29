@@ -1,6 +1,8 @@
 #pragma once
 
 #include "types.h"
+#include "chord.h"
+#include "motif.h"
 
 namespace Dryad
 {
@@ -22,6 +24,45 @@ namespace Dryad
     struct SerializedScore
     {
         Vector<SerializedVoice> voices;
+    };
+
+    struct SerializedMotifNote
+    {
+        NoteRelative relativeValue;
+        Time duration;
+        Time offset;
+    };
+
+    struct SerializedMotif
+    {
+        HarmonicAnchor harmonicAnchor;
+        AnchorRhythmic rhythmicAnchor;
+        NoteIntervalType noteIntervalType;
+        Time duration;
+        Vector<SerializedMotifNote> notes;
+    };
+
+    enum class SerializedProgressionNodeType
+    {
+        Chord,
+        Event,
+        SwitchSequence
+    };
+
+    struct SerializedProgressionNode
+    {
+        SerializedProgressionNodeType type;
+        int nextIndex;
+        Vector<int> outputs;
+        Chord chord;
+        Time duration;
+        bool scoreEnd;
+    };
+
+    struct SerializedProgression
+    {
+        Vector<SerializedProgressionNode> nodes;
+        int entryIndex;
     };
 
     class IExporter

@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 #include "dryad/src/dryad.h"
 #include "dryad/src/constants.h"
+#include <algorithm>
+#include <cstdio>
 
 using namespace Dryad;
 
@@ -256,6 +258,171 @@ TEST(Score, MVP)
     SerializedScore serializedScore;
     error = score.dump(serializedScore);
     //EXPECT_EQ(error, dryad_no_error);
+}
+
+TEST(Motif, SerializeDeserialize)
+{
+    Session session;
+    Score& score = session.getScore();
+
+    Motif* motif = score.create<Motif>();
+    ASSERT_NE(motif, nullptr);
+
+    motif->harmonicAnchor = HarmonicAnchor::Scale;
+    motif->rhythmicAnchor = AnchorRhythmic::StrongBeat;
+    motif->noteIntervalType = NoteIntervalType::Diatonic;
+    motif->duration = Quarter + Eighth;
+
+    ASSERT_NE(motif->addNote(0, Eighth, 0), nullptr);
+    ASSERT_NE(motif->addNote(2, Eighth, Eighth), nullptr);
+    ASSERT_NE(motif->addNote(4, Quarter, Quarter), nullptr);
+
+    SerializedMotif serialized;
+    Error error = session.serializeMotif(*motif, serialized);
+    EXPECT_EQ(error, Success);
+
+    Motif* roundTrip = nullptr;
+    error = session.deserializeMotif(serialized, roundTrip);
+    EXPECT_EQ(error, Success);
+    ASSERT_NE(roundTrip, nullptr);
+
+    EXPECT_EQ(roundTrip->harmonicAnchor, motif->harmonicAnchor);
+    EXPECT_EQ(roundTrip->rhythmicAnchor, motif->rhythmicAnchor);
+    EXPECT_EQ(roundTrip->noteIntervalType, motif->noteIntervalType);
+    EXPECT_EQ(roundTrip->duration, motif->duration);
+
+    auto collectNotes = [](Motif* source)
+    {
+        Vector<SerializedMotifNote> notes;
+        source->forEachEdge<MotifNote>([&](MotifNote* note)
+            {
+                SerializedMotifNote serializedNote;
+                serializedNote.relativeValue = note->relativeValue;
+                serializedNote.duration = note->duration;
+                serializedNote.offset = note->offset;
+                notes.push_back(serializedNote);
+            });
+
+        std::sort(notes.begin(), notes.end(), [](const SerializedMotifNote& a, const SerializedMotifNote& b)
+            {
+                if (a.offset != b.offset)
+                    return a.offset < b.offset;
+                if (a.duration != b.duration)
+                    return a.duration < b.duration;
+                return a.relativeValue < b.relativeValue;
+            });
+        return notes;
+    };
+
+    Vector<SerializedMotifNote> originalNotes = collectNotes(motif);
+    Vector<SerializedMotifNote> roundTripNotes = collectNotes(roundTrip);
+    ASSERT_EQ(originalNotes.size(), roundTripNotes.size());
+
+    for (size_t i = 0; i < originalNotes.size(); ++i)
+    {
+        EXPECT_EQ(originalNotes[i].relativeValue, roundTripNotes[i].relativeValue);
+        EXPECT_EQ(originalNotes[i].duration, roundTripNotes[i].duration);
+        EXPECT_EQ(originalNotes[i].offset, roundTripNotes[i].offset);
+    }
+}
+
+TEST(GraphFile, SaveLoad)
+{
+    Session session;
+    Score& score = session.getScore();
+
+    Progression* progressionA = session.createProgression();
+    Progression* progressionB = session.createProgression();
+    ASSERT_NE(progressionA, nullptr);
+    ASSERT_NE(progressionB, nullptr);
+
+    ProgressionChord* chordA1 = session.addChord(*progressionA, Chord(Degree::Tonic), Whole);
+    ProgressionChord* chordA2 = session.addChord(*progressionA, Chord(Degree::Dominant), Half);
+    ASSERT_NE(chordA1, nullptr);
+    ASSERT_NE(chordA2, nullptr);
+    session.setEntry(*progressionA, chordA1);
+    session.link(chordA1, chordA2);
+
+    ProgressionChord* chordB1 = session.addChord(*progressionB, Chord(Degree::Subdominant), Half);
+    ProgressionChord* chordB2 = session.addChord(*progressionB, Chord(Degree::Tonic), Whole);
+    ASSERT_NE(chordB1, nullptr);
+    ASSERT_NE(chordB2, nullptr);
+    session.setEntry(*progressionB, chordB1);
+    session.link(chordB1, chordB2);
+
+    session.setActiveProgression(progressionB);
+
+    Motif* motif = session.createMotif();
+    ASSERT_NE(motif, nullptr);
+    motif->harmonicAnchor = HarmonicAnchor::Chord;
+    motif->rhythmicAnchor = AnchorRhythmic::AnyBeat;
+    motif->noteIntervalType = NoteIntervalType::Diatonic;
+    motif->duration = Quarter;
+    ASSERT_NE(motif->addNote(0, Eighth, 0), nullptr);
+    ASSERT_NE(motif->addNote(2, Eighth, Eighth), nullptr);
+
+    SerializedGraph original;
+    Error error = session.serializeGraph(original);
+    ASSERT_EQ(error, Success);
+
+    String path = "test_graph.dryad";
+    error = session.saveGraphToFile(path);
+    ASSERT_EQ(error, Success);
+
+    Session loaded;
+    error = loaded.loadGraphFromFile(path);
+    ASSERT_EQ(error, Success);
+
+    SerializedGraph roundTrip;
+    error = loaded.serializeGraph(roundTrip);
+    ASSERT_EQ(error, Success);
+
+    std::remove(path.c_str());
+
+    ASSERT_EQ(roundTrip.progressions.size(), original.progressions.size());
+    EXPECT_EQ(roundTrip.activeProgressionIndex, original.activeProgressionIndex);
+    ASSERT_EQ(roundTrip.motifs.size(), original.motifs.size());
+    EXPECT_EQ(session.getMotifs().size(), original.motifs.size());
+
+    for (size_t progressionIndex = 0; progressionIndex < original.progressions.size(); ++progressionIndex)
+    {
+        const SerializedProgression& aProgression = original.progressions[progressionIndex];
+        const SerializedProgression& bProgression = roundTrip.progressions[progressionIndex];
+        ASSERT_EQ(aProgression.nodes.size(), bProgression.nodes.size());
+        EXPECT_EQ(aProgression.entryIndex, bProgression.entryIndex);
+
+        for (size_t nodeIndex = 0; nodeIndex < aProgression.nodes.size(); ++nodeIndex)
+        {
+            const SerializedProgressionNode& a = aProgression.nodes[nodeIndex];
+            const SerializedProgressionNode& b = bProgression.nodes[nodeIndex];
+            EXPECT_EQ(a.type, b.type);
+            EXPECT_EQ(a.nextIndex, b.nextIndex);
+            EXPECT_EQ(a.outputs, b.outputs);
+            EXPECT_EQ(a.chord.degree, b.chord.degree);
+            EXPECT_EQ(a.chord.qualities, b.chord.qualities);
+            EXPECT_EQ(a.chord.accidental, b.chord.accidental);
+            EXPECT_EQ(a.duration, b.duration);
+            EXPECT_EQ(a.scoreEnd, b.scoreEnd);
+        }
+    }
+
+    for (size_t i = 0; i < original.motifs.size(); ++i)
+    {
+        const SerializedMotif& a = original.motifs[i];
+        const SerializedMotif& b = roundTrip.motifs[i];
+        EXPECT_EQ(a.harmonicAnchor, b.harmonicAnchor);
+        EXPECT_EQ(a.rhythmicAnchor, b.rhythmicAnchor);
+        EXPECT_EQ(a.noteIntervalType, b.noteIntervalType);
+        EXPECT_EQ(a.duration, b.duration);
+        ASSERT_EQ(a.notes.size(), b.notes.size());
+
+        for (size_t noteIndex = 0; noteIndex < a.notes.size(); ++noteIndex)
+        {
+            EXPECT_EQ(a.notes[noteIndex].relativeValue, b.notes[noteIndex].relativeValue);
+            EXPECT_EQ(a.notes[noteIndex].duration, b.notes[noteIndex].duration);
+            EXPECT_EQ(a.notes[noteIndex].offset, b.notes[noteIndex].offset);
+        }
+    }
 }
 
 TEST(ScoreFrame, ChordAnchorUsesScaleDegrees)

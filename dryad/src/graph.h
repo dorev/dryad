@@ -139,7 +139,7 @@ namespace Dryad
                 Node* node = static_cast<Node*>(content);
 
                 node->graph = this;
-                return nodes[T::ID].insert(node).second;
+                return m_nodes[T::ID].insert(node).second;
             }
 
             return false;
@@ -150,7 +150,7 @@ namespace Dryad
         {
             static_assert(std::is_base_of<Node, T>::value, "Class must derive from Node.");
 
-            for (Node* node : nodes[T::ID])
+            for (Node* node : m_nodes[T::ID])
                 function(static_cast<T*>(node));
         }
 
@@ -159,7 +159,7 @@ namespace Dryad
         {
             static_assert(std::is_base_of<Node, T>::value, "Class must derive from Node.");
 
-            for (Node* node : nodes[T::ID])
+            for (Node* node : m_nodes[T::ID])
             {
                 if (function(static_cast<T*>(node)))
                     break;
@@ -174,8 +174,8 @@ namespace Dryad
             if (!node)
                 return false;
 
-            auto SetIterator = nodes.find(T::ID);
-            if (SetIterator == nodes.end())
+            auto SetIterator = m_nodes.find(T::ID);
+            if (SetIterator == m_nodes.end())
                 return false;
 
             Set<Node*>& node_set = SetIterator->second;
@@ -192,10 +192,10 @@ namespace Dryad
             {
                 Node* node = static_cast<Node*>(content);
 
-                auto itr = std::find(nodes[T::ID].begin(), nodes[T::ID].end(), node);
-                if (itr != nodes[T::ID].end())
+            auto itr = std::find(m_nodes[T::ID].begin(), m_nodes[T::ID].end(), node);
+            if (itr != m_nodes[T::ID].end())
                 {
-                    nodes[T::ID].erase(itr);
+                m_nodes[T::ID].erase(itr);
 
                     for (Node* edge : node->edges)
                         edge->removeEdge(node);
@@ -233,7 +233,7 @@ namespace Dryad
         size_t size() const
         {
             size_t size = 0;
-            for (const auto& [classID, node_set] : nodes)
+            for (const auto& [classID, node_set] : m_nodes)
                 size += node_set.size();
 
             return size;
@@ -310,8 +310,8 @@ namespace Dryad
             Node** operator->() { return const_cast<Node**>(&(*setIterator)); }
         };
 
-        NodeIterator begin() { return NodeIterator(nodes.begin(), nodes.end()); }
-        NodeIterator end() { return NodeIterator(nodes.end(), nodes.end()); }
+        NodeIterator begin() { return NodeIterator(m_nodes.begin(), m_nodes.end()); }
+        NodeIterator end() { return NodeIterator(m_nodes.end(), m_nodes.end()); }
 
         // Const iterator
 
@@ -330,11 +330,11 @@ namespace Dryad
             const Node* const* operator->() const { return &(*setIterator); }
         };
 
-        ConstNodeIterator begin() const { return ConstNodeIterator(nodes.begin(), nodes.end()); }
-        ConstNodeIterator end() const { return ConstNodeIterator(nodes.end(), nodes.end()); }
+        ConstNodeIterator begin() const { return ConstNodeIterator(m_nodes.begin(), m_nodes.end()); }
+        ConstNodeIterator end() const { return ConstNodeIterator(m_nodes.end(), m_nodes.end()); }
 
     private:
-        Map<ClassID, Set<Node*>> nodes;
+        Map<ClassID, Set<Node*>> m_nodes;
     };
 
     using Node = Graph::Node;

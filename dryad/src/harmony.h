@@ -6,6 +6,8 @@
 namespace Dryad
 {
 
+    class Scale;
+
     Error getChordOffsetsFromRoot(const Chord& chord, const Scale* scale, Vector<NoteRelative>& offsets);
 
 } // namespace Dryad
