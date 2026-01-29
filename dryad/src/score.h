@@ -3,6 +3,7 @@
 #include "graph.h"
 #include "voice.h"
 #include "chord.h"
+#include "events.h"
 
 namespace Dryad
 {
@@ -35,9 +36,11 @@ namespace Dryad
 
         Time relativePosition;
         bool committed;
+        bool emitted;
     };
 
     class Progression;
+    class ProgressionNode;
     class Scale;
     struct SerializedScore;
 
@@ -62,6 +65,7 @@ namespace Dryad
         // - Each newly committed frame will then evaluate its notes based on the associated
         //   motif parameters and considering the scale and progression chord of the frame
         Error commit(Time durationToCommit);
+        Error tick(Time durationToCommit, Vector<ScoreEvent>& outEvents);
 
         Error dump(SerializedScore& serializedScore);
         ScoreFrame* getOrCreateFrame(Time relativePosition);
@@ -73,6 +77,9 @@ namespace Dryad
         Scale* currentScale;
         Set<Voice*, Voice::CompareByID> cachedVoices;
         Set<ScoreFrame*, ScoreFrame::CompareByPosition> cachedFrames;
+
+        ProgressionNode* currentProgressionNode;
+        Time currentChordRemaining;
     };
 
 } // namespace Dryad

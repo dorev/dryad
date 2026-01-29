@@ -12,6 +12,7 @@ namespace Dryad
     ScoreFrame::ScoreFrame(Time relativePosition)
         : relativePosition(relativePosition)
         , committed(false)
+        , emitted(false)
     {
     }
 
@@ -146,6 +147,8 @@ namespace Dryad
         : currentRoot(C)
         , currentProgression(nullptr)
         , currentScale(nullptr)
+        , currentProgressionNode(nullptr)
+        , currentChordRemaining(0)
     {
     }
 
@@ -220,6 +223,170 @@ namespace Dryad
         {
             if (f->relativePosition <= relativePosition)
                 f->committed = true;
+        }
+
+        return Success;
+    }
+
+    static int ResolveVoiceId(NoteInstance* instance)
+    {
+        if (!instance)
+            return -1;
+
+        MotifNote* motifNote = instance->findFirstEdge<MotifNote>();
+        if (!motifNote)
+            return -1;
+
+        Motif* motif = motifNote->findFirstEdge<Motif>();
+        if (!motif)
+            return -1;
+
+        Voice* voice = motif->findFirstEdge<Voice>();
+        if (!voice)
+            return -1;
+
+        return voice->id;
+    }
+
+    static void AppendFrameEvents(ScoreFrame* frame, Vector<ScoreEvent>& outEvents)
+    {
+        if (!frame)
+            return;
+
+        frame->forEachEdge<NoteInstance>([&](NoteInstance* noteInstance)
+            {
+                ScoreEvent onEvent;
+                onEvent.type = ScoreEventType::NoteOn;
+                onEvent.time = frame->relativePosition;
+                onEvent.value = noteInstance->value;
+                onEvent.duration = noteInstance->duration;
+                onEvent.voiceId = ResolveVoiceId(noteInstance);
+                outEvents.push_back(onEvent);
+
+                ScoreEvent offEvent;
+                offEvent.type = ScoreEventType::NoteOff;
+                offEvent.time = frame->relativePosition + noteInstance->duration;
+                offEvent.value = noteInstance->value;
+                offEvent.duration = noteInstance->duration;
+                offEvent.voiceId = onEvent.voiceId;
+                outEvents.push_back(offEvent);
+            });
+    }
+
+    static void CollectCommittedEvents(const Set<ScoreFrame*, ScoreFrame::CompareByPosition>& frames,
+        Vector<ScoreEvent>& outEvents)
+    {
+        for (ScoreFrame* frame : frames)
+        {
+            if (!frame->committed)
+                continue;
+
+            if (!frame->emitted)
+            {
+                AppendFrameEvents(frame, outEvents);
+                frame->emitted = true;
+            }
+        }
+    }
+
+    Error Score::tick(Time durationToCommit, Vector<ScoreEvent>& outEvents)
+    {
+        if (durationToCommit == 0)
+            return Success;
+
+        Time remaining = durationToCommit;
+
+        while (remaining > 0)
+        {
+            Time segment = remaining;
+            ProgressionChord* chordNode = nullptr;
+
+            if (currentProgression)
+            {
+                if (!currentProgressionNode)
+                    currentProgressionNode = currentProgression->entryNode;
+
+                // Search for the next progression node to handle
+                while (currentProgressionNode)
+                {
+                    // Handle progression events
+                    if (ProgressionEvent* eventNode = currentProgressionNode->get<ProgressionEvent>())
+                    {
+                        if (eventNode->scaleChange)
+                            currentScale = eventNode->scaleChange;
+
+                        if (eventNode->progressionChange)
+                        {
+                            currentProgression = eventNode->progressionChange;
+                            currentProgressionNode = currentProgression ? currentProgression->entryNode : nullptr;
+                            currentChordRemaining = 0;
+                            continue;
+                        }
+
+                        currentProgressionNode = eventNode->next;
+                        continue;
+                    }
+
+                    // Handle progression switch sequences
+                    if (ProgressionSwitchSequence* switch = currentProgressionNode->get<ProgressionSwitchSequence>())
+                    {
+                        if (!switch->outputs.empty())
+                        {
+                            if (switch->outputIndex < 0 || switch->outputIndex >= static_cast<int>(switch->outputs.size()))
+                                switch->outputIndex = 0;
+
+                            currentProgressionNode = switch->outputs[switch->outputIndex];
+                            switch->outputIndex = (switch->outputIndex + 1) % static_cast<int>(switch->outputs.size());
+                        }
+                        else
+                        {
+                            currentProgressionNode = switch->next;
+                        }
+
+                        continue;
+                    }
+
+                    chordNode = currentProgressionNode->get<ProgressionChord>();
+                    if (chordNode)
+                    {
+                        if (currentProgression->currentProgressionChord != chordNode)
+                        {
+                            currentProgression->currentProgressionChord = chordNode;
+                            currentChordRemaining = chordNode->duration;
+                        }
+
+                        if (currentChordRemaining == 0)
+                        {
+                            currentProgressionNode = chordNode->next ? chordNode->next : currentProgression->entryNode;
+                            chordNode = nullptr;
+                            continue;
+                        }
+
+                        segment = remaining < currentChordRemaining ? remaining : currentChordRemaining;
+                    }
+
+                    break;
+                }
+            }
+
+            Error error = commit(segment);
+            if (error)
+                return error;
+
+            CollectCommittedEvents(cachedFrames, outEvents);
+
+            if (chordNode)
+            {
+                if (segment >= currentChordRemaining)
+                    currentChordRemaining = 0;
+                else
+                    currentChordRemaining -= segment;
+
+                if (currentChordRemaining == 0)
+                    currentProgressionNode = chordNode->next ? chordNode->next : currentProgression->entryNode;
+            }
+
+            remaining -= segment;
         }
 
         return Success;
