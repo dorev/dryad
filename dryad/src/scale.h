@@ -273,7 +273,7 @@ namespace Dryad
             for (NoteRelative value : intervals)
             {
                 if (value == interval)
-                return;
+                    return;
             }
 
             intervals.push_back(interval);
@@ -305,74 +305,96 @@ namespace Dryad
             return false;
         };
 
-        auto alterBase = [&](NoteRelative interval, int delta) -> bool
+        auto ensureInterval = [&](NoteRelative interval)
         {
-            if (alterInterval(interval, delta))
-                return true;
+            pushUnique(interval);
+        };
 
-            return alterInterval(interval + Octave, delta);
+        auto alterOrAddInterval = [&](NoteRelative interval, int delta)
+        {
+            if (!alterInterval(interval, delta))
+                ensureInterval(interval + delta);
+        };
+
+        auto baseDegreeInterval = [&](int degree) -> NoteRelative
+        {
+            switch (degree)
+            {
+            case 2: return 2;
+            case 3: return 4;
+            case 4: return 5;
+            case 5: return 7;
+            case 6: return 9;
+            case 7: return 11;
+            default: return Invalid;
+            }
+        };
+
+        auto extensionInterval = [&](int extension) -> NoteRelative
+        {
+            switch (extension)
+            {
+            case 9: return 14;
+            case 11: return 17;
+            case 13: return 21;
+            default: return Invalid;
+            }
+        };
+
+        auto applyDegreeAlteration = [&](int degree, int delta)
+        {
+            NoteRelative interval = baseDegreeInterval(degree);
+            if (interval == Invalid)
+                return;
+
+            alterOrAddInterval(interval, delta);
+        };
+
+        auto applyExtensionAlteration = [&](int extension, int delta)
+        {
+            NoteRelative interval = extensionInterval(extension);
+            if (interval == Invalid)
+                return;
+
+            alterOrAddInterval(interval, delta);
         };
 
         if (bool(qualities & ChordQuality::Flat2))
-            alterBase(2, -1);
+            applyDegreeAlteration(2, -1);
         if (bool(qualities & ChordQuality::Flat3))
-        {
-            alterBase(4, -1);
-            alterBase(3, -1);
-        }
+            applyDegreeAlteration(3, -1);
         if (bool(qualities & ChordQuality::Flat4))
-            alterBase(5, -1);
+            applyDegreeAlteration(4, -1);
         if (bool(qualities & ChordQuality::Flat5))
-        {
-            if (!alterBase(7, -1))
-                alterBase(8, -1);
-        }
+            applyDegreeAlteration(5, -1);
         if (bool(qualities & ChordQuality::Flat6))
-        {
-            if (!alterBase(9, -1))
-                alterBase(8, -1);
-        }
+            applyDegreeAlteration(6, -1);
         if (bool(qualities & ChordQuality::Flat7))
-        {
-            if (!alterBase(11, -1))
-                alterBase(10, -1);
-        }
+            applyDegreeAlteration(7, -1);
         if (bool(qualities & ChordQuality::Flat9))
-            alterInterval(14, -1);
+            applyExtensionAlteration(9, -1);
         if (bool(qualities & ChordQuality::Flat11))
-            alterInterval(17, -1);
+            applyExtensionAlteration(11, -1);
         if (bool(qualities & ChordQuality::Flat13))
-            alterInterval(21, -1);
+            applyExtensionAlteration(13, -1);
         if (bool(qualities & ChordQuality::Sharp2))
-            alterBase(2, 1);
+            applyDegreeAlteration(2, 1);
         if (bool(qualities & ChordQuality::Sharp3))
-        {
-            alterBase(3, 1);
-            alterBase(4, 1);
-        }
+            applyDegreeAlteration(3, 1);
         if (bool(qualities & ChordQuality::Sharp4))
-            alterBase(5, 1);
+            applyDegreeAlteration(4, 1);
         if (bool(qualities & ChordQuality::Sharp5))
-        {
-            if (!alterBase(7, 1))
-                alterBase(6, 1);
-        }
+            applyDegreeAlteration(5, 1);
         if (bool(qualities & ChordQuality::Sharp6))
-        {
-            if (!alterBase(8, 1))
-                alterBase(9, 1);
-        }
+            applyDegreeAlteration(6, 1);
         if (bool(qualities & ChordQuality::Sharp7))
-        {
-            if (!alterBase(10, 1))
-                alterBase(11, 1);
-        }
+            applyDegreeAlteration(7, 1);
         if (bool(qualities & ChordQuality::Sharp9))
-            alterInterval(14, 1);
+            applyExtensionAlteration(9, 1);
         if (bool(qualities & ChordQuality::Sharp11))
-            alterInterval(17, 1);
+            applyExtensionAlteration(11, 1);
         if (bool(qualities & ChordQuality::Sharp13))
-            alterInterval(21, 1);
+            applyExtensionAlteration(13, 1);
 
         if (chord.accidental == Accidental::Flat)
             degreeOffsetFromRoot--;
