@@ -36,11 +36,11 @@ namespace Dryad
     public:
         DRYAD_NODE_CLASS_ID(MotifNote);
 
-        MotifNote(Motif* motif, NoteRelative relativeValue, Time duration, Time relativePosition);
+        MotifNote(Motif* motif, NoteRelative relativeValue, Time duration, Time offset);
 
         NoteRelative relativeValue;
         Time duration;
-        Time relativePosition;
+        Time offset;
     };
 
 
@@ -66,7 +66,7 @@ namespace Dryad
         NoteIntervalType noteIntervalType;
         Time duration;
 
-        MotifNote* addNote(NoteRelative relativeValue, Time duration, Time relativePosition);
+        MotifNote* addNote(NoteRelative relativeValue, Time duration, Time offset);
 
         // Evaluates the duration of the motif by checking the end time
         // of each note. The duration can be specified beyond that time

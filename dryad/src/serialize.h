@@ -7,9 +7,9 @@ namespace Dryad
 
     struct SerializedNote
     {
-        Time relativePosition;
+        Time position;
         Time duration;
-        NoteValue value;
+        NoteValue noteValue;
     };
 
     struct SerializedVoice
@@ -21,7 +21,7 @@ namespace Dryad
 
     struct SerializedScore
     {
-        Vector<SerializedVoice> cachedVoices;
+        Vector<SerializedVoice> voices;
     };
 
     class IExporter

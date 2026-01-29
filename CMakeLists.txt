@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external)
 
+enable_testing()
+
 add_subdirectory(dryad)
 add_subdirectory(tests)
 #add_subdirectory(gui)

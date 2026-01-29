@@ -36,9 +36,9 @@ namespace dryad
 
 struct MotifNote
 {
-    int relativeValue;    // semitone offset from the anchor
-    int relativePosition; // beat position within the motif
-    int duration;         // beats
+    int relativeValue; // semitone offset from the anchor
+    int offset;        // beat position within the motif
+    int duration;      // beats
 };
 
 enum class HarmonicAnchor
@@ -129,7 +129,7 @@ struct Progression
     Vector<ProgressionChord> chords;
 };
 
-enum class EventType
+enum class ScoreEventType
 {
     NoteOn,
     NoteOff
@@ -138,9 +138,10 @@ enum class EventType
 struct ScoreEvent
 {
     int voiceId;
-    int value;           // MIDI note number
-    EventType event;
-    int position;        // sample position within the block
+    int noteValue;       // MIDI note number
+    int noteDuration;    // beats
+    ScoreEventType type;
+    int position;        // beat position within the score
 };
 
 struct Transition
@@ -196,13 +197,13 @@ public:
         dryad::ScoreEvent ev;
         while (engine.popEvent(ev))
         {
-            if (ev.event == dryad::EventType::NoteOn)
+            if (ev.type == dryad::ScoreEventType::NoteOn)
             {
-                midi.addEvent(juce::MidiMessage::noteOn(1, ev.value, (juce::uint8)100), ev.position);
+                midi.addEvent(juce::MidiMessage::noteOn(1, ev.noteValue, (juce::uint8)100), ev.position);
             }
             else
             {
-                midi.addEvent(juce::MidiMessage::noteOff(1, ev.value), ev.position);
+                midi.addEvent(juce::MidiMessage::noteOff(1, ev.noteValue), ev.position);
             }
         }
     }

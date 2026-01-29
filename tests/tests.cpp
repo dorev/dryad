@@ -208,7 +208,7 @@ TEST(Score, MVP)
     Voice* voice = score.addVoice(id, name);
     EXPECT_NE(voice, nullptr);
 
-    for (Voice* v : score.cachedVoices)
+    for (Voice* v : score.voices)
         EXPECT_EQ(v->id, id);
 
     // Add motif to voice
@@ -219,9 +219,9 @@ TEST(Score, MVP)
     motif->rhythmicAnchor = AnchorRhythmic::AnyBeat;
 
     Time duration = Eighth;
-    Time relativePosition = 0;
+    Time offset = 0;
     NoteRelative value = 0;
-    MotifNote* motifNote = motif->addNote(value, duration, relativePosition);
+    MotifNote* motifNote = motif->addNote(value, duration, offset);
 
     Error error = voice->addMotif(motif);
     EXPECT_EQ(error, Success);
@@ -249,7 +249,7 @@ TEST(Score, MVP)
     score.currentProgression = progression;
 
     // Commit score duration
-    error = score.commit(4 * Whole);
+    error = score.commitDuration(4 * Whole);
     EXPECT_EQ(error, Success) << "error: " << ToString(error);
 
     // Dump score

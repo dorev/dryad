@@ -5,10 +5,10 @@
 namespace Dryad
 {
 
-    MotifNote::MotifNote(Motif* motif, NoteRelative relativeValue, Time duration, Time relativePosition)
+    MotifNote::MotifNote(Motif* motif, NoteRelative relativeValue, Time duration, Time offset)
         : relativeValue(relativeValue)
         , duration(duration)
-        , relativePosition(relativePosition)
+        , offset(offset)
     {
     }
 
@@ -18,9 +18,9 @@ namespace Dryad
     {
     }
 
-    MotifNote* Motif::addNote(NoteRelative relativeValue, Time duration, Time relativePosition)
+    MotifNote* Motif::addNote(NoteRelative relativeValue, Time duration, Time offset)
     {
-        MotifNote* motifNote = graph->create<MotifNote>(this, relativeValue, duration, relativePosition);
+        MotifNote* motifNote = graph->create<MotifNote>(this, relativeValue, duration, offset);
 
         if (!motifNote)
             return nullptr;
@@ -37,7 +37,7 @@ namespace Dryad
         Time calculatedDuration = 0;
         forEachEdge<MotifNote>([&](MotifNote* note)
             {
-                Time noteEnd = note->relativePosition + note->duration;
+                Time noteEnd = note->offset + note->duration;
 
                 if (noteEnd > calculatedDuration)
                     calculatedDuration = noteEnd;
@@ -65,7 +65,7 @@ namespace Dryad
             {
                 ScoreFrame* noteFrame = note->findFirstEdge<ScoreFrame>();
 
-                if (noteFrame && !noteFrame->committed)
+                if (noteFrame && !noteFrame->isCommitted)
                     graph->destroy(note);
                 else
                     note->removeEdge(motifNoteToRemove);

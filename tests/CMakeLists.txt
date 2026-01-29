@@ -12,6 +12,9 @@ target_link_libraries(
     dryad
 )
 
+include(GoogleTest)
+gtest_discover_tests(${PROJECT_NAME})
+
 set(GTEST_ROOT ${EXTERNAL_DIR}/googletest)
 
 target_include_directories(

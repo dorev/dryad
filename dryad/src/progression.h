@@ -41,7 +41,7 @@ namespace Dryad
         DRYAD_NODE_CLASS_ID(ProgressionSwitchSequence);
 
         Vector<ProgressionNode*> outputs;
-        int outputIndex;
+        int nextOutputIndex;
     };
 
     struct MotifChange
@@ -90,7 +90,7 @@ namespace Dryad
 
         ProgressionChord* progressionChord;
         NoteValue root;
-        Time relativePosition;
+        Time position;
     };
 
 } // namespace Dryad

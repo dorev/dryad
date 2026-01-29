@@ -9,10 +9,10 @@
 namespace Dryad
 {
 
-    ScoreFrame::ScoreFrame(Time relativePosition)
-        : relativePosition(relativePosition)
-        , committed(false)
-        , emitted(false)
+    ScoreFrame::ScoreFrame(Time position)
+        : position(position)
+        , isCommitted(false)
+        , isEmitted(false)
     {
     }
 
@@ -147,8 +147,8 @@ namespace Dryad
         : currentRoot(C)
         , currentProgression(nullptr)
         , currentScale(nullptr)
-        , currentProgressionNode(nullptr)
-        , currentChordRemaining(0)
+        , progressionCursor(nullptr)
+        , remainingChordDuration(0)
     {
     }
 
@@ -157,7 +157,7 @@ namespace Dryad
         Voice* voice = create<Voice>(id, name);
 
         if (voice)
-            cachedVoices.insert(voice);
+            voices.insert(voice);
 
         return voice;
     }
@@ -188,7 +188,7 @@ namespace Dryad
         Error error = Success;
         motif->forEachEdgeBreakable<MotifNote>([&](MotifNote* note) -> bool
             {
-                ScoreFrame* frame = getOrCreateFrame(position + note->relativePosition);
+                ScoreFrame* frame = getOrCreateFrame(position + note->offset);
 
                 error = frame->addMotifNote(note);
                 return error != Success;
@@ -197,14 +197,14 @@ namespace Dryad
         return error;
     }
 
-    Error Score::commit(Time durationToCommit)
+    Error Score::commitDuration(Time duration)
     {
         ScoreFrame* frame = findLastCommittedFrame();
 
         if (!frame)
             frame = getOrCreateFrame(0);
 
-        Time relativePosition = frame->relativePosition + durationToCommit;
+        Time commitEndPosition = frame->position + duration;
 
         if (currentProgression && !currentProgression->currentProgressionChord)
         {
@@ -215,20 +215,20 @@ namespace Dryad
 
         // For every motif of each voice, generate instances until the total committed
         // duration is reached
-        for (Voice* voice : cachedVoices)
-            voice->generateUntil(relativePosition);
+        for (Voice* voice : voices)
+            voice->generateUntil(commitEndPosition);
 
         // Mark frames up to the committed duration as committed
-        for (ScoreFrame* f : cachedFrames)
+        for (ScoreFrame* f : frames)
         {
-            if (f->relativePosition <= relativePosition)
-                f->committed = true;
+            if (f->position <= commitEndPosition)
+                f->isCommitted = true;
         }
 
         return Success;
     }
 
-    static int ResolveVoiceId(NoteInstance* instance)
+    static int FindVoiceId(NoteInstance* instance)
     {
         if (!instance)
             return -1;
@@ -257,17 +257,17 @@ namespace Dryad
             {
                 ScoreEvent onEvent;
                 onEvent.type = ScoreEventType::NoteOn;
-                onEvent.time = frame->relativePosition;
-                onEvent.value = noteInstance->value;
-                onEvent.duration = noteInstance->duration;
-                onEvent.voiceId = ResolveVoiceId(noteInstance);
+                onEvent.position = frame->position;
+                onEvent.noteValue = noteInstance->value;
+                onEvent.noteDuration = noteInstance->duration;
+                onEvent.voiceId = FindVoiceId(noteInstance);
                 outEvents.push_back(onEvent);
 
                 ScoreEvent offEvent;
                 offEvent.type = ScoreEventType::NoteOff;
-                offEvent.time = frame->relativePosition + noteInstance->duration;
-                offEvent.value = noteInstance->value;
-                offEvent.duration = noteInstance->duration;
+                offEvent.position = frame->position + noteInstance->duration;
+                offEvent.noteValue = noteInstance->value;
+                offEvent.noteDuration = noteInstance->duration;
                 offEvent.voiceId = onEvent.voiceId;
                 outEvents.push_back(offEvent);
             });
@@ -278,39 +278,39 @@ namespace Dryad
     {
         for (ScoreFrame* frame : frames)
         {
-            if (!frame->committed)
+            if (!frame->isCommitted)
                 continue;
 
-            if (!frame->emitted)
+            if (!frame->isEmitted)
             {
                 AppendFrameEvents(frame, outEvents);
-                frame->emitted = true;
+                frame->isEmitted = true;
             }
         }
     }
 
-    Error Score::tick(Time durationToCommit, Vector<ScoreEvent>& outEvents)
+    Error Score::tick(Time delta, Vector<ScoreEvent>& outEvents)
     {
-        if (durationToCommit == 0)
+        if (delta == 0)
             return Success;
 
-        Time remaining = durationToCommit;
+        Time remainingDuration = delta;
 
-        while (remaining > 0)
+        while (remainingDuration > 0)
         {
-            Time segment = remaining;
+            Time stepDuration = remainingDuration;
             ProgressionChord* chordNode = nullptr;
 
             if (currentProgression)
             {
-                if (!currentProgressionNode)
-                    currentProgressionNode = currentProgression->entryNode;
+                if (!progressionCursor)
+                    progressionCursor = currentProgression->entryNode;
 
                 // Search for the next progression node to handle
-                while (currentProgressionNode)
+                while (progressionCursor)
                 {
                     // Handle progression events
-                    if (ProgressionEvent* eventNode = currentProgressionNode->get<ProgressionEvent>())
+                    if (ProgressionEvent* eventNode = progressionCursor->get<ProgressionEvent>())
                     {
                         if (eventNode->scaleChange)
                             currentScale = eventNode->scaleChange;
@@ -318,75 +318,75 @@ namespace Dryad
                         if (eventNode->progressionChange)
                         {
                             currentProgression = eventNode->progressionChange;
-                            currentProgressionNode = currentProgression ? currentProgression->entryNode : nullptr;
-                            currentChordRemaining = 0;
+                            progressionCursor = currentProgression ? currentProgression->entryNode : nullptr;
+                            remainingChordDuration = 0;
                             continue;
                         }
 
-                        currentProgressionNode = eventNode->next;
+                        progressionCursor = eventNode->next;
                         continue;
                     }
 
                     // Handle progression switch sequences
-                    if (ProgressionSwitchSequence* switch = currentProgressionNode->get<ProgressionSwitchSequence>())
+                    if (ProgressionSwitchSequence* switchNode = progressionCursor->get<ProgressionSwitchSequence>())
                     {
-                        if (!switch->outputs.empty())
+                        if (!switchNode->outputs.empty())
                         {
-                            if (switch->outputIndex < 0 || switch->outputIndex >= static_cast<int>(switch->outputs.size()))
-                                switch->outputIndex = 0;
+                            if (switchNode->nextOutputIndex < 0 || switchNode->nextOutputIndex >= static_cast<int>(switchNode->outputs.size()))
+                                switchNode->nextOutputIndex = 0;
 
-                            currentProgressionNode = switch->outputs[switch->outputIndex];
-                            switch->outputIndex = (switch->outputIndex + 1) % static_cast<int>(switch->outputs.size());
+                            progressionCursor = switchNode->outputs[switchNode->nextOutputIndex];
+                            switchNode->nextOutputIndex = (switchNode->nextOutputIndex + 1) % static_cast<int>(switchNode->outputs.size());
                         }
                         else
                         {
-                            currentProgressionNode = switch->next;
+                            progressionCursor = switchNode->next;
                         }
 
                         continue;
                     }
 
-                    chordNode = currentProgressionNode->get<ProgressionChord>();
+                    chordNode = progressionCursor->get<ProgressionChord>();
                     if (chordNode)
                     {
                         if (currentProgression->currentProgressionChord != chordNode)
                         {
                             currentProgression->currentProgressionChord = chordNode;
-                            currentChordRemaining = chordNode->duration;
+                            remainingChordDuration = chordNode->duration;
                         }
 
-                        if (currentChordRemaining == 0)
+                        if (remainingChordDuration == 0)
                         {
-                            currentProgressionNode = chordNode->next ? chordNode->next : currentProgression->entryNode;
+                            progressionCursor = chordNode->next ? chordNode->next : currentProgression->entryNode;
                             chordNode = nullptr;
                             continue;
                         }
 
-                        segment = remaining < currentChordRemaining ? remaining : currentChordRemaining;
+                        stepDuration = remainingDuration < remainingChordDuration ? remainingDuration : remainingChordDuration;
                     }
 
                     break;
                 }
             }
 
-            Error error = commit(segment);
+            Error error = commitDuration(stepDuration);
             if (error)
                 return error;
 
-            CollectCommittedEvents(cachedFrames, outEvents);
+            CollectCommittedEvents(frames, outEvents);
 
             if (chordNode)
             {
-                if (segment >= currentChordRemaining)
-                    currentChordRemaining = 0;
+                if (stepDuration >= remainingChordDuration)
+                    remainingChordDuration = 0;
                 else
-                    currentChordRemaining -= segment;
+                    remainingChordDuration -= stepDuration;
 
-                if (currentChordRemaining == 0)
-                    currentProgressionNode = chordNode->next ? chordNode->next : currentProgression->entryNode;
+                if (remainingChordDuration == 0)
+                    progressionCursor = chordNode->next ? chordNode->next : currentProgression->entryNode;
             }
 
-            remaining -= segment;
+            remainingDuration -= stepDuration;
         }
 
         return Success;
@@ -394,9 +394,9 @@ namespace Dryad
 
     Error Score::dump(SerializedScore& serializedScore)
     {
-        serializedScore.cachedVoices.clear();
+        serializedScore.voices.clear();
 
-        for (Voice* voice : cachedVoices)
+        for (Voice* voice : voices)
         {
             SerializedVoice serializedVoice;
             serializedVoice.name = voice->name;
@@ -409,54 +409,54 @@ namespace Dryad
                         note->forEachEdge<NoteInstance>([&](NoteInstance* instance)
                             {
                                 ScoreFrame* frame = instance->findFirstEdge<ScoreFrame>();
-                                if (!frame || !frame->committed)
+                                if (!frame || !frame->isCommitted)
                                     return;
 
                                 SerializedNote serializedNote;
-                                serializedNote.relativePosition = frame->relativePosition;
+                                serializedNote.position = frame->position;
                                 serializedNote.duration = instance->duration;
-                                serializedNote.value = instance->value;
+                                serializedNote.noteValue = instance->value;
                                 serializedVoice.notes.push_back(serializedNote);
                             });
                     });
             }
 
-            serializedScore.cachedVoices.push_back(std::move(serializedVoice));
+            serializedScore.voices.push_back(std::move(serializedVoice));
         }
 
         return Success;
     }
 
-    ScoreFrame* Score::getOrCreateFrame(Time relativePosition)
+    ScoreFrame* Score::getOrCreateFrame(Time position)
     {
-        ScoreFrame* frame = findFrameAtPosition(relativePosition);
+        ScoreFrame* frame = findFrameAtPosition(position);
 
         if (!frame)
         {
-            frame = create<ScoreFrame>(relativePosition);
+            frame = create<ScoreFrame>(position);
 
             if (!frame)
             {
-                DRYAD_FATAL("Unable to create a new frame at position %d.", relativePosition);
+                DRYAD_FATAL("Unable to create a new frame at position %d.", position);
 
             }
             else
             {
-                cachedFrames.insert(frame);
+                frames.insert(frame);
             }
         }
 
         return frame;
     }
 
-    ScoreFrame* Score::findFrameAtPosition(Time relativePosition)
+    ScoreFrame* Score::findFrameAtPosition(Time position)
     {
         // Creating a dummy frame with the searched position to leverage std::find
-        ScoreFrame dummy_frame(relativePosition);
+        ScoreFrame dummy_frame(position);
 
-        auto it = cachedFrames.find(&dummy_frame);
+        auto it = frames.find(&dummy_frame);
 
-        if (it == cachedFrames.end())
+        if (it == frames.end())
             return nullptr;
 
         return *it;
@@ -466,9 +466,9 @@ namespace Dryad
     {
         ScoreFrame* frame = nullptr;
 
-        for (auto it = cachedFrames.rbegin(); it != cachedFrames.rend(); ++it)
+        for (auto it = frames.rbegin(); it != frames.rend(); ++it)
         {
-            if ((*it)->committed)
+            if ((*it)->isCommitted)
             {
                 frame = *it;
                 break;

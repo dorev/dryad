@@ -17,14 +17,14 @@ namespace Dryad
     public:
         DRYAD_NODE_CLASS_ID(ScoreFrame);
 
-        ScoreFrame(Time relativePosition = 0);
+        ScoreFrame(Time position = 0);
 
         // Comparison helper to automate the ordering in a set
         struct CompareByPosition
         {
             bool operator()(const ScoreFrame* a, const ScoreFrame* b) const
             {
-                return a->relativePosition < b->relativePosition;
+                return a->position < b->position;
             }
         };
 
@@ -34,9 +34,9 @@ namespace Dryad
         Chord getCurrentChord();
         Error addMotifNote(MotifNote* motifNote);
 
-        Time relativePosition;
-        bool committed;
-        bool emitted;
+        Time position;
+        bool isCommitted;
+        bool isEmitted;
     };
 
     class Progression;
@@ -64,22 +64,22 @@ namespace Dryad
         //
         // - Each newly committed frame will then evaluate its notes based on the associated
         //   motif parameters and considering the scale and progression chord of the frame
-        Error commit(Time durationToCommit);
-        Error tick(Time durationToCommit, Vector<ScoreEvent>& outEvents);
+        Error commitDuration(Time duration);
+        Error tick(Time delta, Vector<ScoreEvent>& outEvents);
 
         Error dump(SerializedScore& serializedScore);
-        ScoreFrame* getOrCreateFrame(Time relativePosition);
-        ScoreFrame* findFrameAtPosition(Time relativePosition);
+        ScoreFrame* getOrCreateFrame(Time position);
+        ScoreFrame* findFrameAtPosition(Time position);
         ScoreFrame* findLastCommittedFrame();
 
         NoteValue currentRoot;
         Progression* currentProgression;
         Scale* currentScale;
-        Set<Voice*, Voice::CompareByID> cachedVoices;
-        Set<ScoreFrame*, ScoreFrame::CompareByPosition> cachedFrames;
+        Set<Voice*, Voice::CompareByID> voices;
+        Set<ScoreFrame*, ScoreFrame::CompareByPosition> frames;
 
-        ProgressionNode* currentProgressionNode;
-        Time currentChordRemaining;
+        ProgressionNode* progressionCursor;
+        Time remainingChordDuration;
     };
 
 } // namespace Dryad
