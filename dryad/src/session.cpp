@@ -404,8 +404,7 @@ namespace Dryad
         outSerialized.noteIntervalType = motif.noteIntervalType;
         outSerialized.duration = motif.duration;
 
-        Motif& mutableMotif = const_cast<Motif&>(motif);
-        mutableMotif.forEachEdge<MotifNote>([&](MotifNote* note)
+        motif.forEachEdge<MotifNote>([&](const MotifNote* note)
             {
                 SerializedMotifNote serializedNote;
                 serializedNote.relativeValue = note->relativeValue;
@@ -465,18 +464,21 @@ namespace Dryad
             outSerialized.progressions.push_back(std::move(serializedProgression));
         }
 
-        Vector<Motif*> motifsToSerialize = m_motifs;
+        Vector<const Motif*> motifsToSerialize;
+        motifsToSerialize.reserve(m_motifs.size());
+        for (Motif* motif : m_motifs)
+            motifsToSerialize.push_back(motif);
+
         if (motifsToSerialize.empty())
         {
-            Score& mutableScore = const_cast<Score&>(m_score);
-            mutableScore.forEachEdge<Motif>([&](Motif* motif)
+            m_score.forEachEdge<Motif>([&](const Motif* motif)
                 {
                     motifsToSerialize.push_back(motif);
                 });
         }
 
         outSerialized.motifs.reserve(motifsToSerialize.size());
-        for (Motif* motif : motifsToSerialize)
+        for (const Motif* motif : motifsToSerialize)
         {
             if (!motif)
                 return Invalid;

@@ -69,6 +69,18 @@ namespace Dryad
                 }
             }
 
+            template <class T, class function_t>
+            void forEachEdge(function_t&& function) const
+            {
+                static_assert(std::is_base_of<Node, T>::value, "Class must derive from Node.");
+
+                for (const Node* edge : edges)
+                {
+                    if (edge && edge->getClassID() == T::ID)
+                        function(static_cast<const T*>(edge));
+                }
+            }
+
             // Loop trough all edges of typpe T, breaks when returning `true`.
             template <class T, class function_t>
             void forEachEdgeBreakable(function_t&& function)
@@ -152,6 +164,19 @@ namespace Dryad
 
             for (Node* node : m_nodes[T::ID])
                 function(static_cast<T*>(node));
+        }
+
+        template <class T, class function_t>
+        void forEachEdge(function_t&& function) const
+        {
+            static_assert(std::is_base_of<Node, T>::value, "Class must derive from Node.");
+
+            auto SetIterator = m_nodes.find(T::ID);
+            if (SetIterator == m_nodes.end())
+                return;
+
+            for (const Node* node : SetIterator->second)
+                function(static_cast<const T*>(node));
         }
 
         template <class T, class function_t>
