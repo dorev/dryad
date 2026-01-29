@@ -217,7 +217,7 @@ namespace Dryad
             {
                 Node* node = static_cast<Node*>(content);
 
-            auto itr = std::find(m_nodes[T::ID].begin(), m_nodes[T::ID].end(), node);
+                auto itr = std::find(m_nodes[T::ID].begin(), m_nodes[T::ID].end(), node);
             if (itr != m_nodes[T::ID].end())
                 {
                 m_nodes[T::ID].erase(itr);
@@ -228,6 +228,7 @@ namespace Dryad
                     node->edges.clear();
                     node->graph = nullptr;
 
+                    DRYAD_DELETE(node);
                     return true;
                 }
             }

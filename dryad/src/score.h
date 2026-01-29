@@ -66,20 +66,29 @@ namespace Dryad
         //   motif parameters and considering the scale and progression chord of the frame
         Error commitDuration(Time duration);
         Error tick(Time delta, Vector<ScoreEvent>& outEvents);
+        void resetTimeline();
 
         Error dump(SerializedScore& serializedScore);
         ScoreFrame* getOrCreateFrame(Time position);
         ScoreFrame* findFrameAtPosition(Time position);
         ScoreFrame* findLastCommittedFrame();
 
-        NoteValue currentRoot;
-        Progression* currentProgression;
-        Scale* currentScale;
-        Set<Voice*, Voice::CompareByID> voices;
-        Set<ScoreFrame*, ScoreFrame::CompareByPosition> frames;
+        NoteValue getCurrentRoot() const;
+        void setCurrentRoot(NoteValue root);
+        Scale* getCurrentScale() const;
+        void setCurrentScale(Scale* scale);
+        Progression* getCurrentProgression() const;
+        void setCurrentProgression(Progression* progression);
 
-        ProgressionNode* progressionCursor;
-        Time remainingChordDuration;
+    private:
+        NoteValue m_currentRoot;
+        Progression* m_currentProgression;
+        Scale* m_currentScale;
+        Set<Voice*, Voice::CompareByID> m_voices;
+        Set<ScoreFrame*, ScoreFrame::CompareByPosition> m_frames;
+
+        ProgressionNode* m_progressionCursor;
+        Time m_remainingChordDuration;
     };
 
 } // namespace Dryad

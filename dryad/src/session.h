@@ -15,6 +15,7 @@ namespace Dryad
         Session();
 
         Score& getScore();
+        const Score& getScore() const;
 
         Progression* createProgression();
         void setActiveProgression(Progression* progression);
@@ -36,6 +37,8 @@ namespace Dryad
         ProgressionSwitchSequence* addSwitch(Progression& progression);
         void setEntry(Progression& progression, ProgressionNode* entryNode);
         void link(ProgressionNode* from, ProgressionNode* to);
+        bool insertAfter(Progression& progression, ProgressionNode* previous, ProgressionNode* node);
+        bool removeNode(Progression& progression, ProgressionNode* node);
 
         void setScale(Scale* scale);
         void setProgression(Progression* progression);
@@ -52,6 +55,7 @@ namespace Dryad
         Error deserializeGraph(const SerializedGraph& serialized);
         Error saveGraphToFile(const String& path) const;
         Error loadGraphFromFile(const String& path);
+        void reset();
 
     private:
         Score m_score;

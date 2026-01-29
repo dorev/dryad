@@ -210,8 +210,7 @@ TEST(Score, MVP)
     Voice* voice = score.addVoice(id, name);
     EXPECT_NE(voice, nullptr);
 
-    for (Voice* v : score.voices)
-        EXPECT_EQ(v->id, id);
+    EXPECT_EQ(voice->id, id);
 
     // Add motif to voice
     Motif* motif = score.create<Motif>();
@@ -232,7 +231,7 @@ TEST(Score, MVP)
     Scale* scale = score.create<Scale>(ScaleLibrary::MajorScale);
     EXPECT_NE(scale, nullptr);
 
-    score.currentScale = scale;
+    score.setCurrentScale(scale);
 
     // Set score progression
     Progression* progression = score.create<Progression>();
@@ -248,7 +247,7 @@ TEST(Score, MVP)
     progression->entryNode = chord1;
     chord1->next = chord2;
 
-    score.currentProgression = progression;
+    score.setCurrentProgression(progression);
 
     // Commit score duration
     error = score.commitDuration(4 * Whole);
@@ -331,10 +330,10 @@ TEST(GraphFile, SaveLoad)
     Session session;
     Score& score = session.getScore();
 
-    score.currentRoot = C;
+    score.setCurrentRoot(C);
     Scale* scale = score.create<Scale>(ScaleLibrary::MajorScale);
     ASSERT_NE(scale, nullptr);
-    score.currentScale = scale;
+    score.setCurrentScale(scale);
 
     Progression* progressionA = session.createProgression();
     Progression* progressionB = session.createProgression();
@@ -479,14 +478,14 @@ TEST(ScoreFrame, ChordAnchorUsesScaleDegrees)
     MotifNote* motifNote = motif->addNote(1, Eighth, 0);
 
     Scale* scale = score.create<Scale>(ScaleLibrary::MajorScale);
-    score.currentScale = scale;
+    score.setCurrentScale(scale);
 
     Progression* progression = score.create<Progression>();
     ProgressionChord* chord = score.create<ProgressionChord>(Chord(Degree::Mediant), Whole);
     progression->nodes.push_back(chord);
     progression->entryNode = chord;
     progression->currentProgressionChord = chord;
-    score.currentProgression = progression;
+    score.setCurrentProgression(progression);
 
     ScoreFrame* frame = score.getOrCreateFrame(0);
     Error err = frame->addMotifNote(motifNote);

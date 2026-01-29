@@ -13,6 +13,22 @@ namespace Dryad
         return m_score;
     }
 
+    const Score& Session::getScore() const
+    {
+        return m_score;
+    }
+
+    void Session::reset()
+    {
+        unloadAllProgressions();
+        unloadAllMotifs();
+        unloadAllVoices();
+        m_score.resetTimeline();
+        m_score.setCurrentProgression(nullptr);
+        m_score.setCurrentScale(nullptr);
+        m_score.setCurrentRoot(C);
+    }
+
     Progression* Session::createProgression()
     {
         Progression* progression = m_score.create<Progression>();
@@ -20,8 +36,8 @@ namespace Dryad
             return nullptr;
 
         m_progressions.push_back(progression);
-        if (!m_score.currentProgression)
-            m_score.currentProgression = progression;
+        if (!m_score.getCurrentProgression())
+            m_score.setCurrentProgression(progression);
 
         return progression;
     }
@@ -104,7 +120,7 @@ namespace Dryad
 
     void Session::setActiveProgression(Progression* progression)
     {
-        m_score.currentProgression = progression;
+        m_score.setCurrentProgression(progression);
         if (progression && std::find(m_progressions.begin(), m_progressions.end(), progression) == m_progressions.end())
             m_progressions.push_back(progression);
     }
@@ -123,8 +139,8 @@ namespace Dryad
         if (it == m_progressions.end())
             return false;
 
-        if (m_score.currentProgression == progression)
-            m_score.currentProgression = nullptr;
+        if (m_score.getCurrentProgression() == progression)
+            m_score.setCurrentProgression(nullptr);
 
         auto destroyNode = [&](ProgressionNode* node)
         {
@@ -176,7 +192,7 @@ namespace Dryad
         }
 
         m_progressions.clear();
-        m_score.currentProgression = nullptr;
+        m_score.setCurrentProgression(nullptr);
     }
 
     ProgressionChord* Session::addChord(Progression& progression, const Chord& chord, Time duration)
@@ -220,9 +236,78 @@ namespace Dryad
             from->next = to;
     }
 
+    bool Session::insertAfter(Progression& progression, ProgressionNode* previous, ProgressionNode* node)
+    {
+        if (!node)
+            return false;
+
+        if (previous)
+        {
+            node->next = previous->next;
+            previous->next = node;
+        }
+        else
+        {
+            node->next = progression.entryNode;
+            progression.entryNode = node;
+        }
+
+        auto it = std::find(progression.nodes.begin(), progression.nodes.end(), node);
+        if (it == progression.nodes.end())
+            progression.nodes.push_back(node);
+
+        return true;
+    }
+
+    bool Session::removeNode(Progression& progression, ProgressionNode* node)
+    {
+        if (!node)
+            return false;
+
+        auto nodeIt = std::find(progression.nodes.begin(), progression.nodes.end(), node);
+        if (nodeIt == progression.nodes.end())
+            return false;
+
+        for (ProgressionNode* candidate : progression.nodes)
+        {
+            if (candidate && candidate->next == node)
+                candidate->next = node->next;
+        }
+
+        for (ProgressionNode* candidate : progression.nodes)
+        {
+            if (!candidate)
+                continue;
+
+            ProgressionSwitchSequence* sequence = candidate->get<ProgressionSwitchSequence>();
+            if (!sequence)
+                continue;
+
+            sequence->outputs.erase(
+                std::remove(sequence->outputs.begin(), sequence->outputs.end(), node),
+                sequence->outputs.end());
+        }
+
+        if (progression.entryNode == node)
+            progression.entryNode = node->next;
+
+        if (progression.currentProgressionChord == node->get<ProgressionChord>())
+            progression.currentProgressionChord = nullptr;
+
+        if (ProgressionChord* chord = node->get<ProgressionChord>())
+            m_score.destroy(chord);
+        else if (ProgressionEvent* eventNode = node->get<ProgressionEvent>())
+            m_score.destroy(eventNode);
+        else if (ProgressionSwitchSequence* sequence = node->get<ProgressionSwitchSequence>())
+            m_score.destroy(sequence);
+
+        progression.nodes.erase(nodeIt);
+        return true;
+    }
+
     void Session::setScale(Scale* scale)
     {
-        m_score.currentScale = scale;
+        m_score.setCurrentScale(scale);
     }
 
     void Session::setProgression(Progression* progression)
@@ -465,14 +550,26 @@ namespace Dryad
         outSerialized.noteIntervalType = motif.noteIntervalType;
         outSerialized.duration = motif.duration;
 
+        Vector<SerializedMotifNote> notes;
         motif.forEachEdge<MotifNote>([&](const MotifNote* note)
             {
                 SerializedMotifNote serializedNote;
                 serializedNote.relativeValue = note->relativeValue;
                 serializedNote.duration = note->duration;
                 serializedNote.offset = note->offset;
-                outSerialized.notes.push_back(serializedNote);
+                notes.push_back(serializedNote);
             });
+
+        std::sort(notes.begin(), notes.end(), [](const SerializedMotifNote& a, const SerializedMotifNote& b)
+            {
+                if (a.offset != b.offset)
+                    return a.offset < b.offset;
+                if (a.duration != b.duration)
+                    return a.duration < b.duration;
+                return a.relativeValue < b.relativeValue;
+            });
+
+        outSerialized.notes = std::move(notes);
 
         return Success;
     }
@@ -504,21 +601,21 @@ namespace Dryad
         outSerialized.progressions.clear();
         outSerialized.activeProgressionIndex = -1;
         outSerialized.voices.clear();
-        outSerialized.currentRoot = m_score.currentRoot;
-        outSerialized.hasScale = (m_score.currentScale != nullptr);
+        outSerialized.currentRoot = m_score.getCurrentRoot();
+        outSerialized.hasScale = (m_score.getCurrentScale() != nullptr);
 
         if (outSerialized.hasScale)
         {
             for (int degreeIndex = 0; degreeIndex < 7; ++degreeIndex)
             {
-                outSerialized.scaleOffsets[degreeIndex] = m_score.currentScale->noteOffsets.degrees[degreeIndex];
-                outSerialized.scaleDegreeQualities[degreeIndex] = m_score.currentScale->degreeQualities.degrees[degreeIndex];
+                outSerialized.scaleOffsets[degreeIndex] = m_score.getCurrentScale()->noteOffsets.degrees[degreeIndex];
+                outSerialized.scaleDegreeQualities[degreeIndex] = m_score.getCurrentScale()->degreeQualities.degrees[degreeIndex];
             }
         }
 
         Vector<Progression*> progressionsToSerialize = m_progressions;
-        if (progressionsToSerialize.empty() && m_score.currentProgression)
-            progressionsToSerialize.push_back(m_score.currentProgression);
+        if (progressionsToSerialize.empty() && m_score.getCurrentProgression())
+            progressionsToSerialize.push_back(m_score.getCurrentProgression());
 
         outSerialized.progressions.reserve(progressionsToSerialize.size());
         for (Progression* progression : progressionsToSerialize)
@@ -531,7 +628,7 @@ namespace Dryad
             if (error)
                 return error;
 
-            if (progression == m_score.currentProgression)
+            if (progression == m_score.getCurrentProgression())
                 outSerialized.activeProgressionIndex = static_cast<int>(outSerialized.progressions.size());
 
             outSerialized.progressions.push_back(std::move(serializedProgression));
@@ -613,7 +710,7 @@ namespace Dryad
         unloadAllMotifs();
         unloadAllVoices();
 
-        m_score.currentRoot = serialized.currentRoot;
+        m_score.setCurrentRoot(serialized.currentRoot);
         if (serialized.hasScale)
         {
             ScaleNoteOffsets offsets(
@@ -636,11 +733,11 @@ namespace Dryad
                 serialized.scaleDegreeQualities[6]
             );
 
-            m_score.currentScale = m_score.create<Scale>(offsets, qualities);
+            m_score.setCurrentScale(m_score.create<Scale>(offsets, qualities));
         }
         else
         {
-            m_score.currentScale = nullptr;
+            m_score.setCurrentScale(nullptr);
         }
 
         for (const SerializedProgression& progression : serialized.progressions)
@@ -656,7 +753,7 @@ namespace Dryad
         if (serialized.activeProgressionIndex >= 0 &&
             serialized.activeProgressionIndex < static_cast<int>(m_progressions.size()))
         {
-            m_score.currentProgression = m_progressions[serialized.activeProgressionIndex];
+            m_score.setCurrentProgression(m_progressions[serialized.activeProgressionIndex]);
         }
 
         for (const SerializedMotif& motif : serialized.motifs)
